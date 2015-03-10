@@ -1,0 +1,101 @@
+#!/bin/sh
+
+mount -n -t proc none /proc
+
+if [ -n "`grep -s '=/dev/ram' /proc/cmdline`" ] ; then
+
+  # Network boot with RamDisk memory
+
+  mount -o remount,rw /dev/root / -t root 2>/dev/null
+  mount -f -t proc none /proc
+  mount -a
+
+  mkdir /bkp_config
+  for file in etc home root ; do
+    cp -a /${file} /bkp_config
+  done
+
+  devCnf="none"
+  [ -n "`grep -s 'currentimage=1' /proc/cmdline`" ] && devCnf="/dev/hda7"
+  [ -n "`grep -s 'currentimage=2' /proc/cmdline`" ] && devCnf="/dev/hda8"
+
+  if [ ${devCnf} != "none" ] ; then
+
+    [ -d /mnt/hdCnf ] || mkdir /mnt/hdCnf
+    mount -n -t ext2 ${devCnf} /mnt/hdCnf > /dev/null 2>&1
+
+    if [ $? -eq 0 ]; then
+
+      if [ -d /mnt/hdCnf/etc -a -d /mnt/hdCnf/home -a \
+          -d /mnt/hdCnf/root ] ; then
+        for file in etc home root ; do
+          cp -a /mnt/hdCnf/${file} /
+        done
+        # restore mtab
+        cp -a /bkp_config/etc/mtab /etc
+      fi
+      umount /mnt/hdCnf
+    fi
+    rm -rf /mnt/hdCnf
+  fi
+  rm /bkp_config/etc/mtab
+else
+
+  # Hardware boot with File system in Cflash
+
+  mount -n -t tmpfs none  /mnt -o size=131072
+  mount -n -t tmpfs none  /dev -o size=131072
+
+  tar -xzf /dev.gz
+
+  [ -d /mnt/DB_nfs ] || mkdir /mnt/DB_nfs
+  [ -d /mnt/hdCnf ] || mkdir /mnt/hdCnf
+
+  devCnf="none"
+  [ -n "`grep -s '=/dev/hda5' /proc/cmdline`" ] && devCnf="/dev/hda7"
+  [ -n "`grep -s '=/dev/hda6' /proc/cmdline`" ] && devCnf="/dev/hda8"
+  mount -n -o noatime -t ext2 ${devCnf} /mnt/hdCnf
+
+  mount -n --bind /mnt/hdCnf/etc /etc
+  rm -f /etc/mtab
+
+  mount -f -t proc none /proc
+  mount -a
+  mount -f -t tmpfs none  /mnt -o size=131072
+  mount -f -t tmpfs none  /dev -o size=131072
+  mount -t tmpfs none  /new_web/normal/applications/appl/tmp -o size=524288
+  mount -f -t ext2 ${devCnf} /mnt/hdCnf
+
+  mount --bind /mnt/hdCnf/home /home
+  mount --bind /mnt/hdCnf/root /root
+
+  /etc/build_var_tmp.sh
+
+  tar -xzf /var.gz
+fi
+
+[ -d /mnt/hda3 ] || mkdir /mnt/hda3
+mount -t ext2 /dev/hda3 /mnt/hda3 > /dev/null 2>&1
+if [ $? -ne 0 ]; then
+  rm -rf /mnt/hda3
+else
+  [ -d /mnt/hda3/tftpboot ] || mkdir -m 755 /mnt/hda3/tftpboot
+  [ -d /mnt/hda3/profiles ] || mkdir -m 755 /mnt/hda3/profiles
+  mount --bind /mnt/hda3/tftpboot /tftpboot
+  mount --bind /mnt/hda3/profiles /new_web/normal/applications/appl/profiles
+fi
+
+#Keep the same HW console speed throughout Linux execution
+/bin/cmd_uboot -P baudrate > /etc/getty_ttyS0
+[ -s /etc/getty_ttyS0 ] || echo 9600 > /etc/getty_ttyS0
+
+#Check if it is the first boot
+/bin/check1stBoot
+
+#upgrade the daemon configuration from 2.3.0 to new directory
+#and update some configuration files
+/bin/upgrade.sh
+
+rm -f /etc/network/ifstate
+/etc/init.d/pcmcia start
+

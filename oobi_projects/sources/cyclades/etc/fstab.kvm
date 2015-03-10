@@ -1,0 +1,5 @@
+/dev/root		/		root	defaults	0 0
+none			/proc		proc	defaults	0 0
+ramfs			/tmp		ramfs	defaults	0 0
+ramfs			/mnt		ramfs	defaults	0 0
+ramfs			/new_web/normal/applications/appl/tmp ramfs defaults 0 0 

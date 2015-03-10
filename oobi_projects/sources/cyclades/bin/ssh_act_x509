@@ -1,0 +1,37 @@
+#!/bin/sh
+
+SSH_DIR=/etc/ssh
+SSHD_CONF=$SSH_DIR/sshd_config
+AUTH_KEYS=$SSH_DIR/authorized_keys
+CA_CERT=$SSH_DIR/ca/ca-bundle.crt
+HOSTKEY=$SSH_DIR/ssh_host_key
+
+echo "For X509 authentication, first you need to be sure that you had upload"
+echo "the CA certificate, the HostKey and added the proper Authorized Key."
+
+echo -n "AuthorizedKeysFile[$AUTH_KEYS]: "
+read op
+AUTH_KEYS=${op:-$AUTH_KEYS}
+echo -n "CACertificateFile[$CA_CERT]: "
+read op
+CA_CERT=${op:-$CA_CERT}
+echo -n "HostKey[$HOSTKEY]: "
+read op
+HOSTKEY=${op:-$HOSTKEY}
+
+grep -v CACertificateFile $SSHD_CONF|grep -v HostKey|grep -v AuthorizedKeysFile |grep -v AllowedCertPurpose> /tmp/sshd_config
+echo "AllowedCertPurpose sslclient" >> /tmp/sshd_config
+echo "AuthorizedKeysFile $AUTH_KEYS" >> /tmp/sshd_config
+echo "CACertificateFile $CA_CERT" >> /tmp/sshd_config
+echo "HostKey $HOSTKEY" >> /tmp/sshd_config
+
+echo -n "Do you want disable Password Authetication and accept only Certificates?(y/n) "
+read op
+[ "$op" == "y" ] && echo -e "PasswordAuthentication no\nChallengeResponseAuthentication no" >> /tmp/sshd_config
+
+cp $SSHD_CONF $SSHD_CONF.bkp
+mv /tmp/sshd_config $SSHD_CONF
+
+grep $HOSTKEY /etc/config_files >/dev/null 2>&1 || echo $HOSTKEY>>/etc/config_files
+grep $CA_CERT /etc/config_files >/dev/null 2>&1 || echo $CA_CERT>>/etc/config_files
+grep $AUTH_KEYS /etc/config_files >/dev/null 2>&1 || echo $AUTH_KEYS>>/etc/config_files

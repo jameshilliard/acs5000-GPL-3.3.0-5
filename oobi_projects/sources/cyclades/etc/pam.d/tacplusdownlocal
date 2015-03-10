@@ -1,0 +1,18 @@
+#
+# The PAM configuration file for the `tacplusdownlocal' service
+#
+auth	requisite	pam_securetty.so
+auth    \
+[ success=1 new_authtok_reqd=1 authinfo_unavail=ignore default=die ] \
+	pam_tacplus.so
+auth    required	pam_redirect.so service=s_local	
+auth    optional  	pam_auth_srv.so 
+account \
+ [ success=ignore new_authtok_reqd=ignore auth_err=1 authinfo_unavail=1 default=die ] \
+ 	pam_tacplus.so
+account optional        pam_auth_srv.so
+account sufficient      pam_unix2.so
+session \
+ [ success=done new_authtok_reqd=done session_err=ignore authinfo_unavail=ignore default=die ] \
+ 	pam_tacplus.so
+session sufficient      pam_unix2.so

@@ -1,0 +1,10 @@
+#
+# The PAM configuration file for the `su' service
+#
+# pam_wheel: only permit root authentication too members of wheel group
+
+auth       sufficient pam_rootok.so
+auth       required   pam_wheel.so
+auth       required   pam_unix2.so 
+account    required   pam_unix2.so 
+session    required   pam_unix2.so 

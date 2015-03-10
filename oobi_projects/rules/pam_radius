@@ -1,0 +1,63 @@
+#
+#  Makefile for cyclades projects.
+#
+
+#
+# Addtional compiler and/or link options may be defined here
+#
+
+OS_CFLAGS := -Wall -Os -fomit-frame-pointer -D_GNU_SOURCE
+FEATURE-yes :=
+FEATURE-no :=
+OS_CFLAGS += $(FEATURE-yes)
+
+ifeq ($(CBCPenable),yes)
+OS_CFLAGS += -DCBCPenable
+endif
+
+ifeq ($(GRPAUTHenable),yes)
+OS_CFLAGS += -DGRPAUTHenable
+endif
+
+ifeq ($(RADIUS2FACTORenable),yes)
+OS_CFLAGS += -DRADIUS2FACTORenable
+endif
+
+ifeq ($(RADIUSSECIDenable),yes)
+OS_CFLAGS += -DRADIUSSECIDenable
+endif
+
+
+#CFLAGS += ...
+#LDFLAGS += ...
+
+#
+# Command line parameters for configure must be defined here
+#
+#CONFIGURE_PARMS:= ...
+
+#CONFIGURE_ENV:= ...
+
+MAKE_ENV:=\
+	PATH=$(CROSS_PATH) \
+
+MAKE_PARMS:=\
+	CROSS_COMPILE=$(CROSS_PREFIX) \
+	Linux-PAM=$(BUILD_DIR)/$(Linux-PAM) \
+	OS_CFLAGS="$(OS_CFLAGS)" \
+	LDFLAGS="$(LDFLAGS)"
+
+#
+#  more ac_variables for configure may be defined here
+#
+#CROSS_ENV_AC += ...
+
+############################################################################
+
+$(CFG_COOKIE):
+	date > $@
+
+$(BLD_COOKIE): $(CFG_COOKIE)
+	$(MAKE_ENV) \
+	$(MAKE) $(MAKE_PARMS) install
+

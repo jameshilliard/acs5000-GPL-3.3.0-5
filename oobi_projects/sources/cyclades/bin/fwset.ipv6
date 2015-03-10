@@ -1,0 +1,42 @@
+#! /bin/sh
+
+RULES="/etc/network/firewall"
+RULES6="/etc/network/firewall6"
+
+#
+# Handling of IPv4 firewall rules:
+#
+FLIST=""
+
+run_update ()
+{
+	if [ -n "$FLIST" ]; then
+		updatefiles $FLIST
+	fi
+}
+
+if [ "$1" = 'restore' ] ; then
+	if [ -f $RULES -a -s $RULES ]; then 
+		iptables-restore < $RULES
+	fi
+else
+	iptables-save | grep -v nat_cluster > $RULES
+	FLIST="$FLIST $RULES"
+fi
+
+#
+# Handling of IPv6 firewall rules:
+#
+if /bin/lsmod | grep -q '\<ipv6\>'; then
+	if [ "$1" = 'restore' ] ; then
+		if [ -f $RULES6 -a -s $RULES6 ]; then 
+			ip6tables-restore < $RULES6
+		fi
+	else
+		ip6tables-save | grep -v nat_cluster > $RULES6
+		FLIST="$FLIST $RULES6"
+	fi
+fi
+
+run_update
+exit 0

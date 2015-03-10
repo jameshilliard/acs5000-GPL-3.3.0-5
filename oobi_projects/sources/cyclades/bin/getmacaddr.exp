@@ -1,0 +1,23 @@
+#!/usr/bin/expect --
+set username root 
+set PORT [lindex $argv 0]
+set ESCAPE \021
+
+spawn /bin/tstest -l K$PORT -s 115200 -p none -f hard  -i
+send "\r"
+expect {
+	"login:" {
+		send "$username\r"
+		expect "#"
+		send "ifconfig sip0\r"
+		expect "#"
+		send "exit\r" 
+		expect "login:"
+		send $ESCAPE
+		exit 0 
+	}
+	"refused" {
+		sleep 1
+		exit 1
+	}
+}

@@ -1,0 +1,46 @@
+#!/bin/awk -f
+
+BEGIN {
+	flag =               0
+	HAS_SOURCE =         1
+	HAS_SSLVER_CASE =    2
+	HAS_SSLCIPHER_CASE = 4
+}
+
+$1 == "source" && $2 ~ /ssl_version\.conf$/ {
+	flag += HAS_SOURCE
+}
+
+$1 == "case" {
+	if ($2 == "\"$SSLVER\"") {
+		flag += HAS_SSLVER_CASE
+	}
+	if ($2 == "\"$SSLCIPHER\"") {
+		flag += HAS_SSLCIPHER_CASE
+	}
+}
+
+$1 ~ /^DPARM=/ {
+	content = content"\nDPARM=\"$HTTP_PORT $HTTPS_PORT $SECLEVEL $SSLVER $SSLCIPHER\""
+	next
+}
+
+{
+	content = content"\n"$0
+}
+
+END {
+	if (and(flag, HAS_SOURCE) == 0) {
+		sub(/\n[[:space:]]*?ENABLE=/, "\n\nsource /etc/ssl_version.conf\n\nENABLE=", content)
+	}
+
+	if (and(flag, HAS_SSLVER_CASE) == 0) {
+		sub(/\n[[:space:]]*?DPARM=/, "\n\n# SSL version list\ncase \"$SSLVER\" in\n'SSLv2') SSLVER=\"-v 2\" ;;\n'SSLv3') SSLVER=\"-v 3\" ;;\n      *) SSLVER=\"\" ;;\nesac\n\nDPARM=", content)
+	}
+
+	if (and(flag, HAS_SSLCIPHER_CASE) == 0) {
+		sub(/\n[[:space:]]*?DPARM=/, "\n\n# SSL cipher list\ncase \"$SSLCIPHER\" in\n'DEFAULT') SSLCIPHER=\"-c DEFAULT\";;\n'HIGH'   ) SSLCIPHER=\"-c HIGH\";;\n'MEDIUM' ) SSLCIPHER=\"-c MEDIUM\";;\n'LOW'    ) SSLCIPHER=\"-c LOW\";;\n''       ) SSLCIPHER=\"-c DEFAULT\";;\n*        ) SSLCIPHER=\"-c $SSLCIPHER\";;\nesac\n\nDPARM=", content)
+	}
+
+	print content
+}

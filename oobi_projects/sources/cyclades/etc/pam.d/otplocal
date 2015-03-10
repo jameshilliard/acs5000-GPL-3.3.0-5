@@ -1,0 +1,5 @@
+auth	requisite	pam_securetty.so
+auth    [success=1 new_authtok_reqd=1 default=ignore]   pam_opie.so
+auth    required        pam_redirect.so service=s_local
+account required 	pam_unix2.so
+session required 	pam_unix2.so

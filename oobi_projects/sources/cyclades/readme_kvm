@@ -1,0 +1,25 @@
+
+This product runs an embedded version of the Linux kernel. Even if you are
+an experienced Linux user, please do NOT use the generic system tools for
+networking configuration.
+
+Please consult the latest version of the user documentation, which is available
+for download from the Technical Support area of the Cyclades website, before
+configuring this product.
+
+The Product Manual details the configuration process. Here is a summary 
+of what you need to do in order to get the product working:
+
+1) Use the "wiz" command to quickly configure the network (IP address, network 
+   mask, DNS, default gateway). When asked, select the options to make the 
+   changes effective and to save the configuration to flash.
+2) Open the Internet Explorer or Netscape in a workstation and point to the 
+   IP address.
+   configured. Log in as admin (password cyclades).
+3) Press the "Wizard" button. After going through all the steps, press the 
+   "Apply Changes" button.
+
+Also, if you are upgrading from a previous firmware version, read the document
+"/upgrade_notes" that provides the information you need to setup your board 
+properly.
+

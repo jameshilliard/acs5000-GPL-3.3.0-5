@@ -1,0 +1,47 @@
+--- hotplug-2004_03_29.ori/Makefile	2007-10-16 10:57:12.000000000 -0200
++++ hotplug-2004_03_29/Makefile	2007-10-16 11:04:07.000000000 -0200
+@@ -81,17 +81,36 @@
+ # /var/run/usb is optional (for $REMOVER)
+ # so is /var/log/hotplug (for ascii event logs)
+ 
+-install:
+-	${INSTALL_SCRIPT} -D sbin/hotplug $(sbindir)/hotplug
+-	$(INSTALL) -d $(etcdir)/hotplug/{usb,pci}
+-	$(INSTALL) -D etc/hotplug.d/default/default.hotplug $(etcdir)/hotplug.d/default/default.hotplug
+-	for F in etc/hotplug/{*.{agent,rc},hotplug.functions} ; do \
++install-pci:
++	$(INSTALL) -d $(etcdir)/hotplug/pci
++
++install-usb:
++	$(INSTALL) -d $(etcdir)/hotplug/usb
++	for F in etc/hotplug/usb.{user,hand,dist}map ; do \
++	    ${INSTALL_DATA} $$F $(etcdir)/hotplug ; \
++	    done
++	$(INSTALL) -d -m 700 $(prefix)/var/run/usb
++
++install-agent:
++	$(INSTALL) -d $(etcdir)/hotplug
++	for F in etc/hotplug/*.agent ; do \
+ 	    ${INSTALL_SCRIPT} $$F $(etcdir)/hotplug ; \
+ 	    done
+-	for F in etc/hotplug/{blacklist,usb.{user,hand,dist}map} ; do \
+-	    ${INSTALL_DATA} $$F $(etcdir)/hotplug ; \
++
++install-rc:
++	$(INSTALL) -d $(etcdir)/hotplug
++	for F in etc/hotplug/*.rc ; do \
++	    ${INSTALL_SCRIPT} $$F $(etcdir)/hotplug ; \
+ 	    done
++
++install-minimal:
++	$(INSTALL) -d $(etcdir)/hotplug
++	${INSTALL_SCRIPT} -D sbin/hotplug $(sbindir)/hotplug
++	$(INSTALL) -D etc/hotplug.d/default/default.hotplug $(etcdir)/hotplug.d/default/default.hotplug
++	${INSTALL_SCRIPT} etc/hotplug/hotplug.functions $(etcdir)/hotplug
++	${INSTALL_DATA} etc/hotplug/blacklist $(etcdir)/hotplug
+ 	${INSTALL_SCRIPT} -D etc/rc.d/init.d/hotplug $(etcdir)/init.d/hotplug
+ 	$(INSTALL_DATA) -D hotplug.8  $(mandir)/man8/hotplug.8
+ 	$(INSTALL) -d $(prefix)/var/log/hotplug $(prefix)/var/run
+-	$(INSTALL) -d -m 700 $(prefix)/var/run/usb
++
++install: install-minimal install-pci install-usb install-agent install-rc

@@ -1,0 +1,68 @@
+# sudoers file.
+#
+# This file MUST be edited with the 'visudo' command as root.
+#
+# See the sudoers man page for the details on how to write a sudoers file.
+#
+
+# User privilege specification
+root    ALL=(ALL) ALL
+
+
+# Cmnd alias specification
+Cmnd_Alias     SH_CMDS = \
+ /bin/cp,\
+ /bin/cat,\
+ /bin/chown,\
+ /bin/mkdir,\
+ /bin/mv,\
+ /bin/rm,\
+ /bin/kill,\
+ /bin/egrep,\
+ /bin/grep,\
+ /bin/sed,\
+ /bin/touch,\
+ /sbin/reboot,\
+ /usr/bin/killall,\
+ /usr/bin/w,\
+ /bin/w_cas,\
+ /bin/sess_mngt,\
+ /sbin/route,\
+ /bin/what
+
+Cmnd_Alias     CONF_FILES = \
+ /bin/vi /etc/portslave/pslave.conf,\
+ /bin/vi /etc/kvmd.conf,\
+ /bin/vi /etc/kvmd.slaves,\
+ /bin/vi /etc/resolv.conf,\
+ /bin/vi /etc/network/st_routes
+
+Cmnd_Alias     APPLICATIONS = \
+ /bin/saveconf,\
+ /bin/kvm,\
+ /usr/bin/proxy,\
+ /usr/bin/kvmipctl,\
+ /usr/bin/monitor,\
+ /bin/signal_ras,\
+ /bin/restoreconf,\
+ /bin/runconf,\
+ /bin/vcard_upgrade.exp,\
+ /bin/vcard_reboot.exp,\
+ /bin/daemon.sh, \
+ /bin/manageService.sh, \
+ /bin/dsviewKillAdmin, \
+ /bin/pmfwupgrade, \
+ /bin/pmCommand, \
+ /bin/pmSummary, \
+ /usr/bin/apctl, \
+ /bin/adsap2_clear, \
+ /bin/createimage, \
+ /bin/create_cf, \
+ /usr/bin/kvminfo
+
+# User privilege specification
+# root can run any command on any host as any user.
+root    ALL = (ALL) ALL
+
+# admin user group command specification.
+%admin      ALL = NOPASSWD: SH_CMDS, CONF_FILES, APPLICATIONS

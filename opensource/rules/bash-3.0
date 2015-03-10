@@ -1,0 +1,56 @@
+#
+#  Makefile for cyclades projects.
+#
+
+#
+# Addtional compiler and/or link options may be defined here
+#
+#CFLAGS += ...
+#LDFLAGS += ...
+
+#
+# Command line parameters for configure must be defined here
+#
+#	--enable-static-link \
+
+CONFIGURE_PARMS := \
+	--host="$(HOST)" \
+	--build=i386 \
+	--with-bash-malloc=no \
+	--with-afs \
+	--prefix=$(my_prefix)
+
+CONFIG_ENV := \
+	CROSS_COMPILE=$(CROSS_COMPILE) \
+	PATH=$(CROSS_PATH) \
+	HOST_CC=cc \
+	$(CROSS_ENV_TOOLS) \
+	CFLAGS="$(CFLAGS)" \
+	LDFLAGS="$(LDFLAGS)"
+
+MAKE_ENV := \
+	CROSS_COMPILE=$(CROSS_COMPILE) \
+	PATH=$(CROSS_PATH) \
+	SIZE=$(CROSS_SIZE)
+
+MAKE_PARMS :=
+
+#
+#  more ac_variables for configure may be defined here
+#
+#CROSS_ENV_AC +=  bash_cv_have_mbstate_t=yes
+
+$(CFG_COOKIE):
+	-rm -f config.cache
+	$(CONFIG_ENV) $(CROSS_ENV_AC) ./configure $(CONFIGURE_PARMS)
+	date > $@
+
+$(BLD_COOKIE):
+	$(MAKE_ENV) $(MAKE) all $(MAKE_PARMS)
+	date > $@
+
+$(INST_COOKIE):
+	$(MAKE_ENV) $(MAKE) install $(MAKE_PARMS)
+	cd $(my_prefix)/bin && ln -sf bash sh
+	date > $@
+

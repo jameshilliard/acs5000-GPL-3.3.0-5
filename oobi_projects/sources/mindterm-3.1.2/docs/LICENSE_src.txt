@@ -1,0 +1,513 @@
+                          APPGATE NETWORK SECURITY AB
+                    MINDTERM PUBLIC SOURCE LICENSE AGREEMENT
+
+
+PLEASE REVIEW THE FOLLOWING TERMS AND CONDITIONS PRIOR TO ACCESSING, 
+DOWNLOADING AND/OR OTHERWISE USING ANY OF THE LICENSED PRODUCTS, AS HEREIN 
+AFTER DEFINED.
+
+THE USE OF THE LICENSED PRODUCTS AS WELL AS ANY UPDATES THERETO IS SUBJECT 
+TO THE TERMS AND CONDITIONS OF THIS LICENSE AGREEMENT (THE AGREEMENT). BY 
+OPENING THE RELEVANT SOFTWARE PACKAGE, BY SELECTING THE [AGREED AND/OR 
+ACCEPT] BUTTON, DOWNLOADING AND/OR OTHERWISE USING THE SOFTWARE OR ANY 
+PORTION THEREOF, LICENSEE (THE FIRM, COMPANY OR OTHER PERSON HAVING RECEIVED 
+THE LICENSED SOFTWARE PURSUANT TO AN ORDER ON THE APPGATE WEB SITE OR 
+OTHERWISE) ARE AGREEING TO THE BOUND BY THE TERMS AND CONDITIONS OF THE 
+AGREEMENT AND ARE ENTERING INTO THE AGREEMENT WITH APPGATE NETWORK SECURITY 
+AB (LICENSOR OR APPGATE).
+
+1       General; Definitions
+
+        This License applies to the computer program known as MindTerm (the 
+        "Program"). Reference below to the Program or subsequent versions 
+        thereof, and a "work based on the Program" means either the Program 
+        or any derivative work of the Program, such as a translation or a 
+        modification. The Program is a copyrighted work whose copyright is 
+        held by AppGate Network Security AB (the "Licensor"). As used in 
+        this License:
+
+1.1     "Applicable Patent Rights" mean: (a) in the case where Licensor is 
+        the grantor of rights, (i) claims of patents that are now or 
+        hereafter acquired, owned by or assigned to Licensor and (ii) that 
+        cover subject matter contained in the Original Code, but only to the 
+        extent necessary to use, reproduce and/or distribute the Original 
+        Code without infringement; and (b) in the case where You are the 
+        grantor of rights, (i) claims of patents that are now or hereafter 
+        acquired, owned by or assigned to You and (ii) that cover subject 
+        matter in Your Modifications, taken alone or in combination with 
+        Original Code.
+
+1.2     "Contributor" means any person or entity that creates or contributes 
+        to the creation of Modifications.
+
+1.3     "Covered Code" means the Original Code, Modifications, the 
+        combination of Original Code and any Modifications, and/or any 
+        respective portions thereof.
+
+1.4     "Deploy" means to use, sublicense or distribute Covered Code other 
+        than for Your internal research and development (�R&D�) and/or 
+        Personal and Non-Commercial Use, and includes without limitation, 
+        any and all internal use or distribution of Covered Code within Your 
+        business or organization except for R&D use and/or Personal and 
+        Non-Commercial Use, as well as direct or indirect sublicensing or 
+        distribution of Covered Code by You to any third party in any form 
+        or manner.
+
+1.5     "Larger Work" means a work that combines Covered Code or portions 
+        thereof with code not governed by the terms of this License.
+
+1.6     "Modifications" mean any addition to, deletion from, and/or change 
+        to, the substance and/or structure of the Original Code, any 
+        previous Modifications, the combination of Original Code and any 
+        previous Modifications, and/or any respective portions thereof. When 
+        code is released as a series of files, a Modification is: (a) any 
+        addition to or deletion from the contents of a file containing 
+        Covered Code; and/or (b) any new file or other representation of 
+        computer program statements that contains any part of Covered Code.
+
+1.7     "Original Code" means (a) the Source Code of the Program or other 
+        work as originally made available by Licensor under this License, 
+        including the Source Code of any updates or upgrades to such 
+        programs or works made available by Licensor under this License, and 
+        that has been expressly identified by Licensor as such in the header 
+        file(s) of such work; and (b) the object code compiled from such 
+        Source Code and originally made available by Licensor under this 
+        License.
+
+1.8     "Personal and Non-Commercial Use" means use of Covered Code solely 
+        for an individual's personal, private, educational and other 
+        non-commercial purposes. If the use is required, dictated or 
+        recommended by someone else, it is not considered as personal use.
+
+1.9     "Source Code" means the human readable form of a program or other 
+        work that is suitable for making modifications to it, including all 
+        modules it contains, plus any associated interface definition files, 
+        scripts used to control compilation and installation of an 
+        executable (object code).
+
+1.10    "You" or "Your" means an individual or a legal entity exercising 
+        rights under this License. For legal entities, "You" or "Your" 
+        includes any entity which controls, is controlled by, or is under 
+        common control with, You, where "control" means (a) the power, 
+        direct or indirect, to cause the direction or management of such 
+        entity, whether by contract or otherwise, or (b) ownership of fifty 
+        percent (50%) or more of the outstanding shares or beneficial 
+        ownership of such entity.
+
+2       Permitted Use and Restrictions
+
+        Subject to the terms and conditions of this License, Licensor hereby 
+        grants You, effective on the date You accept this License by 
+        downloading, installing or using the Original Code, a world-wide, 
+        royalty-free, non-exclusive license, to the extent of Licensor 
+        Applicable Patent Rights and copyrights covering the Original Code, 
+        to do the following:
+
+2.1     You may yourself use, reproduce, display and perform Original Code 
+        solely for your internal R&D and/or Personal and Non-Commercial Use, 
+        provided that You retain and reproduce in all copies of Original 
+        Code the copyright and other proprietary notices and disclaimers, 
+        including any warranty disclaimer, of Licensor as they appear in the 
+        Original Code, and keep intact all notices in the Original Code that 
+        refer to this License and any warranty disclaimer contained in this 
+        License.
+
+2.2     You may modify, distribute and bundle Original Code, with or without 
+        modifications, with other software, provided that in each instance:
+
+        (a)     You must retain and reproduce in all copies of Original Code 
+                the copyright and other proprietary notices and disclaimers, 
+                including any warranty disclaimer, of Licensor as they 
+                appear in the Original Code, and keep intact all notices in 
+                the Original Code that refer to this License and any 
+                warranty disclaimer contained in this License;
+
+        (b)     You must include a copy of this License and the MindTerm End 
+                User License Agreement, including procedures for acceptance 
+                or non-acceptance of the same, with every copy of Covered 
+                Code and documentation You distribute, and You may not offer 
+                or impose any terms that alter or restrict the licenses or 
+                the recipients' rights hereunder, except as permitted under 
+                Section 6;
+
+        (c)     You must duplicate, to the extent it does not already exist, 
+                the notice in Exhibit A in each file of the Source Code of 
+                all Your Modifications, and cause the modified files to 
+                carry prominent notices stating that You changed the files 
+                and the date of any change;
+
+        (d)     You must make Source Code of all Your Deployed modifications 
+                publicly available under the terms of this License, 
+                including the license grants set forth in Section 3 below, 
+                for as long as you Deploy the Covered Code or twelve (12) 
+                months from the date of initial Deployment, whichever is 
+                longer. You should preferably distribute the Source Code of 
+                Your Deployed Modifications electronically (e.g. download 
+                from a web site);
+
+        (e)     If You Deploy Covered Code in object code, executable form 
+                only, You must include a prominent notice, in the code 
+                itself as well as in related documentation, stating that 
+                Source Code of the Covered Code is available under the terms 
+                of this License with information on how and where to obtain 
+                such Source Code;
+
+        (f)     You may not charge anything for the Program or any of the 
+                Covered Code, except for a reasonable handling fee and you 
+                must cause any code that you distribute or publish, that is 
+                work based on the Program, in whole or in part, to be 
+                licensed as a whole at no charge under the terms of this 
+                License; and
+
+        (g)     You may not distribute the Program or Covered Code as part 
+                of a commercial product or if it is intended to be used 
+                together with a commercial product.
+
+        (h)     To use the Program or anything based on Covered Code, all 
+                users shall be bound by the MindTerm End User License 
+                agreement.
+
+2.3     Notwithstanding the rights granted in Sections 2.1 and 2.2 above You 
+        must observe the following. The Original code contains third party 
+        software libraries copyrighted under their own licenses. 
+        Redistribution of Libraries in source code, with or without 
+        modification, or redistribution in binary form falls under the terms 
+        of the licenses for the corresponding Libraries. The licenses are 
+        included in the source distribution. Accordingly, You are granted no 
+        other right to modify and/or redistribute the Libraries than already 
+        provided for by the license of the Libraries as further specified in 
+        the applicable license agreements which is set forth on Exhibit B. 
+        Future releases or updates of Original Code may include additional 
+        third party libraries not listed in Exhibit B in this agreement. 
+        They will be clearly marked by Licensor as third party software, and 
+        if they are used, their license agreements must be obeyed.
+
+2.4     You expressly acknowledge and agree that although Licensor and each 
+        Contributor grants the licenses to their respective portions of the 
+        Covered Code set forth herein, no assurances are provided by 
+        Licensor or any Contributor that the Covered Code does not infringe 
+        the patent or other intellectual property rights of any other 
+        entity. Licensor and each Contributor disclaim any liability to You 
+        for claims brought by any other entity based on infringement of 
+        intellectual property rights or otherwise. As a condition to 
+        exercising the rights and licenses granted hereunder, You hereby 
+        assume sole responsibility to secure any other intellectual property 
+        rights needed, if any. For example, if a third party patent license 
+        is required to allow You to distribute the Covered Code, it is Your 
+        responsibility to acquire that license before distributing the 
+        Covered Code.
+
+3       Your Grants
+
+        In consideration of, and as a condition to, the licenses granted to 
+        You under this License:
+
+        (a)     You hereby grant to Licensor and all third parties a 
+                non-exclusive, royalty-free license, under Your Applicable 
+                Patent Rights and other intellectual property rights (other 
+                than patent) owned or controlled by You, to use, reproduce, 
+                display, perform, modify, distribute and Deploy Your 
+                Modifications of the same scope and extent as Licensor's 
+                licenses under Sections 2.1 to 2.3; and
+
+        (b)     You hereby grant to Licensor and its affiliates a 
+                non-exclusive, world-wide, royalty-free, perpetual and 
+                irrevocable license, under Your Applicable Patent Rights and 
+                other intellectual property rights (other than patent) owned 
+                or controlled by You, to use, reproduce, display, perform, 
+                modify or have modified (for Licensor and/or its 
+                subsidiaries), sublicense and distribute Your Modifications, 
+                in any form, through multiple tiers of distribution.
+
+4       Larger Works
+
+        Except as expressly stated herein You may create a Larger Work by 
+        combining Covered Code with other code not governed by the terms of 
+        this License and distribute the Larger Work as a single product. In 
+        each such instance, You must make sure the requirements of this 
+        License are fulfilled for the Covered Code or any portion thereof.
+
+5       Limitations on License
+
+        Except as expressly stated in Section 2, no other rights, express or 
+        implied, are granted by Licensor herein. Other use than expressly 
+        permitted herein require additional commercial licenses, such as an 
+        OEM license, from Licensor which Licensor may grant in its sole 
+        discretion. Any attempt to otherwise copy, modify, sublicense or 
+        distribute the Program or the Covered Code is void and will 
+        terminate Your rights under this License as provided in Section 
+        12.1.
+
+6       Additional Terms
+
+        You may choose to offer, and to charge a fee for, warranty, support, 
+        indemnity or liability obligations and/or other rights consistent 
+        with the scope of the license granted herein ("Additional Terms") to 
+        one or more recipients of Covered Code. However, You may do so only 
+        on Your own behalf and as Your sole responsibility, and not on 
+        behalf of Licensor or any Contributor. You must obtain the 
+        recipient's agreement that any such Additional Terms are offered by 
+        You alone, and You hereby agree to indemnify, defend and hold 
+        Licensor and every Contributor harmless for any liability incurred 
+        (including reasonable attorney�s fees) by or claims asserted against 
+        Licensor or such Contributor by reason of any such Additional Terms.
+
+7       Versions of the License
+
+        Licensor may publish revised and/or new versions of this License 
+        from time to time. Each version will be given a distinguishing 
+        version number. Once Original Code has been published under a 
+        particular version of this License, You may continue to use it under 
+        the terms of that version. You may also choose to use such Original 
+        Code under the terms of any subsequent version of this License 
+        published by Licensor. No one other than Licensor has the right to 
+        modify the terms applicable to Covered Code created under this 
+        License.
+
+8       NO WARRANTY
+
+        BECAUSE THE PROGRAM IS LICENSED FREE OF CHARGE, THERE IS NO WARRANTY 
+        FOR THE PROGRAM, TO THE EXTENT PERMITTED BY APPLICABLE LAW. EXCEPT 
+        WHEN OTHERWISE STATED IN WRITING, LICENSOR AND ALL CONTRIBUTORS 
+        PROVIDE THE PROGRAM "AS IS" WITHOUT WARRANTY OF ANY KIND, EITHER 
+        EXPRESSED OR IMPLIED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
+        WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE. 
+        THE ENTIRE RISK AS TO THE QUALITY AND PERFORMANCE OF THE PROGRAM IS 
+        WITH YOU. SHOULD THE PROGRAM PROVE DEFECTIVE, YOU ASSUME THE COST OF 
+        ALL NECESSARY SERVICING, REPAIR OR CORRECTION.
+
+9       LIMITATION OF LIABILITY
+
+        IN NO EVENT UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN 
+        WRITING WILL LICENSOR AND ALL CONTRIBUTORS, OR ANY OTHER PARTY WHO 
+        MAY MODIFY AND/OR REDISTRIBUTE THE PROGRAM AS PERMITTED ABOVE, BE 
+        LIABLE TO YOU FOR DAMAGES, INCLUDING ANY GENERAL, SPECIAL, 
+        INCIDENTAL OR CONSEQUENTIAL DAMAGES ARISING OUT OF THE USE OR 
+        INABILITY TO USE THE PROGRAM (INCLUDING BUT NOT LIMITED TO LOSS OF 
+        DATA OR DATA BEING RENDERED INACCURATE OR LOSSES SUSTAINED BY YOU OR 
+        THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER 
+        PROGRAMS), EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF 
+        THE POSSIBILITY OF SUCH DAMAGES.
+
+10      Trademarks
+
+        This License does not grant any rights to use names, any other 
+        trademarks or trade names belonging to Licensor (�Licensor Marks�) 
+        or to any trademark or trade name belonging to any Contributor. No 
+        Licensor Marks may be used to endorse or promote products derived 
+        from the Original Code.
+
+11      Ownership
+
+        Subject to the licenses granted under this License, each Contributor 
+        retains all rights, title and interest in and to any Modifications 
+        made by such Contributor. Licensor retains all rights, title and 
+        interest in and to the Original Code and any Modifications made by 
+        or on behalf of Licensor ("Licensor Modifications"), and such 
+        Licensor Modifications will not be automatically subject to this 
+        License. Licensor may, at its sole discretion, choose to license 
+        such Licensor Modifications under this License, or on different 
+        terms from those contained in this License or may choose not to 
+        license them at all.
+
+12      Termination
+
+12.1    Termination
+
+        This License and the rights granted hereunder will terminate:
+
+        (a)     automatically without notice from Licensor if You fail to 
+                comply with any term(s) of this License and fail to cure 
+                such breach within 30 days of becoming aware of such breach, 
+                or
+
+        (b)     automatically without notice from Licensor if You, at any 
+                time during the term of this License, commence any action 
+                against Licensor relating to the program, the Covered code 
+                or this License.
+
+12.2    Effect of Termination
+
+        Upon termination, You agree to immediately stop any further use, 
+        reproduction, modification, sublicensing and distribution of the 
+        Covered Code and to destroy all copies of the Covered Code that are 
+        in your possession or control. All sublicenses to the Covered Code 
+        which have been properly granted prior to termination shall survive 
+        any termination of this License. Provisions which, by their nature 
+        or wording, should remain in effect beyond the termination of this 
+        License shall so survive. No party will be liable to any other for 
+        compensation, indemnity or damages of any sort solely as a result of 
+        terminating this License in accordance with its terms, and 
+        termination of this License will be without prejudice to any other 
+        right or remedy of any party.
+
+13      Miscellaneous
+
+13.1    Government End Users
+
+        The Covered Code is a "commercial item" as defined in FAR 2.101. 
+        Government software and technical data rights in the Covered Code 
+        include only those rights customarily provided to the public as 
+        defined in this License. This customary commercial license in 
+        technical data and software is provided in accordance with FAR 
+        12.211 (Technical Data) and 12.212 (Computer Software) and, for 
+        Department of Defence purchases, DFAR 252.227-7015 (Technical Data 
+        -- Commercial Items) and 227.7202-3 (Rights in Commercial Computer 
+        Software or Computer Software Documentation). Accordingly, all U.S. 
+        Government End Users acquire Covered Code with only those rights set 
+        forth herein.
+
+13.2    Independent Development
+
+        Nothing in this License will impair Licensor's right to acquire, 
+        license, develop, have others develop for it, market and/or 
+        distribute technology or products that perform the same or similar 
+        functions as, or otherwise compete with, Modifications, Larger 
+        Works, technology or products that You may develop, produce, market 
+        or distribute.
+
+13.3    Waiver; Construction
+
+        Failure by Licensor or any Contributor to enforce any provision of 
+        this License will not be deemed a waiver of future enforcement of 
+        that or any other provision. Any law or regulation which provides 
+        that the language of a contract shall be construed against the 
+        drafter will not apply to this License.
+
+13.4    Dispute Resolution
+
+        This Agreement shall be governed by and construed in accordance with 
+        the laws of Sweden, without reference to its conflicts of law 
+        provisions. The exclusive jurisdiction and venue for all legal 
+        actions relating to this Agreement shall be in courts of competent 
+        subject matter jurisdiction located in Sweden and You hereby consent 
+        to such jurisdiction and venue.
+
+13.5    Construction
+
+        If conditions are imposed on You (either by court order or 
+        otherwise) that contradict the terms and conditions of this License, 
+        then You are not excused from the terms and conditions of this 
+        License.  Accordingly, if you cannot simultaneously satisfy the 
+        obligations under this License and any other obligations applicable 
+        to You, then you may not exercise your rights under this License.
+
+13.6    Severability
+
+        If any portion of this License is held invalid or unenforceable, 
+        then the remaining portions of this License shall continue in full 
+        force and effect.
+
+13.7    Export Laws
+
+        You agree to comply with, and are solely responsible for complying 
+        with, all applicable export control laws.  You hereby agree to 
+        indemnify, defend and hold Licensor and every Contributor harmless 
+        for any liability incurred (including reasonable attorney's fees) by 
+        or claims asserted against Licensor or such Contributor by reason of 
+        any such non-compliance.  You may limit geographical distribution of 
+        the Covered Code so as to comply with any applicable export control 
+        laws.
+
+EXHIBIT A
+
+Copyright � 1999-2003 AppGate Network Security AB. All Rights Reserved.
+
+This file contains Original Code and/or Modifications of Original Code as 
+defined in and that are subject to the MindTerm Public Source License, 
+Version x.y [current version here], (the 'License'). You may not use this 
+file except in compliance with the License. Please obtain a copy of the 
+License at http://www.appgate.com and read it before using this file.
+
+EXHIBIT B
+
+The MindTerm distribution includes the following third party software. These 
+modules can be removed from the product with only a minor loss of 
+functionality, but if used, their license terms must be followed.
+
+Jcraft
+
+The JCraft zlib implementation is used to, optionally, compress data before 
+it is sent over the SSH channel. It is covered by the following license:
+
+Copyright (c) 2000,2001,2002,2003 ymnk, JCraft,Inc. All rights reserved.
+
+Redistribution and use in source and binary forms, with or without 
+modification, are permitted provided that the following conditions are met:
+
+1.      Redistributions of source code must retain the above copyright 
+        notice,
+
+        this list of conditions and the following disclaimer.
+
+2.      Redistributions in binary form must reproduce the above copyright
+
+        notice, this list of conditions and the following disclaimer in
+
+        the documentation and/or other materials provided with the 
+        distribution.
+
+3.      The names of the authors may not be used to endorse or promote 
+        products
+
+        derived from this software without specific prior written 
+        permission.
+
+        THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED 
+        WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF 
+        MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
+        IN NO EVENT SHALL JCRAFT, INC. OR ANY CONTRIBUTORS TO THIS SOFTWARE 
+        BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, 
+        OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT 
+        OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR 
+        BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
+        LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
+        NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS 
+        SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+        ISNetworks
+
+        The ISNetworks file browser implements a file browser GUI which is 
+        used in the file transfer code. It is covered by the following 
+        license:
+
+/*
+ * License for ISNetworks' MindTerm SCP modifications
+ *
+ * Copyright (c) 2001 ISNetworks, LLC.  All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ *
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in
+ *    the documentation and/or other materials provided with the
+ *    distribution.
+ *
+ * 3. The end-user documentation included with the redistribution, if
+ *    any, must include an acknowlegement that the software contains
+ *    code based on contributions made by ISNetworks, and include
+ *    a link to http://www.isnetworks.com/.
+ *
+ * THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED
+ * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+ * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED.  IN NO EVENT SHALL THE APACHE SOFTWARE FOUNDATION OR
+ * ITS CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF
+ * USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
+ * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+ * SUCH DAMAGE.
+ *
+ */
+
+
+PCA 9 version 2.2
+

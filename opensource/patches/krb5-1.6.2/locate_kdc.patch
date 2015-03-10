@@ -1,0 +1,67 @@
+--- krb5-1.6.2/src/lib/krb5/os/locate_kdc.c.orig	2007-10-29 15:20:37.000000000 -0200
++++ krb5-1.6.2/src/lib/krb5/os/locate_kdc.c	2007-10-29 15:15:59.000000000 -0200
+@@ -366,17 +366,20 @@ krb5_locate_srv_conf_1(krb5_context cont
+ 		host = masterlist[i];
+ 
+ 		/*
+-		 * Strip off excess whitespace
++		* No need to strip off excess whitespace because it is already being done in some upper level
+ 		 */
+-		cp = strchr(host, ' ');
+-		if (cp)
+-		    *cp = 0;
+-		cp = strchr(host, '\t');
+-		if (cp)
+-		    *cp = 0;
+-		cp = strchr(host, ':');
+-		if (cp)
++		cp = strchr(host,']');
++		if (cp != NULL) {
+ 		    *cp = 0;
++			
++		    cp = strchr(host,'[');
++		    if (cp != NULL) {
++			cp ++;
++			char tmp[strlen(cp)+1];
++			strcpy(tmp,cp);
++			strcpy(host,tmp);
++		    }
++		}
+ 	    }
+ 	}
+     } else {
+@@ -397,17 +400,26 @@ krb5_locate_srv_conf_1(krb5_context cont
+ 
+ 	host = hostlist[i];
+ 	Tprintf ("entry %d is '%s'\n", i, host);
++	
+ 	/*
+-	 * Strip off excess whitespace
++	 * No need to strip off excess whitespace because it is already being done in some upper level
+ 	 */
+-	cp = strchr(host, ' ');
+-	if (cp)
++	cp = strchr(host,']');
++	if (cp != NULL) {
++	    port = cp+1;
+ 	    *cp = 0;
+-	cp = strchr(host, '\t');
+-	if (cp)
+-	    *cp = 0;
+-	port = strchr(host, ':');
+-	if (port) {
++		
++	    cp = strchr(host,'[');
++	    if (cp != NULL) {
++		cp ++;
++		char tmp[strlen(cp)+1];
++		strcpy(tmp,cp);
++		strcpy(host,tmp);
++	    }
++	} 
++	 
++	port = port == NULL ? strchr(host,':') : strchr(port,':');
++	if (port != NULL) {
+ 	    *port = 0;
+ 	    port++;
+ 	}

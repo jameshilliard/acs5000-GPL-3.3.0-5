@@ -1,0 +1,52 @@
+#
+#  Makefile for cyclades projects.
+#
+
+#
+# Addtional compiler and/or link options may be defined here
+#
+#CFLAGS += ...
+#LDFLAGS += ...
+
+#
+# Command line parameters for configure must be defined here
+#
+CONFIGURE_PARMS := \
+	--host=$(HOST)\
+	--prefix=$(my_prefix)
+
+CONFIG_ENV := \
+	CROSS_COMPILE=$(CROSS_COMPILE)\
+	PATH=$(CROSS_PATH) \
+	HOST_CC=cc \
+	$(CROSS_ENV_TOOLS) \
+	CFLAGS="$(CFLAGS)" \
+	LDFLAGS="$(LDFLAGS)"
+
+MAKE_ENV := \
+	CROSS_COMPILE=$(CROSS_COMPILE)\
+	PATH=$(CROSS_PATH)
+
+MAKE_PARMS := \
+	CROSS="$(CROSS_PREFIX)" \
+	DESTDIR="$(my_prefix)"
+
+#	udevdir="$(my_prefix)/dev"
+
+#
+#  more ac_variables for configure may be defined here
+#
+#CROSS_ENV_AC +=  bash_cv_have_mbstate_t=yes
+
+$(CFG_COOKIE):
+	-rm -f config.cache
+	date > $@
+
+$(BLD_COOKIE):
+	$(MAKE_ENV) $(MAKE) all $(MAKE_PARMS)
+	date > $@
+
+$(INST_COOKIE):
+	$(MAKE_ENV) $(MAKE) install $(MAKE_PARMS)
+	date > $@
+

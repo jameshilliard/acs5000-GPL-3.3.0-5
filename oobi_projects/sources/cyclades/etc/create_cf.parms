@@ -1,0 +1,11 @@
+p3_dirs="tftpboot profiles"
+dirs_created="etc home root mnt var dev tmp proc tftpboot"
+files_skipped="lost+found bkp_config webFiles"
+szP1=2
+szP2=2
+szP3=5
+szP5=50
+szP6=50
+szP7=5
+szP8=5
+

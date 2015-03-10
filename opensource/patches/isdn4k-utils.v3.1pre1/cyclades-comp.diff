@@ -1,0 +1,10 @@
+--- isdn4k-utils.v3.1pre1/lib/libtools.c.old	2005-12-14 08:36:19.000000000 -0800
++++ isdn4k-utils.v3.1pre1/lib/libtools.c	2005-12-14 08:36:31.000000000 -0800
+@@ -711,6 +711,7 @@
+ 				case 'r': _mode |= R_OK;
+ 				          break;
+ 				default :
++				          break;
+ 			}
+ 		}
+ 

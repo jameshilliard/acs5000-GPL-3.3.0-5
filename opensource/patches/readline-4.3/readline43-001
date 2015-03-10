@@ -1,0 +1,33 @@
+			   READLINE PATCH REPORT
+			   =====================
+
+Readline-Release: 4.3
+Patch-ID: readline43-001
+
+Bug-Reported-by:   Thierry Vignaud <tvignaud@mandrakesoft.com>
+Bug-Reference-ID:  <m2wurdqvo0.fsf@vador.mandrakesoft.com> (bug-readline)
+Bug-Reference-URL: 
+
+Bug-Description:
+
+Pressing certain key sequences causes an infinite loop in _rl_dispatch_subseq
+with the `key' argument set to 256.  This eventually causes bash to exceed
+the stack size limit and crash with a segmentation violation.
+
+Patch:
+
+*** readline-4.3/bind.c	Thu Jan 24 11:15:52 2002
+--- xxx/bind.c	Wed Jul 31 09:11:18 2002
+***************
+*** 312,316 ****
+  	     and the function bound  to `a' to be executed when the user
+  	     types `abx', leaving `bx' in the input queue. */
+! 	  if (k.function /* && k.type == ISFUNC */)
+  	    {
+  	      map[ANYOTHERKEY] = k;
+--- 312,316 ----
+  	     and the function bound  to `a' to be executed when the user
+  	     types `abx', leaving `bx' in the input queue. */
+! 	  if (k.function && ((k.type == ISFUNC && k.function != rl_do_lowercase_version) || k.type == ISMACR))
+  	    {
+  	      map[ANYOTHERKEY] = k;

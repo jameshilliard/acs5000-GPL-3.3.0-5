@@ -1,0 +1,5 @@
+PCMCIA=no
+PCIC=yenta_socket
+PCIC_OPTS=
+CORE_OPTS=
+CARDMGR_OPTS="-c /etc/pcmcia/"

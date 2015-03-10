@@ -1,0 +1,50 @@
+#!/bin/bash
+
+TRANSFER_MODE=${1:=ftp}
+LOCAL_DIRECTORY=${2:="/var/log/DB"}
+REMOTE_SERVER=${3:="/var/billing"}
+REMOTE_SERVER=${4:="192.168.1.101"}
+USER=${5:="billing"}
+PASSWORD=${6:="billing"}
+UPLOAD_INTERVAL=${7:="30"}
+
+	echo "#!/bin/bash" > $CRONTAB_FILE
+	echo "" >> $CRONTAB_FILE
+	echo "PATH=/bin" >> $CRONTAB_FILE
+	echo "SHELL=/bin/sh">> $CRONTAB_FILE
+	echo "HOME=/root">> $CRONTAB_FILE
+	
+if [ "$TRANSFER_MODE" == "ftp" ]; then
+	echo "#!/bin/bash" > $TEMP_FILE
+	echo "" >> $TEMP_FILE
+	echo "LOCAL_DIRECTORY=\"$LOCAL_DIRECTORY\"" >> $TEMP_FILE
+	echo "REMOTE_DIRECTORY=\"$REMOTE_DIRECTORY\"">> $TEMP_FILE
+	echo "REMOTE_SERVER=\"$REMOTE_SERVER\"" >> $TEMP_FILE
+	echo "USER=\"$USER\"" >> $TEMP_FILE
+	echo "PASSWORD=\"$PASSWORD\"" >> $TEMP_FILE
+
+	sed '1,7d' /bin/billing_upload_ftp.sh >> $TEMP_FILE
+	mv $TEMP_FILE /bin/billing_upload_ftp.sh
+
+	echo "*/${UPLOAD_INTERVAL} * * * * /bin/billing_upload_ftp.sh > /dev/null 2>&1">> $CRONTAB_FILE
+
+
+else if [ "$TRANSFER_MODE" == "ssh" ]; then
+	su $USER -c ssh-keygen -t rsa
+	su $USER -c ssh-copy-id -i ~/.ssh/id_rsa.pub ${USER}@${REMOTE_SERVER}
+	echo "If your ssh server is a OpenSSH server, the key was uploaded to server."
+	echo "Check if the server allow key authentication by this parameters: "
+	echo " "
+	echo "RSAAuthentication yes "
+	echo "PubkeyAuthentication yes "
+	echo "AuthorizedKeysFile  .ssh/authorized_keys "
+	echo " "
+	echo "If they are not like above, make the needly changes. If your server is"
+	echo "not a OpenSSH server, check the provider documentation to configure and"
+	echo "accept this and upload key. It is located in ~${USER}/.ssh/id_rsa.pub"
+	echo "*/${UPLOAD_INTERVAL} * * * * /bin/billing_upload_ssh.sh > /dev/null 2>&1">> $CRONTAB_FILE
+
+fi	
+rm $TEMP_FILE
+cd $CWD
+

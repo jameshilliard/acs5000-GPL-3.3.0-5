@@ -1,0 +1,5 @@
+wide-dhcpv6-20070507.patch
+wide-dhcpv6-20070507-commom.patch
+wide-dhcpv6-20070507-makefile.patch
+wide-dhcpv6-20070507-authmsg.patch
+duid.patch

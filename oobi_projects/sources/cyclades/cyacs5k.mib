@@ -1,0 +1,2433 @@
+-- Avocent Vendor MIB OID Tree
+-- Release 3.3.0 07/26/2010
+
+CYCLADES-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+   enterprises
+      FROM SNMPv2-SMI ;
+
+-- Avocent Corporation Identifier
+
+cyclades	OBJECT IDENTIFIER ::= { enterprises 2925 }
+
+END
+
+-- ACS 5000 Enterprise MIB 
+
+CYCLADES-ACS5K-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+	cyclades
+		FROM CYCLADES-MIB
+	MODULE-IDENTITY
+		FROM SNMPv2-SMI;
+
+cyACS5KMgmt	MODULE-IDENTITY
+	LAST-UPDATED	"201007260000Z"
+	ORGANIZATION	"Avocent Corporation"
+	CONTACT-INFO	"postal : Avocent Corporation
+				  47281 Bayside Parkway
+				  Fremont, CA 94538, USA
+			 e-mail : Technical Support
+				  techsupport@avocent.com"
+	DESCRIPTION	"This module defines the ACS5000 Enterprise MIB"
+	REVISION	"201007260000Z"
+	DESCRIPTION	"First Draft"
+::= { cyclades 8 }
+
+-- Current Cyclades ACS 5000 core mib table entries :
+--	cyACS5KSys	OBJECT-IDENTITY  ::= { cyACS5KMgmt 1 }
+--	cyACS5KConf	OBJECT-IDENTITY  ::= { cyACS5KMgmt 2 }
+--	cyACS5KInfo	OBJECT-IDENTITY  ::= { cyACS5KMgmt 3 }
+--	cyACS5KAdm	OBJECT-IDENTITY  ::= { cyACS5KMgmt 4 }
+--	cyACS5KPM	OBJECT-IDENTITY  ::= { cyACS5KMgmt 5 }
+
+END
+
+CYCLADES-ACS5K-SYS-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+	cyACS5KMgmt
+		FROM CYCLADES-ACS5K-MIB
+	OBJECT-TYPE, MODULE-IDENTITY, OBJECT-IDENTITY, Integer32
+		FROM SNMPv2-SMI
+	DisplayString
+		FROM SNMPv2-TC;
+
+cyACS5KSys   MODULE-IDENTITY
+	LAST-UPDATED	"201007260000Z"
+	ORGANIZATION	"Avocent Corporation"
+	CONTACT-INFO	"postal : Avocent Corporation
+				  47281 Bayside Parkway
+				  Fremont, CA 94538, USA
+			 e-mail : Technical Support
+				  techsupport@avocent.com"
+	DESCRIPTION	"This module defines the ACS5000 System Information"
+	REVISION	"201007260000Z"
+	DESCRIPTION	"First Draft"
+::= { cyACS5KMgmt 1 }
+
+cyACS5Kpname OBJECT-TYPE
+	SYNTAX DisplayString
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION "The product's name - ACS50xx (xx - the number of the serial ports )"
+::= { cyACS5KSys 1 }
+
+cyACS5Kversion OBJECT-TYPE
+	SYNTAX DisplayString
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION "The firmware's version"
+::= {cyACS5KSys 2}
+
+cyACS5KPower OBJECT-IDENTITY
+	STATUS current
+	DESCRIPTION "It gives information about Power Supply"
+::= { cyACS5KSys 3 }
+
+cyACS5KPwNum OBJECT-TYPE
+	SYNTAX Integer32
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION "Number of the power supplies"
+::= { cyACS5KPower 1 }
+
+cyACS5KPw1 OBJECT-TYPE
+	SYNTAX INTEGER {
+		noinstalled(0),
+		powerON(1),
+		powerOFF(2)
+	}
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION "State of the first power supply"
+::= { cyACS5KPower 2 }
+
+cyACS5KPw2 OBJECT-TYPE
+	SYNTAX INTEGER {
+		noinstalled(0),
+		powerON(1),
+		powerOFF(2)
+	}
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION "State of the second power supply"
+::= { cyACS5KPower 3 }
+
+cyACS5KPcmcia OBJECT-IDENTITY
+	STATUS current
+	DESCRIPTION "PCMCIA card information"
+::= {cyACS5KSys 4}
+
+cyACS5KNPcmcia OBJECT-TYPE
+	SYNTAX Integer32
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION "Number of the cards PCMCIA available"
+::= { cyACS5KPcmcia 1 }
+
+cyACS5KFlashSize OBJECT-TYPE
+	SYNTAX Integer32
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION "Total amount of flash memory in Mbytes"
+::= {cyACS5KSys 5}
+
+cyACS5KRAMSize OBJECT-TYPE
+	SYNTAX Integer32
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION "Total amount of RAM in Mbytes"
+::= {cyACS5KSys 6}
+
+cyACS5KCPUfreq OBJECT-TYPE
+	SYNTAX Integer32
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION "CPU clock in MHz"
+::= {cyACS5KSys 7}
+
+cyACS5KDevId OBJECT-TYPE
+	SYNTAX DisplayString
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION "The product's identifier"
+::= { cyACS5KSys 8 }
+
+END
+
+-- The cyACS5KConf has the ACS 5000' configuration MIB) :
+ 
+CYCLADES-ACS5K-CONF-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+	cyACS5KMgmt
+			FROM CYCLADES-ACS5K-MIB
+	InterfaceIndexOrZero
+			FROM IF-MIB
+	MODULE-IDENTITY, OBJECT-TYPE, OBJECT-IDENTITY,
+	IpAddress, Integer32
+			FROM SNMPv2-SMI
+	DisplayString
+			FROM SNMPv2-TC;
+
+cyACS5KConf    MODULE-IDENTITY
+	LAST-UPDATED	"201007260000Z"
+	ORGANIZATION	"Avocent Corporation"
+	CONTACT-INFO	"postal : Avocent Corporation
+				47281 Bayside Parkway
+				Fremont, CA 94538, USA
+				e-mail : Technical Support
+					  techsupport@avocent.com"
+	DESCRIPTION "Configuration of ACS5000 products"
+	REVISION	"201007260000Z"
+	DESCRIPTION	"First Draft"
+::= { cyACS5KMgmt 2 }
+
+-- Current Avocent ACS Configuration core mib table entries :
+--	cyHostName		OBJECT-TYPE	::= { cyACS5KConf 1 }
+--	cyConsoleBanner		OBJECT-TYPE	::= { cyACS5KConf 2 }
+--	cyMotd			OBJECT-TYPE	::= { cyACS5KConf 3 }
+--	cyEthItf		OBJECT-IDENTITY	::= { cyACS5KConf 4 }
+--	cyNameService		OBJECT-IDENTITY	::= { cyACS5KConf 5 }  
+--	cySerialPortConf	OBJECT-IDENTITY	::= { cyACS5KConf 6 }
+
+cyHostName	OBJECT-TYPE
+	SYNTAX		DisplayString (SIZE (1..40))
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"The Host Name "
+::= { cyACS5KConf 1 }                              
+
+cyConsoleBanner	OBJECT-TYPE
+	SYNTAX		DisplayString (SIZE (1..255))
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"The console banner "
+::= { cyACS5KConf 2 }                              
+
+cyMotd	OBJECT-TYPE
+	SYNTAX		DisplayString (SIZE (0..255))
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"The motd message "
+::= { cyACS5KConf 3 }                              
+
+cyEthItf	OBJECT-IDENTITY
+	STATUS     	current
+	DESCRIPTION "The configuration of the Ethernet Interface"   
+::= { cyACS5KConf 4 }
+
+cyEthDhcpc	OBJECT-TYPE
+	SYNTAX	INTEGER	{
+			inactive(0),	-- DHCP is inactive
+			active(1),	-- DHCP is active
+			restore(2)	-- DHCP is active and ACS saves the last parameters 
+					-- assigned by the server
+			}
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"The ACS can request all of its ethernet parameters 
+				 to a DHCP server"
+::= { cyEthItf 1 }
+
+cyEthIPaddr	OBJECT-TYPE
+	SYNTAX		IpAddress
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"This is the IP address of the Ethernet Interface"
+::= { cyEthItf 2 }
+
+cyEthIPmask		OBJECT-TYPE
+	SYNTAX		IpAddress
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"The mask fot the Ethernet network"
+::= { cyEthItf 3 }
+
+cyEthMTU		OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"The Maximum Transmission Unit size, wich determines 
+			 whether or not packets should be broken up"
+::= { cyEthItf 4 }
+
+cyEthIPaddr2	OBJECT-TYPE
+	SYNTAX		IpAddress
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"The Ethernet secondary IP address"
+::= { cyEthItf 5 }
+
+cyEthIPmask2	OBJECT-TYPE
+	SYNTAX		IpAddress
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"The Ethernet secondary IP mask"
+::= { cyEthItf 6 }
+
+cyEnableIPv4		OBJECT-TYPE
+	SYNTAX	INTEGER	{
+			no(0),	-- IPv4 addresses are disabled
+			yes(1)	-- IPv4 addresses are enabled
+		}
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"This parameter is used to enable or disable the configuration of IPv4 addresses"
+::= { cyEthItf 7 }
+
+cyEnableIPv6		OBJECT-TYPE
+	SYNTAX	INTEGER	{
+			no(0),	-- IPv6 addresses are disabled
+			yes(1)	-- IPv6 addresses are enabled
+		}
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"This parameter is used to enable or disable the configuration of IPv6 addresses"
+::= { cyEthItf 8 }
+
+cyIPv6Method		OBJECT-TYPE
+	SYNTAX	INTEGER	{
+			stateless-only(0),
+			static(1),
+			dhcp(2)
+		}
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"IPv6 configuration method"
+::= { cyEthItf 9 }
+
+cyDHCPv6Opts		OBJECT-TYPE
+	SYNTAX	INTEGER	{
+			none(0),
+			dns(1),
+			domain(2),
+			dns-domain(3)
+		}
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"DHCP options for IPv6"
+::= { cyEthItf 10 }
+
+cyEthIPaddr6	OBJECT-TYPE
+	SYNTAX		DisplayString
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"This is the IPv6 address of the Ethernet Interface"
+::= { cyEthItf 11 }
+
+cyEthPrefix6		OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"IPv6 network prefix length of the Ethernet Interface"
+::= { cyEthItf 12 }
+
+cyNameService	OBJECT-IDENTITY
+	STATUS		current
+	DESCRIPTION	"The Name Service configuration"
+::= { cyACS5KConf 5 }  
+
+cyResolverOrder	OBJECT-TYPE
+	SYNTAX		DisplayString (SIZE (0..15))
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"It specifies how host lookups are to be performed.
+			 Valid values : empty, 'hosts', 'bind', 'hosts, bind', 
+			 'bind, hosts' "
+::= { cyNameService 1 }
+                   
+cyMultipleIP	OBJECT-TYPE
+	SYNTAX		DisplayString (SIZE (0..3))
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Valid values are ON or OFF. If set to ON, the resolve 
+			 library will return all valid addresses for a host 
+			 that appears in the /etc/hosts file, instead of only 
+			 the first.  "
+::= { cyNameService 2 }
+
+cyDNSserv		OBJECT-IDENTITY
+	STATUS		current
+	DESCRIPTION	"The DNS server configuration"
+::= { cyNameService 3 }
+
+cyDNSpriserv	OBJECT-TYPE
+	SYNTAX		DisplayString (SIZE (0..46))
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Internet Address (in dot notation) of primary name 
+			 server that the resolver should query."
+::= { cyDNSserv 1 }
+ 
+cyDNSsecserv	OBJECT-TYPE
+	SYNTAX		DisplayString (SIZE (0..46))
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Internet Address (in dot notation) of secondary name 
+			 server that the resolver should query."
+::= { cyDNSserv 2 }
+
+cyDNSdomain		OBJECT-TYPE
+	SYNTAX		DisplayString (SIZE (1..40))
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Local domain name ."
+::= { cyDNSserv 3 }
+
+cySerialPortConf	OBJECT-IDENTITY
+	STATUS		current
+	DESCRIPTION	"The PortSlave configuration - pslave.conf file. 
+			 It configures the all serial ports."
+::= { cyACS5KConf 6 }  
+
+cySerialGlobal		OBJECT-IDENTITY
+	STATUS		current
+	DESCRIPTION	"These parameters have the prefix conf. in 
+			 the pslave.conf file"
+::= { cySerialPortConf 1 }
+
+cySerialInclude	OBJECT-TYPE
+	SYNTAX		DisplayString (SIZE (0..40))
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"File used in centralized management."
+::= { cySerialGlobal 1 }
+
+cySerialNFS		OBJECT-TYPE
+	SYNTAX		DisplayString (SIZE (0..50))
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Remote Network File System where data buffering will be 
+			 written instead of the default directory '/var/run/DB'."
+::= { cySerialGlobal 2 }
+
+cySerialLockDir		OBJECT-TYPE
+	SYNTAX		DisplayString (SIZE (0..50))
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"The lock directory for the ACS."
+::= { cySerialGlobal 3 }
+
+cySerialRlogin		OBJECT-TYPE
+	SYNTAX		DisplayString (SIZE (0..50))
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Location of the rlogin binary that accepts the -i flag."
+::= { cySerialGlobal 4 }
+
+cySerialPppd	OBJECT-TYPE
+	SYNTAX		DisplayString (SIZE (0..50))
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Location of the pppd binary."
+::= { cySerialGlobal 5 }
+
+cySerialTelnet	OBJECT-TYPE
+	SYNTAX		DisplayString (SIZE (0..50))
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION "Location of the telnet application"
+::= { cySerialGlobal 6 }
+
+cySerialSsh		OBJECT-TYPE
+	SYNTAX		DisplayString (SIZE (0..50))
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Location of the ssh application"
+::= { cySerialGlobal 7 }
+
+cySerialLocalLogins	OBJECT-TYPE
+	SYNTAX		INTEGER {
+				off(0),           
+				on(1)   -- possible to login to the ACS directly by placing a !
+			}
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION 	"This parameter is only necessary when authentication is 
+			 being performed for a port.
+			 This is useful if the Radius authentication server is down."
+::= { cySerialGlobal 8 }
+
+cySerialFacility	OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"This value (0-7) is the Local facility sent to the syslog daemon."
+::= { cySerialGlobal 9 }
+
+cySerialDBFacility	OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"This value (0-7) is the Local facility sent to the syslog 
+			 daemon with the data when ."
+::= { cySerialGlobal 10 }
+
+cySerialGroupTable	OBJECT-TYPE
+	SYNTAX		SEQUENCE OF CyGroupEntry
+	MAX-ACCESS	not-accessible
+	STATUS		current
+	DESCRIPTION	"This associates group name and its users"
+::= { cySerialGlobal 11 }
+
+cygroupEntry	OBJECT-TYPE
+	SYNTAX		CyGroupEntry
+	MAX-ACCESS	not-accessible
+	STATUS		current
+	DESCRIPTION	"One particular association between group name and its users"
+	INDEX		{ cyGroupIndex }
+::= { cySerialGroupTable 1 }
+
+CyGroupEntry ::= SEQUENCE  {
+	cyGroupIndex	InterfaceIndexOrZero,
+	cyGroupName	DisplayString,
+	cyGroupUsers	DisplayString
+}
+
+cyGroupIndex	OBJECT-TYPE
+	SYNTAX		InterfaceIndexOrZero	
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"number to identifier the group"
+::= { cygroupEntry  1 }                              
+
+cyGroupName	OBJECT-TYPE
+	SYNTAX		DisplayString (SIZE (0..20))
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"The Group Name "
+::= { cygroupEntry  2 }                              
+
+cyGroupUsers	OBJECT-TYPE
+	SYNTAX		DisplayString (SIZE (0..80))
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"The users names "
+::= { cygroupEntry  3 }                              
+
+cySerialSpec	OBJECT-IDENTITY
+	STATUS		current
+	DESCRIPTION	"These parameters have the prefix all. or sxx. in the pslave.conf file"
+::= { cySerialPortConf 2 }
+
+cySerialPortTable	OBJECT-TYPE
+	SYNTAX		SEQUENCE OF CySPortEntry
+	MAX-ACCESS	not-accessible
+	STATUS		current
+	DESCRIPTION 	"This is the specific configuration to serial port"
+::= { cySerialSpec 1 }
+
+cysportEntry	OBJECT-TYPE
+	SYNTAX		CySPortEntry
+	MAX-ACCESS	not-accessible
+	STATUS		current
+	DESCRIPTION	"One particular serial port configuration"
+	INDEX		{ cySPortNumber }
+::= { cySerialPortTable 1 }
+
+CySPortEntry ::= SEQUENCE  {
+	cySPortNumber		InterfaceIndexOrZero,	-- 0 == all.  X == ttyX sX.
+	cySPortTty		DisplayString,		-- associate device
+	cySPortName		DisplayString,		-- alias name
+	cySPortSpeed		INTEGER,		-- physical port configuration
+	cySPortDataSize		Integer32,
+	cySPortStopBits		Integer32,
+	cySPortParity		DisplayString,
+	cySPortFlowCtrl		DisplayString,
+	cySPortDTRdelay		Integer32,
+	cySPortDCDCtrl		INTEGER,
+	cySPortLogUtmp		INTEGER,		-- log into UTMP
+	cySPortLogWtmp		INTEGER,		-- log into WTMP
+	cySPortLogform		DisplayString,
+	cySPortAuthtype		DisplayString,		-- authentication type
+	cySPortAuthSrv1		DisplayString,	-- IP address of the primary authentication server
+	cySPortAccSrv1		DisplayString,	-- IP address of the primarty accounting server
+	cySPortAuthTmo		Integer32,	-- time out per authentication query
+	cySPortAuthRetr		Integer32,	-- authentication number of retries
+	cySPortAuthSrv2		DisplayString,	-- IP address of the secondary authentication server
+	cySPortAccSrv2		DisplayString,	-- IP address of the secondary accounting server
+	cySPortAuthSecret	DisplayString,	-- secret used in authentication
+	cySPortAuthRadP		INTEGER,	-- accept RADIUS' user without password
+	cySPortAuthAcc		DisplayString,	-- access restrition on Users
+	cySPortProtocol		DisplayString,	-- Profile
+	cySPortRemoteIP		DisplayString,	-- remote IP address
+	cySPortSocketPort	DisplayString,	-- number of socket port
+	cySPortRemHost		DisplayString,	-- IP address of the remote Host
+	cySPortBanner		DisplayString,	-- Banner
+	cySPortPrompt		DisplayString,	-- Login prompt
+	cySPortTermType		DisplayString,	-- terminal type
+	cySPortAutomUsr		DisplayString,	-- automatic user
+	cySPortNetMask		IpAddress,	-- net mask
+	cySPortPppMtu		Integer32,
+	cySPortPppMru		Integer32,
+	cySPortPppOptions	DisplayString,
+	cySPortPppFoption	DisplayString,
+	cySPortModemChat	DisplayString,	-- initchat send to modem
+	cySPortSttyCmd		DisplayString,
+	cySPortSockTx		Integer32,	-- socket transmission interval
+	cySPortSockPoll		Integer32,	-- socket polling interval
+	cySPortSockIdle		Integer32,	-- socket idle timeout
+	cySPortDBsize		Integer32,	-- maximum size of the data buffering file
+	cySPortDBtime		INTEGER,	-- data buffering with/without timestamp
+	cySPortDBmode		DisplayString,	-- data bufferinf mode circ or line
+	cySPortDBsyslog		Integer32,	-- size of the data send to syslog
+	cySPortDBmenu		INTEGER,	-- menu of the data buffering
+	cySPortDBalarm		INTEGER,	-- use alarm generating feature
+	cySPortSSHbreak		DisplayString,	-- break sequence (SSH)
+	cySPortSniffSess	DisplayString,	-- sniff session type
+	cySPortSniffAdm		DisplayString,	-- admin users to sniff
+	cySPortSniffEsc		DisplayString,	-- escape char to sniff session
+	cySPortSniffMsess	DisplayString,	-- multiple session
+	cySPortTelnetMode	INTEGER,	-- telnet client mode
+	cySPortSysBufSess	INTEGER,	-- syslog buffering at all times
+	cySPortLFSuppress	INTEGER,	-- LF suppression in socket_server session
+	cySPortAutoInput	DisplayString,  -- Input string to auto answer 
+	cySPortAutoOutput	DisplayString,  -- Output string to auto answer
+	cySPortPmType 		DisplayString,  -- Power Management IPDU type
+	cySPortPmUsers	 	DisplayString,  -- Power Management IPDU users
+	cySPortPmOutlet 	DisplayString,  -- Power Management Outlets
+	cySPortPmKey 		DisplayString,  -- Power Management Hotkey
+	cySPortPmNOutlets 	Integer32, 	-- Power Management IPDU number of outlets 
+	cySPortBreakInterval 	Integer32, 	-- Break interval (in ms) 
+	cySPortRemoteIP6	DisplayString,	-- remote IP address
+	cySPortPrefix6		Integer32	-- port IP address prefix length
+}
+
+cySPortNumber	OBJECT-TYPE
+	SYNTAX		InterfaceIndexOrZero	
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"number to identifier the serial port. Value 0 is ALL."
+::= { cysportEntry 1 }
+
+cySPortTty		OBJECT-TYPE
+	SYNTAX		DisplayString (SIZE (0..25))
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"The device name for the serial port."
+::= { cysportEntry 2 }
+
+cySPortName		OBJECT-TYPE
+	SYNTAX		DisplayString (SIZE (0..40))
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Alias name given to the server connected to the serial port."
+::= { cysportEntry 3 }
+
+cySPortSpeed	OBJECT-TYPE
+	SYNTAX		INTEGER {
+				s50bps(50), s75bps(75), s110bps(110), s134bps(134), 
+				s150bps(150), s200bps(200), s300bps(300), s600bps(600), 
+				s1200bps(1200), s1800bps(1800),
+				s2400bps(2400), s4800bps(4800), 
+				s9600bps(9600), s14400bps(14400), 
+				s19200bps(19200), s28800bps(28800), 
+				s38400bps(38400), s57600bps(57600), 
+				s115200bps(115200), s230400bps(230400), 
+				s460800bps(460800)
+			}	
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"The speed for serial port."
+::= { cysportEntry 4 }
+
+cySPortDataSize	OBJECT-TYPE
+	SYNTAX		Integer32 (4..8)
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"The data size for serial port."
+::= { cysportEntry 5 }
+
+cySPortStopBits	OBJECT-TYPE
+	SYNTAX		Integer32 (1..2)
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"The number of stop bits for serial port."
+::= { cysportEntry 6 }
+
+cySPortParity	OBJECT-TYPE
+	SYNTAX		DisplayString (SIZE (0..5))
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"The parity for serial port."
+::= { cysportEntry 7 }
+
+cySPortFlowCtrl	OBJECT-TYPE
+	SYNTAX		DisplayString (SIZE (0..5))
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"The flow control for serial port."
+::= { cysportEntry 8 }
+
+cySPortDTRdelay	OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"This specifies how long (in miliseconds) a DTR signal
+				 will be turned off before it is turned on again."
+::= { cysportEntry 9 }
+
+cySPortDCDCtrl	OBJECT-TYPE
+	SYNTAX		INTEGER {
+				notctrl(0),  
+				control(1)	   
+			}
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"DCD signal controls the connection request." 
+::= { cysportEntry 10 }
+
+cySPortLogUtmp	OBJECT-TYPE
+	SYNTAX		INTEGER {
+				inactive(0),  
+				active(1)	   
+			}
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"ACS update the login records in /var/run/utmp file." 
+::= { cysportEntry 11 }
+
+cySPortLogWtmp	OBJECT-TYPE
+	SYNTAX		INTEGER {
+				inactive(0),  
+				active(1)	   
+			}
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"ACS update the login records in /var/run/wtmp file." 
+::= { cysportEntry 12 }
+
+cySPortLogform	OBJECT-TYPE
+	SYNTAX		DisplayString (SIZE (0..40))
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"This is the format to write login record." 
+::= { cysportEntry 13 }
+
+cySPortAuthtype		OBJECT-TYPE
+	SYNTAX		DisplayString (SIZE (0..25))
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Authentication type : ." 
+::= { cysportEntry 14 }
+
+cySPortAuthSrv1	OBJECT-TYPE
+	SYNTAX		DisplayString (SIZE (0..46))
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"IP address of the primary authentication server." 
+::= { cysportEntry 15 }
+
+cySPortAccSrv1	OBJECT-TYPE
+	SYNTAX		DisplayString (SIZE (0..46))
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"IP address of the primary accounting server." 
+::= { cysportEntry 16 }
+
+cySPortAuthTmo	OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"This is the timeout (in seconds) for authentication 
+			query to be answered." 
+::= { cysportEntry 17 }
+
+cySPortAuthRetr	OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"This defines the number of times each server is tried 
+			before another is contacted." 
+::= { cysportEntry 18 }
+
+cySPortAuthSrv2	OBJECT-TYPE
+	SYNTAX		DisplayString (SIZE (0..46))
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"IP address of the secondary authentication server." 
+::= { cysportEntry 19 }
+
+cySPortAccSrv2	OBJECT-TYPE
+	SYNTAX		DisplayString (SIZE (0..46))
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"IP address of the secondary accounting server." 
+::= { cysportEntry 20 }
+
+cySPortAuthSecret	OBJECT-TYPE
+	SYNTAX		DisplayString (SIZE (0..40))
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"This is the shared secret with authentciation servers." 
+::= { cysportEntry 21 }
+
+cySPortAuthRadP	OBJECT-TYPE
+	SYNTAX		INTEGER {
+				inactive(0),  
+				active(1)	   
+			}
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"To accept Radius' user without password." 
+::= { cysportEntry 22 }
+
+cySPortAuthAcc	OBJECT-TYPE
+	SYNTAX		DisplayString (SIZE (0..40))
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"access restrition on Users." 
+::= { cysportEntry 23 }
+
+cySPortProtocol	OBJECT-TYPE
+	SYNTAX		DisplayString (SIZE (0..40))
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Defines the port serial's protocol." 
+::= { cysportEntry 24 }
+
+cySPortRemoteIP	OBJECT-TYPE
+	SYNTAX		DisplayString (SIZE (0..20))
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"This is the default IP address of the serial port." 
+::= { cysportEntry 25 }
+
+cySPortSocketPort	OBJECT-TYPE	
+	SYNTAX		DisplayString (SIZE (0..10))
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"This defines an alternative labeling system for the serial port." 
+::= { cysportEntry 26 }
+
+cySPortRemHost	OBJECT-TYPE
+	SYNTAX		DisplayString (SIZE (0..46))
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"The IP address of the host to which the serial port will connect." 
+::= { cysportEntry 27 }
+
+cySPortBanner	OBJECT-TYPE
+	SYNTAX		DisplayString (SIZE (0..250))
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"This defines the banner." 
+::= { cysportEntry 28 }
+
+cySPortPrompt	OBJECT-TYPE
+	SYNTAX		DisplayString (SIZE (0..250))
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"This defines the login prompt to the serial port." 
+::= { cysportEntry 29 }
+
+cySPortTermType	OBJECT-TYPE
+	SYNTAX		DisplayString (SIZE (0..20))
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"This defines the terminal type." 
+::= { cysportEntry 30 }
+
+cySPortAutomUsr	OBJECT-TYPE
+	SYNTAX		DisplayString (SIZE (0..40))
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"This defines the automatic user." 
+::= { cysportEntry 31 }
+
+cySPortNetMask	OBJECT-TYPE
+	SYNTAX		IpAddress
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"The network mask used in dial in connection." 
+::= { cysportEntry 32 }
+
+cySPortPppMtu	OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"The PPP MTU - dial in connection." 
+::= { cysportEntry 33 }
+
+cySPortPppMru	OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"The PPP MRU - dial in connection." 
+::= { cysportEntry 34 }
+
+cySPortPppOptions	OBJECT-TYPE
+	SYNTAX		DisplayString
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"The PPP options when ACS autodetects the PPP session ." 
+::= { cysportEntry 35 }
+
+cySPortPppFoption	OBJECT-TYPE
+	SYNTAX		DisplayString
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"The PPP forced options when the user has already been authenticated." 
+::= { cysportEntry 36 }
+
+cySPortModemChat	OBJECT-TYPE
+	SYNTAX		DisplayString
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"The initchat send to modem connected." 
+::= { cysportEntry 37 }
+
+cySPortSttyCmd	OBJECT-TYPE
+	SYNTAX		DisplayString (SIZE (0..180))
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"the tty settings after socket connection is established." 
+::= { cysportEntry 38 }
+
+cySPortSockTx	OBJECT-TYPE	
+	SYNTAX		Integer32
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Defines the delay (in miliseconds) before transmission to
+			 the Ethernet of data received through a serial port ." 
+::= { cysportEntry 39 }
+
+cySPortSockPoll	OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Keep-alive timer (miliseconds) to the TCP connection ." 
+::= { cysportEntry 40 }
+
+cySPortSockIdle	OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"The idle timeout in seconds ." 
+::= { cysportEntry 41 }
+
+cySPortDBsize	OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Maximum size of the data buffering file." 
+::= { cysportEntry 42 }
+
+cySPortDBtime	OBJECT-TYPE
+	SYNTAX		INTEGER {
+				inactive(0),
+				active(1)
+			}
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Timestamp in data buffering." 
+::= { cysportEntry 43 }
+
+cySPortDBmode	OBJECT-TYPE
+	SYNTAX		DisplayString (SIZE (0..5))
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Data buffering mode : circ or line"
+::= { cysportEntry 44 }
+
+cySPortDBsyslog	OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"size of the data buffering send to syslog." 
+::= { cysportEntry 45 }
+
+cySPortDBmenu	OBJECT-TYPE
+	SYNTAX		INTEGER {
+				displayMenu(0),
+				inactive(1),
+				displayDB(2),
+				displayParc(3)
+			}
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Menu of the data buffering." 
+::= { cysportEntry 46 }
+
+cySPortDBalarm	OBJECT-TYPE
+	SYNTAX		INTEGER {
+				inactive(0),
+				active(1)
+			}
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Generating Alarms." 
+::= { cysportEntry 47 }
+
+cySPortSSHbreak	OBJECT-TYPE
+	SYNTAX		DisplayString (SIZE (0..16))
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Break sequence - ssh session"
+::= { cysportEntry 48 }
+
+cySPortSniffSess	OBJECT-TYPE
+	SYNTAX		DisplayString (SIZE (0..5))
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Sniff session type"
+::= { cysportEntry 49 }
+
+cySPortSniffAdm	OBJECT-TYPE
+	SYNTAX		DisplayString (SIZE (0..40))
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"List of admin users to sniff session"
+::= { cysportEntry 50 }
+
+cySPortSniffEsc	OBJECT-TYPE
+	SYNTAX		DisplayString (SIZE (0..6))
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Escape sequence used in sniff session"
+::= { cysportEntry 51 }
+
+cySPortSniffMsess	OBJECT-TYPE
+	SYNTAX		DisplayString (SIZE (0..20))
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Multiple sniff sessions"
+::= { cysportEntry 52 }
+
+cySPortTelnetMode	OBJECT-TYPE
+	SYNTAX		INTEGER {
+				text(0),
+				binary(1)
+			}
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Mode negotiated by client telnet with the server"
+::= { cysportEntry 53 }
+
+cySPortSysBufSess	OBJECT-TYPE
+	SYNTAX		INTEGER {
+				yes(0),
+				no(1)
+			}
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Syslog Buffering at all times"
+::= { cysportEntry 54 }
+
+cySPortLFSuppress	OBJECT-TYPE
+	SYNTAX		INTEGER {
+				inactive(0),
+				active(1)
+			}
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"LF suppression in socket_server session"
+::= { cysportEntry 55 }
+
+cySPortAutoInput	OBJECT-TYPE
+	SYNTAX		DisplayString (SIZE (0..40))
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"This string is used to auto answer. It's the input string"
+::= { cysportEntry 56 }
+
+cySPortAutoOutput	OBJECT-TYPE
+	SYNTAX		DisplayString (SIZE (0..40))
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"This string is used to auto answer. It's the output string"
+::= { cysportEntry 57 }
+
+cySPortPmType		OBJECT-TYPE
+	SYNTAX		DisplayString (SIZE (0..20))
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"IPDU type, when the port protocol is configured as IPDU"
+::= { cysportEntry 58 }
+
+cySPortPmUsers		OBJECT-TYPE
+	SYNTAX		DisplayString (SIZE (0..40))
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"List of users which can access the IPDU and their respective outlets"
+::= { cysportEntry 59 }
+
+cySPortPmOutlet		OBJECT-TYPE
+	SYNTAX		DisplayString (SIZE (0..40))
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"List of <IPDU port>.<outlet> pairs, where the server is connected"
+::= { cysportEntry 60 }
+
+cySPortPmKey		OBJECT-TYPE
+	SYNTAX		DisplayString (SIZE (0..8))
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Hotkey to grant access to the Power Management from a Telnet/SSH session"
+::= { cysportEntry 61 }
+
+cySPortPmNOutlets	OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Number of outlets of the IPDU"
+::= { cysportEntry 62 }
+
+cySPortBreakInterval	OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"The break interval in miliseconds." 
+::= { cysportEntry 63 }
+
+cySPortRemoteIP6	OBJECT-TYPE
+	SYNTAX		DisplayString (SIZE (0..46))
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"This is the default IPv6 address of the serial port." 
+::= { cysportEntry 64 }
+
+cySPortPrefix6		OBJECT-TYPE
+	SYNTAX		Integer32 (0..128)
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Port IP address network prefix length."
+::= { cysportEntry 65 }
+
+END
+
+
+-- The cyACS5KInfo has the ACS 5000' information MIB) :
+ 
+CYCLADES-ACS5K-INFO-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+	cyACS5KMgmt
+		FROM CYCLADES-ACS5K-MIB
+	InterfaceIndex
+		FROM IF-MIB
+	MODULE-IDENTITY, OBJECT-TYPE, 
+	Counter32, Integer32
+			FROM SNMPv2-SMI
+	DisplayString
+		FROM SNMPv2-TC;
+
+cyACS5KInfo	MODULE-IDENTITY
+	LAST-UPDATED	"201007260000Z"
+	ORGANIZATION	"Avocent Corporation"
+	CONTACT-INFO	"postal : Avocent Corporation
+				47281 Bayside Parkway
+				Fremont, CA 94538, USA
+				e-mail : Technical Support
+					  techsupport@avocent.com"
+	DESCRIPTION	"This module defines objects of the ACS/TS/ACS5000 information"
+	REVISION	"201007260000Z"
+	DESCRIPTION	"First Draft"
+::= { cyACS5KMgmt 3 }
+
+cyInfoSerialTable	OBJECT-TYPE
+	SYNTAX		SEQUENCE OF CyISPortEntry
+	MAX-ACCESS	not-accessible
+	STATUS		current
+	DESCRIPTION	"This is the information of the specific serial port"
+::= { cyACS5KInfo 1 }
+
+cyisPortEntry	OBJECT-TYPE
+	SYNTAX		CyISPortEntry
+	MAX-ACCESS	not-accessible
+	STATUS		current
+	DESCRIPTION	"One particular serial port "
+	INDEX		{ cyISPortNumber }
+::= { cyInfoSerialTable 1 }
+
+CyISPortEntry ::= SEQUENCE  {
+	cyISPortNumber	InterfaceIndex,      --  X == ttyX sX.
+	cyISPortTty	DisplayString,         -- associate device
+	cyISPortName	DisplayString,          -- alias name
+	cyISPortSpeed	Integer32,
+	cyISPortTxBytes	Counter32,          
+	cyISPortRXBytes	Counter32,
+	cyISPortErrFrame	Counter32,
+	cyISPortErrParity	Counter32,
+	cyISPortErrBreaks	Counter32,
+	cyISPortErrOverrun	Counter32,
+	cyISPortSigDTR		INTEGER,
+	cyISPortSigCD		INTEGER,
+	cyISPortSigDSR		INTEGER,
+	cyISPortSigRTS		INTEGER,
+	cyISPortSigCTS		INTEGER,
+	cyISPortSigRI		INTEGER
+ }
+
+cyISPortNumber	OBJECT-TYPE
+	SYNTAX		InterfaceIndex	
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"number to identifier the serial port."
+::= { cyisPortEntry 1 }
+
+cyISPortTty		OBJECT-TYPE
+	SYNTAX		DisplayString	
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"The device name for the serial port."
+::= { cyisPortEntry 2 }
+
+cyISPortName		OBJECT-TYPE
+	SYNTAX		DisplayString	
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"Alias name given to the server connected to the serial port."
+::= { cyisPortEntry 3 }
+
+cyISPortSpeed	OBJECT-TYPE
+	SYNTAX		Integer32 
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"The speed for serial port."
+::= { cyisPortEntry 4 }
+
+cyISPortTxBytes	OBJECT-TYPE        
+	SYNTAX		Counter32 
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"The number of transmited bytes by the serial port."
+::= { cyisPortEntry 5 }
+
+cyISPortRXBytes	OBJECT-TYPE
+	SYNTAX		Counter32 
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"The number of received bytes by the serial port."
+::= { cyisPortEntry 6 }
+
+cyISPortErrFrame	OBJECT-TYPE
+	SYNTAX		Counter32 
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"The number of frame error."
+::= { cyisPortEntry 7 }
+
+cyISPortErrParity	OBJECT-TYPE
+	SYNTAX		Counter32 
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"The number of parity error."
+::= { cyisPortEntry 8 }
+
+cyISPortErrBreaks	OBJECT-TYPE	
+	SYNTAX		Counter32 
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"The number of breaks error."
+::= { cyisPortEntry 9 }
+
+cyISPortErrOverrun	OBJECT-TYPE
+	SYNTAX		Counter32 
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"The number of overrun error."
+::= { cyisPortEntry 10 }
+
+cyISPortSigDTR	OBJECT-TYPE
+	SYNTAX		INTEGER	{
+				down(0),
+				up(1)
+			}
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"The state of DTR signal."
+::= { cyisPortEntry 11 }
+
+cyISPortSigCD	OBJECT-TYPE
+	SYNTAX		INTEGER	{
+				down(0),
+				up(1)
+			}
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"The state of DCD signal."
+::= { cyisPortEntry 12 }
+
+cyISPortSigDSR	OBJECT-TYPE
+	SYNTAX		INTEGER {
+				down(0),
+				up(1)
+			}
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"The state of DSR signal."
+::= { cyisPortEntry 13 }
+
+cyISPortSigRTS	OBJECT-TYPE
+	SYNTAX		INTEGER {
+				down(0),
+				up(1)
+			}
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"The state of RTS signal."
+::= { cyisPortEntry 14 }
+
+cyISPortSigCTS	OBJECT-TYPE
+	SYNTAX		INTEGER {
+				down(0),
+				up(1)
+			}
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"The state of CTS signal."
+::= { cyisPortEntry 15 }
+
+cyISPortSigRI	OBJECT-TYPE
+	SYNTAX		INTEGER {
+				down(0),
+				up(1)
+			}
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"The state of RI signal."
+::= { cyisPortEntry 16 }
+
+END
+
+-- The cyACS5KAdmin has the ACS 5000' administration MIB) :
+ 
+CYCLADES-ACS5K-ADM-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+	cyACS5KMgmt
+		FROM CYCLADES-ACS5K-MIB
+	OBJECT-TYPE, MODULE-IDENTITY
+		FROM SNMPv2-SMI;
+
+cyACS5KAdm	MODULE-IDENTITY
+	LAST-UPDATED	"201007260000Z"
+	ORGANIZATION	"Avocent Corporation"
+	CONTACT-INFO	"postal : Avocent Corporation
+				47281 Bayside Parkway
+				Fremont, CA 94538, USA
+				e-mail : Technical Support
+					  techsupport@avocent.com"
+	DESCRIPTION	"This module defines objects of the ACS/TS/ACS5000 administration"
+	REVISION	"201007260000Z"
+	DESCRIPTION	"First Draft"
+::= { cyACS5KMgmt 4 }
+
+cyACS5KSave	OBJECT-TYPE
+	SYNTAX		INTEGER {
+				nosave(0),
+				save(1)
+			}
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Exec saveconf command"
+::= { cyACS5KAdm 1 }
+                               
+cyACS5KSerialHUP	OBJECT-TYPE
+	SYNTAX		INTEGER {
+				norestartportslave(0),
+				restartportslave(1)
+			}
+	MAX-ACCESS    read-write
+	STATUS          current
+	DESCRIPTION     "Exec signal_ras hup command"
+::= { cyACS5KAdm 2 }
+
+END
+
+-- The cyACS5KPM has the ACS 5000' power mgmt MIB :
+
+CYCLADES-ACS5K-PM-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+	cyACS5KMgmt
+		FROM CYCLADES-ACS5K-MIB
+	OBJECT-TYPE, MODULE-IDENTITY, Integer32
+		FROM SNMPv2-SMI
+	InterfaceIndex, InterfaceIndexOrZero
+		FROM IF-MIB
+	DisplayString
+		FROM SNMPv2-TC;
+
+cyACS5KPM   MODULE-IDENTITY
+	LAST-UPDATED	"201007260000Z"
+	ORGANIZATION	"Avocent Corporation"
+	CONTACT-INFO	"postal : Avocent Corporation
+				47281 Bayside Parkway
+				Fremont, CA 94538, USA
+				e-mail : Technical Support
+					  techsupport@avocent.com"
+	DESCRIPTION	"This module defines objects of the Proxy for PM "
+	REVISION	"201007260000Z"
+	DESCRIPTION	"First Draft"
+::= { cyACS5KMgmt 5 }
+
+cyNumberOfPM		OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"The total number of PM's connected on the unit"
+::= { cyACS5KPM 1 }
+ 
+cyPMTable OBJECT-TYPE
+	SYNTAX		SEQUENCE OF CyPMEntry
+	MAX-ACCESS	not-accessible
+	STATUS		current
+	DESCRIPTION	"Allows to read information about each connected PM"
+::= { cyACS5KPM 2 }
+
+cyPMEntry	OBJECT-TYPE
+	SYNTAX		CyPMEntry
+	MAX-ACCESS	not-accessible
+	STATUS		current
+	DESCRIPTION	"Information about the connected PM"
+	INDEX		{ cyPMSerialPortNumber }
+::= { cyPMTable 1 }
+
+CyPMEntry ::= SEQUENCE  {
+	cyPMSerialPortNumber	InterfaceIndex,     
+	cyPMNumberOutlets Integer32,
+	cyPMNumberUnits	Integer32,
+	cyPMCurrent	DisplayString,
+	cyPMVersion	DisplayString,
+	cyPMCommand	DisplayString
+}
+
+cyPMSerialPortNumber	OBJECT-TYPE
+	SYNTAX		InterfaceIndex	
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"The number of the serial port when the PM is connected."
+::= { cyPMEntry 1 }
+
+cyPMNumberOutlets	OBJECT-TYPE
+	SYNTAX		Integer32	
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"Number of outlets."
+::= { cyPMEntry 2 }
+
+cyPMNumberUnits		OBJECT-TYPE
+	SYNTAX		Integer32	
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"Total number of PM unists that are accessed by this 
+			serial port."
+::= { cyPMEntry 3 }
+
+cyPMCurrent	OBJECT-TYPE
+	SYNTAX		DisplayString	
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"Current reading for the PM."
+::= { cyPMEntry 4 }
+
+cyPMVersion	OBJECT-TYPE
+	SYNTAX		DisplayString	
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"The software version of the PM."
+::= { cyPMEntry 5 }
+
+cyPMCommand		OBJECT-TYPE
+	SYNTAX		DisplayString (SIZE (1..100))
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"A character string for the user to send commands to
+			PM. He can use it to does the save command.
+			Or to list the outlets that need to be turned off, 
+			or turned on , or cycled or locked or unlocked as a 
+			group. The command is the first word and is followed 
+			by a space and the outlet list (otulets commands). 
+			Valid commands are 'on', 'off', 'cycle', 'lock',
+			'unlock', 'save'."
+::= { cyPMEntry 7 }
+
+cyPMUnitTable	OBJECT-TYPE
+	SYNTAX		SEQUENCE OF CyPMUnitEntry
+	MAX-ACCESS	not-accessible
+	STATUS		current
+	DESCRIPTION	"Allow operations on specific PM unit connected"
+::= { cyACS5KPM 3 }
+
+cyPMUnitEntry	OBJECT-TYPE
+	SYNTAX		CyPMUnitEntry
+	MAX-ACCESS	not-accessible
+	STATUS		current
+	DESCRIPTION	"Allow operations on outlet"
+	INDEX		{ cyPMSerialPortNumber, cyPMUnitNumber }
+::= { cyPMUnitTable 1 }
+
+CyPMUnitEntry ::= SEQUENCE  {
+	cyPMUnitNumber		InterfaceIndex,     
+	cyPMUnitVersion		DisplayString,
+	cyPMUnitOutlets		Integer32,
+	cyPMUnitFirstOutlet 	Integer32,
+	cyPMUnitCurrent		Integer32,
+	cyPMUnitMaxCurrent 	Integer32,
+	cyPMUnitSequenceInterval	Integer32,
+	cyPMUnitCycleInterval	Integer32,	
+	cyPMUnitID		DisplayString,
+	cyPMUnitPhases		INTEGER,
+	cyPMUnitBanks           Integer32,      
+	cyPMUnitNominalVoltage  Integer32,
+	cyPMUnitPower           Integer32
+}
+
+cyPMUnitNumber	OBJECT-TYPE
+	SYNTAX		InterfaceIndex	
+	MAX-ACCESS	not-accessible
+	STATUS		current
+	DESCRIPTION	"The number of the PM unit in the daisy-chained mode."
+::= { cyPMUnitEntry 1 }
+
+cyPMUnitVersion	OBJECT-TYPE
+	SYNTAX		DisplayString	
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"The software version of this PM unit."
+::= { cyPMUnitEntry 2 }
+
+cyPMUnitOutlets	OBJECT-TYPE
+	SYNTAX		Integer32	
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"Number of outlets of this PM unit."
+::= { cyPMUnitEntry 3 }
+
+cyPMUnitFirstOutlet	OBJECT-TYPE
+	SYNTAX		Integer32	
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"Number of the first outlet of this PM unit."
+::= { cyPMUnitEntry 4 }
+
+cyPMUnitCurrent	OBJECT-TYPE
+	SYNTAX		Integer32	
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"Current of this PM unit in AMP.
+			The value of this object is the actual current in 
+                        AMP * 10. You need to translate the readed value
+                        (Ex. : value is 5, the current is 0.5 AMP.)" 
+::= { cyPMUnitEntry 5 }
+
+cyPMUnitMaxCurrent	OBJECT-TYPE
+	SYNTAX		Integer32	
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"Maximum current of this PM unit in AMP.
+			The value of this object is the maximum current in 
+                        AMP * 10. You need to translate the readed value
+                        (Ex. : value is 5, the maximum current is 0.5 AMP.)" 
+::= { cyPMUnitEntry 6 }
+
+cyPMUnitSequenceInterval OBJECT-TYPE
+	SYNTAX		Integer32	
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"Sequence interval delay. 
+                        Valid values are 2 to 15 (seconds)."
+::= { cyPMUnitEntry 9 }
+
+cyPMUnitCycleInterval	OBJECT-TYPE
+	SYNTAX		Integer32	
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"Number of seconds that a socket stays off 
+			before turning it back on."
+::= { cyPMUnitEntry 10 }
+
+cyPMUnitID		OBJECT-TYPE
+	SYNTAX		DisplayString
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"PDU identification."
+::= { cyPMUnitEntry 11 }
+
+cyPMUnitPhases	OBJECT-TYPE
+	SYNTAX	INTEGER	{
+			single-phase(0),
+			three-phase(3)
+		}
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"Number of phases of this PDU unit."
+::= { cyPMUnitEntry 12 }
+
+cyPMUnitBanks		OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"Number of banks of this PDU unit."
+::= { cyPMUnitEntry 13 }
+
+cyPMUnitNominalVoltage	OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"Nominal Voltage configured for this PDU unit, when it does not have voltage sensor"
+::= { cyPMUnitEntry 14 }
+
+cyPMUnitPower		OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"Power Consumption of this PDU unit (it is estimated when PDU does not have voltage sensor)."
+::= { cyPMUnitEntry 15 }
+
+cyOutletTable	OBJECT-TYPE
+	SYNTAX		SEQUENCE OF CyOutletEntry
+	MAX-ACCESS	not-accessible
+	STATUS		current
+	DESCRIPTION	"Allow operations on outlet"
+::= { cyACS5KPM 4 }
+
+cyOutletEntry	OBJECT-TYPE
+	SYNTAX		CyOutletEntry
+	MAX-ACCESS	not-accessible
+	STATUS		current
+	DESCRIPTION	"Allow operations on outlet"
+	INDEX		{ cyPMSerialPortNumber, cyOutletNumber }
+::= { cyOutletTable 1 }
+
+CyOutletEntry ::= SEQUENCE  {
+	cyOutletNumber	InterfaceIndexOrZero,     
+	cyOutletName	DisplayString,
+	cyOutletServer	DisplayString,
+	cyOutletPower	INTEGER,
+	cyOutletLock	INTEGER,
+	cyOutletPUInterval	Integer32,
+	cyOutletMinimumOnInterval	 Integer32,
+	cyOutletMinimumOffInterval        Integer32,
+	cyOutletWakeupState	Integer32,
+	cyOutletPduID		DisplayString,
+	cyOutletPduNumber 	Integer32
+}
+
+cyOutletNumber	OBJECT-TYPE
+	SYNTAX		InterfaceIndexOrZero	
+	MAX-ACCESS	not-accessible
+	STATUS		current
+	DESCRIPTION	"The outlet number on the PM. Zero is ALL outlets."
+::= { cyOutletEntry 1 }
+
+cyOutletName OBJECT-TYPE
+	SYNTAX		DisplayString (SIZE(1 .. 8))	
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"The name given to a particular outlet Maximum size is 8 characters."
+::= { cyOutletEntry 2 }
+
+cyOutletServer OBJECT-TYPE
+	SYNTAX		DisplayString 	
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"Alias of the Server connected to this outlet ."
+::= { cyOutletEntry 3 }
+
+cyOutletPower	OBJECT-TYPE
+	SYNTAX	INTEGER {
+			off	(0),
+			on	(1),
+			cycle	(2),
+			unknow  (3)
+		}
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Getting this object will return the power state of
+			the outlet. Valid return states are UNKNOW, OFF and
+			ON. Setting this object will change the power state 
+			of the outlet."
+::= { cyOutletEntry 4 }
+
+cyOutletLock	OBJECT-TYPE
+	SYNTAX	INTEGER {
+			unlock	(0),
+			lock	(1),
+			unknow 	(2)
+		}
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Getting this object will return the lock state of
+			the outlet. Setting this object will change the 
+			lock state of the outlet."
+::= { cyOutletEntry 5 }
+
+cyOutletPUInterval	OBJECT-TYPE
+	SYNTAX		Integer32	
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"The power unit interval of this outlet in seconds.
+			The value of this object is the actual interval in 
+                        seconds * 10. You need to translate the readed value
+                        (Ex. : value is 5, the interval is 0.5 seconds.)" 
+::= { cyOutletEntry 6 }
+
+cyOutletMinimumOnInterval OBJECT-TYPE
+	SYNTAX		Integer32	
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"Minimum time in seconds an outlet will stay on before 
+			turning	it off."
+::= { cyOutletEntry 7 }
+
+cyOutletMinimumOffInterval OBJECT-TYPE
+	SYNTAX		Integer32	
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"Minimum time in seconds an outlet will stay off before 
+			turning	it on."
+::= { cyOutletEntry 8 }
+
+cyOutletWakeupState	OBJECT-TYPE
+	SYNTAX		Integer32	
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"Outlet state after a cold boot. It can be set to on 
+			or off."
+::= { cyOutletEntry 9 }
+
+cyOutletPduID	OBJECT-TYPE
+	SYNTAX		DisplayString
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"PDU identification."
+::= { cyOutletEntry 10}
+
+cyOutletPduNumber	OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	not-accessible
+	STATUS		current
+	DESCRIPTION	"The number of the PDU unit in the daisy-chained mode."
+::= { cyOutletEntry 11 }
+
+cyPMElecPduTable	OBJECT-TYPE
+        SYNTAX          SEQUENCE OF CyPMElecPduTableEntry
+        MAX-ACCESS      not-accessible
+        STATUS          current
+        DESCRIPTION     "Allow operations on elecmon element of the PDUs"
+::= { cyACS5KPM 5 }
+
+cyPMElecPduTableEntry	OBJECT-TYPE
+	SYNTAX		CyPMElecPduTableEntry
+	MAX-ACCESS	not-accessible
+	STATUS		current
+	DESCRIPTION	"each entry has the information about the elecmon element of the PDUs."
+	INDEX           { cyPMElecPduTablePortNumber, cyPMElecPduTablePduNumber }
+::= { cyPMElecPduTable 1 }
+
+CyPMElecPduTableEntry ::= SEQUENCE  {
+	cyPMElecPduTablePortNumber   InterfaceIndex,   -- serial port #
+	cyPMElecPduTablePduNumber    InterfaceIndex,   -- pdu number in the chain
+	cyPMElecPduTableCurrentValue    Integer32,           -- actual value for current
+	cyPMElecPduTableCurrentMax      Integer32,           -- max value for current
+	cyPMElecPduTablePowerValue      Integer32,          -- actual value for power
+	cyPMElecPduTablePowerMax        Integer32,           -- max value for power
+	cyPMElecPduTableVoltageValue    Integer32,           -- actual value for voltage
+	cyPMElecPduTableVoltageMax      Integer32,            -- max value for voltage
+	cyPMElecPduTablePowerFactorValue  Integer32,    -- actual value for powerfactor
+	cyPMElecPduTablePowerFactorMax    Integer32,    -- max value for powerfactor
+	cyPMElecPduTablePowerType       INTEGER,           -- type of power
+	cyPMElecPduTableVoltageType     INTEGER,            -- type of voltage
+	cyPMElecPduTablePowerFactorType	INTEGER            -- type of powerfactor
+}
+
+cyPMElecPduTablePortNumber	OBJECT-TYPE
+	SYNTAX		InterfaceIndex
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"Serial Port number where the PDU is connected."
+::= { cyPMElecPduTableEntry 1 }
+
+cyPMElecPduTablePduNumber 	OBJECT-TYPE
+	SYNTAX		InterfaceIndex
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"The number of the PDU unit in the daisy-chained mode"
+::= { cyPMElecPduTableEntry  2 }
+
+cyPMElecPduTableCurrentValue	OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"Actual value of current in the element (A x 10)."
+::= { cyPMElecPduTableEntry 3 }
+
+cyPMElecPduTableCurrentMax	OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Maximum detected value of current in the element (A x 10). 
+			Write operation accepts only 0 for reset action."
+::= { cyPMElecPduTableEntry 4 }
+
+cyPMElecPduTablePowerValue	OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"Actual value of power in the element (W x 10)."
+::= { cyPMElecPduTableEntry 5 }
+
+cyPMElecPduTablePowerMax	OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Maximum value of power in the element (W x 10).
+			Write operation accepts only 0 for reset action."
+::= { cyPMElecPduTableEntry 6 }
+
+cyPMElecPduTableVoltageValue	OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"Actual value of voltage in the element (V).When element 
+			does not have voltage sensor, it returns 0."
+::= { cyPMElecPduTableEntry 7 }
+
+cyPMElecPduTableVoltageMax	OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Maximum value of voltage in the element (V). When element 
+			does not have voltage sensor, it returns 0. Write operation 
+			accepts only 0 for reset action."
+::= { cyPMElecPduTableEntry 8 }
+
+cyPMElecPduTablePowerFactorValue	OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"Actual value of power factor in the element (Pf x 10). 
+			When element does not have power factor sensor, returns 0."
+::= { cyPMElecPduTableEntry 9 }
+
+cyPMElecPduTablePowerFactorMax	OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Maximum value of power factor in the element (Pf x 10). 
+			When element does not have power factor sensor, returns 0.
+			Write operation accepts only 0 for reset action."
+::= { cyPMElecPduTableEntry 10 }
+
+cyPMElecPduTablePowerType	OBJECT-TYPE
+	SYNTAX		INTEGER  {
+				estimated(1),
+				measured(2)
+			}
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"This PDU unit's Power sensor type."
+::= { cyPMElecPduTableEntry 11 }
+
+cyPMElecPduTableVoltageType	OBJECT-TYPE
+	SYNTAX		INTEGER  {
+				estimated(1),
+				measured(2)
+			}
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"This PDU unit's has voltage sensor type."
+::= { cyPMElecPduTableEntry 12 }
+
+cyPMElecPduTablePowerFactorType	OBJECT-TYPE
+	SYNTAX		INTEGER  {
+				estimated(1),
+				measured(2)
+			}
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"This PDU unit's Power Factor sensor type."
+::= { cyPMElecPduTableEntry 13 }
+
+cyPMElecPhaseTable	OBJECT-TYPE
+        SYNTAX          SEQUENCE OF CyPMElecPhaseTableEntry
+        MAX-ACCESS      not-accessible
+        STATUS          current
+        DESCRIPTION     "Allow operations on elecmon element for phases"
+::= { cyACS5KPM 6 }
+
+cyPMElecPhaseTableEntry	OBJECT-TYPE
+	SYNTAX		CyPMElecPhaseTableEntry
+	MAX-ACCESS	not-accessible
+	STATUS		current
+	DESCRIPTION	"each entry has the information about the elecmon for phase."
+	INDEX		{ 
+				cyPMElecPhaseTablePortNumber,
+				cyPMElecPhaseTablePduNumber,
+				cyPMElecPhaseTableIndex 
+			}
+::= { cyPMElecPhaseTable 1 }
+
+CyPMElecPhaseTableEntry ::= SEQUENCE  {
+	cyPMElecPhaseTablePortNumber	InterfaceIndex,   -- serial port #
+	cyPMElecPhaseTablePduNumber	InterfaceIndex,   -- pdu number in the chain
+	cyPMElecPhaseTableIndex		InterfaceIndex,    -- index of the element 
+	cyPMElecPhaseTableName		DisplayString,      -- phase sysname
+	cyPMElecPhaseTableCurrentValue	Integer32,           -- actual value for current
+	cyPMElecPhaseTableCurrentMax	Integer32,           -- max value for current
+	cyPMElecPhaseTablePowerValue	Integer32,          -- actual value for power
+	cyPMElecPhaseTablePowerMax	Integer32,           -- max value for power
+	cyPMElecPhaseTableVoltageValue	Integer32,           -- actual value for voltage
+	cyPMElecPhaseTableVoltageMax	Integer32,            -- max value for voltage
+	cyPMElecPhaseTablePowerFactorValue	Integer32,    -- actual value for powerfactor
+	cyPMElecPhaseTablePowerFactorMax	Integer32,    -- max value for powerfactor
+	cyPMElecPhaseTablePowerType       INTEGER,           -- type of power
+        cyPMElecPhaseTableVoltageType     INTEGER,            -- type of voltage
+        cyPMElecPhaseTablePowerFactorType INTEGER            -- type of powerfactor
+}
+
+cyPMElecPhaseTablePortNumber	OBJECT-TYPE
+	SYNTAX		InterfaceIndex
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"Serial Port number where the PDU is connected."
+::= { cyPMElecPhaseTableEntry 1 }
+
+cyPMElecPhaseTablePduNumber	OBJECT-TYPE
+	SYNTAX		InterfaceIndex
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"The number of the PDU unit in the daisy-chained mode"
+::= { cyPMElecPhaseTableEntry  2 }
+
+cyPMElecPhaseTableIndex OBJECT-TYPE
+	SYNTAX		InterfaceIndex
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"index of the phase in the PDU. Index can be 1,2 or 3."
+::= { cyPMElecPhaseTableEntry 3 }
+
+cyPMElecPhaseTableName	OBJECT-TYPE
+	SYNTAX		DisplayString
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"Sys-name of the phase." 
+::= { cyPMElecPhaseTableEntry 4 }
+
+cyPMElecPhaseTableCurrentValue	OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"Actual value of current in the phase (A x 10)."
+::= { cyPMElecPhaseTableEntry 5 }
+
+cyPMElecPhaseTableCurrentMax	OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Maximum detected value of current in the phase (A x 10). 
+			Write operation accepts only 0 for reset action."
+::= { cyPMElecPhaseTableEntry 6 }
+
+cyPMElecPhaseTablePowerValue	OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"Actual value of power in the phase (W x 10)."
+::= { cyPMElecPhaseTableEntry 7 }
+
+cyPMElecPhaseTablePowerMax	OBJECT-TYPE
+	SYNTAX		Integer32 
+	MAX-ACCESS	read-write 
+	STATUS		current
+	DESCRIPTION	"Maximum value of power in the phase (W x 10).Write operation
+			accepts only 0 for reset action."
+::= { cyPMElecPhaseTableEntry 8 }
+
+cyPMElecPhaseTableVoltageValue	OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"Actual value of voltage in the phase (V).When phase does 
+			not have voltage sensor, it returns 0."
+::= { cyPMElecPhaseTableEntry 9 }
+
+cyPMElecPhaseTableVoltageMax	OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Maximum value of voltage in the phase (V). When phase does 
+			not have voltage sensor, it returns 0. Write operation accepts 
+			only 0 for reset action."
+::= { cyPMElecPhaseTableEntry 10 }
+
+cyPMElecPhaseTablePowerFactorValue	OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"Actual value of power factor in the phase (Pf x 10). When 
+			phase does not have power factor sensor, returns 0."
+::= { cyPMElecPhaseTableEntry 11 }
+
+cyPMElecPhaseTablePowerFactorMax	OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Maximum value of power factor in the phase (Pf x 10). When 
+			phase does not have power factor sensor, returns 0.Write 
+			operation accepts only 0 for reset action."
+::= { cyPMElecPhaseTableEntry 12 }
+
+cyPMElecPhaseTablePowerType	OBJECT-TYPE
+	SYNTAX		INTEGER  {
+				estimated(1),
+				measured(2)
+			}
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"The type of Power sensor for this elecmon"
+::= { cyPMElecPhaseTableEntry 13 }
+
+cyPMElecPhaseTableVoltageType	OBJECT-TYPE
+	SYNTAX		INTEGER  {
+				estimated(1),
+				measured(2)
+			}
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"The type of Voltage sensor for this elecmon"
+::= { cyPMElecPhaseTableEntry 14 }
+
+cyPMElecPhaseTablePowerFactorType	OBJECT-TYPE
+	SYNTAX		INTEGER  {
+				estimated(1),
+				measured(2)
+			}
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"The type of Power Factor sensor for this elecmon"
+::= { cyPMElecPhaseTableEntry 15 }
+
+cyPMElecBankTable	OBJECT-TYPE
+        SYNTAX          SEQUENCE OF CyPMElecBankTableEntry
+        MAX-ACCESS      not-accessible
+        STATUS          current
+        DESCRIPTION     "Allow operations on elecmon element for banks"
+::= { cyACS5KPM 7 }
+
+cyPMElecBankTableEntry	OBJECT-TYPE
+	SYNTAX		CyPMElecBankTableEntry
+	MAX-ACCESS	not-accessible
+	STATUS		current
+	DESCRIPTION	"each entry has the information about the elecmon for Bank."
+	INDEX		{ 
+				cyPMElecBankTablePortNumber,
+				cyPMElecBankTablePduNumber,
+				cyPMElecBankTableIndex 
+			}
+::= { cyPMElecBankTable 1 }
+
+CyPMElecBankTableEntry ::= SEQUENCE  {
+	cyPMElecBankTablePortNumber	InterfaceIndex,   -- serial port #
+	cyPMElecBankTablePduNumber	InterfaceIndex,   -- pdu number in the chain
+	cyPMElecBankTableIndex		InterfaceIndex,    -- index of the element 
+	cyPMElecBankTableName		DisplayString,      -- Bank sysname
+	cyPMElecBankTableCurrentValue	Integer32,           -- actual value for current
+	cyPMElecBankTableCurrentMax	Integer32,           -- max value for current
+	cyPMElecBankTablePowerValue	Integer32,          -- actual value for power
+	cyPMElecBankTablePowerMax	Integer32,           -- max value for power
+	cyPMElecBankTableVoltageValue	Integer32,           -- actual value for voltage
+	cyPMElecBankTableVoltageMax	Integer32,            -- max value for voltage
+	cyPMElecBankTablePowerFactorValue	Integer32,    -- actual value for powerfactor
+	cyPMElecBankTablePowerFactorMax	Integer32,    -- max value for powerfactor
+	cyPMElecBankTablePowerType       INTEGER,           -- type of power
+        cyPMElecBankTableVoltageType     INTEGER,            -- type of voltage
+        cyPMElecBankTablePowerFactorType INTEGER            -- type of powerfactor
+}
+
+cyPMElecBankTablePortNumber	OBJECT-TYPE
+	SYNTAX		InterfaceIndex
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"Serial Port number where the PDU is connected."
+::= { cyPMElecBankTableEntry 1 }
+
+cyPMElecBankTablePduNumber	OBJECT-TYPE
+        SYNTAX          InterfaceIndex
+        MAX-ACCESS      read-only
+        STATUS          current
+        DESCRIPTION     "The number of the PDU unit in the daisy-chained mode"
+::= { cyPMElecBankTableEntry  2 }
+
+cyPMElecBankTableIndex OBJECT-TYPE
+        SYNTAX          InterfaceIndex
+        MAX-ACCESS      read-only
+        STATUS          current
+	DESCRIPTION	"index of the Bank in the PDU. Index can be 1,2, ... number of banks of the PDU."
+::= { cyPMElecBankTableEntry 3 }
+
+cyPMElecBankTableName	OBJECT-TYPE
+	SYNTAX		DisplayString
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"Sys-name of the Bank." 
+::= { cyPMElecBankTableEntry 4 }
+
+cyPMElecBankTableCurrentValue	OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"Actual value of current in the Bank (A x 10)."
+::= { cyPMElecBankTableEntry 5 }
+
+cyPMElecBankTableCurrentMax	OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Maximum detected value of current in the Bank (A x 10). 
+			Write operation accepts only 0 for reset action."
+::= { cyPMElecBankTableEntry 6 }
+
+cyPMElecBankTablePowerValue	OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"Actual value of power in the Bank (W x 10)."
+::= { cyPMElecBankTableEntry 7 }
+
+cyPMElecBankTablePowerMax	OBJECT-TYPE
+	SYNTAX		Integer32 
+	MAX-ACCESS	read-write 
+	STATUS		current
+	DESCRIPTION	"Maximum value of power in the Bank (W x 10).Write operation
+			accepts only 0 for reset action."
+::= { cyPMElecBankTableEntry 8 }
+
+cyPMElecBankTableVoltageValue	OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"Actual value of voltage in the Bank (V).When Bank does 
+			not have voltage sensor, it returns 0."
+::= { cyPMElecBankTableEntry 9 }
+
+cyPMElecBankTableVoltageMax	OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Maximum value of voltage in the Bank (V). When Bank does 
+			not have voltage sensor, it returns 0. Write operation accepts 
+			only 0 for reset action."
+::= { cyPMElecBankTableEntry 10 }
+
+cyPMElecBankTablePowerFactorValue	OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"Actual value of power factor in the Bank (Pf x 10). When 
+			Bank does not have power factor sensor, returns 0."
+::= { cyPMElecBankTableEntry 11 }
+
+cyPMElecBankTablePowerFactorMax	OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Maximum value of power factor in the Bank (Pf x 10). When 
+			Bank does not have power factor sensor, returns 0.Write 
+			operation accepts only 0 for reset action."
+::= { cyPMElecBankTableEntry 12 }
+
+cyPMElecBankTablePowerType	OBJECT-TYPE
+	SYNTAX		INTEGER  {
+				estimated(1),
+				measured(2)
+			}
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"The type of Power sensor for this elecmon"
+::= { cyPMElecBankTableEntry 13 }
+
+cyPMElecBankTableVoltageType	OBJECT-TYPE
+	SYNTAX		INTEGER  {
+				estimated(1),
+				measured(2)
+			}
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"The type of Voltage sensor for this elecmon"
+::= { cyPMElecBankTableEntry 14 }
+
+cyPMElecBankTablePowerFactorType	OBJECT-TYPE
+	SYNTAX		INTEGER  {
+				estimated(1),
+				measured(2)
+			}
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"The type of Power Factor sensor for this elecmon"
+::= { cyPMElecBankTableEntry 15 }
+
+cyPMElecOutletTable	OBJECT-TYPE
+        SYNTAX          SEQUENCE OF CyPMElecOutletTableEntry
+        MAX-ACCESS      not-accessible
+        STATUS          current
+        DESCRIPTION     "Allow operations on elecmon element for outlets"
+::= { cyACS5KPM 8 }
+
+cyPMElecOutletTableEntry	OBJECT-TYPE
+	SYNTAX		CyPMElecOutletTableEntry
+	MAX-ACCESS	not-accessible
+	STATUS		current
+	DESCRIPTION	"each entry has the information about the elecmon for Outlet."
+	INDEX		{ 
+				cyPMElecOutletTablePortNumber,
+				cyPMElecOutletTablePduNumber,
+				cyPMElecOutletTableNumber 
+			}
+::= { cyPMElecOutletTable 1 }
+
+CyPMElecOutletTableEntry ::= SEQUENCE  {
+	cyPMElecOutletTablePortNumber	InterfaceIndex,   -- serial port #
+	cyPMElecOutletTablePduNumber	InterfaceIndex,   -- pdu number in the chain
+	cyPMElecOutletTableNumber	InterfaceIndex,    -- outlet number in the PDU 
+	cyPMElecOutletTableName		DisplayString,      -- Outlet name
+	cyPMElecOutletTableCurrentValue	Integer32,           -- actual value for current
+	cyPMElecOutletTableCurrentMax	Integer32,           -- max value for current
+	cyPMElecOutletTablePowerValue	Integer32,          -- actual value for power
+	cyPMElecOutletTablePowerMax	Integer32,           -- max value for power
+	cyPMElecOutletTableVoltageValue	Integer32,           -- actual value for voltage
+	cyPMElecOutletTableVoltageMax	Integer32,            -- max value for voltage
+	cyPMElecOutletTablePowerFactorValue	Integer32,    -- actual value for powerfactor
+	cyPMElecOutletTablePowerFactorMax	Integer32,    -- max value for powerfactor
+	cyPMElecOutletTablePowerType       INTEGER,           -- type of power
+        cyPMElecOutletTableVoltageType     INTEGER,            -- type of voltage
+        cyPMElecOutletTablePowerFactorType INTEGER            -- type of powerfactor
+}
+
+cyPMElecOutletTablePortNumber	OBJECT-TYPE
+	SYNTAX		InterfaceIndex
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"Serial Port number where the PDU is connected."
+::= { cyPMElecOutletTableEntry 1 }
+
+cyPMElecOutletTablePduNumber	OBJECT-TYPE
+	SYNTAX		InterfaceIndex
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"The number of the PDU unit in the daisy-chained mode"
+::= { cyPMElecOutletTableEntry  2 }
+
+cyPMElecOutletTableNumber	OBJECT-TYPE
+	SYNTAX		InterfaceIndex
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"outlet number in the PDU"
+::= { cyPMElecOutletTableEntry 3 }
+
+cyPMElecOutletTableName	OBJECT-TYPE
+	SYNTAX		DisplayString
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"name of the Outlet." 
+::= { cyPMElecOutletTableEntry 4 }
+
+cyPMElecOutletTableCurrentValue	OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"Actual value of current in the Outlet (A x 10)."
+::= { cyPMElecOutletTableEntry 5 }
+
+cyPMElecOutletTableCurrentMax	OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Maximum detected value of current in the Outlet (A x 10). 
+			Write operation accepts only 0 for reset action."
+::= { cyPMElecOutletTableEntry 6 }
+
+cyPMElecOutletTablePowerValue	OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"Actual value of power in the Outlet (W x 10)."
+::= { cyPMElecOutletTableEntry 7 }
+
+cyPMElecOutletTablePowerMax	OBJECT-TYPE
+	SYNTAX		Integer32 
+	MAX-ACCESS	read-write 
+	STATUS		current
+	DESCRIPTION	"Maximum value of power in the Outlet (W x 10).Write operation
+			accepts only 0 for reset action."
+::= { cyPMElecOutletTableEntry 8 }
+
+cyPMElecOutletTableVoltageValue	OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"Actual value of voltage in the Outlet (V).When Outlet does 
+			not have voltage sensor, it returns 0."
+::= { cyPMElecOutletTableEntry 9 }
+
+cyPMElecOutletTableVoltageMax	OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Maximum value of voltage in the Outlet (V). When Outlet does 
+			not have voltage sensor, it returns 0. Write operation accepts 
+			only 0 for reset action."
+::= { cyPMElecOutletTableEntry 10 }
+
+cyPMElecOutletTablePowerFactorValue	OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"Actual value of power factor in the Outlet (Pf x 10). When 
+			Outlet does not have power factor sensor, returns 0."
+::= { cyPMElecOutletTableEntry 11 }
+
+cyPMElecOutletTablePowerFactorMax	OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Maximum value of power factor in the Outlet (Pf x 10). When 
+			Outlet does not have power factor sensor, returns 0.Write 
+			operation accepts only 0 for reset action."
+::= { cyPMElecOutletTableEntry 12 }
+
+cyPMElecOutletTablePowerType	OBJECT-TYPE
+	SYNTAX		INTEGER  {
+				estimated(1),
+				measured(2)
+			}
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"The type of Power sensor for this elecmon"
+::= { cyPMElecOutletTableEntry 13 }
+
+cyPMElecOutletTableVoltageType	OBJECT-TYPE
+	SYNTAX		INTEGER  {
+				estimated(1),
+				measured(2)
+			}
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"The type of Voltage sensor for this elecmon"
+::= { cyPMElecOutletTableEntry 14 }
+
+cyPMElecOutletTablePowerFactorType	OBJECT-TYPE
+	SYNTAX		INTEGER  {
+				estimated(1),
+				measured(2)
+			}
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"The type of Power Factor sensor for this elecmon"
+::= { cyPMElecOutletTableEntry 15 }
+
+cyPMEnvMonTable	OBJECT-TYPE
+	SYNTAX		SEQUENCE OF CyPMEnvMonTableEntry
+        MAX-ACCESS	not-accessible
+	STATUS		current
+	DESCRIPTION	"Allow operations on environmental monitors"
+::= { cyACS5KPM 9 }
+
+cyPMEnvMonTableEntry  OBJECT-TYPE
+	SYNTAX		CyPMEnvMonTableEntry
+	MAX-ACCESS	not-accessible
+	STATUS		current
+	DESCRIPTION	"each entry has the information about the environmental monitors."
+	INDEX		{ 
+				cyPMEnvMonTablePortNumber,
+				cyPMEnvMonTablePduNumber,
+				cyPMEnvMonTableIndex 
+			}
+::= { cyPMEnvMonTable 1 }
+
+CyPMEnvMonTableEntry ::= SEQUENCE  {
+	cyPMEnvMonTablePortNumber	InterfaceIndex,   -- serial port #
+	cyPMEnvMonTablePduNumber	InterfaceIndex,   -- pdu number in the chain
+	cyPMEnvMonTableIndex	InterfaceIndex,  -- index of the monitor 
+	cyPMEnvMonTableName	DisplayString,    -- monitor sysname
+	cyPMEnvMonTableType	INTEGER,         -- type of the monitor
+	cyPMEnvMonTableStatus	INTEGER,	-- status of monitors 
+	cyPMEnvMonTableValue	Integer32,	-- current value of monitor 
+	cyPMEnvMonTableMaxValue	Integer32
+}
+
+cyPMEnvMonTablePortNumber	OBJECT-TYPE
+        SYNTAX		InterfaceIndex
+        MAX-ACCESS	read-only
+        STATUS		current
+        DESCRIPTION	"Serial Port number where the PDU is connected."
+::= { cyPMEnvMonTableEntry 1 }
+
+cyPMEnvMonTablePduNumber	OBJECT-TYPE
+        SYNTAX		InterfaceIndex
+        MAX-ACCESS	read-only
+        STATUS		current
+        DESCRIPTION	"The number of the PDU unit in the daisy-chained mode"
+::= { cyPMEnvMonTableEntry  2 }
+
+cyPMEnvMonTableIndex	OBJECT-TYPE
+        SYNTAX		InterfaceIndex
+        MAX-ACCESS	read-only
+        STATUS		current
+        DESCRIPTION	"index of the environmental monitor in the PDU."
+::= { cyPMEnvMonTableEntry 3 }
+
+cyPMEnvMonTableName	OBJECT-TYPE
+        SYNTAX		DisplayString
+        MAX-ACCESS	read-only
+        STATUS		current
+        DESCRIPTION	"Name of the environmental monitor." 
+::= { cyPMEnvMonTableEntry 4 }
+
+cyPMEnvMonTableType	OBJECT-TYPE
+	SYNTAX	INTEGER {
+			temp-internal (1), 
+			temperature (2),
+			humidity (3),
+			air-flow (4),
+			smoke (5),
+			dry-concact (6),
+			water-level (7),
+			motion (8),
+			unplugged (9),
+			unknown (10)
+		}        
+        MAX-ACCESS	read-only
+        STATUS		current
+        DESCRIPTION	"The type of environmental monitor."
+::= { cyPMEnvMonTableEntry  5 }
+
+cyPMEnvMonTableStatus OBJECT-TYPE
+         SYNTAX	INTEGER {
+              		normal(1),
+              		triggered(2),
+			not-applicable(3)
+                }        
+        MAX-ACCESS	read-only
+        STATUS		current
+        DESCRIPTION	"The status of Dry-Contact/Water-level/Smoke/Motion monitors. 
+			Dry-Contact sensor: Opened(1), closed(2). 
+			Water level: Normal (1), Triggered(2). 
+			Smoke sensor: not-detected(1), detected(2). 
+			Motion sensor: not-detected(1), detected(2)."
+::= { cyPMEnvMonTableEntry  6 }
+
+cyPMEnvMonTableValue	OBJECT-TYPE
+        SYNTAX		Integer32
+        MAX-ACCESS	read-only
+        STATUS		current
+        DESCRIPTION	"Actual value of Temperature/Humidity/Air-flow monitors (x 10)."
+::= { cyPMEnvMonTableEntry 7 }
+
+cyPMEnvMonTableMaxValue	OBJECT-TYPE
+        SYNTAX		Integer32
+        MAX-ACCESS	read-write
+        STATUS		current
+        DESCRIPTION	"Maximum detected value of Temperature/Humidity/Air-flow monitor (x 10). 
+			Write operation accepts only 0 for reset action."
+::= { cyPMEnvMonTableEntry 8 }
+
+END
+

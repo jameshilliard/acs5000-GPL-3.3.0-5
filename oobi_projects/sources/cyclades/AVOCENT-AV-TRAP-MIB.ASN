@@ -1,0 +1,1237 @@
+-- Avocent Vendor AVCS TRAP MIB OID Tree
+-- Release 04/20/2007
+
+AVOCENT-AUTOVIEW-TRAP-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+   avocent,autoview
+        FROM AVOCENT-MIB
+   avManagement
+        FROM AVOCENT-AUTOVIEW-MIB
+   MODULE-IDENTITY,OBJECT-IDENTITY
+        FROM SNMPv2-SMI
+   Gauge,enterprises,TimeTicks,IpAddress,Counter,NetworkAddress
+      FROM RFC1155-SMI
+   OBJECT-TYPE
+      FROM RFC-1212
+   DisplayString,PhysAddress
+      FROM RFC1213-MIB
+   TRAP-TYPE
+      FROM RFC-1215;
+----------------------------------------------------------------------
+-- AutoView Trap Object   10418.15.2.6 (avocent.autoview.avManagement.avTrapObject)
+--
+-- The following objects are implemented only for the generation of
+-- TRAPs. The objects are sent in traps and are not accessible in
+-- any other way.
+----------------------------------------------------------------------
+
+avTrapObject OBJECT-IDENTITY  
+	STATUS current
+	DESCRIPTION " Define the trap objects "
+	::= { avManagement  6  }
+
+avModel      OBJECT-IDENTITY  
+	STATUS current
+	DESCRIPTION " Define the appliance models "
+	::= { avManagement  7  }
+avcs1          OBJECT-IDENTITY  
+	STATUS current
+	DESCRIPTION " Define the aplliance model AVCS4001 "
+	::= { avModel 1  }
+avcs4          OBJECT-IDENTITY  
+	STATUS current
+	DESCRIPTION " Define the appliance model AVCS4004 "
+	::= { avModel 4  }
+avcs8          OBJECT-IDENTITY  
+	STATUS current
+	DESCRIPTION " Define the appliance model AVCS4008 "
+	::= { avModel 8  }
+avcs16         OBJECT-IDENTITY  
+	STATUS current
+	DESCRIPTION " Define the appliance model AVCS-4016 "
+	::= { avModel 16 }
+
+avTrapObjectUserName OBJECT-TYPE
+      SYNTAX OCTET STRING
+      ACCESS not-accessible
+      STATUS current
+  --% AVAILABILITY public
+      DESCRIPTION 
+      "This object is sent in a trap to identify the name of the user
+       for which the trap condition occurred."
+       ::= { avTrapObject 1 }
+
+avTrapObjectTargetUserName OBJECT-TYPE
+      SYNTAX OCTET STRING
+      ACCESS not-accessible
+      STATUS current
+  --% AVAILABILITY public
+      DESCRIPTION 
+      "This object is sent in a trap to identify the name of the user
+       for which the trap condition occurred."
+       ::= { avTrapObject 2 }        
+
+avTrapObjectSerialPort OBJECT-TYPE
+      SYNTAX INTEGER
+      ACCESS not-accessible
+      STATUS current
+      DESCRIPTION       
+      "This object is sent in a trap to identify which serial port number 
+       the trap condition occurred."
+  --% AVAILABILITY public                         
+      ::= { avTrapObject 3 }
+
+avTrapObjectSerialSessionType OBJECT-TYPE
+      SYNTAX INTEGER {
+                        CAS-SSH(1),
+                        CAS-Telnet(2),
+                        CAS-RawData(3),
+                        TS(4),
+                        Dial-in(5)
+                     }
+      ACCESS not-accessible
+      STATUS current
+      DESCRIPTION 
+      "This object is sent in a trap to identify type of Serial Session."
+  --% AVAILABILITY public                         
+      ::= { avTrapObject 4 }
+      
+avTrapObjectSerialPortName OBJECT-TYPE
+      SYNTAX OCTET STRING 
+      ACCESS not-accessible
+      STATUS current
+      DESCRIPTION 
+      "This object is sent in a trap to identify the target Device by 
+       name - alias of the serial port."
+  --% AVAILABILITY public                         
+      ::= { avTrapObject 5 }
+            
+avTrapObjectAlertMessage OBJECT-TYPE
+      SYNTAX OCTET STRING
+      ACCESS not-accessible
+      STATUS current
+  --% AVAILABILITY public
+      DESCRIPTION
+      "This object is sent in a trap to identify the line text where 
+       the alert string was detected."
+      ::= { avTrapObject 6 }
+      
+avTrapObjectAlertString OBJECT-TYPE
+      SYNTAX OCTET STRING
+      ACCESS not-accessible
+      STATUS current
+      DESCRIPTION       
+      "This object is sent in a trap to identify the alert string 
+       that matched in the alert message."
+  --% AVAILABILITY public                         
+      ::= { avTrapObject 7}
+
+avTrapObjectPMCount OBJECT-TYPE
+      SYNTAX INTEGER
+      ACCESS not-accessible
+      STATUS current
+  --% AVAILABILITY public      
+      DESCRIPTION       
+      "This object is sent in a trap to identify number of PDU on 
+       the chain"
+      ::= { avTrapObject 8 }
+
+avTrapObjectPMSocketCount OBJECT-TYPE
+      SYNTAX INTEGER
+      ACCESS not-accessible
+      STATUS current
+  --% AVAILABILITY public      
+      DESCRIPTION
+      "This object is sent in a trap to identify number of outlets 
+       on the chain"
+      ::= { avTrapObject 9 }
+
+avTrapObjectPMNumber OBJECT-TYPE
+      SYNTAX INTEGER
+      ACCESS not-accessible
+      STATUS current
+  --% AVAILABILITY public          
+      DESCRIPTION       
+      "This object is sent in a trap to identify the IPDU # the trap 
+       condition occurred on."         
+      ::= { avTrapObject 10 }
+
+avTrapObjectPMSocketNumber OBJECT-TYPE
+      SYNTAX INTEGER
+      ACCESS not-accessible
+      STATUS current
+      DESCRIPTION       
+      "This object is sent in a trap to identify outlet number the trap
+         condition occurred on."
+  --% AVAILABILITY public   
+      ::= { avTrapObject 11 }
+      
+avTrapObjectPMSocketName OBJECT-TYPE
+      SYNTAX OCTET STRING
+      ACCESS not-accessible
+      STATUS current
+      DESCRIPTION       
+      "This object is sent in a trap to identify outlet association 
+       with serial port name if there any association or the name 
+       stored in the PM."
+  --% AVAILABILITY public   
+      ::= { avTrapObject 12 }
+            
+avTrapObjectDaemonName OBJECT-TYPE
+        SYNTAX OCTET STRING
+        ACCESS not-accessible
+        STATUS current            
+        DESCRIPTION     
+        "This object is sent in a trap to indicate the Daemon name
+        that has started/stopped."
+  --% AVAILABILITY public          
+        ::= { avTrapObject 13 }
+
+avTrapObjectPMCurrentValue OBJECT-TYPE
+        SYNTAX OCTET STRING
+        ACCESS not-accessible
+        STATUS current            
+        DESCRIPTION     
+        "This object is sent in a trap to detected current value of the PM."
+  --% AVAILABILITY public               
+        ::= { avTrapObject 14 }
+        
+avTrapFirmwareVersion OBJECT-TYPE
+        SYNTAX OCTET STRING
+        ACCESS not-accessible
+        STATUS current            
+        DESCRIPTION
+        "This object is sent in a trap to identify current Firmware version."
+  --% AVAILABILITY public  
+        ::= { avTrapObject 15 }
+
+avTrapNewFirmwareVersion OBJECT-TYPE
+        SYNTAX OCTET STRING
+        ACCESS not-accessible
+        STATUS current            
+        DESCRIPTION
+        "This object is sent in a trap to identify new Firmware version."
+  --% AVAILABILITY public  
+        ::= { avTrapObject 16 }
+        
+avTrapFirmwareUpgradeResult  OBJECT-TYPE
+        SYNTAX INTEGER  {
+                        imageUpgradeSuccess(1),
+                        imageUpgradeInternalError(2)
+               }
+        ACCESS not-accessible
+        STATUS current            
+        DESCRIPTION     
+        "This object is sent in a trap to identify the firmware upgrade result."
+  --% AVAILABILITY public  
+        ::= { avTrapObject 17 }
+
+avTrapObjectSessionType OBJECT-TYPE
+      SYNTAX INTEGER {
+                      SSH(1),
+                      TELNET(2),
+                      WEBUI(3),
+		      Console(4),
+		      ModemPCMCIA(5)
+             }
+      ACCESS not-accessible
+      STATUS current
+      DESCRIPTION 
+      "This object is sent in a trap to identify type of Session 
+       for access to appliance."
+  --% AVAILABILITY public                         
+      ::= { avTrapObject 18 }  
+      
+avTrapObjectTargetedSerialPort OBJECT-TYPE
+      SYNTAX INTEGER
+      ACCESS not-accessible
+      STATUS current
+      DESCRIPTION       
+      "This object is sent in a trap to identify which port 
+       the trap condition occurred."
+  --% AVAILABILITY public                         
+      ::= { avTrapObject 19 }
+
+avTrapObjectDataBufferSize OBJECT-TYPE
+      SYNTAX INTEGER
+      ACCESS not-accessible
+      STATUS current
+      DESCRIPTION       
+      "This object is sent in a trap to identify current size of 
+       global buffer."
+  --% AVAILABILITY public                         
+      ::= { avTrapObject 20 }
+      
+avTrapObjectProcessID OBJECT-TYPE
+      SYNTAX INTEGER
+      ACCESS not-accessible
+      STATUS current
+      DESCRIPTION       
+      "This object is sent in a trap to identify which session lost 
+       data through SSH or telnet session for the appliance."
+  --% AVAILABILITY public                         
+      ::= { avTrapObject 21 }      
+                      
+avTrapObjectAlertIndex OBJECT-TYPE
+      SYNTAX INTEGER
+      ACCESS not-accessible
+      STATUS current
+      DESCRIPTION       
+      "This object is sent in a trap to identify the alert string 
+       that matched in the alert message."
+  --% AVAILABILITY public                         
+      ::= { avTrapObject 22}
+
+avTrapObjectPMPhase OBJECT-TYPE
+        SYNTAX OCTET STRING
+        ACCESS not-accessible
+        STATUS current            
+        DESCRIPTION
+        "This object is sent in a trap to identify the Phase of the IPDU
+         where the trap occurred."
+  --% AVAILABILITY public  
+        ::= { avTrapObject 23 }
+        
+avTrapObjectPMType OBJECT-TYPE
+      SYNTAX INTEGER {
+		avocent(1),
+		spc(2),
+		serverTech(3)
+      }
+       ACCESS not-accessible
+       STATUS current            
+       DESCRIPTION
+       "This object is sent in a trap to identify the vendor of the IPDU
+        where the trap occurred.
+       "
+  --% AVAILABILITY public  
+        ::= { avTrapObject 24 }
+        
+avTrapObjectPMId OBJECT-TYPE
+        SYNTAX OCTET STRING
+        ACCESS not-accessible
+        STATUS current            
+        DESCRIPTION
+        "This object is sent in a trap to identify the ID of the IPDU
+         where the trap occurred."
+  --% AVAILABILITY public  
+        ::= { avTrapObject 25 }
+        
+avTrapObjectPMSocketOldName OBJECT-TYPE
+      SYNTAX OCTET STRING
+      ACCESS not-accessible
+      STATUS current
+      DESCRIPTION       
+      "This object is sent in a trap to identify the old outlet  
+       name stored in the PM."
+  --% AVAILABILITY public   
+      ::= { avTrapObject 26 }
+            
+--------------------------------------------------------------------------------
+-- Enterprise Traps
+-- AVCS models: 
+--         AVCS4001: 10418.15.2.7.1  (avocent.autoview.avManagement.avModel.AVCS4001)
+--         AVCS4004: 10418.15.2.7.4  (avocent.autoview.avManagement.avModel.AVCS4004)
+--         AVCS4008: 10418.15.2.7.8  (avocent.autoview.avManagement.avModel.AVCS4008)
+--         AVCS4016: 10418.15.2.7.16 (avocent.autoview.avManagement.avModel.AVCS4016)
+--  The above Enterprise OIDs will be used for registering each Model for NNM
+--  module. 
+--------------------------------------------------------------------------------
+
+avRebootStartedTrap TRAP-TYPE
+      ENTERPRISE  avManagement
+      VARIABLES   { avTrapObjectUserName }
+      DESCRIPTION
+         "AVCS is in process of rebooting.
+         The name of the user who issued the command is contained
+         in avTrapObjectUserName."
+      --#SUMMARY     "The appliance is rebooting. Command issued by user: %s."
+      --#ARGUMENTS   { 0 }
+      --#SEVERITY    INFORMATIONAL
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=15 
+      ::= 1
+
+avUserLoginTrap TRAP-TYPE
+      ENTERPRISE  avManagement
+      VARIABLES   { avTrapObjectUserName, avTrapObjectSessionType}
+      DESCRIPTION
+         "This trap is sent when user logged into the appliance.
+          The name of the user who logged in is contained in 
+     avTrapObjectUserName and the method used to log into appliance 
+     is contained in avTrapObjectSessionType."
+      --#SUMMARY     "A user logged into the appliance. User: %s. Session type: %d."
+      --#ARGUMENTS   { 0, 1 }
+      --#SEVERITY    INFORMATIONAL
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=15
+      ::= 2
+
+avUserLogoutTrap TRAP-TYPE
+      ENTERPRISE  avManagement
+      VARIABLES   { avTrapObjectUserName, avTrapObjectSessionType }
+      DESCRIPTION
+         "A user logged out of the appliance.
+     The name of the user who logged in is contained in 
+     avTrapObjectUserName and the method used to log into appliance 
+     is contained in avTrapObjectSessionType."
+      --#SUMMARY     "A user logged out of the appliance. User: %s. Session type: %d."
+      --#ARGUMENTS   { 0, 1}
+      --#SEVERITY    INFORMATIONAL
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=15
+      ::= 3
+
+avAuthenticationFailureTrap TRAP-TYPE
+      ENTERPRISE  avManagement
+      VARIABLES   { avTrapObjectUserName }
+      DESCRIPTION
+         "A user failed to authenticate with the appliance.
+         The name of the user who failed to authenticate is contained in avTrapObjectUserName."
+      --#SUMMARY     "User authentication failed. User: %s."
+      --#ARGUMENTS   {0}
+      --#SEVERITY    INFORMATIONAL
+      --#CATEGORY    "Error Events"
+      --% TrapTypeEnum=15 
+      ::= 4
+
+avSerialSessionStartedTrap TRAP-TYPE
+      ENTERPRISE  avManagement
+      VARIABLES   {
+                     avTrapObjectUserName,
+                     avTrapObjectSerialPortName,
+                     avTrapObjectSerialPort,
+                     avTrapObjectSerialSessionType
+                     
+                  }
+      DESCRIPTION
+         "This trap is sent when a serial session has started on particular port.
+         The name of the user who is connected to the session is contained in avTrapObjectUserName.
+         The serial port number on the appliance is contained in avTrapObjectSerialPort.
+         The serial port name on the appliance is contained in avTrapObjectSerialPortName
+         The type of protocol running on this serial port is contained in 
+    avTrapObjectSerialSessionType. "
+      --#SUMMARY     "Serial session started. User: %s. Port name: %s. Port number: %d. Session type: %d."          
+      --#ARGUMENTS   { 0, 1, 2, 3 }
+      --#SEVERITY    INFORMATIONAL
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 5
+      
+avSerialSessionStoppedTrap TRAP-TYPE
+      ENTERPRISE  avManagement
+      VARIABLES   {
+                     avTrapObjectUserName,
+                     avTrapObjectSerialPortName,
+                     avTrapObjectSerialPort,
+                     avTrapObjectSerialSessionType
+                  }
+      DESCRIPTION
+        "This trap is sent when a serial session has stopped.
+        The user who was connected to the session is contained in avTrapObjectUserName.
+        The serial port number on the appliance is contained in avTrapObjectSerialPort.
+        The serial port name on the appliance is contained in avTrapObjectSerialPortName
+        The type of protocol running on this port is contained in 
+   avTrapObjectSerialSessionType."
+      --#SUMMARY     "Serial session stopped. User: %s. Port name: %s. Port number: %d. Session type: %d."  
+      --#ARGUMENTS   { 0, 1, 2, 3 }
+      --#SEVERITY    INFORMATIONAL
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 6
+
+avPortAuthenticationFailureTrap TRAP-TYPE
+      ENTERPRISE  avManagement
+      VARIABLES   {
+                     avTrapObjectUserName,
+                     avTrapObjectSerialPortName,
+                     avTrapObjectSerialPort,
+                     avTrapObjectSerialSessionType
+                     
+                  }
+      DESCRIPTION      
+        "This trap is sent when a serial session authentication fails.
+        The name of the user who failed to authenticate is contained in avTrapObjectUserName.
+        The serial port number on the appliance is contained in avTrapObjectSerialPort.
+        The serial port name on the appliance is contained in avTrapObjectSerialPortName
+        The type of protocol configured on this port is contained in avTrapObjectSerialSessionType."
+      --#SUMMARY     "Serial session authentication failed. User: %s. Port name: %s. Port number: %d. Session type: %d." 
+      --#ARGUMENTS   { 0, 1, 2, 3 }
+      --#SEVERITY    INFORMATIONAL
+      --#CATEGORY    "Error Events"           
+      --% TrapTypeEnum=6                     
+      ::= 7              
+      
+avPortAlertTrap TRAP-TYPE      
+      ENTERPRISE  avManagement
+      VARIABLES   {     
+                        avTrapObjectSerialPortName,                        
+                        avTrapObjectSerialPort,
+			avTrapObjectAlertIndex,
+                        avTrapObjectAlertString,
+                        avTrapObjectAlertMessage
+                  }
+      DESCRIPTION      
+        "The appliance detected a port alert on a serial port.
+         The serial port number the port alert was detected on is 
+         contained in avTrapObjectSerialPort.
+         The serial port name the port alert was detected on is 
+         contained in avTrapObjectSerialPortName.
+	 The index of the port alert that was detected is contained
+	 in avTrapObjectAlertIndex.
+         The port alert that was detected is contained in 
+	 avTrapObjectAlertString.
+         The line text where the port alert was detected is 
+         contained in avTrapObjectAlertMessage."
+      --#SUMMARY     "A port alert was detected on a serial port. Port name: %s. Port number: %d. Port alert index: %d. Port alert string: %s. Line text: %s." 
+      --#ARGUMENTS   { 0, 1, 2, 3, 4 }
+      --#SEVERITY    CRITICAL
+      --#CATEGORY    "Error Events"           
+      --% TrapTypeEnum=19                     
+      ::= 8  
+      
+avPortPowerOnDetectTrap TRAP-TYPE
+      ENTERPRISE  avManagement
+      VARIABLES   {     
+                        avTrapObjectSerialPortName,
+                        avTrapObjectSerialPort                        
+                  }    
+      DESCRIPTION
+        "The appliance has detected that the power on/off control signal
+         (RS232C - DCD signal) is high on a serial port indicating that the
+         server attached to the port is powered on.
+         This trap is sent on initialization if the condition is detected.
+         Subsequent traps occur only if there is a transition of the DCD
+         signal from low to high.
+         The affected serial port number is contained in avTrapObjectSerialPort.
+         The affected serial port name is contained in avTrapObjectSerialPortName."
+      --#SUMMARY     "Power on detected on a serial port. Port name: %s. Port number: %d."
+      --#ARGUMENTS   { 0, 1}
+      --#SEVERITY    MINOR
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=22
+      ::= 9    
+      
+avPortPowerOffDetectTrap TRAP-TYPE
+      ENTERPRISE  avManagement
+      VARIABLES   {     
+                        avTrapObjectSerialPortName,
+                        avTrapObjectSerialPort                        
+                  }   
+     DESCRIPTION
+        "The appliance has detected that the power on/off control signal
+         (RS232C - DCD signal) is low on a serial port indicating that the
+         server attached to the port is powered off.
+         This trap is sent on initialization if the condition is detected.
+         Subsequent traps occur only if there is a transition of the DCD
+         signal from high to low.
+         The affected serial port number is contained in avTrapObjectSerialPort.
+         The affected serial port name is contained in avTrapObjectSerialPortName."
+      --#SUMMARY     "Power off detected on a serial port. Port name: %s. Port number: %d."
+      --#ARGUMENTS   { 0, 1}
+      --#SEVERITY    CRITICAL
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=23
+      ::= 10          
+                                  
+avDaemonStarted TRAP-TYPE
+      ENTERPRISE  avManagement
+      VARIABLES   { avTrapObjectUserName, avTrapObjectDaemonName }
+      DESCRIPTION
+         "This trap is generated when daemon in the appliance started.
+          The daemon name is contained in avTrapObjectDaemonName.
+          The name of the user who start the daemon is contained in avTrapObjectUserName.
+         "
+      --#SUMMARY     "A daemon started. User: %s. Daemon name: %s."
+      --#ARGUMENTS   { 0, 1 }
+      --#SEVERITY    INFORMATIONAL
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 11     
+
+avDaemonStoped TRAP-TYPE
+      ENTERPRISE  avManagement
+      VARIABLES   { avTrapObjectUserName, avTrapObjectDaemonName }
+      DESCRIPTION
+         "This trap is generated when daemon in the appliance stopped.
+     The daemon name is contained in avTrapObjectDaemonName.
+     The name of the user who stop the daemon is contained in avTrapObjectUserName.
+         "
+      --#SUMMARY     "A daemon stopped. User: %s. Daemon name: %s."
+      --#ARGUMENTS   { 0, 1 }
+      --#SEVERITY    INFORMATIONAL
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 12     
+  
+avAdminSessionTerminatedTrap TRAP-TYPE
+      ENTERPRISE  avManagement
+      VARIABLES   {     avTrapObjectUserName, 
+                        avTrapObjectTargetUserName
+                  }
+      DESCRIPTION
+         "This trap is generated when one previous admin session is 
+     terminated by another admin user.
+          The name of the user who terminated the session is contained in avTrapObjectUserName.
+     The name of the user who was terminated from the session is contained 
+     in avTrapObjectTargetUserName."
+      --#SUMMARY     "Admin session terminated. Command issued by user: %s. Terminated user: %s."
+      --#ARGUMENTS   { 0, 1 }
+      --#SEVERITY    INFORMATIONAL
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 13
+        
+avConfigurationSavedTrap TRAP-TYPE
+      ENTERPRISE  avManagement
+      VARIABLES   {     
+                        avTrapObjectUserName
+                  }
+      DESCRIPTION            
+         "This trap is generated when 'saveconf' command is successful.
+          avTrapObjectUserName is name of the user who executed saveconf."         
+      --#SUMMARY     "Configuration saved to flash. User: %s."
+      --#ARGUMENTS   {0}
+      --#SEVERITY    INFORMATIONAL
+      --#CATEGORY    "Configuration Events"
+      --% TrapTypeEnum=9
+      ::= 14
+
+avConfigurationActivatedTrap TRAP-TYPE
+      ENTERPRISE  avManagement
+      VARIABLES   {
+                        avTrapObjectUserName
+                  }
+      DESCRIPTION
+      "This trap is generated when the configuration is activated.
+       avTrapObjectUserName is name of the user who activated new configuration."
+      --#SUMMARY     "Configuration activated. User: %s."
+      --#ARGUMENTS   {0}
+      --#SEVERITY    INFORMATIONAL
+      --#CATEGORY    "Configuration Events"
+      --% TrapTypeEnum=9
+      ::= 15    
+
+avLocalUserAddedTrap TRAP-TYPE
+      ENTERPRISE  avManagement
+      VARIABLES   {     
+                        avTrapObjectUserName,
+                        avTrapObjectTargetUserName 
+                  }
+      DESCRIPTION
+      "A new user has been added to the local user database.
+       The name of the user who added the new user is contained in avTrapObjectUserName.
+       The name of the new user is contained in avTrapObjectTargetUserName."
+      --#SUMMARY     "A user was added to the local user database. Command issued by user: %s. New user: %s."
+      --#ARGUMENTS   { 0, 1}
+      --#SEVERITY    INFORMATIONAL
+      --#CATEGORY    "Configuration Events"
+      --% TrapTypeEnum=9
+      ::= 16   
+      
+avLocalUserDeletedTrap TRAP-TYPE
+      ENTERPRISE  avManagement
+      VARIABLES   {     
+                        avTrapObjectUserName,
+                        avTrapObjectTargetUserName 
+                  }
+      DESCRIPTION
+      "A user has been deleted from the local user database.
+       The name of the user who deleted the user is contained in avTrapObjectUserName.
+       The name of the user who was deleted is contained in avTrapObjectTargetUserName."
+      --#SUMMARY     "A user was deleted to the local user database. Command issued by user: %s. Deleted user: %s."
+      --#ARGUMENTS   {0,1}
+      --#SEVERITY    INFORMATIONAL
+      --#CATEGORY    "Configuration Events"
+      --% TrapTypeEnum=9
+      ::= 17
+
+avDataBufferFullThresholdLowTrap TRAP-TYPE
+      ENTERPRISE  avManagement
+      VARIABLES   {
+                     avTrapObjectDataBufferSize         
+                  }
+      DESCRIPTION
+      "This trap is generated when the appliance is managed by DsView and 
+       global data buffer has reached configured Low level Threshold.
+       avTrapObjectDataBufferSize is current size of the buffer."
+      --#SUMMARY     "Data Buffering for DSView data log is getting full (low threshold). Buffer size: %d."
+      --#ARGUMENTS   {0}
+      --#SEVERITY    INFORMATIONAL
+      --#CATEGORY    "Error Events"
+      --% TrapTypeEnum=9
+      ::= 18      
+      
+avDataBufferFullThresholdMedTrap TRAP-TYPE
+      ENTERPRISE  avManagement
+      VARIABLES   {
+                     avTrapObjectDataBufferSize 
+                  }
+      DESCRIPTION
+      "This trap is generated when the appliance is managed by DsView and 
+       global data buffer has reached configured Med level Threshold.
+       avTrapObjectDataBufferSize is current size of the buffer."
+      --#SUMMARY     "Data Buffering for DSView data log is almost full (medium threshold). Buffer size: %d."
+      --#ARGUMENTS   {0}
+      --#SEVERITY    ALERT
+      --#CATEGORY    "Error Events"
+      --% TrapTypeEnum=9
+      ::= 19      
+
+avDataBufferFullLostDataTrap TRAP-TYPE
+      ENTERPRISE  avManagement
+      DESCRIPTION
+      "This trap is generated when the appliance is managed by DsView and 
+       global data buffer has exceeded beyond the size of buffer and data lost has occurred."
+      --#SUMMARY     "Data Buffering for DSView data log had data loss because buffer full."
+      --#SEVERITY    ALERT
+      --#CATEGORY    "Error Events"
+      --% TrapTypeEnum=9
+      ::= 20      
+      
+avApplianceLostDataTrap TRAP-TYPE
+      ENTERPRISE  avManagement
+      VARIABLES   {
+                     avTrapObjectProcessID,    
+                     avTrapObjectUserName
+                  }      
+      DESCRIPTION
+      "This trap is generated when the appliance is managed by DsView and 
+       Appliance data lost occurred on ssh or telnet session.
+       avTrapObjectProcessID is process id of the telnet or ssh session.
+       avTrapObjectUserName is name of user who session is active and data lost occurred."
+      --#SUMMARY     "Appliance data log loss. Process ID: %d. User: %s."
+      --#ARGUMENTS   { 0, 1}
+      --#SEVERITY    ALERT
+      --#CATEGORY    "Error Events"
+      --% TrapTypeEnum=9
+      ::= 21        
+      
+--------------------------------------------------------------------------------
+-- Power Management Enterprise Traps
+--------------------------------------------------------------------------------
+
+avPMOnlineTrap TRAP-TYPE
+      ENTERPRISE  avManagement
+      VARIABLES   { 
+                        avTrapObjectSerialPort,
+			avTrapObjectPMNumber,
+			avTrapObjectPMId,
+                        avTrapObjectPMSocketCount,                        
+			avTrapObjectPMType
+                  }
+      DESCRIPTION
+      "A power device attached to the appliance is online. 
+      The port number on the appliance that the power device is 
+      attached to is contained in avTrapObjectSerialPort.
+      The power device number in the chain is contained in avTrapObjectPMNumber.
+      The power device ID is contained in avTrapObjectPMId.
+      The number of outlets of the power device is contained in avTrapObjectPMSocketCount.
+      The vendor of the power device is contained in avTrapObjectPMType"      
+      --#SUMMARY     "A power device is online. Port number: %d. Power device number: %d. Power device ID: %s. Number of sockets: %d. Type: %d."
+      --#ARGUMENTS   { 0, 1, 2, 3, 4}
+      --#SEVERITY    INFORMATIONAL
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 22    
+
+avPMOfflineTrap TRAP-TYPE
+      ENTERPRISE  avManagement
+      VARIABLES   {     
+                        avTrapObjectSerialPort,
+			avTrapObjectPMNumber,
+			avTrapObjectPMId,
+                        avTrapObjectPMSocketCount,                        
+			avTrapObjectPMType
+                  }
+      DESCRIPTION
+      "A power device attached to the appliance is offline.
+      The port number on the appliance that the power device is 
+      attached to is contained in avTrapObjectSerialPort.
+      The power device number in the chain is contained in avTrapObjectPMNumber.
+      The power device ID is contained in avTrapObjectPMId.
+      The number of outlets of the power device is contained in avTrapObjectPMSocketCount.
+      The vendor of the power device is contained in avTrapObjectPMType"      
+      --#SUMMARY     "A power device is offline. Port number: %d. Power device number: %d. Power device ID: %s. Number of sockets: %d. Type: %d."
+      --#ARGUMENTS   { 0, 1, 2, 3, 4}
+      --#SEVERITY    CRITICAL
+      --#CATEGORY    "Error Events"
+      --% TrapTypeEnum=9
+      ::= 23
+
+avPMOutletOnTrap TRAP-TYPE
+      ENTERPRISE  avManagement
+      VARIABLES   { 
+                        avTrapObjectUserName, 
+                        avTrapObjectSerialPort,
+                        avTrapObjectPMSocketNumber,
+			avTrapObjectPMNumber,
+			avTrapObjectPMId,
+			avTrapObjectPMSocketName
+                  }
+      DESCRIPTION
+      "An outlet on a chain of power device has been issued the on command.
+      The name of the user who issued the on command is contained 
+      in avTrapObjectUserName.      
+      The port number on the appliance that the chain of power device is
+      attached to is contained in avTrapObjectSerialPort.
+      The power device number in the chain is contained in avTrapObjectPMNumber.
+      The ID of the power device is contained in avTrapObjectPMId.
+      The socket number that was issued the on command is contained 
+      in avTrapObjectPMSocketNumber.
+      The socket name that was issued the on command is contained in 
+      avTrapObjectPMSocketName."      
+      --#SUMMARY  "The on command was issued to a power device socket. Command issued by user: %s. Power device port number: %d. Power device number: %d. Power device ID: %s. Socket number: %d. Socket name: %s."
+      --#ARGUMENTS   { 0, 1, 3, 4, 2, 5}
+      --#SEVERITY    MINOR
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 24
+
+avPMOutletOffTrap TRAP-TYPE
+      ENTERPRISE  avManagement
+      VARIABLES   { 
+                        avTrapObjectUserName, 
+                        avTrapObjectSerialPort,
+                        avTrapObjectPMSocketNumber,
+			avTrapObjectPMNumber,
+			avTrapObjectPMId,
+			avTrapObjectPMSocketName
+                  }
+      DESCRIPTION
+         "An outlet on a chain of power device has been issued the off command.
+         The port number on the appliance that the chain of power device is
+         attached to is contained in avTrapObjectSerialPort.
+         The power device number in the chain is contained in avTrapObjectPMNumber.
+         The ID of the power device is contained in avTrapObjectPMId.
+         The socket number that was issued the off command is contained 
+         in avTrapObjectPMSocketNumber.
+         The socket name that was issued the off command is contained 
+         in avTrapObjectPMSocketName.
+         The name of the user who issued the off command is contained 
+         in avTrapObjectUserName."      
+      --#SUMMARY     "The off command was issued to a power device socket. Command issued by user: %s. Power device port number: %d. Power device number: %d. Power device ID: %s. Socket number: %d. Socket name: %s."
+      --#ARGUMENTS   { 0, 1, 3, 4, 2, 5}
+      --#SEVERITY    MINOR
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 25    
+
+avPMOutletCycleFinishedTrap TRAP-TYPE
+      ENTERPRISE  avManagement
+      VARIABLES   { 
+                        avTrapObjectUserName,
+                        avTrapObjectSerialPort,
+                        avTrapObjectPMSocketNumber,
+			avTrapObjectPMNumber,
+			avTrapObjectPMId,
+			avTrapObjectPMSocketName
+                  }
+      DESCRIPTION
+      "An outlet on a chain of power device has completed the cycle command.
+      The port number on the appliance that the chain of power device is
+      attached to is contained in avTrapObjectSerialPort.
+      The power device number in the chain is contained in avTrapObjectPMNumber.
+      The ID of the power device is contained in avTrapObjectPMId.
+      The socket number that was issued the cycle command is contained 
+      in avTrapObjectPMSocketNumber.
+      The socket name that was issued the cycle command is contained 
+      in avTrapObjectPMSocketName.
+      The name of the user who issued the cycle command is contained 
+      in avTrapObjectUserName."      
+      --#SUMMARY     "The cycle command has completed to a power device socket. Command issued by user: %s. Power device port number: %d. Power device number: %d. Power device ID: %s. Socket number: %d. Socket name: %s."
+      --#ARGUMENTS   { 0, 1, 3, 4, 2, 5}
+      --#SEVERITY    MINOR
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 26 
+     
+avPMMaxLoadThresholdReachedTrap TRAP-TYPE
+      ENTERPRISE  avManagement
+      VARIABLES   { 
+                        avTrapObjectSerialPort,
+			avTrapObjectPMNumber,
+			avTrapObjectPMId,
+			avTrapObjectPMPhase,
+                        avTrapObjectPMCurrentValue  
+                  }
+      DESCRIPTION
+      "A power device attached to the appliance exceeded the total load
+       maximum threshold.
+       The port number on the appliance that the power device is attached
+       to is contained in the avTrapObjectSerialPort.
+       The IPDU# that exceeded the total load maximum threshold is 
+       contained in the avTrapObjectPMNumber.
+       The ID of the IPDU that exceeded the total load maximum threshold is 
+       contained in the avTrapObjectPMId.
+       The Phase of the IPDU that detected the problem is contained in 
+       the avTrapObjectPMPhase.
+       The current value detected when this trap was originated is contained in
+       avTrapObjectPMCurrentValue."
+      --#SUMMARY     "Power device exceeded the total load maximum threshold. Power device port number: %d. Power device number: %d. Power device ID: %s. Phase: %s. Current detected: %s amps."
+      --#ARGUMENTS   { 0, 1, 2, 3, 4}
+      --#SEVERITY    ALERT
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 27
+      
+avPMMinLoadThresholdReachedTrap TRAP-TYPE
+      ENTERPRISE  avManagement
+      VARIABLES   { 
+                        avTrapObjectSerialPort,
+			avTrapObjectPMNumber,
+			avTrapObjectPMId,
+			avTrapObjectPMPhase,
+                        avTrapObjectPMCurrentValue  
+                  }
+      DESCRIPTION
+        "A power device attached to the appliance exceeded the total 
+         load minimum threshold.
+         The port number on the appliance that the power device is attached 
+         to is contained in the avTrapObjectSerialPort.
+         The IPDU# that exceeded the total load minimum threshold is contained 
+         in the avTrapObjectPMNumber.
+         The ID of the IPDU that exceeded the total load maximum threshold is 
+         contained in the avTrapObjectPMId.
+    	 The Phase of the IPDU that detected the problem is contained in 
+         the avTrapObjectPMPhase.
+         The current value detected when this trap was originated is contained in
+         avTrapObjectPMCurrentValue."
+      --#SUMMARY     "Power device is back below the alarm threshold. Power device port number: %d. Power device number: %d. Power device ID: %s. Phase: %s. Current detected: %s amps."
+      --#ARGUMENTS   { 0, 1, 2, 3, 4}
+      --#SEVERITY    INFORMATIONAL
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 28
+
+---------------------------------------
+-- Appliance Alert Event
+---------------------------------------
+avApplianceAlertTrap  TRAP-TYPE
+      ENTERPRISE  avManagement
+      VARIABLES   { 
+                        avTrapObjectUserName,
+			avTrapObjectAlertIndex,
+                        avTrapObjectAlertString,
+                        avTrapObjectAlertMessage
+                  }
+      DESCRIPTION
+       "An appliance alert was detected on a ssh or telnet session.
+       The name of user who was logged into the appliance when 
+       trap occurred is contained in avTrapObjectUserName.
+       The index of the appliance alert that was detected in the message is 
+       contained in avTrapObjectAlertIndex.
+       The appliance alert that was detected is contained in avTrapObjectAlertString.
+       The line text where the appliance alert was detected is contained 
+       in avTrapObjectAlertMessage."
+      --#SUMMARY     "An appliance alert was detected. User: %s. Alert index: %d. Alert string: %s. Line text: %s."
+      --#ARGUMENTS   { 0, 1, 2, 3}
+      --#SEVERITY    CRITICAL
+      --#CATEGORY    "Error Events"           
+      --% TrapTypeEnum=9
+      ::= 29      
+      
+---------------------------------------------------------------
+-- Firmware Upgrade Traps when the process is started by DSView
+---------------------------------------------------------------
+avFirmwareUpgradeStarted TRAP-TYPE
+      ENTERPRISE  avManagement
+      VARIABLES   {     
+                        avTrapObjectUserName,
+                        avTrapFirmwareVersion,
+                        avTrapNewFirmwareVersion
+                        
+                  }
+      DESCRIPTION
+       "The appliance has started an upgrade of a software image by DSView.
+       The name of the user who initiate the process is contained 
+       in avTrapObjectUserName.
+       The current firmware version is contained in avTrapFirmwareVersion.
+       The new firmware version is contained in avTrapNewFirmwareVersion."
+      --#SUMMARY     "Image upgrade started by DSView. User: %s. Current version: %s. New version: %s."
+      --#ARGUMENTS   { 0, 1, 2}
+      --#SEVERITY    INFORMATIONAL
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 30
+
+avFirmwareUpgradeResultsTrap TRAP-TYPE
+      ENTERPRISE  avManagement
+      VARIABLES   {     
+                        avTrapFirmwareUpgradeResult ,                        
+                        avTrapNewFirmwareVersion
+                  }
+      DESCRIPTION
+      "This trap is generated when Firmware upgraded is done to indicate the result.
+       The new FW version is contained in avTrapNewFirmwareVersion.
+       The result of the process is contained in avTrapFirmwareUpgradeResult."
+      --#SUMMARY     "Image upgrade result. Result: %d. New firmware version: %s."
+      --#ARGUMENTS   {0,1}
+      --#SEVERITY    INFORMATIONAL
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 31            
+      
+------------------------------
+-- PM Firmware Upgrade Traps 
+------------------------------
+avPMFirmwareUpgradeStarted TRAP-TYPE
+      ENTERPRISE  avManagement
+      VARIABLES   {     
+                        avTrapObjectUserName,
+                        avTrapObjectSerialPort,
+			avTrapObjectPMNumber,
+                        avTrapFirmwareVersion,
+                        avTrapNewFirmwareVersion              
+                  }
+      DESCRIPTION
+       "The appliance has started an upgrade of the PM software.
+       The name of the user who initiate the process is contained in avTrapObjectUserName.
+       The port number on the appliance that the power device is attached to is
+       contained in the avTrapObjectSerialPort.
+       The IPDU# that gone beneath the minimum threshold is contained in the avTrapObjectPMNumber.
+       The current firmware version is contained in avTrapFirmwareVersion.
+       The new firmware version is contained in avTrapNewFirmwareVersion."
+      --#SUMMARY     "PM image upgrade started. User: %s. Power device port number: %d. Power device number: %d. Current version: %s. New version: %s."
+      --#ARGUMENTS   { 0, 1, 2, 3, 4}
+      --#SEVERITY    INFORMATIONAL
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 32
+
+avPMFirmwareUpgradeResultsTrap TRAP-TYPE
+      ENTERPRISE  avManagement
+      VARIABLES   {     
+                      avTrapObjectSerialPort,
+		      avTrapObjectPMNumber,
+                      avTrapFirmwareUpgradeResult,                        
+                      avTrapNewFirmwareVersion
+                  }
+      DESCRIPTION
+      "This trap is generated when Firmware upgraded is done to indicate the result.
+       The port number on the appliance that the power device is attached to is
+       contained in the avTrapObjectSerialPort.
+       The IPDU# that gone beneath the minimum threshold is contained in the avTrapObjectPMNumber.
+       The new FW version is contained in avTrapNewFirmwareVersion.
+       The result of the process is contained in avTrapFirmwareUpgradeResult."
+      --#SUMMARY     "PM image upgrade result. Power device port number:%d. Power device number: %d. Result: %d. New firmware version: %s."
+      --#ARGUMENTS   {0,1,2,3}
+      --#SEVERITY    INFORMATIONAL
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 33            
+   
+avSerialSessionStoppedPortInUseTrap TRAP-TYPE
+      ENTERPRISE  avManagement
+      VARIABLES   {
+                     avTrapObjectUserName,
+                     avTrapObjectSerialPortName,
+                     avTrapObjectSerialPort,
+                     avTrapObjectSerialSessionType
+                  }
+      DESCRIPTION
+       "This trap is sent when a serial session has stopped.
+        But, there is still active sessions on this port.
+        The user who was connected to the session is contained in avTrapObjectUserName.
+        The serial port number on the appliance is contained in avTrapObjectSerialPort.
+        The serial port name on the appliance is contained in avTrapObjectSerialPortName
+        The type of protocol running on this port is contained in avTrapObjectSerialSessionType."
+      --#SUMMARY     "Serial session stopped. User: %s. Port name: %s. Port number: %d. Session type: %d."
+      --#ARGUMENTS   { 0, 1, 2, 3 }
+      --#SEVERITY    INFORMATIONAL
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 35
+
+--------------------------------------------------------------------------------
+-- New Power Management Enterprise Traps
+--------------------------------------------------------------------------------
+avPMOutletStatusOnTrap TRAP-TYPE
+      ENTERPRISE  avManagement
+      VARIABLES   { 
+                        avTrapObjectSerialPort,
+			avTrapObjectPMNumber,
+			avTrapObjectPMId,
+                        avTrapObjectPMSocketNumber,
+			avTrapObjectPMSocketName
+                  }
+      DESCRIPTION
+      "An outlet on a chain of power device has changed to the on state.
+      The port number on the appliance that the chain of power device is
+      attached to is contained in avTrapObjectSerialPort.
+      The ID of the power device is contained in avTrapObjectPMId.
+      The socket number that has changed to the on state is contained 
+      The number of the power device is contained in the avTrapObjectPMNumber.
+      in avTrapObjectPMSocketNumber.
+      The socket name that has changed to the on state is contained in 
+      avTrapObjectPMSocketName."      
+      --#SUMMARY  "Power device socket state changed to on. Power device port number: %d. Power device number: %d. Power device ID: %s. Socket number: %d. Socket name: %s."
+      --#ARGUMENTS   { 0, 1, 2, 3, 4}
+      --#SEVERITY    MINOR
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 36
+
+avPMOutletStatusOffTrap TRAP-TYPE
+      ENTERPRISE  avManagement
+      VARIABLES   { 
+                        avTrapObjectSerialPort,
+			avTrapObjectPMNumber,
+			avTrapObjectPMId,
+                        avTrapObjectPMSocketNumber,
+			avTrapObjectPMSocketName
+                  }
+      DESCRIPTION
+      "An outlet on a chain of power device has changed to the off state.
+      The port number on the appliance that the chain of power device is
+      attached to is contained in avTrapObjectSerialPort.
+      The number of the power device is contained in the avTrapObjectPMNumber.
+      The ID of the power device is contained in avTrapObjectPMId.
+      The socket number that has changed to the off state is contained 
+      in avTrapObjectPMSocketNumber.
+      The socket name that has changed to the off state is contained in 
+      avTrapObjectPMSocketName."      
+      --#SUMMARY  "Power device socket state changed to off. Power device port number: %d. Power device number: %d. Power device ID: %s. Socket number: %d. Socket name: %s."
+      --#ARGUMENTS   { 0, 1, 2, 3, 4}
+      --#SEVERITY    MINOR
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 37
+
+avPMOutletOnSenseFailTrap TRAP-TYPE
+      ENTERPRISE  avManagement
+      VARIABLES   { 
+                        avTrapObjectSerialPort,
+			avTrapObjectPMNumber,
+			avTrapObjectPMId,
+                        avTrapObjectPMSocketNumber,
+			avTrapObjectPMSocketName
+                  }
+      DESCRIPTION
+      "A power device attached to the appliance has detected an on sense
+      failure for a socket.
+      An on sense failure occurs when a socket should be in the on state
+      but is actually in the off state.
+      The port number on the appliance that the chain of power device is
+      attached to is contained in avTrapObjectSerialPort.
+      The number of the power device is contained in the avTrapObjectPMNumber.
+      The ID of the power device is contained in avTrapObjectPMId.
+      The socket number that has changed to the on state is contained 
+      in avTrapObjectPMSocketNumber.
+      The socket name that has changed to the on state is contained in 
+      avTrapObjectPMSocketName."      
+      --#SUMMARY  "Power device socket on sense failure. Power device port number: %d. Power device number: %d. Power device ID: %s. Socket number: %d. Socket name: %s."
+      --#ARGUMENTS   { 0, 1, 2, 3, 4}
+      --#SEVERITY    MINOR
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 38
+
+avPMOutletOffSenseFailTrap TRAP-TYPE
+      ENTERPRISE  avManagement
+      VARIABLES   { 
+                        avTrapObjectSerialPort,
+			avTrapObjectPMNumber,
+			avTrapObjectPMId,
+                        avTrapObjectPMSocketNumber,
+			avTrapObjectPMSocketName
+                  }
+      DESCRIPTION
+      "A power device attached to the appliance has detected an off sense
+      failure for a socket.
+      An off sense failure occurs when a socket should be in the off state
+      but is actually in the on state.
+      The port number on the appliance that the chain of power device is
+      attached to is contained in avTrapObjectSerialPort.
+      The number of the power device is contained in the avTrapObjectPMNumber.
+      The ID of the power device is contained in avTrapObjectPMId.
+      The socket number that has changed to the on state is contained 
+      in avTrapObjectPMSocketNumber.
+      The socket name that has changed to the on state is contained in 
+      avTrapObjectPMSocketName."      
+      --#SUMMARY  "Power device socket off sense failure. Power device port number: %d. Power device number: %d. Power device ID: %s. Socket number: %d. Socket name: %s."
+      --#ARGUMENTS   { 0, 1, 2, 3, 4}
+      --#SEVERITY    MINOR
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 39
+
+avPMOutletNameChangedTrap TRAP-TYPE
+      ENTERPRISE  avManagement
+      VARIABLES   { 
+                        avTrapObjectSerialPort,
+			avTrapObjectPMNumber,
+			avTrapObjectPMId,
+                        avTrapObjectPMSocketNumber,
+			avTrapObjectPMSocketOldName,
+			avTrapObjectPMSocketName
+                  }
+      DESCRIPTION
+      "The name of socket was changed.
+      The port number on the appliance that the chain of power device is
+      attached to is contained in avTrapObjectSerialPort.
+      The number of the power device is contained in the avTrapObjectPMNumber.
+      The ID of the power device is contained in avTrapObjectPMId.
+      The socket number that has changed to the on state is contained 
+      in avTrapObjectPMSocketNumber.
+      The socket name that has changed to the on state is contained in 
+      avTrapObjectPMSocketName."      
+      --#SUMMARY  "Power device socket name was changed. Power device port number: %d. Power device number: %d. Power device ID: %s. Socket number: %d. Old socket name: %s. New socket name: %s."
+      --#ARGUMENTS   { 0, 1, 2, 3, 4, 5}
+      --#SEVERITY    MINOR
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 40
+
+avPMInletTotalLoadHighTrap TRAP-TYPE
+      ENTERPRISE  avManagement
+      VARIABLES   { 
+                        avTrapObjectSerialPort,
+			avTrapObjectPMNumber,
+			avTrapObjectPMId,
+			avTrapObjectPMPhase
+                  }
+      DESCRIPTION
+      "A power device attached to the appliance has exceeded the maximum
+       threshold for total load of an inlet.
+       The port number on the appliance that the power device is attached
+       to is contained in the avTrapObjectSerialPort.
+       The number of the IPDU that has exceeded the maximum threshold for total load
+       of an inlet is contained in the avTrapObjectPMNumber.
+       The IPDU ID that has exceeded the maximum threshold for total load
+       of an inlet is contained in the avTrapObjectPMId.
+       The inlet of the power device is contained in the avTrapObjectPMPhase."
+      --#SUMMARY     "Power device inlet exceeded the total load maximum threshold. Power device port number: %d. Power device number: %d. Power device ID: %s. Inlet: %s."
+      --#ARGUMENTS   { 0, 1, 2, 3}
+      --#SEVERITY    ALERT
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 41
+      
+avPMInletTotalLoadLowTrap TRAP-TYPE
+      ENTERPRISE  avManagement
+      VARIABLES   { 
+			avTrapObjectSerialPort,
+			avTrapObjectPMNumber,
+			avTrapObjectPMId,
+			avTrapObjectPMPhase
+                  }
+      DESCRIPTION
+      "A power device attached to the appliance has gone beneath the minimum
+       threshold for total load of an inlet.
+       The port number on the appliance that the power device is attached
+       to is contained in the avTrapObjectSerialPort.
+       The number of the IPDU that has exceeded the maximum threshold for total load
+       of an inlet is contained in the avTrapObjectPMNumber.
+       The IPDU ID that has gone beneath the minimum threshold for total load
+       of an inlet is contained in the avTrapObjectPMId.
+       The inlet of the power device is contained in the avTrapObjectPMPhase."
+      --#SUMMARY     "Power device inlet is back below the total load minimum threshold. Power device port number: %d. Power device number: %d. Power device ID: %s. Inlet: %s."
+      --#ARGUMENTS   { 0, 1, 2, 3}
+      --#SEVERITY    ALERT
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 42
+      
+END

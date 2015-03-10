@@ -1,0 +1,64 @@
+#
+
+#
+# Addtional compiler and/or link options may be defined here
+#
+
+CFLAGS += -DPAM_STRERROR_NEEDS_TWO_ARGS -DUSE_PAM -I$(CONFIG_TOOL_DIR)/include -I$(my_prefix)/usr/include -I$(BUILD_DIR)/$(kvmd) -I$(BUILD_DIR)/$(ras) -I$(BUILD_DIR)/$(ras)/src -I$(BUILD_DIR)/$(CLI) -I$(BUILD_DIR)/$(webApi) -I$(BUILD_DIR)/$(new_webs)/Server -I$(BUILD_DIR)/$(new_webs)/dmf212/AlFrame
+
+#LDFLAGS += ...
+
+#
+# Command line parameters for configure must be defined here
+#
+#CONFIGURE_PARMS := ...
+
+#CONFIGURE_ENV := ...
+
+MAKE_ENV:=\
+	PATH=$(CROSS_PATH) \
+	$(CROSS_ENV_TOOLS) \
+	CFLAGS="$(CFLAGS)" \
+	LDFLAGS="$(LDFLAGS)" \
+	ZIMAGE=$(ZIMAGE) \
+	DEFTARG=$(DEFTARG) \
+	TARG=$(TARGET_PRODUCT)
+
+MAKE_PARMS:=\
+	OPEN_SSL_DIR=$(BUILTIN_DIST)/$(openssl) \
+	RAS_DIR=$(BUILD_DIR)/$(ras) \
+	WEBAPI_DIR=$(BUILD_DIR)/$(webApi) \
+	LIBCYC_DIR=$(BUILD_DIR)/$(libcyc) \
+	WebPagesDir=$(WebPagesDir) \
+	RDPenable=$(RDPenable) \
+	PCMCIAenable=$(PCMCIAenable) \
+	IPMIenable=$(IPMIenable) \
+	IPSECenable=$(IPSECenable) \
+	WINEMSenable=$(WINEMSenable) \
+	PMDenable=$(PMDenable) \
+	PMDNGenable=$(PMDNGenable) \
+	KRBenable=$(KRBenable) \
+	NISenable=$(NISenable) \
+	SECPROFILEenable=$(SECPROFILEenable) \
+	SMBenable=$(SMBenable) \
+	MINDTERMenable=$(MINDTERMenable) \
+	AVWORKSenable=$(AVWORKSenable) \
+	PMCLIB_DIR=$(BUILD_DIR)/$(pmclib) \
+	TARGETNAME=$(TARGETNAME) \
+	TARGET_DIR=$(my_prefix) \
+	DLOG_DIR=$(BUILD_DIR)/$(dlog)
+
+#
+#  more ac_variables for configure may be defined here
+#
+#CROSS_ENV_AC += ...
+
+############################################################################
+
+$(CFG_COOKIE):
+	date > $@
+
+$(BLD_COOKIE): $(CFG_COOKIE)
+	$(MAKE_ENV) \
+	$(MAKE) -C Server $(MAKE_PARMS) all install
+

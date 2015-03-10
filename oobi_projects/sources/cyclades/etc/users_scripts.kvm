@@ -1,0 +1,6 @@
+# This file contains scripts to be called on boot process
+# A # on the first column of a line means that the line will
+# not be readed.
+
+#/bin/build_DB_ramdisk
+#/bin/chmod_pppd

@@ -1,0 +1,118 @@
+/*****************************************************************
+ * Copyright (C) 2007 Avocent Corporation
+ *
+ * Description: Defines the Avocent product names.
+ ****************************************************************/
+
+/* This should be kept in sync with enum board_type; this data
+   structure contains the official product names */
+static const char *AP_MODEL[] = {
+	NULL, /* ID #0, PR 3000 */
+	NULL, /* ID #1, PR 2000 */
+	NULL, /* ID #2, PR 4000 */
+	NULL, /* ID #3, PR 1000 */
+	NULL, /* ID #4, TS 1000 */
+	NULL, /* ID #5, TS 2000 */
+	NULL, /* ID #6, TS 400 */
+	NULL, /* ID #7, TS 800 */
+	NULL, /* ID #8, TS 3000 */
+	NULL, /* ID #9, TX 1000 */
+	NULL, /* ID #10, TX 2000 */
+	NULL, /* ID #11, PL 1000 */
+	NULL, /* ID #12, TS 100 */
+	NULL, /* ID #13, NL 1000 */
+	"ACS 16", /* ID #14, ACS 16 */
+	"ACS 32", /* ID #15, ACS 32 */
+	NULL, /* ID #16, SM 100 */
+	NULL, /* ID #17, PR 2500 */
+	NULL, /* ID #18, TS 110 */
+	"ACS 48", /* ID #19, ACS 48 */
+	"ACS 4", /* ID #20, ACS 4 */
+	"ACS 8", /* ID #21, ACS 8 */
+	"ACS 1", /* ID #22, ACS 1 */
+	NULL, /* ID #23, unused */
+	"KVM 16", /* ID #24, KVM 16 */
+	"KVM 32", /* ID #25, KVM 32 */
+	"KVM/net 16", /* ID #26, KVM/net 16 */
+	"KVM/net 32", /* ID #27, KVM/net 32 */
+	"OnSite 441", /* ID #28, OnSite 441 */
+	"OnSite 481", /* ID #29, OnSite 481 */
+	"OnSite 841", /* ID #30, OnSite 841 */
+	"OnSite 881", /* ID #31, OnSite 881 */
+	"OnSite 442", /* ID #32, OnSite 442 */
+	"OnSite 482", /* ID #33, OnSite 482 */
+	"OnSite 842", /* ID #34, OnSite 842 */
+	"OnSite 882", /* ID #35, OnSite 882 */
+	"KVM/netPlus 16", /* ID #36, KVM/netPlus 16 */
+	"KVM/netPlus 32", /* ID #37, KVM/netPlus 32 */
+	"CS4001", /* ID #38, AVCS 1 */
+	"CS4004", /* ID #39, AVCS 4 */
+	"CS4008", /* ID #40, AVCS 8 */
+	"CS4016", /* ID #41, AVCS 16 */
+	"CS4032", /* ID #42, AVCS 32 */
+	"CS4048", /* ID #43, AVCS 48 */
+	"ACS5001", /* ID #44, ACS 5001 */
+	"ACS5004", /* ID #45, ACS 5004 */
+	"ACS5008", /* ID #46, ACS 5008 */
+	"ACS5016", /* ID #47, ACS 5016 */
+	"ACS5032", /* ID #48, ACS 5032 */
+	"ACS5048", /* ID #49, ACS 5048 */
+};
+
+/* This should be kept in sync with enum board_type and the third
+   parameter of /proc/bdinfo; this data structure contains the
+   official product codes.  The exception is KVM/net which is listed
+   as KVMN here and KVM/NET in /proc/bdinfo; KVMN is the cannonical
+   product code for KVM/net. */
+static const char *AP_PRODCODE[] = {
+	NULL, /* ID #0, PR 3000 */
+	NULL, /* ID #1, PR 2000 */
+	NULL, /* ID #2, PR 4000 */
+	NULL, /* ID #3, PR 1000 */
+	NULL, /* ID #4, TS 1000 */
+	NULL, /* ID #5, TS 2000 */
+	NULL, /* ID #6, TS 400 */
+	NULL, /* ID #7, TS 800 */
+	NULL, /* ID #8, TS 3000 */
+	NULL, /* ID #9, TX 1000 */
+	NULL, /* ID #10, TX 2000 */
+	NULL, /* ID #11, PL 1000 */
+	NULL, /* ID #12, TS 100 */
+	NULL, /* ID #13, NL 1000 */
+	"ACS", /* ID #14, ACS 16 */
+	"ACS", /* ID #15, ACS 32 */
+	NULL, /* ID #16, SM 100 */
+	NULL, /* ID #17, PR 2500 */
+	NULL, /* ID #18, TS 110 */
+	"ACS", /* ID #19, ACS 48 */
+	"ACS", /* ID #20, ACS 4 */
+	"ACS", /* ID #21, ACS 8 */
+	"ACS", /* ID #22, ACS 1 */
+	NULL, /* ID #23, unused */
+	"KVM", /* ID #24, KVM 16 */
+	"KVM", /* ID #25, KVM 32 */
+	"KVMN", /* ID #26, KVM/net 16 */
+	"KVMN", /* ID #27, KVM/net 32 */
+	"ONS", /* ID #28, OnSite 441 */
+	"ONS", /* ID #29, OnSite 481 */
+	"ONS", /* ID #30, OnSite 841 */
+	"ONS", /* ID #31, OnSite 881 */
+	"ONS", /* ID #32, OnSite 442 */
+	"ONS", /* ID #33, OnSite 482 */
+	"ONS", /* ID #34, OnSite 842 */
+	"ONS", /* ID #35, OnSite 882 */
+	"KVMP", /* ID #36, KVM/netPlus 16 */
+	"KVMP", /* ID #37, KVM/netPlus 32 */
+	"AVCS", /* ID #38, AVCS 1 */
+	"AVCS", /* ID #39, AVCS 4 */
+	"AVCS", /* ID #40, AVCS 8 */
+	"AVCS", /* ID #41, AVCS 16 */
+	"AVCS", /* ID #42, AVCS 32 */
+	"AVCS", /* ID #43, AVCS 48 */
+	"ACS5000", /* ID #44, ACS 5001 */
+	"ACS5000", /* ID #45, ACS 5004 */
+	"ACS5000", /* ID #46, ACS 5008 */
+	"ACS5000", /* ID #47, ACS 5016 */
+	"ACS5000", /* ID #48, ACS 5032 */
+	"ACS5000", /* ID #49, ACS 5048 */
+};

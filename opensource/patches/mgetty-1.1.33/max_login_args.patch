@@ -1,0 +1,11 @@
+--- mgetty-1.1.33/login.c.ori	2007-11-14 02:28:37.340611904 -0800
++++ mgetty-1.1.33/login.c	2007-11-14 02:27:59.161416024 -0800
+@@ -105,7 +105,7 @@
+ void login_dispatch _P3( (user, is_callback, cfg_file ),  
+ 			 char * user, boolean is_callback, char * cfg_file )
+ {
+-#define MAX_LOGIN_ARGS 9
++#define MAX_LOGIN_ARGS 16
+     char * argv[MAX_LOGIN_ARGS+2];	/* name + args + NULL */
+     int	argc = 0;
+     char * cmd = NULL;

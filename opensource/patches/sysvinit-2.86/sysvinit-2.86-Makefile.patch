@@ -1,0 +1,59 @@
+diff -Naur sysvinit-2.86.ori/src/Makefile sysvinit-2.86/src/Makefile
+--- sysvinit-2.86.ori/src/Makefile	2004-06-09 05:47:45.000000000 -0700
++++ sysvinit-2.86/src/Makefile	2005-11-08 12:18:25.048002745 -0800
+@@ -8,7 +8,6 @@
+ # Version:	@(#)Makefile  2.85-13  23-Mar-2004  miquels@cistron.nl
+ #
+ 
+-CC	= gcc
+ CFLAGS	= -Wall -O2 -fomit-frame-pointer -D_GNU_SOURCE
+ LDFLAGS	= -s
+ STATIC	=
+@@ -46,7 +45,7 @@
+ BIN_OWNER	= root
+ BIN_GROUP	= root
+ BIN_COMBO	= $(BIN_OWNER):$(BIN_GROUP)
+-INSTALL		= install -o $(BIN_OWNER) -g $(BIN_GROUP)
++INSTALL		= install 
+ MANDIR		= /usr/share/man
+ 
+ # Additional libs for GNU libc.
+@@ -110,33 +109,21 @@
+ distclean:	clobber
+ 
+ install:
+-		for i in $(BIN); do \
+-			$(INSTALL) -m 755 $$i $(ROOT)/bin/; \
+-		done
+ 		for i in $(SBIN); do \
+-			$(INSTALL) -m 755 $$i $(ROOT)/sbin/; \
++			$(INSTALL) -m 755 -D $$i $(ROOT)/sbin/$$i; \
+ 		done
+ 		for i in $(USRBIN); do \
+-			$(INSTALL) -m 755 $$i $(ROOT)/usr/bin/; \
++			$(INSTALL) -m 755 -D $$i $(ROOT)/usr/bin/$$i; \
+ 		done
+-		# $(INSTALL) -m 755 etc/initscript.sample $(ROOT)/etc/
++		$(INSTALL) -m 755 -D initscript.sample $(ROOT)/etc/initscript.sample
+ 		ln -sf halt $(ROOT)/sbin/reboot
+ 		ln -sf halt $(ROOT)/sbin/poweroff
+ 		ln -sf init $(ROOT)/sbin/telinit
+-		ln -sf ../sbin/killall5 $(ROOT)/bin/pidof
++		ln -sf killall5 $(ROOT)/sbin/pidof
+ 		if [ ! -f $(ROOT)/usr/bin/lastb ]; then \
+ 			ln -sf last $(ROOT)/usr/bin/lastb; \
+ 		fi
+-		$(INSTALL) -m 644 initreq.h $(ROOT)/usr/include/
+-		for i in $(MAN1); do \
+-			$(INSTALL) -m 644 ../man/$$i $(ROOT)$(MANDIR)/man1/; \
+-		done
+-		for i in $(MAN5); do \
+-			$(INSTALL) -m 644 ../man/$$i $(ROOT)$(MANDIR)/man5/; \
+-		done
+-		for i in $(MAN8); do \
+-			$(INSTALL) -m 644 ../man/$$i $(ROOT)$(MANDIR)/man8/; \
+-		done
++		$(INSTALL) -m 644 -D initreq.h $(ROOT)/usr/include/initreq.h
+ ifeq ($(ROOT),)
+ 		#
+ 		# This part is skipped on Debian systems, the

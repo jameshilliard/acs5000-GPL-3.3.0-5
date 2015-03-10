@@ -1,0 +1,29 @@
+#!/bin/sh
+SED=/bin/sed
+AWK=/bin/awk
+RESET_CMD=/usr/bin/kvmipctl
+PROC_INFO_FILE=/proc/bdinfo
+PROC_INFO_DELIMITER="!"
+
+PRODCODE=`$AWK -F $PROC_INFO_DELIMITER '{ print $4 }' $PROC_INFO_FILE`
+if [ $PRODCODE -lt 26 -o $PRODCODE -gt 37 ]; then
+	exit 14
+fi
+
+if [ $PRODCODE -ge 36 -a $PRODCODE -le 37 ]; then
+	PLUS=1
+else
+	PLUS=0
+fi
+
+if [ "$PLUS" != "1" ]; then
+	$RESET_CMD -i 2 -r &
+	$RESET_CMD -i 1 -r
+else
+	$RESET_CMD -i 4 -r &
+	$RESET_CMD -i 3 -r &
+	$RESET_CMD -i 2 -r &
+	$RESET_CMD -i 1 -r
+fi
+
+exit 0

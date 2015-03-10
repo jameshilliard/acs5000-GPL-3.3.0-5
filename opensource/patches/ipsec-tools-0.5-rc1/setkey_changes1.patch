@@ -1,0 +1,14 @@
+--- /home/rborin/setkey.c	2007-08-14 14:12:57.000000000 -0300
++++ ipsec-tools-0.5-rc1/src/setkey/setkey.c	2007-08-14 14:08:42.000000000 -0300
+@@ -38,10 +38,10 @@
+ #include <sys/socket.h>
+ #include <sys/time.h>
+ #include <sys/stat.h>
+-#include <sys/sysctl.h>
+ #include <err.h>
+ #include <netinet/in.h>
+ #include <net/pfkeyv2.h>
++#include <sys/sysctl.h>
+ #ifdef HAVE_NETINET6_IPSEC
+ #  include <netinet6/ipsec.h>
+ #else 

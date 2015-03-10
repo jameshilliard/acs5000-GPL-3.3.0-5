@@ -1,0 +1,70 @@
+#
+#  Makefile for cyclades projects.
+#
+
+#
+# Addtional compiler and/or link options may be defined here
+#
+#CFLAGS += ...
+#LDFLAGS += ...
+
+#
+# Command line parameters for configure must be defined here
+#
+#CONFIGURE_PARMS := ...
+
+#CONFIGURE_ENV := ...
+
+#MAKE_ENV := ...
+
+#MAKE_PARMS := ...
+
+#
+#  more ac_variables for configure may be defined here
+#
+#CROSS_ENV_AC += ...
+
+include $(OPENSOURCE_DIR)/$(TOOLS)/$(JAVA_CONF)
+
+APPLDIR := $(my_prefix)/$(WebPagesDir)/normal/applications/appl
+JAR_DIR := $(OPENSOURCE_DIR)/$(APPLETS)/jta25
+JARSIGNER := $(JAVA_DIR)/bin/jarsigner
+KEYTOOL := $(JAVA_DIR)/bin/keytool
+PKGNAME := jta25
+
+ifeq ($(shell ls $(ROOT_PROJ)/cyclades/etc/req_$(TARGET_PRODUCT)),0)
+REQ=$(ROOT_PROJ)/cyclades/etc/req_$(TARGET_PRODUCT)
+else 
+ifeq ($(TARGETNAME),AVCS)
+REQ=$(ROOT_PROJ)/cyclades/etc/req_avocent
+else
+REQ=$(ROOT_PROJ)/cyclades/etc/req_cyclades
+endif
+endif
+$(eval $(shell grep ^C[[:space:]]*= $(REQ)))
+$(eval $(shell grep ^CN[[:space:]]*= $(REQ)))
+$(eval $(shell grep ^L[[:space:]]*= $(REQ)))
+$(eval $(shell grep ^O[[:space:]]*= $(REQ)))
+$(eval $(shell grep ^OU[[:space:]]*= $(REQ)))
+DNAME="cn=$(CN), ou=$(OU), o=$(O), c=$(C), st=$(ST), l=$(L)"
+
+
+############################################################################
+
+$(CFG_COOKIE):
+	date > $@
+
+$(BLD_COOKIE): $(CFG_COOKIE)
+	install -d $(APPLDIR)
+	@echo Signing binary archive ...
+	@echo "Generating new keystore..."
+	@rm -f jtakeystore
+	@$(KEYTOOL) -genkey -alias $(TARGET_PRODUCT) -keystore jtakeystore -dname $(DNAME) -keypass tslinux -storepass tslinux -validity 3650
+	@$(KEYTOOL) -selfcert -alias $(TARGET_PRODUCT) -keystore jtakeystore -dname $(DNAME) -keypass tslinux -storepass tslinux -validity 3650
+	@echo "Signing Java applet..."
+	cp $(JAR_DIR)/jar/$(PKGNAME).jar $(PKGNAME).jar
+	@$(JARSIGNER) -keystore jtakeystore -storepass tslinux -keypass tslinux $(PKGNAME).jar $(TARGET_PRODUCT)
+	@echo Copying $(PKGNAME).jar to $(APPLDIR)/$(PKGNAME).jar
+	@cp $(PKGNAME).jar $(APPLDIR)/$(PKGNAME).jar
+
+

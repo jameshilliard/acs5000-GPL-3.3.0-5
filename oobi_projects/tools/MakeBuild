@@ -1,0 +1,102 @@
+#
+#  Makefile for Cyclades projects.
+#
+#  It will build packages changed by Cyclades
+#
+
+include $(ROOT_PROJ)/$(TOOLS)/MakeChecks
+
+$(call check_vars,SOURCES BUILD WORK_DIR TOOLS TARGET)
+
+# Set the build directory based on the project and target.
+BUILD_DIR := $(WORK_DIR)/$(BUILD)
+
+include $(WORK_DIR)/config
+include $(ROOT_PROJ)/$(PACKAGES_DEF)
+
+ifeq ($(GPL_ENV),yes)
+include $(ROOT_PROJ)/$(TOOLS)/GPL_PACKAGES
+BLD_PKGS:=$(addprefix bld_,$(filter $(NEW_GPL_PKGS),$(SOURCE_PKGS)))
+SRC_PKGS:=$(addprefix src_,$(filter $(NEW_GPL_PKGS),$(SOURCE_PKGS)) $(addprefix src_,$(INCLUDE_PKGS)))
+else
+BLD_PKGS:=$(addprefix bld_,$(SOURCE_PKGS))
+SRC_PKGS:=$(addprefix src_,$(SOURCE_PKGS)) $(addprefix src_,$(INCLUDE_PKGS))
+endif
+
+.PHONY: bld
+
+bld: $(BLD_PKGS)
+
+src: $(SRC_PKGS)
+
+define DEP_template
+ifndef $(1)
+UNDEFINED_PACKAGES+=$(1)
+endif
+ifndef MAKE_$(1)
+MAKE_$(1):=$(shell \
+if [ -f $(ROOT_PROJ)/$(RULES)/$($(1)) ] ; then \
+ echo $(ROOT_PROJ)/$(RULES)/$($(1)) ; \
+else \
+ if [ -f $(ROOT_PROJ)/$(RULES)/$(1) ] ; then \
+  echo $(ROOT_PROJ)/$(RULES)/$(1) ; \
+ else \
+  echo $(shell ls $(ROOT_PROJ)/$(RULES)/$(1)* 2>/dev/null); \
+ fi \
+fi )
+endif
+bld_$(1): src_$(1)
+ifdef BDEP_$(1)
+bld_$(1): $(addprefix bld_,$(BDEP_$(1)))
+endif
+ifdef SDEP_$(1)
+bld_$(1): $(addprefix src_,$(SDEP_$(1)))
+endif
+endef
+
+$(foreach pack,$(SOURCE_PKGS) $(INCLUDE_PKGS),$(eval $(call DEP_template,$(pack))))
+
+ifneq ($(words $(UNDEFINED_PACKAGES)),0)
+$(error Package(s) '$(UNDEFINED_PACKAGES)' not properly defined.)
+endif
+
+$(SRC_PKGS): src_%: force
+	@install -d $(BUILD_DIR)/$($*)
+	$(call EXEC_ACTION,$@,\
+	$(MAKE) -C $(BUILD_DIR)/$($*) \
+			-f $(ROOT_PROJ)/$(TOOLS)/MakePacket \
+			MAKE_PKT=$(MAKE_$*) NAME_PKT=$* \
+			my_prefix=$(WORK_DIR)/$(TARGET))
+
+$(BLD_PKGS): bld_%: force
+	@install -d $(BUILD_DIR)/$($*)
+	$(call EXEC_ACTION,$@,\
+	$(MAKE) -j1 -C $(BUILD_DIR)/$($*) \
+			-f $(ROOT_PROJ)/$(TOOLS)/MakePacket \
+			MAKE_PKT=$(MAKE_$*) NAME_PKT=$* \
+			my_prefix=$(WORK_DIR)/$(TARGET) bld)
+
+src_%+: force
+	@( \
+	TGT="$(filter src_$*%, $(SRC_PKGS))"; \
+	if [ "$$TGT" = "" ] ; then \
+		echo Invalid target: $@ ; \
+		exit -1 ; \
+	else \
+		$(MAKE) -f $(firstword $(MAKEFILE_LIST)) $$TGT ; \
+	fi )
+
+bld_%+: force
+	@( \
+	TGT="$(filter bld_$*%, $(BLD_PKGS))"; \
+	if [ "$$TGT" = "" ] ; then \
+		echo Invalid target: $@ ; \
+		exit -1 ; \
+	else \
+		$(MAKE) -f $(firstword $(MAKEFILE_LIST)) $$TGT ; \
+	fi )
+
+$(MAKEFILE_LIST): ;
+
+force: ;
+

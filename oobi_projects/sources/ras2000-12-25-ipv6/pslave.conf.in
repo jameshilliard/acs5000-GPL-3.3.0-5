@@ -1,0 +1,313 @@
+# pslave.conf	Here is the sample server configuration file.
+#
+# Version:	@version@
+
+# Hostname of the system.
+#
+conf.hostname	cs-1.someisp.com
+
+# IP address - if left empty, uses the IP address of the system (hostname).
+# This is used as the "local" address for SLIP and PPP connections.
+#
+conf.ipno	192.168.42.21
+
+# Lock directory - on FSSTND compliant systems it's /var/lock.
+#
+conf.lockdir	/var/lock
+
+# Where to find the rlogin binary that accepts the "-i" flag.
+#
+conf.rlogin	@bindir@/rlogin-radius
+
+# Where to find our patched pppd that has radius linked in.
+#
+conf.pppd	@sbindir@/pppd-radius
+
+# Where to find telnet. This can just be the system telnet. (Optional)
+#
+conf.telnet	@telnet@
+
+# Where to find ssh. This can just be the system SSH. (Optional)
+#
+conf.ssh	@ssh@
+
+# If you set this to "1", you can always login locally by putting a '!'
+# before your loginname. Useful for emergencies when the RADIUS server is down.
+#
+conf.locallogins	1
+
+# Logging stuff - this program can use a remote syslog daemon if needed.
+# If you want to log locally leave the "syslog" field empty. The facility
+# field is an integer between 0 and 7 and sets the syslog facility to
+# local0-local7.
+#
+#conf.syslog	logger.someisp.com
+conf.syslog
+conf.facility	6
+
+# Directory where your scripts that set up IP filtering (typically using
+# ipfwadmin) are stored. To invoke them, just add the RADIUS-attribute
+# Framed-Filter-Id = "foo" to your profile, where foo is the name of script.
+#
+conf.filterdir	@etcdir@/filters
+
+## The all entry is used as a template for all others. This means that
+## setting all.debug to 0, you set s0.debug, s1.debug, s2.debug etc.
+## to 0. It also means that all these settings can be overridden on a
+## per-port basis below.
+
+# Debugging output to syslog. Set to 0 or 1. "1" is pretty verbose.
+#
+all.debug	0
+
+# Authentication type - either "radius" or "none".
+#
+all.authtype    radius
+
+# Default is to accept NULL passwords when doing radius authentication. Set
+# to "0" or "1". This option does not have effect on non-radius
+# authentication - i.e. if "authtype" is "none" or if you do a local login.
+#
+all.radnullpass	1
+
+# Authentication host and accounting host. We can have 2 of both. The
+# first one is always tried three times before switching to the second one.
+# They are alternately tried after that, upto maximum 10 times in total.
+# Timeout is 3 seconds per query.
+#
+all.authhost1	mainhost.someisp.com
+all.accthost1	mainhost.someisp.com
+all.authhost2	backuphost.someisp.com
+all.accthost2	backuphost.someisp.com
+
+# Timeout when waiting for response for an authentication or accounting
+# requests. The default is 3 seconds.
+#
+all.radtimeout	3
+
+# Realms.  Again, user@host login names are recognized, but the @host
+# part is used to select different authentication/accounting hosts.
+# In the first example, all four hosts are actually defined; in the
+# second, there is only one authentication and one accounting host.
+# Undefined hosts must be represented by empty strings.  The order
+# is @realm authhost1 accthost1 authhost2 accthost2.
+# '>' means that the @host part is a suffix, and '-' tells the program
+# to strip the suffix if providing a login service.  '<' and '+' are
+# counterparts to '>' and '-', as shown in the third example, which
+# does what UUCPHACK has existed for.
+#
+# Realm definitions are special because subsequent definitions don't
+# replace the previous ones, but add to them.
+#
+all.realm     >-@flintstone fred wilma barney zelda
+all.realm     >-@duck donald louie "" ""
+all.realm     <+U uucpauth uucpacct "" ""
+
+# The shared secret for RADIUS.
+#
+all.secret	testing123
+
+# Default protocol and host. This is for rlogin sessions.
+#
+all.protocol	rlogin
+all.host	shellhost.someisp.com
+
+# Default IP stuff. If you end the "ipno" with a "+", the portnumber will
+# be added to the IP number. The IP number of a port is used when the RADIUS
+# server doesn't send an IP number, or if it tells us to use a dynamic ipno.
+#
+# Leave the netmask at 255.255.255.255, unless your really know what
+# you're doing.
+#
+all.ipno	192.168.42.65+
+all.netmask	255.255.255.255
+all.mtu		1500
+
+
+# Standard message that is issued on connect.
+#
+all.issue       \n\
+                Portslave Internet Services\n\
+\n\
+     Welcome to terminal server %h port S%p \n\
+\n\
+Customer Support: 123-555-1212     http://www.myisp.net/\n\
+\n
+
+# Login prompt.
+#
+all.prompt	%h login: 
+
+# Terminal type, for rlogin/telnet sessions.
+#
+all.term	vt100
+
+# If you want portslave to update the utmp and/or wtmp files just
+# like a regular getty/login, set these to 1.
+#
+all.sysutmp	1
+all.syswtmp	0
+
+# Format of utmp/wtmp FROM field :
+#
+# %l expands to login name
+# %L expands to stripped login name
+# %p expands to NAS port number
+# %P expands to protocol
+# %b expands to port speed
+# %i expands to local IP
+# %j expands to remote IP
+# %1 expands to first byte (MSB) of remote IP
+# %2 expands to second byte of remote IP
+# %3 expands to third byte of remote IP
+# %4 expands to fourth (LSB) byte of remote IP
+# %c expands to connect-info
+# %m expands to netmask
+# %t expands to MTU
+# %r expands to MRU
+# %I expands to idle timeout
+# %T expands to session timeout
+# %h expands to hostname
+# %% expands to %
+#
+# All other characters are copied unchanged.
+#
+all.utmpfrom	"%p:%P.%3.%4"
+
+## Options for the serial port.
+
+# Porttype (passed to radius server for logging).
+# 0 = async, 1 = sync, 2 = ISDN, 3 = ISDN-V120, 4 = ISDN-V110
+#
+all.porttype	0
+
+# Speed. All ports are set to 8N1.
+#
+all.speed	115200
+
+# Use this to initialize the connection
+#
+# d == delay (1 sec), p == pause (0.1 sec), l == toggle DTR
+# r == <CR>, l == <LF>
+#
+all.initchat	TIMEOUT 10 \
+		"" \d\l\dATZ \
+		OK\r\n-ATZ-OK\r\n "" \
+		TIMEOUT 3600 \
+		RING "" \
+		STATUS Incoming %p:I.HANDSHAKE \
+		"" ATA \
+		TIMEOUT 60 \
+		CONNECT@ "" \
+		STATUS Connected %p:I.HANDSHAKE
+
+# Flow control on this serial port:
+#    hard - hardware, rts/cts
+#    soft - software, CTRL-S / CTRL-Q
+#    none.
+#
+all.flow	hard
+
+# Use the DCD line or not (this sets CLOCAL if off). This means that the
+# session will get hung up if the modem hangs up. Can be set to 0 or 1.
+#
+all.dcd		1
+
+# PPP options - used if we autodetect a PPP session.
+# Note that we set mru and mtu both to the MTU setting.
+#
+all.autoppp	proxyarp modem asyncmap 0 %i: \
+		noipx noccp login auth require-pap refuse-chap \
+		mtu %t mru %t \
+		ms-dns 192.168.1.1 ms-dns 192.168.1.2 \
+		plugin @libdir@/libpsr.so
+
+## PPP options - User already authenticated and service type is PPP.
+#
+all.pppopt	proxyarp modem asyncmap 0 %i:%j \
+		noipx noccp mtu %t mru %t netmask %m \
+		idle %I maxconnect %T \
+		ms-dns 192.168.1.1 ms-dns 192.168.1.2
+
+## Tty names are s0...s63. For every port we need to define a tty port, and
+## an IP number for when radius tells us to pick one ourself. Unless you
+## use the IP pool option mentioned above (IP number with "+" appended).
+##
+## Note that you can change _all_ of the above settings that start
+## with all.xxxx on a per-port basis, such as issue, prompt etc.
+#
+s0.tty		ttyR0
+s1.tty		ttyR1
+s2.tty		ttyR2
+s3.tty		ttyR3
+s4.tty		ttyR4
+s5.tty		ttyR5
+s6.tty		ttyR6
+s7.tty		ttyR7
+s8.tty		ttyR8
+s9.tty		ttyR9
+s10.tty		ttyR10
+s11.tty		ttyR11
+s12.tty		ttyR12
+s13.tty		ttyR13
+s14.tty		ttyR14
+s15.tty		ttyR15
+
+# You can delete the examples below and unused ports above
+# if you wish to clean up the config file, ofcourse.
+
+# S30 is an external modem.
+#
+s30.tty		ttyS0
+
+# S31 is a test port with a terminal on it.
+#
+# NOTE: you can ofcourse also enter tty9 here instead of ttyS1.
+#	That way you can test portslave on a virtual console by
+#	switching to it with ALT-F9.
+#
+s31.tty		ttyS1
+s31.speed	9600
+s31.flow	soft
+s31.dcd		0
+s31.initchat	""
+
+# S32 is my builtin 9600 baud modem
+#
+s32.tty		ttyS3
+s32.speed	19200
+
+# S33 is connected to a macine that _thinks_ it is connected to a modem.
+# In this case, portslaves emulates a Hayes compatible modem. We use it
+# to hook up our Mac with MACPPP over a serial null modem cable.
+#
+s33.tty		ttyS2
+s33.speed	57600
+s33.emumodem	1
+
+# Leased Lines.
+#
+# Note that we change the lcp-timeout (lcp-restart) from 3 (default) to 4.
+# PPP 2.2.0f in combination with some other PPP implementations may
+# otherwise get stuck in an endless negotiation loop. Dialin lines do
+# not have this problem because both sides start up at the same time.
+#
+# Do this only one _one_ side ofcourse.
+s34.tty		ttyR47
+s34.initchat	TIMEOUT 10 \
+		"" \d\l\dATZ \
+		OK\r\n-ATZ-OK\r\n "" \
+		STATUS Incoming %p:I.HANDSHAKE \
+		"" ATA \
+		TIMEOUT 40 \
+		CONNECT@ "" \
+		STATUS LEASED %p:%c
+s34.authtype	none
+s34.issue	""
+s34.protocol	ppp
+s34.ipno	192.168.5.249
+s34.netmask	255.255.255.248
+s34.pppopt	proxyarp modem asyncmap 0 %i:%j netmask %m \
+		-ipx-protocol -ccp-protocol passive mtu 576 mru 576 \
+		lcp-restart 4 ip-up-script /etc/ppp/ip-up.leased \
+		ip-down-script /etc/ppp/ip-down.leased

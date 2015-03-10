@@ -1,0 +1,122 @@
+# Wireless LAN adapter configuration
+#
+# Theory of operation : 
+#
+# The script attempts to match a block of settings to the specific wireless
+# card inserted, the *first* block matching the card is used.
+# The address format is "scheme,socket,instance,hwaddr", with * as a wildcard.
+# 'scheme' is the pcmcia scheme (set via 'cardctl scheme XXX').
+# 'hwaddr' is the unique MAC address identifier of the wireless card.
+# The MAC address is usually printed on the card, or can be found via ifconfig.
+# Some examples here use only half of the MAC address with a wildcard to
+# match a whole family of cards...
+#
+# All the Wireless specific configuration is done through the Wireless
+# Extensions, so we will just call 'iwconfig' with the right parameters
+# defined below.
+# Of course, you need to have iwconfig installed on your system.
+# To download iwconfig, or for more info on Wireless Extensions :
+#	http://www.hpl.hp.com/personal/Jean_Tourrilhes/Linux/Tools.html
+#
+# Note : you don't need to fill all parameters, leave them blank, in most
+# cases the driver will initialize itself with sane defaults values or
+# automatically figure out the value... And no drivers do support all
+# possible settings...
+#
+# If you make any mistakes, you'll get a cryptic message in the system
+# log.  You'll need to figure out on your own which parameter was wrong:
+#     cardmgr[310]: executing: './network start wvlan0'
+#     cardmgr[310]: + SIOCSIWMODE: Invalid argument
+# I've tried to give more troubleshooting help at :
+#	http://www.hpl.hp.com/personal/Jean_Tourrilhes/Linux/Tools.html#debug
+# In case of doubts, just check "/etc/pcmcia/wireless" for the gory details...
+#
+# Note also that this script will work only with the original Pcmcia scripts,
+# and not with the default Red Hat scripts. Send a bug report to Red Hat ;-)
+#
+# Finally, send comments and flames to me, Jean Tourrilhes <jt@hpl.hp.com>
+#
+
+case "$ADDRESS" in
+
+# Replace these settings to fit your environment.
+# See examples below for additional settings.
+
+*,*,*,*)
+    INFO="test"
+    ESSID="any"
+    ;;
+
+# Note: ESSID with "any" or with an empty "" will make the card to try 
+#	auto-detecting the access point network name. 
+
+
+## Example using 40-bit ASCII WEP. 40-bit ASCII WEP key has 5 characters.
+#*,*,*,*)
+#    INFO="40-bit ASCII WEP"
+#    ESSID="MyPrivateNet1"
+#    KEY="s:test1"
+#    ;;
+ 
+## Example using 40-bit HEX WEP. 40-bit HEX WEP key has 10 characters.
+#*,*,*,*)
+#    INFO="40-bit HEX WEP"
+#    ESSID="MyPrivateNet2"
+#    KEY="1234-5678-AB"
+#    ;;
+
+## Example using 128-bit ASCII WEP. 128-bit ASCII WEP key has 13 characters.
+#*,*,*,*)
+#    INFO="128-bit ASCII WEP"
+#    ESSID="MyPrivateNet3"
+#    KEY="s:test1test2abc"
+#    ;;
+
+## Example using 128-bit HEX WEP. 128-bit HEX WEP key has 26 characters.
+#*,*,*,*)
+#    INFO="128-bit HEX WEP"
+#    ESSID="MyPrivateNet4"
+#    KEY="1234-5678-90ab-cdef-1234-5678-ab"
+#    ;;
+
+## Example setting all four keys, and selecting key 1 as default tx key.
+#*,*,*,*)
+#    INFO="Setting all four keys"
+#    ESSID="My Network"
+#    KEY="s:secu1 [1] key s:secu2 [2] key s:secu3 [3] key s:secu4 [4] key [1]"
+#    ;;
+
+# Note: 40-bit WEP is the same thing as 64-bit WEP.
+#	128-bit WEP is the same thing as 104-bit WEP.
+
+
+## Generic example (describe all possible settings)
+#*,*,*,*)
+#    INFO="Fill with your own settings..."
+#    # ESSID (extended network name) : My Network, any
+#    ESSID=""
+#    # NWID/Domain (cell identifier) : 89AB, 100, off
+#    NWID=""
+#    # Operation mode : Ad-Hoc, Managed, Master, Repeater, Secondary, auto
+#    MODE=""
+#    # Frequency or channel : 1, 2, 3 (channel) ; 2.422G, 2.46G (frequency)
+#    FREQ=""
+#    CHANNEL=""
+#    # Sensitivity (cell size + roaming speed) : 1, 2, 3 ; -70 (dBm)
+#    SENS=""
+#    # Bit rate : auto, 1M, 11M
+#    RATE=""
+#    # Encryption key : 4567-89AB-CD, s:passw
+#    KEY=""
+#    # RTS threshold : off, 500
+#    RTS=""
+#    # Fragmentation threshold : off, 1000
+#    FRAG=""
+#    # Other iwconfig parameters : power off, ap 01:23:45:67:89:AB
+#    IWCONFIG=""
+#    # iwspy parameters : + 01:23:45:67:89:AB
+#    IWSPY=""
+#    # iwpriv parameters : set_port 2, set_histo 50 60
+#    IWPRIV=""
+#    ;;
+esac

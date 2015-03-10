@@ -1,0 +1,16 @@
+PKGNAME=dlog
+
+MAKE_ENV:=\
+	CROSS_COMPILE=$(CROSS_PREFIX) \
+	PATH=$(CROSS_PATH) \
+	$(CROSS_ENV_TOOLS)
+
+MAKE_PARMS:=\
+	TARGET_DIR=$(my_prefix)
+	
+$(CFG_COOKIE):
+	date > $@
+
+$(BLD_COOKIE): $(CFG_COOKIE)
+	@echo $(PKGNAME)
+	$(MAKE_ENV) $(MAKE) $(MAKE_PARMS)

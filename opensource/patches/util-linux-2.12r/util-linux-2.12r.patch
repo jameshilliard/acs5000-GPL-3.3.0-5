@@ -1,0 +1,21 @@
+diff -Naur util-linux-2.12r.ori/MCONFIG util-linux-2.12r/MCONFIG
+--- util-linux-2.12r.ori/MCONFIG	2004-12-12 15:15:48.000000000 -0800
++++ util-linux-2.12r/MCONFIG	2005-11-08 13:16:40.570049116 -0800
+@@ -3,7 +3,7 @@
+ # Copyright 1995 Rickard E. Faith (faith@cs.unc.edu)
+ 
+ # For a user-mode install, make (at least) three changes:
+-#  - remove the `-o root' part in INSTALLSUID
++#  - remove the `' part in INSTALLSUID
+ #  - set USE_TTY_GROUP=no
+ #  - define DESTDIR
+ 
+@@ -220,7 +220,7 @@
+ INSTALLBIN=	$(INSTALL) -m $(BINMODE)
+ INSTALLMAN=	$(INSTALL) -m $(MANMODE)
+ INSTALLDAT=	$(INSTALL) -m $(DATMODE)
+-INSTALLSUID=    $(INSTALL) -m $(SUIDMODE) -o root
++INSTALLSUID=    $(INSTALL) -m $(SUIDMODE) 
+ 
+ ifeq "$(DISABLE_NLS)" "yes"
+ NLSFLAGS = -DDISABLE_NLS

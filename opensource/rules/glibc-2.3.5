@@ -1,0 +1,69 @@
+#
+#  Makefile for cyclades projects.
+#
+
+#
+# Addtional compiler and/or link options may be defined here
+#
+#CFLAGS += ...
+#LDFLAGS += ...
+
+#
+# Prevent link files from build to source
+#
+NO_LINKS:=yes
+
+#
+# Command line parameters for configure must be defined here
+#
+CONFIGURE_PARMS := \
+	--host=$(HOST)\
+	--build="powerpc-unknown-linux" \
+	--without-cvs \
+	--disable-debug \
+	--without-gd \
+	--disable-profile\
+	--enable-add-ons \
+	--without-tls\
+	--enable-kernel=2.4.3 \
+	--enable-add-ons=linuxthreads\
+	--without-__thread \
+	--with-binutils=$(CROSS_COMPILE) \
+	--with-headers="/opt/crosstool/gcc-3.4.4-glibc-2.3.5/powerpc-unknown-linux/powerpc-unknown-linux/include" \
+	--prefix=$(my_prefix)
+
+CONFIG_ENV := \
+	BUILD_CC="gcc"\
+	PATH=$(CROSS_PATH) \
+	HOST_CC=cc \
+	$(CROSS_ENV_TOOLS) \
+	CC="powerpc-unknown-linux-gcc" \
+	AR="powerpc-unknown-linux-ar"\
+	LD="powerpc-unknown-linux-ld"\
+	RANLIB="powerpc-unknown-linux-ranlib" \
+	CFLAGS="$(CFLAGS)" \
+	LDFLAGS="$(LDFLAGS)"
+
+MAKE_ENV := \
+	PATH=$(CROSS_PATH)
+
+MAKE_PARMS :=
+
+#
+#  more ac_variables for configure may be defined here
+#
+CROSS_ENV_AC +=  libc_cv_forced_unwind=yes libc_cv_c_cleanup=yes libc_cv_ppc_machine=yes
+
+$(CFG_COOKIE):
+	-rm -f config.cache
+	$(CONFIG_ENV) $(CROSS_ENV_AC) $(SRC)/configure $(CONFIGURE_PARMS)
+	date > $@
+
+$(BLD_COOKIE):
+	$(MAKE_ENV) $(MAKE) all $(MAKE_PARMS)
+	date > $@
+
+$(INST_COOKIE):
+	$(MAKE_ENV) $(MAKE) install $(MAKE_PARMS)
+	date > $@
+

@@ -1,0 +1,121 @@
+#!/bin/sh
+@CYC_HEADER@
+# This utility script file accepts service id/name and/or config value which may required
+# to be modified. Service id/name internally should map to correct config file for further
+# processing or modification.
+# This script may be used for restarting/stopping services like WEB, SNMP , ADSAP2 etc
+
+CONFIG_FILE=""
+LOG="/var/log/manageService.log"
+
+# This function reads daemon_list file and returns corresponding file name for Service id ($1).
+# @param Service id/name
+# @return File Name ( Shell script or configuration file)
+
+ProcessFile()
+{
+        grep -v ^# /etc/daemon_list | while read nickname dfile
+        do
+         if [ "$1" == "$nickname" ]; then
+	         FILE_NAME="$dfile"
+		 echo $FILE_NAME
+         	 break;
+         fi	
+        done
+}
+
+# This function toggles config property value for the given service File 
+# @param Config property value
+# @param Service file name
+
+ChangeConfig()
+{
+	TOGGLE=$1
+	NEWVAL="ENABLE="$TOGGLE
+	OLDVAL=`grep "ENABLE" $2 | awk '{ print $1 }'`
+	sed "s/$OLDVAL/$NEWVAL/" $2 > $2.new
+	mv $2.new $2
+	if [ "$?" -eq "0" ]; then
+		echo "Property $OLDVAL changed Successfully to $NEWVAL " >> $LOG
+	else
+		echo "could not change property $OLDVAL to $NEWVAL" >> $LOG
+	fi
+}
+
+# This function execute/run service for the given service id/name 
+# @param Service id/name
+
+RunService()
+{
+	echo "Inside RunService() Service_id = $1" >> $LOG
+	CONFIG_VAL=`grep "ENABLE" $CONFIG_FILE | awk '{ print $1 }'`
+	echo "Current configuration property in $CONFIG_FILE is $CONFIG_VAL" >> $LOG
+	if [ -n "$CONFIG_VAL" ] && [ "$CONFIG_VAL" == "ENABLE=NO" ]; then
+		COMMAND="/bin/daemon.sh stop $1"
+	elif [ -n "CONFIG_VAL" ] && [ "$CONFIG_VAL" == "ENABLE=YES" ]; then
+		COMMAND="/bin/daemon.sh restart $1"
+	fi
+	if [ -n "$COMMAND" ]; then
+		$COMMAND
+	fi
+	if [ "$?" -eq "0" ]; then
+		echo "$COMMAND executed successfully " >> $LOG
+	else
+		echo "$COMMAND did not execute successfully " >> $LOG
+	fi
+}
+
+# This function changes service file property and execute/run service for the given service id/name 
+# @param Service id/name
+# @param Config property value
+
+LoadServiceConfig()
+{
+	echo "Inside LoadServiceConfig() Service_id=$1, Config Property value=$2 " >> $LOG
+        CONFIG_FILE=`ProcessFile $1` 	
+       	      
+        if [ -n "$CONFIG_FILE" ]; then
+          if [ "$#" -eq "2" ]; then
+		ChangeConfig "$2" "$CONFIG_FILE"
+	  fi
+       	  RunService "$1"
+   	else
+   		echo "Service id $1 is invalid" >> $LOG 		
+   		exit 1
+	fi 
+}
+
+# This functions returns the current configuration parameter value
+
+GetConfigValue()
+{
+        CONFIG_FILE=`ProcessFile $1` 	
+        echo "CONFIG_FILE = $CONFIG_FILE" >> $LOG
+        if [ -n "$CONFIG_FILE" ]; then
+		CONFIG_VALUE=`grep "ENABLE" $CONFIG_FILE | awk '{ print $1 }'`
+		echo $CONFIG_VALUE
+	fi
+}
+
+# Main program starts here.
+#
+
+if [ "$#" -lt "1" ] || [ "$#" -gt "2" ]; then
+  	echo "Usage is manageService {service_id [YES|NO]} "
+  	exit 1
+else
+  	echo -e "\\n\\nmanageService started at " `date`  >> $LOG
+  	if [ "$#" -eq "1" ]; then
+		LoadServiceConfig "$1"
+  	else
+  	  if [ "$2" == "YES" ] || [ "$2" == "NO" ]; then
+    		LoadServiceConfig "$1" "$2"
+    	  elif [ "$2" == "STATUS" ]; then
+    	  	RET_VAL=`GetConfigValue $1 | cut -d '=' -f2`
+    	  	echo $RET_VAL
+  	  else
+#  		echo "Usage is manageService {service_id [YES|NO]} "
+  		echo "Usage is manageService {service_id [YES|NO|STATUS]} "
+  	  fi
+      	fi
+fi 

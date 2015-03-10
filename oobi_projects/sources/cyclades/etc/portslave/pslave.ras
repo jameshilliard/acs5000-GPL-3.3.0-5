@@ -1,0 +1,85 @@
+#
+# pslave.conf	Sample server configuration file.
+#
+# Remote Access Server Profile
+#
+
+conf.eth_ip    	200.200.200.1
+conf.eth_mask	255.255.255.0
+conf.eth_mtu	1500
+conf.lockdir	/var/lock
+conf.pppd	/usr/local/sbin/pppd
+conf.facility	7
+all.speed       57600
+all.datasize    8
+all.stopbits    1
+all.parity      none
+all.authtype    radius
+all.protocol	ppp
+all.netmask	255.255.255.255
+all.mtu		1500
+all.mru		1500
+all.issue       \r\n\
+	Welcome to remote access server %h port S%p \n\
+\r\n
+
+all.initchat    TIMEOUT 10 \
+		"" \d\l\dATZ \
+		OK\r\n-ATZ-OK\r\n "" \
+		"" ATM0 \
+		OK\r\n "" \
+		TIMEOUT 3600 \
+		RING "" \
+		STATUS Incoming %p:I.HANDSHAKE \
+		"" ATA \
+		TIMEOUT 60 \
+		CONNECT@ "" \
+		STATUS Connected %p:I.HANDSHAKE
+
+
+all.flow	hard
+all.dcd		1
+all.autoppp	%i:%j novj \
+		proxyarp modem asyncmap 000A0000 \
+		noipx noccp login auth require-pap refuse-chap \
+		mtu %t mru %t \
+		plugin /usr/lib/libpsr.so 
+
+all.pppopt	%i:%j novj noauth \
+		proxyarp modem asyncmap 000A0000 \
+		noipx noccp mtu %t mru %t netmask %m \
+		idle %I maxconnect %T \
+		plugin /usr/lib/libpsr.so 
+
+#
+# Port-specific parameters
+#
+
+#-----------------------------------------------
+# PORT 1 PPP dial in with terminal post dialing
+#-----------------------------------------------
+s1.tty		ttyS1
+s1.ipno	200.200.200.11
+
+#-----------------------------------------------
+# PORT 2 PPP dial in with terminal post dialing
+#-----------------------------------------------
+s2.tty		ttyS2
+s2.authtype local/radius
+s2.ipno	200.200.200.12
+
+#-------------------------------------------
+# PORT 3 PPP Leased line
+#-------------------------------------------
+s3.tty      ttyS3
+s3.protocol ppp_only
+s3.pppopt	%i:%j novj \
+		proxyarp modem asyncmap 000A0000 \
+		noipx noccp login auth require-pap refuse-chap \
+		mtu %t mru %t \
+		plugin /usr/lib/libpsr.so 
+s3.initchat ""
+s3.issue	""
+s3.ipno	200.200.200.13
+
+

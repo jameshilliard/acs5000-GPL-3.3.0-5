@@ -1,0 +1,73 @@
+#!/bin/sh
+
+usage_rot ()
+{
+  if [ -n "$2" ] ; then
+    echo
+    echo $2
+  fi
+  echo
+  echo "USAGE: $0 -o <output-file> -d <dir-name>}"
+  echo
+  echo "  -o: filename created inside patches/<dir-name>"
+  echo "  -d: directory inside sources"
+  echo
+  echo "  It generates a p1 patch file with all *.orig found inside <dir-name>."
+  echo
+  exit $1
+}
+
+FILENAME=
+DIRNAME=
+SOURCES=sources
+PATCHES=patches
+
+while getopts "d:o:" op ; do
+case $op in
+d)
+  DIRNAME=$OPTARG
+  ;;
+o)
+  FILENAME=$OPTARG
+  ;;
+h)
+  usage_rot 0
+  ;;
+?)
+  usage_rot -1 "Invalid option : '$op'"
+  ;;
+esac
+done
+  
+[ -n "$OPENSOURCE_DIR" ] && cd $OPENSOURCE_DIR
+
+[ -z "$FILENAME" ] && \
+  usage_rot -1 "Missing output filename"
+
+[ -z "$DIRNAME" ] && \
+  usage_rot -1 "Missing directory name"
+
+SRC=$SOURCES/$DIRNAME
+DST=$PATCHES/$DIRNAME
+DSTFILE=$PATCHES/$DIRNAME/$FILENAME
+
+[ -d $SRC ] || \
+  usage_rot -1 "Invalid directory : '$SRC'"
+
+[ -d $DST ] || \
+  usage_rot -1 "Invalid directory : '$DST'"
+
+cd $SRC
+FILE_LIST=$(find . -name "*.orig" -a -type f)
+cd -
+cd $SOURCES
+
+> ../$DSTFILE
+
+for file in $FILE_LIST ; do
+  FS=$DIRNAME/${file:2}
+  FD=${FS:0:${#FS}-5}
+  echo File: $FD
+  diff -up $FS $FD >> ../$DSTFILE
+done
+

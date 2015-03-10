@@ -1,0 +1,133 @@
+diff -rup dosfstools-2.9-orig/dosfsck/boot.c dosfstools-2.9/dosfsck/boot.c
+--- dosfstools-2.9-orig/dosfsck/boot.c	2003-05-15 19:32:23.000000000 +0200
++++ dosfstools-2.9/dosfsck/boot.c	2003-06-09 16:55:31.000000000 +0200
+@@ -8,8 +8,6 @@
+ #include <stdio.h>
+ #include <string.h>
+ #include <sys/types.h>
+-#define _LINUX_STRING_H_
+-#include <linux/msdos_fs.h>
+ 
+ #include "common.h"
+ #include "dosfsck.h"
+@@ -36,7 +34,7 @@ static struct {
+     { 0xff, "5.25\" 320k floppy 2s/40tr/8sec" },
+ };
+ 
+-#ifdef __alpha
++#if defined __alpha || defined __ia64__ || defined __s390x__ || defined __x86_64__ || defined __ppc64__
+ /* Unaligned fields must first be copied byte-wise */
+ #define GET_UNALIGNED_W(f)			\
+     ({						\
+diff -rup dosfstools-2.9-orig/dosfsck/dosfsck.c dosfstools-2.9/dosfsck/dosfsck.c
+--- dosfstools-2.9-orig/dosfsck/dosfsck.c	1999-08-12 14:43:24.000000000 +0200
++++ dosfstools-2.9/dosfsck/dosfsck.c	2003-06-09 17:13:30.000000000 +0200
+@@ -10,6 +10,7 @@
+ 
+ #include <stdio.h>
+ #include <string.h>
++#include <stdlib.h>
+ #include <unistd.h>
+ #include <getopt.h>
+ 
+diff -rup dosfstools-2.9-orig/dosfsck/dosfsck.h dosfstools-2.9/dosfsck/dosfsck.h
+--- dosfstools-2.9-orig/dosfsck/dosfsck.h	2003-01-21 23:16:16.000000000 +0100
++++ dosfstools-2.9/dosfsck/dosfsck.h	2003-06-09 17:02:35.000000000 +0200
+@@ -12,6 +12,7 @@
+ #include <sys/types.h>
+ #define _LINUX_STAT_H		/* hack to avoid inclusion of <linux/stat.h> */
+ #define _LINUX_STRING_H_	/* hack to avoid inclusion of <linux/string.h>*/
++#define _LINUX_FS_H             /* hack to avoid inclusion of <linux/fs.h> */
+ #include <linux/msdos_fs.h>
+ 
+ /* 2.1 kernels use le16_to_cpu() type functions for CF_LE_W & Co., but don't
+diff -rup dosfstools-2.9-orig/dosfsck/fat.c dosfstools-2.9/dosfsck/fat.c
+--- dosfstools-2.9-orig/dosfsck/fat.c	2003-01-21 23:21:48.000000000 +0100
++++ dosfstools-2.9/dosfsck/fat.c	2003-06-09 17:01:55.000000000 +0200
+@@ -11,9 +11,6 @@
+ #include <string.h>
+ #include <unistd.h>
+ 
+-#define _LINUX_STRING_H_
+-#include <linux/msdos_fs.h>
+-
+ #include "common.h"
+ #include "dosfsck.h"
+ #include "io.h"
+diff -rup dosfstools-2.9-orig/dosfsck/file.c dosfstools-2.9/dosfsck/file.c
+--- dosfstools-2.9-orig/dosfsck/file.c	2000-11-28 17:25:15.000000000 +0100
++++ dosfstools-2.9/dosfsck/file.c	2003-06-09 17:02:32.000000000 +0200
+@@ -12,7 +12,9 @@
+ #include <ctype.h>
+ #include <unistd.h>
+ 
+-#define _LINUX_STRING_H_
++#define _LINUX_STAT_H		/* hack to avoid inclusion of <linux/stat.h> */
++#define _LINUX_STRING_H_	/* hack to avoid inclusion of <linux/string.h>*/
++#define _LINUX_FS_H             /* hack to avoid inclusion of <linux/fs.h> */
+ #include <linux/msdos_fs.h>
+ 
+ #include "common.h"
+diff -rup dosfstools-2.9-orig/dosfsck/file.h dosfstools-2.9/dosfsck/file.h
+--- dosfstools-2.9-orig/dosfsck/file.h	1997-06-18 12:09:38.000000000 +0200
++++ dosfstools-2.9/dosfsck/file.h	2003-06-09 17:02:50.000000000 +0200
+@@ -6,9 +6,6 @@
+ #ifndef _FILE_H
+ #define _FILE_H
+ 
+-#include <linux/msdos_fs.h>
+-
+-
+ typedef enum { fdt_none,fdt_drop,fdt_undelete } FD_TYPE;
+ 
+ typedef struct _fptr {
+diff -rup dosfstools-2.9-orig/dosfsck/io.c dosfstools-2.9/dosfsck/io.c
+--- dosfstools-2.9-orig/dosfsck/io.c	2000-11-28 17:25:15.000000000 +0100
++++ dosfstools-2.9/dosfsck/io.c	2003-06-09 17:04:15.000000000 +0200
+@@ -42,7 +42,7 @@ unsigned device_no;
+ /* Use the _llseek system call directly, because there (once?) was a bug in
+  * the glibc implementation of it. */
+ #include <linux/unistd.h>
+-#if defined(__alpha) || defined (__ia64__)
++#if defined __alpha || defined __ia64__ || defined __s390x__ || defined __x86_64__ || defined __ppc64__
+ /* On alpha, the syscall is simply lseek, because it's a 64 bit system. */
+ static loff_t llseek( int fd, loff_t offset, int whence )
+ {
+diff -rup dosfstools-2.9-orig/mkdosfs/mkdosfs.c dosfstools-2.9/mkdosfs/mkdosfs.c
+--- dosfstools-2.9-orig/mkdosfs/mkdosfs.c	2002-01-08 09:27:54.000000000 +0100
++++ dosfstools-2.9/mkdosfs/mkdosfs.c	2003-06-09 17:20:34.000000000 +0200
+@@ -64,6 +64,7 @@
+ #include <sys/types.h>
+ #include <unistd.h>
+ #include <time.h>
++#include <errno.h>
+ 
+ #if __BYTE_ORDER == __BIG_ENDIAN
+ 
+@@ -95,7 +96,7 @@
+ /* Use the _llseek system call directly, because there (once?) was a bug in
+  * the glibc implementation of it. */
+ #include <linux/unistd.h>
+-#if defined(__alpha) || defined(__ia64__)
++#if defined __alpha || defined __ia64__ || defined __s390x__ || defined __x86_64__ || defined __ppc64__
+ /* On alpha, the syscall is simply lseek, because it's a 64 bit system. */
+ static loff_t llseek( int fd, loff_t offset, int whence )
+ {
+@@ -1615,8 +1616,15 @@ main (int argc, char **argv)
+ 	printf( "Unknown option: %c\n", c );
+ 	usage ();
+       }
+-
+-  device_name = argv[optind];	/* Determine the number of blocks in the FS */
++  if (optind < argc)
++    {
++      device_name = argv[optind];  /* Determine the number of blocks in the FS */
++      if (!create)
++         i = count_blocks (device_name); /*  Have a look and see! */
++    } else {
++	  printf( "No device specified\n" );
++      usage ();
++    }
+   if (!create)
+     i = count_blocks (device_name); /*  Have a look and see! */
+   if (optind == argc - 2)	/*  Either check the user specified number */

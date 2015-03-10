@@ -1,0 +1,14 @@
+--- tcp_wrappers_7.6/hosts_access.c~	Mon May 20 14:00:56 2002
++++ tcp_wrappers_7.6/hosts_access.c	Mon May 20 14:00:56 2002
+@@ -333,6 +333,11 @@
+ #endif    
+ #ifndef DISABLE_WILDCARD_MATCHING
+     if (strchr(tok, '*') || strchr(tok,'?')) {  /* contains '*' or '?' */
++        /* we must convert the both to lowercase as match_pattern_ylo is case-sensitive */
++        for (n = 0; n < strlen(tok); n++)
++            tok[n] = isupper(tok[n]) ? tolower(tok[n]) : tok[n];
++        for (n = 0; n < strlen(string); n++)
++            string[n] = isupper(string[n]) ? tolower(string[n]) : string[n];
+         return (match_pattern_ylo(string,tok)); 	       
+     } else 
+ #endif    

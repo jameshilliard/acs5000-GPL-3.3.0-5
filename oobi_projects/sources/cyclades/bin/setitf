@@ -1,0 +1,13 @@
+if [ -f $1 ]
+then
+echo "syntax: setitf IP"
+echo "[e.g. setitf 132.147.160.10]"
+exit
+fi
+
+echo auto eth1 > /etc/network/interfaces
+echo iface eth1 inet static >> /etc/network/interfaces
+echo address $1 >> /etc/network/interfaces
+echo network 132.147.0.0 >> /etc/network/interfaces
+echo netmask 255.255.0.0 >> /etc/network/interfaces
+echo broadcast 132.147.255.255 >> /etc/network/interfaces

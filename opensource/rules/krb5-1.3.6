@@ -1,0 +1,66 @@
+#
+#  Makefile for cyclades projects.
+#
+
+#
+# Addtional compiler and/or link options may be defined here
+#
+#CFLAGS += ...
+#LDFLAGS += ...
+
+#
+# Command line parameters for configure must be defined here
+#
+
+CONFIGURE_PARMS := \
+	--host=$(HOST) \
+	--build=i386 \
+	--with-tcl=no \
+	--prefix=/usr/local
+
+ifneq ($(shell uname -m),$(HOST))
+CONFIGURE_PARMS += \
+	--enable-shared \
+	--disable-static \
+	$(CROSS_ENV_TOOLS) \
+	LDFLAGS="$(LDFLAGS)" \
+	CPPFLAGS="-DCY_DLA_ALERT"
+endif
+
+CONFIG_ENV := \
+	PATH=$(CROSS_PATH)
+
+MAKE_ENV := \
+	PATH=$(CROSS_PATH)
+
+MAKE_PARMS := \
+	DESTDIR=$(my_prefix) \
+	KRB5_LIBDIR=/usr/lib \
+	KRB5_INCDIR=/usr/include
+
+#
+#  more ac_variables for configure may be defined here
+#
+CROSS_ENV_AC += \
+	ac_cv_func_regcomp=yes \
+	ac_cv_file__etc_environment=yes \
+	ac_cv_file__etc_TIMEZONE=yes
+
+$(CFG_COOKIE):
+	( \
+		cd src ; \
+		rm -f config.cache ; \
+		rm -f config.status ; \
+		util/reconf --force ; \
+		$(CONFIG_ENV) $(CROSS_ENV_AC) ./configure $(CONFIGURE_PARMS) ; \
+	)
+	date > $@ 
+
+$(BLD_COOKIE):
+	$(MAKE_ENV) $(MAKE) -C src all $(MAKE_PARMS)
+	date > $@
+
+$(INST_COOKIE):
+	$(MAKE_ENV) $(MAKE) -C src install $(MAKE_PARMS)
+	date > $@
+

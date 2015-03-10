@@ -1,0 +1,9 @@
+#!/bin/sh
+
+echo open $HOST_FTP> /bin/ftp.cmd
+echo user $FTP_USER $FTP_PASSWD>> /bin/ftp.cmd
+echo bin>> /bin/ftp.cmd
+echo hash>> /bin/ftp.cmd
+echo get $HOST_DIR/$2/$1 /$2/$1 >> /bin/ftp.cmd
+echo quit >> /bin/ftp.cmd
+

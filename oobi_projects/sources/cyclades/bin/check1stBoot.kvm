@@ -1,0 +1,42 @@
+#!/bin/sh
+
+CF_FS=`set_nports 18`
+
+if [ ! -e "/etc/security.opts" ]
+then
+  if [ -z "`grep -s 'security.opts' /etc/config_files`" ] ; then
+	#assume custom security profile
+	cp /etc/security.opts.save /etc/security.opts
+	echo "/etc/security.opts" >> /etc/config_files
+
+	#activate shadow
+	if [ -z "`grep -s 'root:x:0:0:' /etc/passwd`" ] ; then
+  		echo -n "Translating /etc/passwd entries to /etc/shadow..."
+  		rm -f /etc/shadow
+  		pwconv
+  		echo " Done."
+	fi
+
+	#we also missed these entries from release 2.3.1 on
+    [ -n "`grep -s '/etc/shadow' /etc/config_files`" ] || echo "/etc/shadow" >> /etc/config_files
+    [ -n "`grep -s '/etc/bonding.opts' /etc/config_files`" ] || echo "/etc/bonding.opts" >> /etc/config_files
+
+    if [ "x$CF_FS" = "x0" ] ; then
+	  #add new files to flash
+	  /bin/updatefiles /etc/security.opts /etc/shadow /etc/config_files
+    fi
+  elif [ -z "`tar -tzf /proc/flash/script 2> /dev/null | grep pslave.conf`" ] ; then
+	#start AIDP daemon
+	/bin/aidpd &
+  fi
+fi
+
+if [ -e "/etc/security.opts" ] ; then
+    #[LMT] CyBts BUG 4504
+    if [ `cat /etc/security.opts | grep icmp | awk '{ print $2  }'` = "enabled" ]
+    then 
+        echo "0" > /proc/sys/net/ipv4/icmp_echo_ignore_all 
+    else 
+        echo "1" > /proc/sys/net/ipv4/icmp_echo_ignore_all 
+    fi
+fi

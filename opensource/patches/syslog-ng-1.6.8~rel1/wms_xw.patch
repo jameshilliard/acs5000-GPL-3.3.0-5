@@ -1,0 +1,226 @@
+Index: syslog-ng-1.6.8~rel1/src/macros.c
+===================================================================
+--- syslog-ng-1.6.8~rel1.orig/src/macros.c
++++ syslog-ng-1.6.8~rel1/src/macros.c
+@@ -78,6 +78,210 @@
+ #define MAX_MACRO_ARGS        32
+ #define MAX_EXPANDED_MACRO    2048
+ 
++#define TTY_MACRO 		("<tty>")
++#define XML_PREFIX_STRING	("XML_MONITOR(")
++
++static int
++expand_xw_macro(char *macro, int template_len, char **dest, int *left, struct log_info *msg)
++{
++	int i, j;
++	char *macro_replacement;
++	char *tag;
++	int tag_len;	
++	int loglen = msg->msg->length;
++	char *log = msg->msg->data;
++	char *m = macro;
++	char *prefix = XML_PREFIX_STRING;
++	int macro_cnt = 0;
++	int macro_len = 0;
++	int length = 0;
++
++	if (memcmp(macro,TTY_MACRO,sizeof(TTY_MACRO)-1) == 0) {
++
++		// This is the macro to get the tty information
++		while(loglen) {
++			for (i=0; i<sizeof(XML_PREFIX_STRING)-1; i++) {
++				if (*(log+i) != *(prefix+i)) {
++					break;
++				}
++			}
++			if (i==sizeof(XML_PREFIX_STRING)-1) {
++				break;
++			}
++			log++;
++			loglen--;
++		}
++		if (loglen == 0) {
++			goto xml_error;
++		}
++		macro_replacement = log+sizeof(XML_PREFIX_STRING)-1;
++		while (length < loglen) {
++			if (*(macro_replacement+length) == ')') {
++				break;
++			}
++			length++;
++		}
++		if (length == loglen) {
++			goto xml_error;
++		}
++		macro_len = sizeof(TTY_MACRO);
++	} else {
++
++	// This is a macro to get xml information.
++
++	// Find macro length
++	while ((macro_len < template_len) && (macro[macro_len] == '<')) {
++		while ((macro_len < template_len) && (macro[macro_len] != '>')) {
++			macro_len++;
++		}
++		macro_len++; // Add the closing '>'
++		macro_cnt++;
++	}
++
++	while (macro_cnt){
++		while (loglen && *log != '<'){
++			log++;
++			loglen--;
++		}
++		if (loglen == 0) {
++			goto xml_error;
++		}
++		for (i=0; i<macro_len && loglen; i++) {
++			if (m[i]=='>' || m[i]==' ') {
++				break;
++			}
++			if (m[i] != *log) {
++				break;
++			}
++			log++;
++			loglen--;
++		}
++		if (i==macro_len || loglen==0) {
++			goto xml_error;
++		}
++		if (m[i]=='>') {
++			// we had a match.
++			macro_cnt--;
++			if (macro_cnt) {
++				// there are more macros.
++				m = &m[i+1];	
++				continue;
++			}
++			// last tag in the macro
++			tag = m+1; // skip '<'
++			tag_len = i; // don't include '>'
++			while (loglen && *log != '>') {
++				log++;
++				loglen--;
++			}
++			if (loglen==0) {
++				goto xml_error;
++			}
++			log++;		// Skip '>'
++			loglen--;
++			if (loglen==0) {
++				goto xml_error;
++			}
++			// macro replacement starts here
++			macro_replacement = log;
++			while (loglen) {
++				if (*log == '<') {
++					if ((loglen-1) && *(log+1)=='/') {
++						// check if this is the closing tag
++						for (j=0; j<tag_len; j++) {
++							if (*(log+2+j) != *(tag+j)) {
++								break;
++							}
++						}
++						if (j == tag_len){
++							length = log - macro_replacement;
++							break;
++						}
++					}
++				}
++				log++;
++				loglen--;	
++			}
++			if (loglen==0) {
++				goto xml_error;
++			}
++			break;
++		} else if (m[i]==' '){
++			// search for attributes
++			j = i; // save beginning of search
++			i++;  // skip ' '
++			log++;
++			loglen--; 
++	                for ( ; i<macro_len && loglen; i++) {
++        	                if (m[i]=='=' || m[i]=='>') {
++					// attribute match
++                	                break;
++                        	}
++				if (*log != m[i]) {
++					// this attribute doesn't match, go to next
++					while (loglen && *log != ' ' && *log != '>'){
++						log++;
++						loglen--;
++					}
++					if (*log == ' ') {
++						// let's try next attribute
++						log++;
++						loglen--;
++						i=j; // restore desired attribute; take in consideration that i will be incremented when continue
++						continue;
++					}
++					// end of attributes
++					goto xml_error;
++				}
++                        	log++;
++	                        loglen--;
++        	        }
++			if (i==macro_len || loglen==0) {
++				goto xml_error;
++			}
++			// get contents of attribute 
++			if (m[i]=='=') {
++				i++;	// ignore '=' from macro
++				if (i==macro_len){
++					goto xml_error;
++				}
++			}
++			if (m[i]=='>') {
++				log++;	// skip '='
++				loglen--;
++			}
++
++			log++;	// skip quote
++			loglen--;
++			if (loglen<=0) {
++				goto xml_error;
++			}
++			macro_replacement=log;
++			while (loglen && *log!='\"'){
++				log++;
++				loglen--;
++			}
++			if (loglen==0) {
++				goto xml_error;
++			}
++			length = log - macro_replacement;
++			break;
++		}
++		// macro not present here. Go to next tag.
++	} // end while (macro_cnt)
++
++
++	} // end if
++
++	length = LIBOL_MIN(length, *left-1);
++	strncpy(*dest,macro_replacement,length);
++	*left -= length;
++	*dest += length;
++	return macro_len;
++
++xml_error:
++	return 0;
++}	
+ 
+ static int
+ append_string(char **dest, unsigned int *left, char *str, int length, int escape)
+@@ -555,6 +759,10 @@ expand_macros(struct syslog_config *cfg,
+ 			m = find_macro((char *) &template->data[start], i - start);
+ 			if (m) {
+ 				expand_macro(cfg, m->id, template_escape, &format_ptr, &left, msg);
++			} else {
++				if (template->data[i] == '<') {
++					i += expand_xw_macro(&template->data[i], template->length-i, &format_ptr, &left, msg);
++				}
+ 			}
+ 		}
+ 		else {

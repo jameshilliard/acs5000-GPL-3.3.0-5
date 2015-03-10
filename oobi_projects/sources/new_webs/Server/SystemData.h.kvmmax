@@ -1,0 +1,670 @@
+/* (c) 2003 Cyclades. All Rights Reserved. */
+/* $Id: SystemData.h.kvmmax,v 1.1 2006/02/22 23:47:26 john Exp $ */
+
+#ifndef h_SystemData
+#define h_SystemData
+
+#include "webApi.h" // ACS/TS-specific data
+
+#if defined(KVM) || defined(ONS)
+#include "kvmconfig.h"
+#endif
+
+typedef struct
+{
+   CycDeviceClass klass;
+   char_t model[kModelLength];
+   char_t picture[kPictureLength];
+   UInt32 number;
+#ifdef ONS
+   UInt32 number2; /* used for # of serial port in ONS */
+   UInt32 numberSA; /* used for # of aux port plus offset in ONS */
+#endif
+   char_t swVersion[kSwVersionLength];
+   /* The following 3 are duplicates of NetSettings hostName, ipAddress1,
+   and gateway, but we need to keep separate copies in case an admin is
+   changing the one in NetSettings; all users can view these */
+   char_t hostName[kHostNameLength];
+   char_t ip[kIpLength];
+} Device;
+
+typedef struct
+{
+   UInt32    mode;
+   UInt32    dhcp;
+   char_t    hostName[kHostNameLength];
+   char_t    ipAddress1[kIpLength];
+   char_t    netMask1[kIpLength];
+   DnsService dnsService;
+   char_t    gateway[kIpLength];
+   //members below are for normal mode only
+   char_t    consBanner[kConsoleBannerLength];
+   char_t    ipAddress2[kIpLength];
+   char_t    netMask2[kIpLength];
+   UInt32    mtu;
+#ifdef BONDING_FEATURE
+   BondingService bond;
+#endif
+} NetSettings;
+
+typedef struct
+{
+   int protocol;
+   UInt32 baudRate;
+   UInt32 dataSize;
+   UInt32 stopBits;
+   UInt32 parity;
+   UInt32 flowControl;
+   UInt32 authReq;
+   UInt32 enableAll;
+} CasProSettings;
+
+typedef struct
+{
+   UInt32 mode;
+   char_t *usersHtml; /* _Derived_ data */
+   char_t usersCs[kListLength]; /* _Derived_ data */
+   char_t *groupsHtml; /* _Derived_ data */
+   char_t groupsCs[kListLength]; /* _Derived_ data */
+   UInt32 action;
+   UInt32 selected;
+   ConfGroups addModGroup;
+   Users addModUser;
+   UInt32 changedUser;
+   UInt32 numUsers;
+   Users* users;
+   UInt32 changedGrp;
+   UInt32 numGroups;
+   ConfGroups* groups;
+} CycAccess;
+
+typedef struct
+{
+   char_t users[kUserListLength];
+   char_t groups[kUserListLength];
+} AuthSecurity;
+
+typedef struct
+{
+   UInt32 mode;
+   UInt32 fileSize;
+   char_t nfsPath[kDirPathLength];
+   UInt32 showMenu;
+   UInt32 timeStamp;
+} DataBuffering;
+
+typedef struct
+{
+   UInt32 mode;
+   UInt32 facilityNumber;
+#if defined(KVM) || defined(ONS)
+   UInt32 KVMfacility;
+#endif
+   UInt32 dest;
+   UInt32 dummy;
+   FilterLevels filter;
+   /* the following is _derived_ data */
+   char_t *serversHtml;
+   char_t serversCs[kListLength];
+   /* WebApi struct */
+   UInt32 numServers; /* somewhat redundant */
+   SyslogServerInfo *servers;
+} SystemLog;
+
+
+// APPLICATIONS
+// Power Management
+
+// Outlets Manager
+typedef enum {
+	no_Action,         // 0
+	Turn_ON,     // 1
+	Turn_OFF,    // 2
+	Lock,        // 3
+	Unlock,      // 4
+	Cycle,       // 5
+    Save,        // 6
+	Edit,        // 7
+	Clear_Current,     // 8
+	Clear_Temperature, // 9
+	Refresh_LatestSw,       //10
+	Upgrade_UnitFw,         //11
+	Msg_to_WEB, // 12
+	Add, // 13
+	Delete, //14
+} PMActions;
+
+typedef struct
+{
+	UInt32	           num_ports;
+	char_t            *portInfoHtml;
+	char_t            *outletInfoHtml;
+	PmIpduPortInfo    *portInfo;
+	PmIpduOutletsInfo  queryOutlet;
+	PMActions          action; //a communication channel from Web Space
+	char_t             sysMsg[kInfoLength]; //system messages to and from Web Space
+} PMOutletMan;
+
+typedef struct
+{
+	UInt32	            num_groups;
+	char_t             *groupInfoHtml;
+	char_t             *outletInfoHtml;
+	PmIpduMultiDevInfo *groupInfo;
+	PmIpduOutletsInfo   queryOutlet;
+	PMActions           action; //a communication channel from Web Space
+	char_t              sysMsg[kInfoLength]; //system messages to and from Web Space
+} PMMultiOutletDev;
+
+// View IPDUs Info
+typedef struct
+{
+	UInt32	           num_ports;
+	char_t            *ipduInfo;
+	PmIpduPortInfo    *portInfo;
+	PmIpduUnitNumber   queryIpdu;
+	PMActions          action; //a communication channel from Web Space
+	char_t             sysMsg[kInfoLength]; //system messages to and from Web Space
+} PMviewIPDUinfo;
+
+// Users Management
+typedef struct
+{
+	UInt32	           num_ports;
+	char_t             entries[kPMUserManTableEntriesLength]; //roughly 100 entries
+	char_t            *port_tables;
+	PmIpduUserMgm     *users;
+	PmIpduUsers        user;
+	PmIpduPortInfo    *portInfo;
+	UInt32	           editAddport; //a communication channel from Web Space
+	char_t             sysMsg[kInfoLength]; //a communication channel from Web Space
+} PMUserMan;
+
+// Configuration
+typedef struct
+{
+	UInt32	           num_ports;
+	char_t            *portConfig;
+	PmIpduPortInfo    *portInfo;
+	char_t             sysMsg[kInfoLength]; //system messages from and to Web Space
+} PMConfig;
+
+// Software Upgrade
+typedef struct
+{
+	UInt32	           num_ports;
+	char_t            *swupInfo;
+	PmIpduPortInfo    *portInfo;
+	char_t             latest_sw[kPmModelLength];
+	PMActions          action; //a communication channel from Web Space
+	char_t             sysMsg[kInfoLength]; //system messages to and from Web Space
+	PmIpduUnitNumber   queryIpdu;
+} PMSwUpgrade;
+
+// IPMI
+#ifdef IPMI
+typedef struct
+{
+	UInt32		numIpmiDev;
+	char_t		*ipmiInfoHtml;
+	IPMIDeviceInfo	*ipmiInfo;
+	PMActions	action; //a communication channel from Web Space
+	char_t		sysMsg[kInfoLength]; //system messages to and from Web Space
+	IPMIDeviceInfo  ipmidev;  // add/edit information
+	UInt32		numActiveIpmiDev;
+} PMIPMI;
+#endif
+
+
+// PORTS
+// Physical Ports ID-25
+
+typedef struct
+{
+	char_t *physTableHtml;	
+	UInt32	action;		// 0-None, 1-Disable, 2-Enable, 3-Modify
+	char_t	selected[kUserListLength]; // 0-all or port list ,<number>,
+	UInt32	numPortsel;	// number of selected ports
+	PhysPortsInfo infoP;    // configuration of the first selected port
+	UInt32	physPortAction; // 0-None, 1-Cancel 2-Done
+	UInt32	numPowerMgm;	// number of serial ports configured as IPDU
+	char_t	*pmOutletHtml;  // outlet table of portsPhysPowerManMod
+	char_t  *pmIpduNameHtml; // alias to used in the portsPhysPowerManEntry
+#ifdef IPMI
+	char_t  *ipmiDeviceListHtml; // alias to used in the portsPhysPowerManEntry
+#endif
+	char_t  outletListSet[kUserListLength]; // list of the outlets
+	UInt32	ipduNumSet;	// used by portsPhysPowerManEntry
+	char_t	outletSet[kUserListLength]; // used by portsPhysPowerManEntry
+	// webApi struct
+	PhysPortsInfo *physList;
+} PhysPorts;
+
+typedef struct
+{
+	UInt32		authtype;
+	NisInfo		nis;
+	LdapInfo	ldap;
+	KrbInfo		krb;
+	RadiusInfo	radius;
+	TacplusInfo	tacplus;
+	SmbInfo		smb;
+} AuthUnit_t;
+//typedef struct
+//{
+//	UInt32 type;
+//	UInt32 radius;
+//	UInt32 tacplus;
+//	UInt32 krb;
+//	UInt32 ldap;
+//	UInt32 smb;
+//	UInt32 nis;
+//} AuthAction_t;
+
+// Virtual Ports ID-107
+typedef struct
+{
+   char_t virtualInfoSet[kUserListLength];
+   char_t   *virtualInfoHtml;
+   UInt32   action;
+   UInt32   nports;
+   char_t remoteIp[kIpLength];
+   char_t clusteringIp[kIpLength];
+   VirtualPortsInfo virtualPort;
+   UInt32   numVirtual;
+   VirtualPortsInfo *virtualInfo;
+} VirtualPorts;
+
+
+// NETWORK
+
+// SNMP Daemon Settings: IDs-23...
+typedef struct
+{
+	char_t         sysContact[kInfoLength];
+	char_t         sysLocation[kInfoLength];
+	UInt32	       editIndex;
+	char_t         webMsg[20]; //a communication channel from Web Space
+
+	UInt32	       numSNMPv12;
+	CommunityInfo *SNMPv12p;
+	char_t        *SNMPv12Html;
+	char_t         SNMPv12Entries[kSNMPdaemonListLength]; //up to 100 entries: "01 02 03...98 99"
+	UInt32	       SNMPv12Changed;
+	CommunityInfo  SNMPv12;
+
+	UInt32	       numSNMPv3;
+	Snmpv3Info    *SNMPv3p;
+	char_t        *SNMPv3Html;
+	char_t         SNMPv3Entries[kSNMPdaemonListLength]; //up to 100 entries: "01 02 03...98 99"
+	UInt32	       SNMPv3Changed;
+	Snmpv3Info     SNMPv3;
+} SNMPdaemonSettings;
+
+// Services ID-24
+/*typedef struct
+{
+	UInt32     telnet;
+	UInt32     ssh;
+	UInt32     snmp;
+	UInt32     ipsec;
+	UInt32     sunrpc;
+	WebService webService;
+} NetServices;*/
+
+/* [LMT] Security Enhancements */
+typedef enum
+{
+        kNoSecWarning,
+        kSecAdvisory,
+        kSecWebsRestart,
+        kSecPortsWarning,
+        kSecPortsWebs
+} SecWarnings;
+
+
+/* [LMT] Security Enhancements */
+typedef struct
+{
+        UInt32       telnet;
+        SshdOptions  ssh;
+        HttpOptions  webUI;
+        UInt32       snmp;
+        UInt32       rpc;
+        UInt32       ftp;
+#ifdef ONS
+        UInt32       tftp;
+#endif
+        UInt32       ipsec;
+        UInt32       icmp;
+        SecOptions   options;
+        //the fields below are used for the WebUI only
+        SecWarnings       showWarning;
+} SecProfile;
+
+// Host Table ID-55
+typedef struct
+{
+   UInt32   hostsChanged;
+   char_t *hostTableHtml;
+   UInt32   numHostsSet;
+   char_t hostTableSet[kUserListLength];
+   UInt32   numHosts;
+   Hosts   *hosts;
+} HostTable_st;
+
+// VPN Table ID-101
+typedef struct
+{
+	UInt32	VPNChanged;
+	char_t *VPNTableHtml;
+	char_t  VPNTableDel[kUserListLength];
+	UInt32	numVPN;
+	UInt32	currEntry;
+	char_t pubRsaKey[kRsaKeyLength];
+	IpSecInfo	*VPN;
+} VPNTable_st;
+
+// Static Routes: IDs-59/60
+typedef struct
+{
+	UInt32	      numRoutes;
+	StRoutesInfo *routes;
+	char_t       *stRoutesHtml;
+	UInt32	      routesChanged;
+	char_t        entriesList[kStRoutesEntriesListLength]; //up to 100 entries: "01 02 03...98 99"
+	StRoutesInfo  route;
+	UInt32	      editIndex;
+} StaticRoutes;
+
+
+// ADMINISTRATION
+
+typedef struct
+{
+	char_t command[kFtpCmdLength];
+	char_t ServerName[kHostNameLength];
+	char_t bkptype[kSDoption];
+	char_t SDDefaultoption[kSDoption];
+	char_t SDReplaceoption[kSDoption];
+	char_t PathName[kPathFilenameLength]; //[RK]Sep/13/04 - increase from 50 to 100
+	char_t UserName[kUserNameLength];
+	char_t Password[kPasswordLength];
+	char_t last_command[kFtpCmdLength];
+	char_t *Message;
+} backupConfig_st;
+
+typedef struct
+{
+  char_t *versionHtml; /* _Derived_ data */
+   UnitVersionInfo version;
+   char_t mac_address[kMacAddressLength];
+   char_t date[kDateLength];
+   char_t upTime[kUpTimeLength];
+   PwrSupplyInfo pwrSupply;   
+   char_t *pwrSupplyHtml;   
+   CpuInfo cpuInfo;
+	UInt32 numPcmcia;
+   PcmciaInfo *pcmcia;
+   char_t *pcmciaHtml;   
+   MemInfo memory;
+   InterfaceInfo ifInfo;
+   char_t *memHtml;   
+	UInt32 numRamDisk;
+   RamDiskInfo *ram;
+   char_t *ramHtml;
+   UInt32 reboot;
+#if defined(KVM) || defined(ONS)
+   UInt32 kvmanalog;            /* 1 if analog KVM, 0 if kvmnet */
+   UInt32 numkvmports;          /* number of KVM ports (16/32) */
+   UInt32 numkvmports_1;        /* number of KVM ports - 1 for index */
+   UInt32 numkvmstations;       /* number of KVM stations (2) */
+   UInt32 numkvmstations_1;     /* number of KVM stations - 1 for index */
+   UInt32 maxkvmports;		/* maximum of KVM ports */
+   char_t *kvmPortStatus[kMaxKVMStationsDef];
+   char_t kvmIPSecurityStatus[256];
+   UInt32 fanStatus[3];
+#endif
+} UnitInfo;
+
+// Notifications ID-110
+typedef struct
+{
+   UInt32 alarm;
+   char_t *notifHtml;
+   char_t notifTable[kUserListLength];
+   char_t *triggerHtml;
+   SInt32 triggerId;
+   SInt32 notifType;
+   char_t trigger[kTriggerLength];
+   Events event;
+   /* WebApi struct */
+   UInt32 numNotif; 
+   NotificationInfo *notif;
+} Notifications;
+
+typedef struct
+{
+	UInt32 ntp;
+	char_t ntpServer[kServerLength]; //[RK]Sep/17/04 - accept host name
+	char_t timezone[kTimezoneLength];
+	DateTime dt;
+	TimezoneData tz; //mp[Dec/2005] Adding stuff for Timezone Enhancement
+} TimeDate;
+
+typedef struct
+{
+   MenuShInfo menuShInfo;
+   MenuShOpt addModOption;
+   char_t *menuOptionHtml;
+   UInt32 selectedOption;
+   UInt32 menuShellChanged;
+   char_t optionsCs[kHtmlListLength];
+	UInt32 action;
+} MenuShell;
+
+typedef struct
+{
+	// LogTcpOptions
+	UInt32 logTcpSeq;
+	UInt32 logTcpOpt;
+	UInt32 logIpOpt;
+	// Tcp Options
+	UInt32 fin;
+	UInt32 syn;
+	UInt32 rst;
+	UInt32 psh;
+	UInt32 ack;
+	UInt32 urg;
+} TcpOptions;
+
+typedef struct
+{
+	UInt32 numChains;
+	UInt32 confNumChains;
+	char_t *ipTableHtml;
+	char_t *rulesHtml;
+	char_t chainsCs[kUserListLength];
+	UInt32 chainSelected;
+	char_t chainName[kChainNameLength];
+	char_t targetHtml[kUserListLength];
+	UInt32 numRules;
+	char_t rulesCs[kUserListLength];
+	UInt32 ruleSelected;
+	UInt32 actionRule;
+	IpTablesRules rule;
+	TcpOptions tcpOpt;
+	UInt32 chainChanged;
+	ChainInfo *chainTable;
+} IpTable;
+
+typedef struct
+{
+	UInt32 selectedOption;
+	UInt32 action;
+	char_t *sessionHtml;	
+	UInt32 numSessions;
+	UInt32 totalSessions;
+	ActiveSessionInfo *sess;
+} ActivePortSession;
+
+// General Data Structure
+
+typedef struct
+{
+	UInt32 pcmConfigChanged;
+	char_t ident[2][kIdentLength];
+	PcmciaType pcmType;
+	UInt32 selectedOption;
+	UInt32 action;
+} PcmciaAccessMethod;
+
+// Loadkey
+
+typedef struct _LoadKeyInfo {
+    int     numKeys;
+	char_t  UserName[kUserNameLength];
+	char_t  URL[kURLLength];
+    LoadKey *users_key;
+} LoadKeyInfo;
+
+// regular User - change password
+typedef struct {
+	int	authLocal; // 1 - user was authenticated in local database
+	int	operResult; // 0 - NONE, 1 - OK, 2 - Old passwd wrong 
+	char_t  oldPasswd[kPasswordLength];
+	char_t  newPasswd[kPasswordLength];
+} RegUserSecurity;
+
+#if defined(KVM) || defined(ONS)
+typedef struct {
+	UInt32 kvmdChanged;             /* set to TRUE when the table was changed*/
+	KVMDConfig kvmd;                /* KVMD configuration */
+} KVMConfig;
+
+typedef struct {
+	UInt32 numOutlets;             /**/ 
+} KVMtemp;
+
+typedef struct {
+	/* This part is common with the webAPI */
+	KVMUserAccessConfig useracc;
+	/* This part is only used in the middleware */
+	char_t *KVMPermHtml;
+	char_t *KVMDefPermHtml;
+	char_t entryName[kUserNameLength];
+	char_t currName[kUserNameLength];/* current user or group name to be configured */
+	UInt32 currUserGroup;           /* 0 if user, 1 if group */
+	UInt32 currDefault;             /* 1 if default access list for the current user/group */
+	KVMUserPermConfig userperm;     /* access list being edited */
+	UInt32 nalloc;			/* number of entries allocated */
+	UInt32 numports;		/* number of ports of the current device */
+	UInt32 devicenum;		/* number of the device in the list */
+	char_t currDevice[kCascNameLength];/* current device */
+	char_t ports_none[kPortRangeLength];
+	char_t ports_ro[kPortRangeLength];
+	char_t ports_rw[kPortRangeLength];
+	char_t ports_full[kPortRangeLength];
+	UInt32 from;
+	UInt32 cancel;
+	UInt32 tableChanged;            /* set to TRUE when the table was changed */
+	/* Cycling configuration */
+	KVMCyclingConfig cycling;
+} KVMUserAccList;
+
+// Devices : 
+typedef struct {
+	char_t *deviceTableHtml;
+	char_t *deviceTable;
+	char_t deviceMsgError[kInfoLength];
+	char_t deviceNameList[kUserListLength];
+	char_t deviceNTermsList[kUserListLength];
+	char_t deviceCs[kUserListLength];
+	UInt32 deviceAction;
+	UInt32 deviceSelected;
+	KVMCascConfig confDevice;
+	// terms of cascading
+	char_t *termTableHtml;
+	UInt32	action;	
+	char_t	selected[kUserListLength]; // 0-all or port list ,<number>,
+	KVMTermConfig confTerm;    // configuration of the selected port
+	// webApi struct
+	UInt32  changed;
+	UInt32	numDevices;
+	UInt32	maxOutlet;
+	KVMCascConfig *deviceList;
+	char_t	  *outletsHtml;
+	char_t    *portsUsedHtml;
+	char_t    *pmoutletHtml;
+	//char_t *devicePMStatus[32];
+} KVMDevice;
+
+#endif // KVM
+
+typedef struct
+{
+    Device device;
+    NetSettings netSettings;
+    CasProSettings casProSettings;
+    CycAccess access;
+    AuthSecurity authSecurity;
+    DataBuffering dataBuffering;
+    SystemLog systemLog;
+    UnitInfo unitInfo;
+    BootConf bootInfo;
+    UpGradeInfo upGradeInfo;
+    TimeDate timeDate;
+    Notifications notifications;
+	SNMPdaemonSettings SNMPdaemon;
+	HostTable_st hostTable;
+	VPNTable_st VPNTable;
+	IpSecInfo	VPNEntry;
+	StaticRoutes staticRoutes;
+	backupConfig_st backupConfig;
+	MenuShell menuShell;
+	VirtualPorts virtualP;
+	IpTable ipTable;
+	char_t *connectPortsHtml;
+	char_t *portsStatusHtml;	//[RK]Sep/14/04 - Ports Status
+	char_t *portsStatisticsHtml;	//[RK]Sep/14/04 - Ports Status
+	UInt32	numIpdus;
+	PhysPorts	physP;
+	SyslogBufServerInfo sysBufServer; // one Syslog Remote Server to sysbuf
+	AuthUnit_t	authU;
+//	AuthAction_t authAction;
+	ActivePortSession session;
+	PcmciaAccessMethod accessMethod;
+	PMMultiOutletDev multiOutletDev;
+	PMOutletMan  outletMan;
+	PMUserMan    pmUserMan;
+    PMviewIPDUinfo IPDUinfo;
+    PMConfig       pmConfig;
+    PMSwUpgrade    pmSwUpgrade;;
+	LoadKeyInfo	   LoadedKeys;
+	RegUserSecurity	   regUser;
+	SecProfile     secProfile; /* [LMT] Security Enhancements */
+#ifdef IPMI
+	PMIPMI		pmipmi;
+#endif
+#if defined(KVM) || defined(ONS)
+	char_t	*KVMconnectPortsHtml;
+	KVMConfig      kvmconf;
+	KVMUserAccList kvmuser;
+
+	KVMDevice	kvmdevice;
+	KVMMicrocode   kvmuCup;
+	KVMMicrocode   kvmuCres;
+	KVMAuxPort     kvmAuxPort[MAX_AUX];
+	KVMtemp		temp;
+	/* to be deleted later */
+	struct _kvm_conf kvmConf;
+#endif // KVM
+
+#ifdef RDPenable
+	RDPDevice	rdpdevice;
+#endif	//RDPenable
+
+    OnlineHelpConf onlineHelp;
+} SystemData;
+
+#endif

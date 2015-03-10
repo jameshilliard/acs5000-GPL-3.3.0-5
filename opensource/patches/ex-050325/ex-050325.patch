@@ -1,0 +1,39 @@
+diff -Naur ex-050325.ori/Makefile ex-050325/Makefile
+--- ex-050325.ori/Makefile	2005-03-24 15:50:09.000000000 -0800
++++ ex-050325/Makefile	2005-11-08 16:34:59.189066828 -0800
+@@ -79,7 +79,7 @@
+ # Destinations for installation. $(PRESERVEDIR) is used for recovery files.
+ # It will get mode 1777.
+ #
+-PREFIX		= /usr/local
++PREFIX		= 
+ BINDIR		= $(PREFIX)/bin
+ LIBEXECDIR	= $(PREFIX)/libexec
+ MANDIR		= $(PREFIX)/share/man
+@@ -94,7 +94,7 @@
+ #
+ # A BSD-like install program. GNU install will fit well here, too.
+ #
+-INSTALL		= /usr/ucb/install
++INSTALL		= /usr/bin/install
+ 
+ #
+ # Compiler and linker flags.
+@@ -130,7 +130,7 @@
+ #
+ # If your system expands tabs to 4 spaces you should -DTABS=4 below
+ #
+-FEATURES	= -DLISPCODE -DCHDIR -DFASTTAG -DUCVISUAL -DMB -DBIT8
++FEATURES	= -DLISPCODE -DCHDIR -DFASTTAG -DUCVISUAL -DMB -DBIT8 -DTABS=8
+ 
+ #
+ # This disables the LC_CTYPE locale settings and assumes all characters
+@@ -211,7 +211,7 @@
+ # provide a good termcap file, or when setting the TERMCAP environment
+ # variable is deemed sufficient, is the included 2.11BSD termcap library.
+ #
+-TERMLIB	= termlib
++#TERMLIB	= termlib
+ 
+ #
+ # Since ex uses sbrk() internally, a conflict with the libc's version of

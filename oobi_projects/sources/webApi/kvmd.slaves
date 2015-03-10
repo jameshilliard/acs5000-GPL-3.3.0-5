@@ -1,0 +1,9 @@
+# kvmd.slaves - AlterPath KVM/net Cascading configuration file
+# This file was created automatically by webAPI
+
+slave1 1,2 16
+slave2 3 32
+slave3 net(192.168.46.54) 16
+slave4 slave3.1,2 16
+slave5 slave4.13 32
+slave6 slave1.16 16

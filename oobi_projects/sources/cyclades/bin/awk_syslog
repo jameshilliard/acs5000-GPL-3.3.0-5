@@ -1,0 +1,43 @@
+#!/bin/awk -f
+
+BEGIN {
+	destination = ""
+};
+
+/^#?destination/ {
+	destination = ""
+	readBlock()
+	next;
+}
+
+length(destination) > 0 {
+	readBlock();
+	next;
+}
+
+length(destination) <= 0 {
+	print $0
+	next
+}
+
+function readBlock() {
+	destination = destination $1
+	for (i = 2; i <= NF; i++) {
+		destination = destination OFS $i
+		if ($i ~ /};/) {
+			destination = destination ORS
+			template()
+		}
+	}
+	if (length(destination)) {
+		destination = destination ORS
+	}
+}
+
+function template() {
+	if (match(destination,/pipe\("\/dev\/cyc_alarm"/)) {
+		destination = gensub(/(template\(")(.+?)("\))/, "\\1\\2 ;; \")", "g", destination)
+	}
+	printf destination
+	destination = ""
+}

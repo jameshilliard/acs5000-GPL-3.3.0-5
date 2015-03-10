@@ -1,0 +1,102 @@
+BEGIN {
+  FS = " "
+  usr_qtd = 0
+  grp_qtd = 0
+}
+
+$1 ~ /^s[0-9]*\.pmtype/ || /^all\.pmtype/ {
+  next;
+}
+
+$1 ~ /^s[0-9]*\.protocol/ || /^all\.protocol/ {
+  if ($2 == "ipdu") {
+    split ($1, s, ".");
+    if (s[1] == "all") {
+      port=portU="all";
+    }
+    else {
+      port=s[1];
+      portU="tty"toupper(s[1]);
+    }
+    if(!(portU in pmdConf)) {
+      pmdConf[portU] = portU;
+      if (portU != "all")
+	    print portU"::::::auto" >> PMD_CONF;
+      print port".protocol pm_ng" >> PSLAVE;
+    }
+    next;
+  }
+}
+
+$1 ~ /^s[0-9]*\.pmoutlet/ || /^all\.pmoutlet/ {
+  split ($1, s, ".");
+  if (s[1] == all)
+    next;
+  port="tty"toupper(s[1]);
+  printf "$"port >> PMD_GRP;
+  groups[port]="$"port;
+  sep=" ";
+  for (i=2; i <= NF; i++) {
+    split($i, s, ".");
+    if (i == 2)
+      grp_access[grp_qtd+1]="!ttyS"toupper(s[1])"["s[2]
+    printf "%c!ttyS%s[%s]", sep, toupper(s[1]), s[2] >> PMD_GRP;
+    sep=",";
+  }
+  printf "\n" >> PMD_GRP
+  grp_name[grp_qtd+1] = groups[port];
+  grp_qtd = grp_qtd + 1;
+  next;
+}
+
+$1 ~ /^s[0-9]*\.users/ {
+  split($1, s, ".");
+  port="tty"toupper(s[1]);
+  for (i=2; i <= NF; i++) {
+    split($i, s, ",");
+    for(j in s) {
+      if (length(s[j]) == 0) break;
+      if (s[j] in userS) {
+        userS[s[j]] = userS[s[j]]","port;
+      }
+      else {
+        userS[s[j]] = port;
+      }
+    }
+  }
+}
+
+$1 ~ /^s[0-9]*\.pmusers/ {
+  split ($1, s, ".");
+  port="tty"toupper(s[1]);
+  for (i=2; i <= NF; i++) {
+    if (index($i,":") != 0) {
+      sub(";","",$i)
+      split($i,s,":")
+      if (s[2] == "") {
+        i++;
+        sub(";","",$i)
+        split($i,t,":")
+        s[2]=t[1]
+      }
+      usr_info[usr_qtd + 1] = s[1]" !"port"["s[2]"]"
+      usr_qtd = usr_qtd + 1
+    }
+  }
+  next;
+}
+
+{
+  print $0 >> PSLAVE;
+  next;
+}
+
+END {
+  for (i = 1; i <= usr_qtd; i++) {
+    for (j = 1; j <= grp_qtd; j++) {
+      if (index(usr_info[i], grp_access[j]) > 0)
+        usr_info[i]=usr_info[i]","grp_name[j]
+    }
+    print usr_info[i] >> PMD_USER
+  }
+}

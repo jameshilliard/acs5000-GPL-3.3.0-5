@@ -1,0 +1,98 @@
+# Settings for MindTermLite
+#
+# First we list the classes which implement modules which we want to use
+# (note modules not wanted might be left out of the jar file)
+#
+module0=com.mindbright.application.ModulePortFwd
+module1=com.mindbright.application.ModuleTerminal
+module2=com.mindbright.application.ModuleTelnet
+module3=com.mindbright.application.ModuleSFTP
+module4=com.mindbright.application.ModuleFTPOverSFTP
+module5=com.mindbright.application.ModuleSCP
+module6=com.mindbright.application.ModuleTelnetProxy
+#module7=com.mindbright.application.ModuleActiveSync
+
+# List modules/classes to include here in menu/buttons
+#
+module0.label=Setup Port Forward...
+module1.label=SSH2 Terminal
+module2.label=Telnet Terminal
+module3.label=SFTP File Transfer...
+module4.label=FTP To SFTP Bridge...
+module5.label=SCP File Transfer...
+module6.label=Telnet Proxy...
+
+# Decides whether module activation is with menus or buttons
+#
+havemenus=true
+
+# Preset these here if wanted
+#
+#server=your.ssh2server.com
+#username=demo
+#auth-method=kbd-interactive
+
+# Store settings
+autosave=true
+
+# Proxy settings (same as for MindTerm)
+# Set these to force connecting through a proxy
+# (will be settable in module later on...)
+#
+#proxy-type=socks5
+#proxy-host=172.23.2.20
+#proxy-port=1080
+
+# SSH2 algoritm-parameters (same as for MindTerm)
+#
+enc-algorithms-cli2srv=aes128-ctr,aes128-cbc,arcfour,blowfish-cbc
+enc-algorithms-srv2cli=aes128-ctr,aes128-cbc,arcfour,blowfish-cbc
+mac-algorithms-cli2srv=hmac-sha1-96,hmac-sha1,hmac-md5-96,hmac-md5
+mac-algorithms-srv2cli=hmac-sha1-96,hmac-sha1,hmac-md5-96,hmac-md5
+
+key-timing-noise=false
+
+# Terminal settings for telnet and terminal modules (same as for MindTerm)
+#
+rev-video=true
+geometry=80x24
+font-size=12
+save-lines=512
+
+# How often to send keepalive messages (seconds)
+alive = 60
+
+# Where to load jarfiles from (:-separated path)
+jar-path = .
+
+# Settings for module ModuleTerminal
+#
+module.terminal.havemenus=true
+
+# Settings for module ModuleTelnet
+#
+# when setting host/port we force connections to ONLY that host/port
+#module.telnet.host=localhost
+#module.telnet.port=23
+#module.telnet.havemenus=true
+
+# Settings for module ModulePortFwd
+# (same format as for MindTerm)
+#
+#local0=47111:127.0.0.1:22022
+#local0=80:intranet.firedoor.se:80
+#local1=143:mail.firedoor.se:143
+#local2=25:smtp.firedoor.se:25
+#remote0=0.0.0.0:4712:127.0.0.1:23
+
+# Settings for module ModuleSCP
+# Ability to set initial directory in local/remote browsers
+#
+#module.scp.cwd-local=/tmp
+#module.scp.cwd-remote=/
+
+# Settings for module ModuleSFTP
+# Ability to set initial directory in local/remote browsers
+#
+#module.sftp.cwd-local=/home/mats/trash
+#module.sftp.cwd-remote=/tmp

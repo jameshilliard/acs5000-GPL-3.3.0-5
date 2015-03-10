@@ -1,0 +1,350 @@
+<?xml version="1.0"?>
+
+<project name="MindTerm" default="build" basedir=".">
+
+	<description>
+		MindTerm, an SSH (v1 and v2) client in pure Java
+	</description>
+
+	<!-- set global properties for this build -->
+	<property name="mindterm.build.dir" location="build"/>
+	<property name="build" location="${mindterm.build.dir}"/>
+	<property name="build.mindterm" location="${build}/mindterm"/>
+	<property name="build.examples" location="${build}/examples"/>
+	<property name="build.tests" location="${build}/tests"/>
+	<property name="doc" location="javadoc"/>
+	<property name="src" location="src"/>
+	<property name="tests" location="tests"/>
+	<!-- [CYCLADES-START] -->
+	<property environment="env"/>
+	<property name="compat.java.home" value="${env.JAVA_HOME}"/>
+	<property name="extra.libs" value="${compat.java.home}/jre/lib/plugin.jar"/>
+	<property name="ssh.dir" location="${src}/com/mindbright/ssh"/>
+	<property name="defaults.dir" location="${src}/defaults"/>
+	<property name="version.properties" location="${defaults.dir}/version.properties"/>
+	<property name="Version.java.src" location="${defaults.dir}/Version.java"/>
+	<property name="Version.java.dst" location="${ssh.dir}/Version.java"/>
+	<!-- [CYCLADES-END] -->
+
+	<import file="filesets.xml"/>
+
+	<target name="init">
+		<!-- Create the time stamp -->
+		<tstamp/>
+		<!-- Create the build directory structure used by compile -->
+		<mkdir dir="${build}"/>
+		<mkdir dir="${build.mindterm}"/>
+		<mkdir dir="${build.examples}"/>
+		<mkdir dir="${build.tests}"/>
+	</target>
+	
+	<target name="replace.version">
+		<copy file="${Version.java.src}" tofile="${Version.java.dst}" overwrite="true"/>
+		<replace file="${Version.java.dst}" propertyFile="${version.properties}">
+			<replacefilter token="@version@" property="version"/>
+			<replacefilter token="@copyright@" property="copyright"/>
+			<replacefilter token="@url@" property="url"/>
+		</replace>
+	</target>
+
+	<target name="replace.version_apc">
+		<copy file="${Version.java.src}" tofile="${Version.java.dst}" overwrite="true"/>
+		<replace file="${Version.java.dst}" propertyFile="${version.properties}">
+			<replacefilter token="@version@" property="version.apc"/>
+			<replacefilter token="@copyright@" property="copyright.apc"/>
+			<replacefilter token="@url@" property="url.apc"/>
+		</replace>
+	</target>
+
+	<target name="compile" depends="init">
+		<depend destdir="${build.mindterm}" srcdir="${src}"
+			cache="${build.mindterm}/mindterm.depcache">
+			<include name="com/**"/>
+		</depend>
+		<condition property="filter.exclude" value="com/mindbright/terminal/filter/Filter.java" else="">
+			<not>
+				<available classname="java.nio.charset.Charset"/>
+			</not>
+		</condition>
+		<javac destdir="${build.mindterm}" srcdir="${src}"
+			debug="off"
+			debuglevel="lines,source"
+			deprecation="off"
+			target="1.1"
+			source="1.2"
+			classpath="${extra.libs}"
+			includes="com/**"
+			encoding="utf-8"
+			excludes="${filter.exclude}"/>
+	</target>
+
+	<target name="compile_examples" depends="init,mindterm.jar">
+		<depend destdir="${build.examples}" srcdir="${src}"
+			classpath="${mindterm.build.dir}/mindterm.jar"
+			cache="${build.examples}/examples.depcache">
+			<include name="examples/**"/>
+		</depend>
+		<javac destdir="${build.examples}" srcdir="${src}"
+			debug="off"
+			debuglevel="lines,source"
+			classpath="${mindterm.build.dir}/mindterm.jar"
+			target="1.1"
+			source="1.2"
+			includes="examples/**"/>
+	</target>
+
+	<target name="mindterm.jar" depends="compile"
+		description="Main MindTerm application">
+		<jar destfile="${mindterm.build.dir}/mindterm.jar">
+			<manifest>
+				<attribute
+					name="Main-Class" value="com.mindterm.application.MindTerm3"/>
+			</manifest>
+			<fileset dir="${src}" includes="defaults/license.txt defaults/logo.gif defaults/default.properties"/>
+			<fileset refid="base_classes_common"/>
+			<fileset refid="base_classes_awt"/>
+			<fileset refid="base_classes_swing"/>
+			<fileset refid="mindterm_classes_common"/>
+			<fileset refid="mindterm_classes_awt"/>
+			<fileset refid="mindterm_classes_swing"/>
+		</jar>
+	</target>
+
+	<target name="_mindterm.jar" depends="compile"
+		description="Main MindTerm application (Applet-only version)">
+		<jar destfile="${mindterm.build.dir}/mindterm.jar">
+			<manifest>
+				<attribute
+					name="Main-Class" value="com.mindterm.application.MindTerm3"/>
+			</manifest>
+			<fileset dir="${src}" includes="defaults/license.txt defaults/logo.gif defaults/default.properties"/>
+			<fileset refid="_base_classes_common"/>
+			<fileset refid="_base_classes_awt"/>
+			<fileset refid="_base_classes_swing"/>
+			<fileset refid="_mindterm_classes_common"/>
+			<fileset refid="_mindterm_classes_awt"/>
+			<fileset refid="_mindterm_classes_swing"/>
+		</jar>
+	</target>
+
+	<target name="mindterm_awt.jar" depends="compile"
+		description="Main MindTerm application (AWT only version)">
+		<jar destfile="mindterm_awt.jar">
+			<manifest>
+				<attribute
+					name="Main-Class" value="com.mindbright.application.MindTerm"/>
+			</manifest>
+			<fileset dir="${src}" includes="defaults/license.txt defaults/logo.gif"/>
+			<fileset refid="base_classes_common"/>
+			<fileset refid="base_classes_awt"/>
+			<fileset refid="mindterm_classes_common"/>
+			<fileset refid="mindterm_classes_awt"/>
+		</jar>
+	</target>
+
+	<target name="mindterm_swing.jar" depends="compile"
+		description="Main MindTerm application (Swing only version)">
+		<jar destfile="mindterm_swing.jar">
+			<manifest>
+				<attribute
+					name="Main-Class" value="com.mindbright.application.MindTerm"/>
+			</manifest>
+			<fileset dir="${src}" includes="defaults/license.txt defaults/logo.gif"/>
+			<fileset refid="base_classes_common"/>
+			<fileset refid="base_classes_swing"/>
+			<fileset refid="mindterm_classes_common"/>
+			<fileset refid="mindterm_classes_swing"/>
+		</jar>
+	</target>
+
+	<target name="mindtermlite.jar" depends="compile"
+		description="MindTerm Lite application, main jarfile">
+		<jar destfile="mindtermlite.jar">
+			<manifest>
+				<attribute
+					name="Main-Class" value="com.mindbright.application.MindTermLite"/>
+			</manifest>
+			<fileset dir="${src}" includes="defaults/settings.txt"/>
+			<fileset refid="base_classes_common"/>
+			<fileset refid="base_classes_awt"/>
+			<fileset refid="lite_main_classes"/>
+			<fileset refid="lite_proxy_classes"/>
+		</jar>
+	</target>
+
+	<target name="mindtermlitef.jar" depends="compile"
+		description="MindTerm Lite application, main jarfile">
+		<jar destfile="mindtermlitef.jar">
+			<manifest>
+				<attribute
+					name="Main-Class" value="com.mindbright.application.MindTermLite"/>
+			</manifest>
+			<fileset dir="${src}" includes="defaults/settings.txt"/>
+			<fileset refid="base_classes_common"/>
+			<fileset refid="base_classes_awt"/>
+			<fileset refid="lite_main_classes"/>
+			<fileset refid="lite_proxy_classes"/>
+			<fileset refid="lite_term_classes"/>
+		</jar>
+	</target>
+
+	<target name="lite_proxy.jar" depends="compile"
+		description="MindTerm Lite application, proxy traversal module">
+		<jar destfile="lite_proxy.jar">
+			<fileset refid="lite_proxy_classes"/>
+		</jar>
+	</target>
+
+	<target name="lite_term.jar" depends="compile"
+		description="MindTerm Lite application, terminal window module">
+		<jar destfile="lite_term.jar">
+			<fileset refid="lite_term_classes"/>
+		</jar>
+	</target>
+
+	<target name="examples.jar" depends="compile_examples"
+		description="Builds examples showing how to use MindTerm">
+		<jar destfile="examples.jar">
+			<fileset refid="base_classes_common"/>
+			<fileset refid="base_classes_awt"/>
+			<fileset refid="base_classes_swing"/>
+			<fileset refid="mindterm_classes_common"/>
+			<fileset refid="mindterm_classes_awt"/>
+			<fileset refid="mindterm_classes_swing"/>
+			<fileset refid="examples_classes"/>
+		</jar>
+	</target>
+
+	<target name="doc" depends=""
+		description="Builds the javadocs for the MindTerm classes">
+		<javadoc destdir="${doc}" overview="overview.html">
+			<packageset refid="docpackages"/>
+			<group
+				title="Main packages"
+				packages="com.mindbright.ssh2:examples"/>
+			<group title="Helper packages">
+				<package name="com.mindbright.sshcommon"/>
+				<package name="com.mindbright.net*"/>
+				<package name="com.mindbright.terminal"/>
+				<package name="com.mindbright.gui"/>
+				<package name="com.mindbright.util"/>
+				<package name="com.mindbright.asn1"/>
+				<package name="com.mindbright.application"/>
+			</group>
+			<group title="Crypto packages">
+				<package name="com.mindbright.security*"/>
+				<package name="com.mindbright.jca.security*"/>
+				<package name="com.mindbright.jce*"/>
+			</group>
+			<group
+				title="SSH1 packages"
+				packages="com.mindbright.ssh"/>
+		</javadoc>
+	</target>
+
+	<!-- Extra convenience target -->
+
+	<target name="javadoc" depends="doc"/>
+
+	<target name="compiletests" depends="mindterm.jar">
+		<depend destdir="${build.tests}"
+			srcdir="${tests}"
+			cache="${build.tests}/tests.depend">
+			<include name="tests/**"/>
+			<include name="**/*.java"/>
+		</depend>
+		<javac destdir="${build.tests}"
+			debug="off"
+			debuglevel="lines,source"
+			srcdir="${tests}"
+			deprecation="off"
+			classpath="${mindterm.build.dir}/mindterm.jar"
+			target="1.1"
+			source="1.2"
+			includes="tests/** **/*.java"/>
+	</target>
+
+	<target name="runtests" depends="compiletests">
+		<junit fork="yes" haltonfailure="no" printsummary="withOutAndErr">
+			<classpath>
+				<pathelement location="${mindterm.build.dir}/mindterm.jar"/>
+				<pathelement location="${build.tests}"/>
+			</classpath>
+			<formatter type="plain" usefile="no"/>
+			<batchtest>
+				<fileset dir="${build.tests}">
+					<include name="**/Test*.class"/>
+					<exclude name="**/*$*.class"/>
+				</fileset>
+			</batchtest>
+		</junit>
+	</target>
+
+	<target name="build" depends="mindterm.jar,sign_jar"
+		description="Build main MindTerm application"/>
+
+	<target name="build_acs" depends="_mindterm.jar,_sign_jar"
+		description="Build main MindTerm application (Applet-only version)"/>
+	
+	<target name="build_apc" depends="mindterm.jar,sign_jar_apc"
+		description="Build main MindTerm application (APC version)"/>
+
+	<target name="lite"
+		depends="mindtermlite.jar,lite_term.jar,lite_proxy.jar"
+		description="Build MindTermLite with accessories"/>
+	
+	<target name="examples" depends="examples.jar"/>
+
+	<target name="all" depends="build,lite,examples,doc"
+		description="Build everything"/>
+
+	<target name="test" depends="runtests"
+		description="Runs junit tests on part of the code"/>
+
+	<target name="clean"
+		description="Clean up and remove all compiled files">
+		<delete dir="${build.mindterm}"/>
+		<delete dir="${build.examples}"/>
+		<delete dir="${build.tests}"/>
+		<delete dir="${build}"/>
+		<delete dir="${doc}"/>
+		<delete>
+			<fileset dir="." includes="*.jar"/>
+		</delete>
+	</target>
+
+	<!-- [CYCLADES-START] -->
+
+	<target name="gencert_cyc">
+		<exec executable="${compat.java.home}/bin/keytool" os="Linux">
+			<arg line="-genkey -alias cyc -keystore keystore.cyc -storepass avocent -keypass avocent -dname CN=Avocent_Corporation,OU=MSD_SPO_SW,O=Avocent.com,C=US -validity 3650"/>
+		</exec>
+	</target>
+
+	<target name="gencert_apc">
+		<exec executable="${compat.java.home}/bin/keytool" os="Linux">
+			<arg line="-genkey -alias apc -keystore keystore.apc -storepass apc_cps -keypass apc_cps -dname CN=www.apc.com,C=US -validity 3650"/>
+		</exec>
+	</target>
+
+	<target name="sign_jar" depends="mindterm.jar" description="Signing mindterm.jar">
+		<exec executable="${compat.java.home}/bin/jarsigner" os="Linux">
+			<arg line="-verbose -keystore keystore -storepass avocent ${mindterm.build.dir}/mindterm.jar cyc"/>
+		</exec>
+	</target>
+
+	<target name="_sign_jar" depends="_mindterm.jar" description="Signing mindterm.jar (Applet-only version)">
+		<exec executable="${compat.java.home}/bin/jarsigner" os="Linux">
+			<arg line="-verbose -keystore keystore -storepass avocent ${mindterm.build.dir}/mindterm.jar cyc"/>
+		</exec>
+	</target>
+
+	<target name="sign_jar_apc" depends="mindterm.jar" description="Signing mindterm.jar (APC version)">
+		<exec executable="${compat.java.home}/bin/jarsigner" os="Linux">
+			<arg line="-verbose -keystore keystore -storepass apc_cps ${mindterm.build.dir}/mindterm.jar apc"/>
+		</exec>
+	</target>
+
+	<!-- [CYCLADES-END] -->
+
+</project>

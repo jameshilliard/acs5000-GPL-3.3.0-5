@@ -1,0 +1,36 @@
+diff -ru srp-2.1.1/libsrp/configure.in srp-2.1.1_patch/libsrp/configure.in
+--- srp-2.1.1/libsrp/configure.in	2005-04-23 19:36:42.000000000 -0700
++++ srp-2.1.1_patch/libsrp/configure.in	2006-02-15 11:04:04.824613040 -0800
+@@ -31,16 +31,16 @@
+ AC_C_INLINE
+ AC_HEADER_TIME
+ AC_C_BIGENDIAN
+-AC_CHECK_SIZEOF(short)
+-AC_CHECK_SIZEOF(int)
+-AC_CHECK_SIZEOF(long)
++AC_CHECK_SIZEOF(short,cross)
++AC_CHECK_SIZEOF(int,cross)
++AC_CHECK_SIZEOF(long,cross)
+ AC_TRY_COMPILE(, [volatile int i;], , AC_DEFINE(volatile, ))
+
+ dnl Checks for library functions.
+
+ AC_CHECK_FUNCS(sigaction strchr memcpy)
+ AC_TYPE_SIGNAL
+-AC_HEADER_CHECK(termios.h,AC_FUNC_CHECK(cfsetispeed,AC_DEFINE(POSIX_TERMIOS)))
++AC_HEADER_CHECK(termios.h)
+
+ dnl User options
+
+diff -ru srp-2.1.1/libsrp/Makefile.in srp-2.1.1_patch/libsrp/Makefile.in
+--- srp-2.1.1/libsrp/Makefile.in	2005-04-23 19:36:47.000000000 -0700
++++ srp-2.1.1_patch/libsrp/Makefile.in	2006-02-15 11:03:37.596076556 -0800
+@@ -111,7 +111,7 @@
+ t_math.o t_misc.o t_pw.o t_read.o t_server.o t_truerand.o cstr.o srp.o \
+ rfc2945_client.o rfc2945_server.o srp6_client.o srp6_server.o yp_misc.o \
+ yp_tpasswd.o yp_tconf.o nsw_tpasswd.o nsw_tconf.o nsswitch.o
+-AR = ar
++AR = $(CROSS_COMPILE)ar
+ PROGRAMS =  $(bin_PROGRAMS) $(noinst_PROGRAMS)
+ 
+ tconf_OBJECTS =  tconf.o

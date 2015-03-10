@@ -1,0 +1,1157 @@
+CYCLADES-KVM-TRAP-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+   cyclades
+        FROM CYCLADES-MIB
+   MODULE-IDENTITY
+        FROM SNMPv2-SMI
+   Gauge,enterprises,TimeTicks,IpAddress,Counter,NetworkAddress
+      FROM RFC1155-SMI
+   OBJECT-TYPE
+      FROM RFC-1212
+   DisplayString,PhysAddress
+      FROM RFC1213-MIB
+   TRAP-TYPE
+      FROM RFC-1215;
+--------------------------------------------------------------------------------
+-- KVM Trap Object                2925.6.2.1 (cyclades.kvm.kvmManagement.kvmTrapObject)
+--
+-- The following objects are implemented only for the generation of
+-- TRAPs. The objects are sent in traps and are not accessible in
+-- any other way.
+--------------------------------------------------------------------------------
+
+kvm                  OBJECT-IDENTITY 
+	STATUS current
+	DESCRIPTION " Define the Cyclades MIB extensions to KVM products"
+	::= { cyclades 6  }
+kvmManagement        OBJECT-IDENTITY 
+	STATUS current
+	DESCRIPTION " Define the KVM trap objects "
+	::= { kvm 2 }
+kvmTrapObject        OBJECT-IDENTITY 
+	STATUS current
+	DESCRIPTION " Define the trap objects "
+	::= { kvmManagement 1 }
+kvmModels            OBJECT-IDENTITY 
+	STATUS current
+	DESCRIPTION " Define the KVM appliance models "
+	::= { kvmManagement 2 }
+kvmNet               OBJECT-IDENTITY 
+	STATUS current
+	DESCRIPTION " Define the appliance model KVM/net "
+	::= { kvmModels 1 }
+kvmPlus              OBJECT-IDENTITY 
+	STATUS current
+	DESCRIPTION " Define the appliance model KVM/netPlus"
+	::= { kvmModels 2 }
+kvmNet16             OBJECT-IDENTITY 
+	STATUS current
+	DESCRIPTION " Define the appliance model KVM/net 16 "
+	::= { kvmNet 16 }
+kvmNet32             OBJECT-IDENTITY 
+	STATUS current
+	DESCRIPTION " Define the appliance model KVM/net 32 "
+	::= { kvmNet 32 }
+kvmPlus16            OBJECT-IDENTITY 
+	STATUS current
+	DESCRIPTION " Define the appliance model KVM/netPlus 16 "
+	::= { kvmPlus 16 }
+kvmPlus32            OBJECT-IDENTITY 
+	STATUS current
+	DESCRIPTION " Define the appliance model KVM/netPlus 32 "
+	::= { kvmPlus 32 }
+
+kvmTrapObjectUserName OBJECT-TYPE
+      SYNTAX OCTET STRING
+      ACCESS not-accessible
+      STATUS mandatory
+      --% AVAILABILITY public
+      DESCRIPTION 
+      "
+      This object is sent in a trap to identify the name of the user
+      for which the trap condition occurred.
+      "
+      ::= { kvmTrapObject 1 }
+
+kvmTrapObjectTargetUserName OBJECT-TYPE
+      SYNTAX OCTET STRING
+      ACCESS not-accessible
+      STATUS mandatory
+  --% AVAILABILITY public
+      DESCRIPTION 
+      "
+      This object is sent in a trap to identify the name of the user
+       for which the trap condition occurred.
+      "
+       ::= { kvmTrapObject 2 }        
+
+kvmTrapObjectAuxPort OBJECT-TYPE
+      SYNTAX INTEGER
+      ACCESS not-accessible
+      STATUS mandatory
+      DESCRIPTION       
+      "
+      This object is sent in a trap to identify the AUX port in which the trap condition occurred.
+      "
+  --% AVAILABILITY public                         
+      ::= { kvmTrapObject 3 }
+
+kvmTrapObjectKvmPortName OBJECT-TYPE
+      SYNTAX OCTET STRING 
+      ACCESS not-accessible
+      STATUS mandatory
+      DESCRIPTION 
+      "
+      This object is sent in a trap to identify alias name of Kvm port.
+      or Name of the target Device.
+      "
+  --% AVAILABILITY public                         
+      ::= { kvmTrapObject 4 }
+            
+kvmTrapObjectAlertMessage OBJECT-TYPE
+      SYNTAX OCTET STRING
+      ACCESS not-accessible
+      STATUS mandatory
+  --% AVAILABILITY public
+      DESCRIPTION
+      "
+      This object is sent in a trap to identify Alert String or line that matches
+      data buffering text.
+      "
+      ::= { kvmTrapObject 5 }
+
+kvmTrapObjectAlertString OBJECT-TYPE
+      SYNTAX INTEGER
+      ACCESS not-accessible
+      STATUS mandatory
+  --% AVAILABILITY public
+      DESCRIPTION
+      "
+      This object is sent in a trap to identify Alert String that match the
+      with data buffering text.
+      "
+      ::= { kvmTrapObject 6 }      
+
+kvmTrapObjectPMCount OBJECT-TYPE
+      SYNTAX INTEGER
+      ACCESS not-accessible
+      STATUS mandatory
+  --% AVAILABILITY public      
+      DESCRIPTION       
+      "
+      This object is sent in a trap to identify number of IPDU in the chain
+      "
+      ::= { kvmTrapObject 7 }
+
+kvmTrapObjectPMSocketCount OBJECT-TYPE
+      SYNTAX INTEGER
+      ACCESS not-accessible
+      STATUS mandatory
+  --% AVAILABILITY public      
+      DESCRIPTION
+      "
+      This object is sent in a trap to identify number of outlets on the chain.
+      "
+      ::= { kvmTrapObject 8 }
+
+kvmTrapObjectPMNumber OBJECT-TYPE
+      SYNTAX INTEGER
+      ACCESS not-accessible
+      STATUS mandatory
+  --% AVAILABILITY public          
+      DESCRIPTION       
+      "
+      This object is sent in a trap to identify IPDU # the trap condition.
+      occurred on.
+      "         
+      ::= { kvmTrapObject 9 }
+
+kvmTrapObjectPMSocketNumber OBJECT-TYPE
+      SYNTAX INTEGER
+      ACCESS not-accessible
+      STATUS mandatory
+      DESCRIPTION       
+      "This object is sent in a trap to identify outlet number the trap
+         condition occurred on.
+      "
+  --% AVAILABILITY public   
+      ::= { kvmTrapObject 10 }
+
+kvmTrapObjectPMSocketName OBJECT-TYPE
+      SYNTAX OCTET STRING
+      ACCESS not-accessible
+      STATUS mandatory
+      DESCRIPTION       
+      "
+      This object is sent in a trap to identify outlet association 
+      with serial port name if there any association or the name 
+      stored in the PM.
+      "
+  --% AVAILABILITY public   
+      ::= { kvmTrapObject 11 }      
+                 
+kvmTrapObjectDaemonName OBJECT-TYPE
+      SYNTAX OCTET STRING
+      ACCESS not-accessible
+      STATUS mandatory            
+      DESCRIPTION     
+      "
+      This object is sent in a trap to indicate the Daemon name
+      that has started/stopped.
+      "
+  --% AVAILABILITY public          
+        ::= { kvmTrapObject 12 }
+
+kvmTrapObjectPMCurrentValue OBJECT-TYPE
+      SYNTAX OCTET STRING
+      ACCESS not-accessible
+      STATUS mandatory            
+      DESCRIPTION     
+      "
+      This object is sent in a trap to detected current value of the PM
+      "
+  --% AVAILABILITY public               
+      ::= { kvmTrapObject 13 }
+        
+kvmTrapFirmwareVersion OBJECT-TYPE
+      SYNTAX OCTET STRING
+      ACCESS not-accessible
+      STATUS mandatory            
+      DESCRIPTION
+      "
+      This object is sent in a trap to identify current Firmware version. 
+      "
+  --% AVAILABILITY public  
+      ::= { kvmTrapObject 14 }
+
+kvmTrapNewFirmwareVersion OBJECT-TYPE
+      SYNTAX OCTET STRING
+      ACCESS not-accessible
+      STATUS mandatory            
+      DESCRIPTION
+      "
+      This object is sent in a trap to identify current Firmware version.
+      "
+  --% AVAILABILITY public  
+      ::= { kvmTrapObject 15 }
+        
+kvmTrapFirmwareUpgradeResult  OBJECT-TYPE
+      SYNTAX INTEGER  {
+                         imageUpgradeSuccess(1),
+                         imageUpgradeInternalError(2)
+             }
+      ACCESS not-accessible
+      STATUS mandatory            
+      DESCRIPTION     
+      "
+      This object is sent in a trap to identify the firmware upgrade result.
+      "
+  --% AVAILABILITY public  
+      ::= { kvmTrapObject 16 }
+
+kvmTrapObjectSessionType OBJECT-TYPE
+      SYNTAX INTEGER {
+                      sSH(1),
+                      telnet(2),
+                      wMI(3),
+                      console(4),
+		      modemPCMCIA(5),
+                      kVM-IP(6),
+                      oSD(7)
+             }
+      ACCESS not-accessible
+      STATUS mandatory
+      DESCRIPTION 
+      "
+      This object is sent in a trap to identify type of Session.
+      "
+  --% AVAILABILITY public                         
+      ::= { kvmTrapObject 17 }  
+      
+kvmTrapObjectDataBufferSize OBJECT-TYPE
+      SYNTAX INTEGER
+      ACCESS not-accessible
+      STATUS mandatory
+      DESCRIPTION       
+      "
+      This object is sent in a trap to identify current size of global buffer.
+      "
+  --% AVAILABILITY public                         
+      ::= { kvmTrapObject 18 }
+    
+kvmTrapObjectProcessID OBJECT-TYPE
+      SYNTAX INTEGER
+      ACCESS not-accessible
+      STATUS mandatory
+      DESCRIPTION       
+      "
+      This object is sent in a trap to identify which session lost data through SSH or telnet session.
+      "
+  --% AVAILABILITY public                         
+      ::= { kvmTrapObject 19 }      
+      
+kvmTrapObjectTargetedKvmPort  OBJECT-TYPE
+      SYNTAX INTEGER
+      ACCESS not-accessible
+      STATUS mandatory
+      DESCRIPTION       
+      "
+      This object is sent in a trap to identify which kvm port is associated with outlet.
+      "
+  --% AVAILABILITY public                         
+      ::= { kvmTrapObject 20 }    
+      
+kvmTrapObjectFanNumber  OBJECT-TYPE
+      SYNTAX INTEGER
+      ACCESS not-accessible
+      STATUS mandatory
+      DESCRIPTION
+      "
+      This object is sent in a trap to identify which fan the trap condition occured on.
+      "
+  --% AVAILABILITY public
+      ::= { kvmTrapObject 21 }
+
+kvmTrapObjectFanSpeed  OBJECT-TYPE
+      SYNTAX INTEGER
+      ACCESS not-accessible
+      STATUS mandatory
+      DESCRIPTION
+      "
+      This object is sent in a trap to identify the fan speed.
+      "
+  --% AVAILABILITY public
+      ::= { kvmTrapObject 22 } 
+ 
+kvmTrapObjectAlertIndex OBJECT-TYPE
+      SYNTAX INTEGER
+      ACCESS not-accessible
+      STATUS mandatory
+      DESCRIPTION
+      "
+      This object is sent in a trap to identify the appliance alert
+      that matched the message.
+      "
+  --% AVAILABILITY public
+      ::= { kvmTrapObject 23}
+
+kvmTrapObjectPMPhase OBJECT-TYPE
+        SYNTAX OCTET STRING
+        ACCESS not-accessible
+        STATUS mandatory
+        DESCRIPTION
+        "
+        This object is sent in a trap to identify the Phase of the IPDU
+        where the trap occurred.
+        "
+  --% AVAILABILITY public
+        ::= { kvmTrapObject 24 }
+
+kvmTrapObjectAuxPortName OBJECT-TYPE
+      SYNTAX OCTET STRING 
+      ACCESS not-accessible
+      STATUS mandatory
+      DESCRIPTION 
+      "
+      This object is sent in a trap to identify AUX port name.
+      "
+  --% AVAILABILITY public                         
+      ::= { kvmTrapObject 25 }
+
+kvmTrapObjectPhysicalPort OBJECT-TYPE
+      SYNTAX OCTET STRING 
+      ACCESS not-accessible
+      STATUS mandatory
+      DESCRIPTION 
+      "
+      This object is sent in a trap to identify physical id of the port.  It is physical port of the KVM. 
+      For cascaded port, physical port is master port followed by '.' and slave port.
+      For example, casaced KVM on port 1 of master and slave port 1 will be refered as '1.1'.
+      "
+  --% AVAILABILITY public                         
+      ::= { kvmTrapObject 26 }
+
+--------------------------------------------------------------------------------
+-- Enterprise Traps
+-- KVM models: 
+--    KvmNet
+--         KvmNet16:  2925.6.1.1.16  (cyclades.kvm.kvmModel.kvmNet.kvmNet16)
+--         KvmNet32:  2925.6.1.1.32  (cyclades.kvm.kvmModel.kvmNet.kvmNet32)
+--        
+--    KvmPlus
+--         KvmPlus16:  2925.6.1.2.16  (cyclades.kvm.kvmModel.kvmPlus.kvmNet16)
+--         KvmPlus32:  2925.6.1.2.32  (cyclades.kvm.kvmModel.kvmPlus.kvmNet16)
+--  The above Enterprise OIDs will be used for registering each Model for NNM
+--  module. 
+--------------------------------------------------------------------------------
+
+kvmRebootStartedTrap TRAP-TYPE
+      ENTERPRISE  kvm
+      VARIABLES   { kvmTrapObjectUserName }
+      DESCRIPTION
+         "
+         KVM is in process of rebooting.
+         The name of the user who issued the command is contained
+         in kvmTrapObjectUserName.
+         "
+      --#SUMMARY     "The appliance is rebooting. Command issued by user: %s."
+      --#ARGUMENTS   { 0 }
+      --#SEVERITY    INFORMATIONAL
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=15 
+      ::= 1
+
+kvmUserLoginTrap TRAP-TYPE
+      ENTERPRISE  kvm
+      VARIABLES   { kvmTrapObjectUserName, kvmTrapObjectSessionType}
+      DESCRIPTION
+         "
+          This trap is sent when user logged into appliance.
+          The name of the user who logged in is contained in  kvmTrapObjectUserName
+          and the method used to log into appliance is contained in kvmTrapObjectSessionType.
+         "
+      --#SUMMARY     "A user logged into the appliance. User: %s. Session type: %d."
+      --#ARGUMENTS   { 0,1 }
+      --#SEVERITY    INFORMATIONAL
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=15
+      ::= 2
+
+kvmUserLogoutTrap TRAP-TYPE
+      ENTERPRISE  kvm
+      VARIABLES   { kvmTrapObjectUserName, kvmTrapObjectSessionType }
+      DESCRIPTION
+         "
+          A user logged out from KVM
+          The name of the user who logged out is contained in kvmTrapObjectUserName. 
+          The type of session is contained in kvmTrapObjectSessionType.
+         "
+      --#SUMMARY     "A user logged out of the appliance. User: %s. Session type: %d."
+      --#ARGUMENTS   { 0,1}
+      --#SEVERITY    INFORMATIONAL
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=15
+      ::= 3
+
+kvmLoginFailedTrap TRAP-TYPE
+      ENTERPRISE  kvm
+      VARIABLES   { kvmTrapObjectUserName }
+      DESCRIPTION
+         "
+          A user failed to authenticate with the appliance.
+          The name of the user who failed to authenticate is contained in kvmTrapObjectUserName.
+         "
+      --#SUMMARY     "User authentication failed. User: %s."
+      --#ARGUMENTS   {0}
+      --#SEVERITY    Alert
+      --#CATEGORY    "Error Events"
+      --% TrapTypeEnum=15 
+      ::= 4
+
+kvmSessionStartedTrap TRAP-TYPE
+      ENTERPRISE  kvm
+      VARIABLES   {
+                     kvmTrapObjectUserName,
+                     kvmTrapObjectKvmPortName,
+                     kvmTrapObjectPhysicalPort,
+                     kvmTrapObjectSessionType 
+                  }
+      DESCRIPTION
+         "
+          This trap is sent when a kvm viewer session has started on particular port.
+          The name of the user who started the session is contain in kvmTrapObjectUserName.
+          The physical port number or id is contain in kvmTrapObjectPhysicalPort.
+          The physical port name  is contain in kvmTrapObjectKvmPortName.
+          The integer to indicate type of session is contain in kvmTrapObjectSessionType.
+         "
+      --#SUMMARY     "KVM session started. User: %s. Port name: %s. Port number: %s Session type: %d."          
+      --#ARGUMENTS   { 0, 1, 2, 3 }
+      --#SEVERITY    INFORMATIONAL
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 5
+      
+kvmSessionStoppedTrap TRAP-TYPE
+      ENTERPRISE  kvm
+      VARIABLES   {
+                     kvmTrapObjectUserName,
+                     kvmTrapObjectKvmPortName,
+                     kvmTrapObjectPhysicalPort,
+                     kvmTrapObjectSessionType 
+                  }
+      DESCRIPTION
+        "
+         This trap is sent when a kvm session has stopped on particular port
+         The user whose session is stopped is contain in kvmTrapObjectUserName.
+         The physical port number or id is contain in kvmTrapObjectPhysicalPort.
+         The physical port name  is contain in kvmTrapObjectKvmPortName.
+	 The type of session that was stopped is contain in kvmTrapObjectSessionType.
+        "
+      --#SUMMARY     "KVM session stopped. User: %s. Port name: %s. Port number: %s Session type: %d."  
+      --#ARGUMENTS   { 0, 1, 2,3 }
+      --#SEVERITY    INFORMATIONAL
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 6
+
+         
+---------------------------------------
+-- Appliance Alert Event
+---------------------------------------
+kvmApplianceAlertTrap  TRAP-TYPE
+      ENTERPRISE  kvm
+      VARIABLES   { 
+                        kvmTrapObjectUserName,
+                        kvmTrapObjectAlertIndex,
+                        kvmTrapObjectAlertString,
+                        kvmTrapObjectAlertMessage
+                  }
+      DESCRIPTION
+         "
+          This trap is generated when the appliance alert is detected in
+          ssh/telnet session to the appliance.
+	  kvmTrapObjectAlertIndex is the index of the appliance alert that matched 
+	  in the kvmTrapObjectAlertMessage.
+          kvmTrapObjectAlertString is string that matched in the kvmTrapObjectAlertMessage. 
+          kvmTrapObjectAlertMessage is entire LINE that contains the appliance alert.
+          kvmTrapObjectUserName is name of the user whoes session generated this appliance alert.
+         "      
+      --#SUMMARY     "An appliance alert was detected. 
+      --              User: %s. Alert index: %d. Alert string: %s. Line text: %s."
+      --#ARGUMENTS   { 0, 1, 2, 3}
+      --#SEVERITY    CRITICAL
+      --#CATEGORY    "Error Events"
+      --% TrapTypeEnum=9
+      ::= 7      
+      
+kvmPortDisabledTrap TRAP-TYPE
+      ENTERPRISE  kvm
+      VARIABLES   {     
+                        kvmTrapObjectKvmPortName,
+                        kvmTrapObjectPhysicalPort
+                        
+                  }    
+      DESCRIPTION 
+        "
+         This trap is generated when kvm port is DISABLED.
+         kvmTrapObjectKvmPortName is kvm port name.
+         The physical port number or id is contain in kvmTrapObjectPhysicalPort.
+        "          
+      --#SUMMARY     "Kvm port disabled. Port name: %s. Port number: %s"
+      --#ARGUMENTS   {0,1}
+      --#SEVERITY    INFORMATIONAL
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 8    
+      
+kvmPortEnabledTrap TRAP-TYPE
+      ENTERPRISE  kvm
+      VARIABLES   {     
+                        kvmTrapObjectKvmPortName,
+                        kvmTrapObjectPhysicalPort
+                  }    
+      DESCRIPTION
+        "
+         This trap is generated when port is ENABLED.
+         kvmTrapObjectKvmPortName is kvm port name.
+         The physical port number or id is contain in kvmTrapObjectPhysicalPort.
+        "
+      --#SUMMARY     "Kvm port enabled. Port name: %s. Port number: %s"
+      --#ARGUMENTS   {0,1}
+      --#SEVERITY    INFORMATIONAL
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 9          
+                                  
+kvmDaemonStarted TRAP-TYPE
+      ENTERPRISE  kvm
+      VARIABLES   { kvmTrapObjectUserName, 
+		    kvmTrapObjectDaemonName
+		  }
+      DESCRIPTION
+         "
+          This trap is generated when daemon in the appliance started.
+          The daemon name is contained in kvmTrapObjectDaemonName.
+          The name of the user who start the daemon is contained in.
+         "         
+      --#SUMMARY     "A daemon started. User: %s. Daemon name: %s."
+      --#ARGUMENTS   { 0,1 }
+      --#SEVERITY    INFORMATIONAL
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 10     
+
+kvmDaemonStoped TRAP-TYPE
+      ENTERPRISE  kvm
+      VARIABLES   { kvmTrapObjectUserName, 
+                    kvmTrapObjectDaemonName
+                  }
+      DESCRIPTION
+         "
+          This trap is generated when Network daemons in KVM stopped.
+          kvmTrapObjectDaemonName is name of the daemon.
+         "
+      --#SUMMARY     "A daemon stopped. User: %s. Daemon name: %s."
+      --#ARGUMENTS   { 0 , 1}
+      --#SEVERITY    INFORMATIONAL
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 11     
+  
+kvmWebSessionTerminatedTrap TRAP-TYPE
+      ENTERPRISE  kvm
+      VARIABLES   {     kvmTrapObjectUserName, 
+                        kvmTrapObjectTargetUserName                       
+                  }
+      DESCRIPTION
+         "
+          This trap is generated when previous WEB session Terminated by new Admin user.
+          kvmTrapObjectUserName contains the NEW user name.       
+          kvmTrapObjectTargetUserName contains name of the user who session was terminated.
+
+         "         
+      --#SUMMARY     "Admin Session terminated. Command issued by user: %s. Terminated user: %s."
+      --#ARGUMENTS   { 0,1 }
+      --#SEVERITY    INFORMATIONAL
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 12
+
+kvmSessionTerminatedTrap TRAP-TYPE
+      ENTERPRISE  kvm
+      VARIABLES   {     kvmTrapObjectUserName, 
+                        kvmTrapObjectTargetUserName, 
+                        kvmTrapObjectKvmPortName,
+                        kvmTrapObjectPhysicalPort
+                  }
+      DESCRIPTION
+         "
+          This trap is generated when kvm session terminated or killed by other user.
+          kvmTrapObjectUserName contains the NEW user name.
+          kvmTrapObjectTargetUserName contains name of the user who session was terminated.
+          kvmTrapObjectKvmPortName is kvm port name.          
+         "
+         
+      --#SUMMARY     "Kvm Session terminated. Command issued by user: %s. Terminated user: %s 
+      --             Port name: %s. Port Number: %s."
+      --#ARGUMENTS   { 0, 1, 2, 3 }
+      --#SEVERITY    INFORMATIONAL
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 13
+      
+kvmSessionRWTakeOverTrap TRAP-TYPE
+      ENTERPRISE  kvm
+      VARIABLES   {
+                        kvmTrapObjectUserName, 
+                        kvmTrapObjectTargetUserName,
+                        kvmTrapObjectKvmPortName,
+                        kvmTrapObjectPhysicalPort
+                  }
+      DESCRIPTION
+         "
+          This trap is generated when one user takes over kvm session as Read/Write(RW) of other 
+          kvm session and other kvm session becomes read only.
+          kvmTrapObjectUserName contains the user name that took over KVM session as RW.
+          kvmTrapObjectTargetUserName contains name of the user who session was changed from RW to read only.
+          kvmTrapObjectKvmPortName is kvm port name.   
+          kvmTrapObjectPhysicalPort is physical port number or id of this session.       
+         "
+         
+      --#SUMMARY     "Kvm ReadWrite session takeover occured. Command issued by user: %s. Terminated user: %s.
+      --             Port name: %s. Port Number: %s."
+      --#ARGUMENTS   { 0, 1, 2, 3 }
+      --#SEVERITY    INFORMATIONAL
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 14
+      
+        
+kvmConfigurationSavedTrap TRAP-TYPE
+      ENTERPRISE  kvm
+      VARIABLES   {     
+                        kvmTrapObjectUserName
+                  }
+      DESCRIPTION            
+         "
+          This trap is generated when 'saveconf' is successful.
+          kvmTrapObjectUserName is name of the user who executed saveconf.
+         "         
+      --#SUMMARY     "Configuration saved to flash by user: %s."
+      --#ARGUMENTS   {0}
+      --#SEVERITY    INFORMATIONAL
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 15
+
+kvmConfigurationActivatedTrap TRAP-TYPE
+      ENTERPRISE  kvm
+      VARIABLES   {
+                        kvmTrapObjectUserName
+                  }
+      DESCRIPTION
+        "
+         This trap is generated when new configuration is activated.
+         kvmTrapObjectUserName is name of the user who activated new configuration.
+        "
+      --#SUMMARY     "New configuration activated by user: %s."
+      --#ARGUMENTS   {0}
+      --#SEVERITY    INFORMATIONAL
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 16    
+
+kvmLocalUserAddedTrap TRAP-TYPE
+      ENTERPRISE  kvm
+      VARIABLES   {     
+                        kvmTrapObjectUserName,
+                        kvmTrapObjectTargetUserName 
+                  }
+      DESCRIPTION
+        " 
+         This trap is generated when user is added to KVM.
+         kvmTrapObjectTargetUserName is name of the new user.
+         kvmTrapObjectUserName is name of user who added new user.
+        "
+      --#SUMMARY     "A user was added to the local user database. Command issued by user: %s. New user: %s."
+      --#ARGUMENTS   {0,1}
+      --#SEVERITY    INFORMATIONAL
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 17   
+      
+kvmLocalUserDeletedTrap TRAP-TYPE
+      ENTERPRISE  kvm
+      VARIABLES   {     
+                        kvmTrapObjectUserName,
+                        kvmTrapObjectTargetUserName 
+                  }
+      DESCRIPTION
+        "
+         This trap is generated when user is added to KVM.
+         kvmTrapObjectTargetUserName is name of the user who was deleted.
+         kvmTrapObjectUserName is name of user who deleted other user.
+        "
+      --#SUMMARY     "A user was deleted from the local user database. Command issued by user: %s Deleted user: %s."
+      --#ARGUMENTS   {0,1}
+      --#SEVERITY    INFORMATIONAL
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 18
+
+kvmApplianceDataBufferFullThresholdLowTrap TRAP-TYPE
+      ENTERPRISE  kvm
+      VARIABLES   {
+                     kvmTrapObjectDataBufferSize         
+         
+                  }
+      DESCRIPTION
+        "
+         This trap is generated when KVM is managed by DsView and global data buffer has reached 
+         configured Low level Threshold.
+         kvmTrapObjectDataBufferSize is current size of the buffer. 
+        "       
+      --#SUMMARY     "Data Buffering for DSView data log is getting full (low threshold). Buffer size: %d."
+      --#ARGUMENTS   {0}
+      --#SEVERITY    INFORMATIONAL
+      --#CATEGORY    "Error Events"
+      --% TrapTypeEnum=9
+      ::= 19      
+      
+kvmApplianceDataBufferFullThresholdMedTrap TRAP-TYPE
+      ENTERPRISE  kvm
+      VARIABLES   {
+                     kvmTrapObjectDataBufferSize         
+         
+                  }
+      DESCRIPTION
+        "
+         This trap is generated when KVM is managed by DsView and global data buffer has reached 
+         configured Med level Threshold.
+         kvmTrapObjectDataBufferSize is current size of the buffer.
+        "       
+      --#SUMMARY     "Data Buffering for DSView data log is almost full (medium threshold). Buffer size: %d."
+      --#ARGUMENTS   {0}
+      --#SEVERITY    ALERT
+      --#CATEGORY    "Error Events"
+      --% TrapTypeEnum=9
+      ::= 20      
+
+kvmApplianceLostDataTrap TRAP-TYPE
+      ENTERPRISE  kvm
+      VARIABLES   {
+                     kvmTrapObjectProcessID,    
+                     kvmTrapObjectUserName
+      }      
+      DESCRIPTION
+        "
+         This trap is generated when KVM is managed by DsView and Appliance data lost occurred on
+         ssh or telnet session.
+         kvmTrapObjectProcessID is process id of the telnet or ssh session.
+         kvmTrapObjectUserName is name of user who session is active and data lost occurred.
+        "
+      --#SUMMARY     "Appliance data log loss. Process ID: %d. User: %s."
+      --#ARGUMENTS   { 0, 1}
+      --#SEVERITY    ALERT
+      --#CATEGORY    "Error Events"
+      --% TrapTypeEnum=9
+      ::= 22        
+      
+--------------------------------------------------------------------------------
+-- Power Management Enterprise Traps
+--------------------------------------------------------------------------------
+
+cyPMOnlineTrap TRAP-TYPE
+      ENTERPRISE  kvm
+      VARIABLES   { 
+                        kvmTrapObjectAuxPortName,
+                        kvmTrapObjectAuxPort,
+                        kvmTrapObjectPMCount,                        
+                        kvmTrapObjectPMSocketCount                        
+                  }
+      DESCRIPTION
+         "
+          This trap is generated when PM is attached to aux port of KVM or 
+          PM is added to chain of IPDU.
+          kvmTrapObjectPMCount indicates number of PM on the aux port.
+          kvmTrapObjectPMSocketCount indicates total number of Outlets on aux port.
+          kvmTrapObjectAuxPort attached kvm aux port number.
+          kvmTrapObjectAuxPortName indicates the aux port name.
+         "      
+      --#SUMMARY     "A power device is online. AUX port name: %s. AUX port number: %d. Power devices: %d.
+      --              Number of sockets: %d."
+      --#ARGUMENTS   { 0, 1, 2, 3}
+      --#SEVERITY    INFORMATIONAL
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 23    
+
+cyPMOfflineTrap TRAP-TYPE
+      ENTERPRISE  kvm
+      VARIABLES   {     
+                        kvmTrapObjectAuxPortName,
+                        kvmTrapObjectAuxPort
+                  }
+      DESCRIPTION
+         "
+          This trap is generated when PM is removed from kvm port or communication error.
+          kvmTrapObjectAuxPort is kvm aux port number.
+          kvmTrapObjectAuxPortName is aux port name.
+         "      
+      --#SUMMARY     "A power device is offline. AUX port name: %s. AUX port number: %d."
+      --#ARGUMENTS   { 0, 1 }
+      --#SEVERITY    CRITICAL
+      --#CATEGORY    "Error Events"
+      --% TrapTypeEnum=9
+      ::= 24
+
+cyPMSocketTurnedOffTrap TRAP-TYPE
+      ENTERPRISE  kvm
+      VARIABLES   { 
+                        kvmTrapObjectUserName,
+                        kvmTrapObjectAuxPort,
+                        kvmTrapObjectPMSocketNumber
+                  }
+      DESCRIPTION
+         "
+          This trap is generated when outlet is turned off.
+          kvmTrapObjectAuxPort is kvm Aux port number attached to IPDU.
+          kvmTrapObjectPMSocketNumber is outlet number that was turned off.
+          kvmTrapObjectUserName is name of the user who turned this outlet off.          
+         "      
+      --#SUMMARY     "The off command was issued to a power device socket. 
+      --              User: %s. AUX Port: %d. Socket Number: %d."
+      --#ARGUMENTS   { 0, 1, 2}
+      --#SEVERITY    INFORMATIONAL
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 25
+
+cyPMSocketTurnedOnTrap TRAP-TYPE
+      ENTERPRISE  kvm
+      VARIABLES   { 
+                        kvmTrapObjectUserName,
+                        kvmTrapObjectAuxPort,
+                        kvmTrapObjectPMSocketNumber
+                  }
+      DESCRIPTION
+         "
+          This trap is generated when outlet is turned on.
+          kvmTrapObjectAuxPort is the Aux port number attached to IPDU.
+          kvmTrapObjectPMSocketNumber is outlet number that was turned on.
+          kvmTrapObjectUserName is name of the user who turned this outlet on.        
+         "       
+      --#SUMMARY     "The on command was issued to a power device socket. User: %s. AUX port: %d.
+      --              Socket number: %d."
+      --#ARGUMENTS   { 0,1,2}
+      --#SEVERITY    INFORMATIONAL
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 26    
+
+cyPMSocketCycleFinishedTrap TRAP-TYPE
+      ENTERPRISE  kvm
+      VARIABLES   { 
+                        kvmTrapObjectUserName,
+                        kvmTrapObjectAuxPort,
+                        kvmTrapObjectPMSocketNumber
+                  }
+      DESCRIPTION
+         "
+          This trap is generated when outlet cycle completes.
+          kvmTrapObjectAuxPort is kvm Aux port number attached to IPDU.
+          kvmTrapObjectPMSocketNumber is outlet number that was turned cycled.
+          kvmTrapObjectUserName is name of the user who turned this outlet cycled.        
+         "                   
+      --#SUMMARY     "The cycle command has completed to a power device socket. 
+      --              User: %s. AUX port: %d. Socket number: %d."
+      --#ARGUMENTS   { 0,1,2}
+      --#SEVERITY    INFORMATIONAL
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 27 
+     
+cyPMMaxLoadThresholdReachedTrap TRAP-TYPE
+      ENTERPRISE  kvm
+      VARIABLES   { 
+                        kvmTrapObjectAuxPortName,
+                        kvmTrapObjectAuxPort,
+			kvmTrapObjectPMNumber,
+			kvmTrapObjectPMPhase,
+                        kvmTrapObjectPMCurrentValue  
+                  }
+      DESCRIPTION
+        "
+         A power device attached to the appliance exceeded the total load 
+         maximum threshold.
+         The port number on the appliance that the power device is attached to is
+         contained in the kvmTrapObjectAuxPort.
+         The port name on the appliance that the power device is attached to is
+         contained in the kvmTrapObjectAuxPortName.
+         The IPDU# that exceeded the value is contained in the kvmTrapObjectPMNumber.
+         The Phase of the IPDU that detected the problem is contained in the kvmTrapObjectPMPhase.
+         The current value detected when this trap was originated is contained in
+         kvmTrapObjectPMCurrentValue.
+        "
+      --#SUMMARY     "Power device exceeded the total load maximum 
+      --              threshold. Power device port name: %s
+      --              AUX port number: %d. Power device number: %d.
+      --              Phase: %s. Current detected: %s amps."
+      --#ARGUMENTS   { 0, 1, 2, 3, 4}
+      --#SEVERITY    ALERT
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 28
+      
+cyPMMinLoadThresholdReachedTrap TRAP-TYPE
+      ENTERPRISE  kvm
+      VARIABLES   { 
+			kvmTrapObjectAuxPortName,
+                        kvmTrapObjectAuxPort,
+                        kvmTrapObjectPMNumber,
+                        kvmTrapObjectPMPhase,
+                        kvmTrapObjectPMCurrentValue
+                  }
+      DESCRIPTION
+        "
+         A power device (attached to the appliance)  total 
+         load threshold reached the minimum load or came back to normal mode.
+         The port number on the appliance that the power device is attached to is
+         contained in the kvmTrapObjectAuxPort.
+         The port name on the appliance that the power device is attached to is
+         contained in the kvmTrapObjectAuxPortName.
+         The IPDU# that exceeded the value is contained in the kvmTrapObjectPMNumber.
+         The Phase of the IPDU that detected the problem is contained in the kvmTrapObjectPMPhase.
+         The current value detected when this trap was originated is contained in
+         kvmTrapObjectPMCurrentValue.
+        "
+      --#SUMMARY     "Power device reached the mininum load
+      --              threshold. Power device port name: %s
+      --              AUX port number: %d. Power device number: %d. Phase: %s.
+      --              Current detected: %s amps."
+      --#ARGUMENTS   { 0, 1, 2, 3, 4}
+      --#SEVERITY    INFORMATIONAL
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 29
+
+     
+---------------------------------------------------
+-- Firmware Upgrade Traps If KVM supports these traps.
+----------------------------------------------------
+kvmFirmwareUpgradeStartedTrap TRAP-TYPE
+      ENTERPRISE  kvm
+      VARIABLES   {     
+                        kvmTrapObjectUserName,
+                        kvmTrapFirmwareVersion,
+                        kvmTrapNewFirmwareVersion
+                        
+                  }
+      DESCRIPTION
+      "
+        This trap is generated when user started the process to upgrade KVM.
+        kvmTrapObjectUserName is name of the user who started FW upgrade.
+        kvmTrapFirmwareVersion is current FW version of KVM.
+        kvmTrapNewFirmwareVersion is NEW FW version of KVM.
+      "
+      --#SUMMARY     "FW image upgrade started by DSView. User: %s.
+      --              Current version: %s. New version: %s."
+      --#ARGUMENTS   {0,1,2}
+      --#SEVERITY    INFORMATIONAL
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 30
+
+kvmFirmwareUpgradeResultsTrap TRAP-TYPE
+      ENTERPRISE  kvm
+      VARIABLES   {     
+                        kvmTrapFirmwareUpgradeResult ,                        
+                        kvmTrapNewFirmwareVersion
+                  }
+      DESCRIPTION
+      "
+        This trap is generated when Firmware upgraded is done to indicate the result.
+        kvmTrapNewFirmwareVersion is NEW FW version of KVM.
+        kvmTrapFirmwareUpgradeResult  is result of FW upgrade 1 indicate successful other indicates error message.
+      "
+      --#SUMMARY     "FW image upgrade result. Result: %d. New firmware version: %s."
+      --#ARGUMENTS   {0,1}
+      --#SEVERITY    INFORMATIONAL
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 31  
+------------------------------
+-- PM Firmware Upgrade Traps 
+------------------------------
+kvmPMFirmwareUpgradeStartedTrap TRAP-TYPE
+      ENTERPRISE  kvm 
+      VARIABLES   {     
+			kvmTrapObjectUserName,
+                 	kvmTrapObjectAuxPortName,
+                        kvmTrapObjectAuxPort,
+                        kvmTrapObjectPMNumber,
+                        kvmTrapFirmwareVersion,
+                        kvmTrapNewFirmwareVersion
+                  }
+      DESCRIPTION
+      "The appliance has started an upgrade of the PM software.
+       The name of the user who initiate the process is contained in kvmTrapObjectUserName.
+       The port number on the appliance that the power device is attached to is
+       contained in the kvmTrapObjectAuxPort.
+       The port name on the appliance that the power device is attached to is
+       contained in the kvmTrapObjectAuxPortName.
+       The IPDU# that the image will be upgraded is contained in the kvmTrapObjectPMNumber.
+       The current firmware version is contained in kvmTrapFirmwareVersion.
+       The new firmware version is contained in kvmTrapNewFirmwareVersion."
+      --#SUMMARY     "PM image upgrade started. User: %s.
+      --              Power device name: %s. AUX port number: %d.
+      --              Power device number: %d.
+      --              Current version: %s. New version: %s."
+      --#ARGUMENTS   { 0, 1, 2, 3, 4, 5}
+      --#SEVERITY    INFORMATIONAL
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 32
+
+kvmPMFirmwareUpgradeResultsTrap TRAP-TYPE
+      ENTERPRISE  kvm 
+      VARIABLES   {     
+		      kvmTrapObjectAuxPortName,
+                      kvmTrapObjectAuxPort,
+                      kvmTrapObjectPMNumber,
+                      kvmTrapFirmwareUpgradeResult,
+                      kvmTrapNewFirmwareVersion
+                  }
+       DESCRIPTION	
+       "
+        This trap is generated when Firmware upgraded is done to indicate the result.
+        The port number on the appliance that the power device is attached to is
+        contained in the kvmTrapObjectAuxPort.
+        The port name on the appliance that the power device is attached to is
+        contained in the kvmTrapObjectAuxPortName.
+        The IPDU# that the image will be upgraded is contained in the kvmTrapObjectPMNumber.
+        The new FW version is contained in kvmTrapNewFirmwareVersion.
+        The result of the process is contained in kvmTrapFirmwareUpgradeResult.
+       "
+      --#SUMMARY     "PM image upgrade result. Power device name: %s. AUX port number:%d.
+      --              Power device number: %d. Result: %d. New firmware version: %s."
+      --#ARGUMENTS   {0,1,2,3,4}
+      --#SEVERITY    INFORMATIONAL
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 33            
+
+-----------------------
+-- KVM Fan related traps
+----------------------
+kvmFanSpeedThresholdTrap TRAP-TYPE
+      ENTERPRISE  kvm
+      VARIABLES   {
+                      kvmTrapObjectFanNumber,
+                      kvmTrapObjectFanSpeed
+                  }
+      DESCRIPTION
+      "
+        This trap is generated when Fan speed goes below the default configured RPM 
+        The fan number is contained in kvmTrapObjectFanNumber.
+        The detected fan speed is contained in kvmTrapObjectFanSpeed.
+      "
+      --#SUMMARY     "KVM fan speed fallen below the default minimum speed limit.
+      --             Fan number: %d. Detected speed: %d RPM."
+      --#ARGUMENTS   {0,1}
+      --#SEVERITY    INFORMATIONAL
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 34
+   
+cyPMSocketCycleStartedTrap TRAP-TYPE
+      ENTERPRISE  kvm
+      VARIABLES   { 
+                        kvmTrapObjectUserName,
+                        kvmTrapObjectAuxPort,
+                        kvmTrapObjectPMSocketNumber
+                  }
+      DESCRIPTION
+         "
+          This trap is generated when outlet cycle starts.
+          kvmTrapObjectAuxPort is kvm Aux port number attached to IPDU.
+          kvmTrapObjectPMSocketNumber is outlet number that was turned cycled.
+          kvmTrapObjectUserName is name of the user who turned this outlet cycled.        
+         "                   
+      --#SUMMARY     "The cycle command was issued to a power device socket. 
+      --              User: %s. AUX port: %d. Socket number: %d."
+      --#ARGUMENTS   { 0,1,2}
+      --#SEVERITY    INFORMATIONAL
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 35 
+     
+kvmSessionStoppedPortInUseTrap TRAP-TYPE
+      ENTERPRISE  kvm
+      VARIABLES   {
+                     kvmTrapObjectUserName,
+                     kvmTrapObjectKvmPortName,
+                     kvmTrapObjectSessionType,
+                     kvmTrapObjectPhysicalPort
+                  }
+      DESCRIPTION
+        "
+         This trap is sent when a kvm session has stopped on particular port.
+         But, there is still active seesion on this port.
+         The user whose session is stopped is contain in kvmTrapObjectUserName.
+         The physical port name  is contain in kvmTrapObjectKvmPortName.
+	 The type of session that was stopped is contain in kvmTrapObjectSessionType.
+         This physical port id or number is contain in kvmTrapObjectPhysicalPort.
+        "
+      --#SUMMARY     "KVM session stopped. User: %s. Port name: %s. Port number: %s. Session type: %d."  
+      --#ARGUMENTS   { 0, 1, 3, 2 }
+      --#SEVERITY    INFORMATIONAL
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 36
+
+         
+END      
+
+  

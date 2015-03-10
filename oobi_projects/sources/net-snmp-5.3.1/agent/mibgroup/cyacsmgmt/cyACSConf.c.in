@@ -1,0 +1,2154 @@
+#include <net-snmp/net-snmp-config.h>
+#include <net-snmp/net-snmp-includes.h>
+#include <net-snmp/agent/net-snmp-agent-includes.h>
+#include "@CYACSCONF@.h"
+#include "cystrings.h"
+#include "cycommon.h"
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netdb.h>
+       
+// ptr. aux buffer
+#define CY_BUFAUX_SIZE	255
+static unsigned char bufaux[CY_BUFAUX_SIZE+1];
+static char *paux;
+
+/** Initializes the @CYACSCONF@ module */
+void init_@CYACSCONF@(void)
+{
+	static oid cyHostName_oid[] =
+	    { PROD_OID, 2, 1, 0 };
+	static oid cyConsoleBanner_oid[] =
+	    { PROD_OID, 2, 2, 0 };
+	static oid cyMotd_oid[] = { PROD_OID, 2, 3, 0 };
+
+	static oid cyEthDhcpc_oid[] =
+	    { PROD_OID, 2, 4, 1, 0 };
+	static oid cyEthIPaddr_oid[] =
+	    { PROD_OID, 2, 4, 2, 0 };
+	static oid cyEthIPmask_oid[] =
+	    { PROD_OID, 2, 4, 3, 0 };
+	static oid cyEthMTU_oid[] =
+	    { PROD_OID, 2, 4, 4, 0 };
+	static oid cyEthIPaddr2_oid[] =
+	    { PROD_OID, 2, 4, 5, 0 };
+	static oid cyEthIPmask2_oid[] =
+	    { PROD_OID, 2, 4, 6, 0 };
+	    
+	static oid cyEnableIPv4_oid[] =
+	    { PROD_OID, 2, 4, 7, 0 };
+	static oid cyEnableIPv6_oid[] =
+	    { PROD_OID, 2, 4, 8, 0 };
+	static oid cyIPv6Method_oid[] =
+	    { PROD_OID, 2, 4, 9, 0 };
+	static oid cyDHCPv6Opts_oid[] =
+	    { PROD_OID, 2, 4, 10, 0 };
+	    
+	static oid cyEthIPaddr6_oid[] =
+	    { PROD_OID, 2, 4, 11, 0 };
+	static oid cyEthPrefix6_oid[] =
+	    { PROD_OID, 2, 4, 12, 0 };
+
+	    
+	static oid cyResolverOrder_oid[] =
+	    { PROD_OID, 2, 5, 1, 0 };
+	static oid cyMultipleIP_oid[] =
+	    { PROD_OID, 2, 5, 2, 0 };
+	static oid cyDNSpriserv_oid[] =
+	    { PROD_OID, 2, 5, 3, 1, 0 };
+	static oid cyDNSsecserv_oid[] =
+	    { PROD_OID, 2, 5, 3, 2, 0 };
+	static oid cyDNSdomain_oid[] =
+	    { PROD_OID, 2, 5, 3, 3, 0 };
+
+	static oid cySerialInclude_oid[] =
+	    { PROD_OID, 2, 6, 1, 1, 0 };
+	static oid cySerialNFS_oid[] =
+	    { PROD_OID, 2, 6, 1, 2, 0 };
+	static oid cySerialLockDir_oid[] =
+	    { PROD_OID, 2, 6, 1, 3, 0 };
+	static oid cySerialRlogin_oid[] =
+	    { PROD_OID, 2, 6, 1, 4, 0 };
+	static oid cySerialPppd_oid[] =
+	    { PROD_OID, 2, 6, 1, 5, 0 };
+	static oid cySerialTelnet_oid[] =
+	    { PROD_OID, 2, 6, 1, 6, 0 };
+	static oid cySerialSsh_oid[] =
+	    { PROD_OID, 2, 6, 1, 7, 0 };
+	static oid cySerialLocalLogins_oid[] =
+	    { PROD_OID, 2, 6, 1, 8, 0 };
+	static oid cySerialFacility_oid[] =
+	    { PROD_OID, 2, 6, 1, 9, 0 };
+	static oid cySerialDBFacility_oid[] =
+	    { PROD_OID, 2, 6, 1, 10, 0 };
+
+	DEBUGMSGTL(("@CYACSCONF@", "Initializing\n"));
+
+	netsnmp_register_instance(netsnmp_create_handler_registration
+				  ("cyConsoleBanner",
+				   do_cyConsoleBanner,
+				   cyConsoleBanner_oid,
+				   OID_LENGTH(cyConsoleBanner_oid),
+				   HANDLER_CAN_RWRITE));
+	netsnmp_register_instance(netsnmp_create_handler_registration
+				  ("cyDNSpriserv",
+				   do_cyDNSpriserv,
+				   cyDNSpriserv_oid,
+				   OID_LENGTH(cyDNSpriserv_oid),
+				   HANDLER_CAN_RWRITE));
+	netsnmp_register_instance(netsnmp_create_handler_registration
+				  ("cyEthMTU",
+				   do_cyEthMTU,
+				   cyEthMTU_oid,
+				   OID_LENGTH(cyEthMTU_oid),
+				   HANDLER_CAN_RWRITE));
+	netsnmp_register_instance(netsnmp_create_handler_registration
+				  ("cyEthIPmask2",
+				   do_cyEthIPmask2,
+				   cyEthIPmask2_oid,
+				   OID_LENGTH(cyEthIPmask2_oid),
+				   HANDLER_CAN_RWRITE));
+	netsnmp_register_instance(netsnmp_create_handler_registration
+				  ("cySerialDBFacility",
+				   do_cySerialDBFacility,
+				   cySerialDBFacility_oid,
+				   OID_LENGTH(cySerialDBFacility_oid),
+				   HANDLER_CAN_RWRITE));
+	netsnmp_register_instance(netsnmp_create_handler_registration
+				  ("cyDNSsecserv",
+				   do_cyDNSsecserv,
+				   cyDNSsecserv_oid,
+				   OID_LENGTH(cyDNSsecserv_oid),
+				   HANDLER_CAN_RWRITE));
+	netsnmp_register_instance(netsnmp_create_handler_registration
+				  ("cySerialTelnet",
+				   do_cySerialTelnet,
+				   cySerialTelnet_oid,
+				   OID_LENGTH(cySerialTelnet_oid),
+				   HANDLER_CAN_RWRITE));
+	netsnmp_register_instance(netsnmp_create_handler_registration
+				  ("cyEthIPaddr2",
+				   do_cyEthIPaddr2,
+				   cyEthIPaddr2_oid,
+				   OID_LENGTH(cyEthIPaddr2_oid),
+				   HANDLER_CAN_RWRITE));
+	netsnmp_register_instance(netsnmp_create_handler_registration
+				  ("cySerialLocalLogins",
+				   do_cySerialLocalLogins,
+				   cySerialLocalLogins_oid,
+				   OID_LENGTH(cySerialLocalLogins_oid),
+				   HANDLER_CAN_RWRITE));
+	netsnmp_register_instance(netsnmp_create_handler_registration
+				  ("cySerialInclude",
+				   do_cySerialInclude,
+				   cySerialInclude_oid,
+				   OID_LENGTH(cySerialInclude_oid),
+				   HANDLER_CAN_RWRITE));
+	netsnmp_register_instance(netsnmp_create_handler_registration
+				  ("cySerialPppd",
+				   do_cySerialPppd,
+				   cySerialPppd_oid,
+				   OID_LENGTH(cySerialPppd_oid),
+				   HANDLER_CAN_RWRITE));
+	netsnmp_register_instance(netsnmp_create_handler_registration
+				  ("cyEthIPmask",
+				   do_cyEthIPmask,
+				   cyEthIPmask_oid,
+				   OID_LENGTH(cyEthIPmask_oid),
+				   HANDLER_CAN_RWRITE));
+	netsnmp_register_instance(netsnmp_create_handler_registration
+				  ("cyHostName",
+				   do_cyHostName,
+				   cyHostName_oid,
+				   OID_LENGTH(cyHostName_oid),
+				   HANDLER_CAN_RWRITE));
+	netsnmp_register_instance(netsnmp_create_handler_registration
+				  ("cyEthIPaddr",
+				   do_cyEthIPaddr,
+				   cyEthIPaddr_oid,
+				   OID_LENGTH(cyEthIPaddr_oid),
+				   HANDLER_CAN_RWRITE));
+				   
+				   
+	netsnmp_register_instance(netsnmp_create_handler_registration
+				  ("cyEnableIPv4",
+				   do_cyEnableIPv4,
+				   cyEnableIPv4_oid,
+				   OID_LENGTH(cyEnableIPv4_oid),
+				   HANDLER_CAN_RWRITE));				   
+	netsnmp_register_instance(netsnmp_create_handler_registration
+				  ("cyEnableIPv6",
+				   do_cyEnableIPv6,
+				   cyEnableIPv6_oid,
+				   OID_LENGTH(cyEnableIPv6_oid),
+				   HANDLER_CAN_RWRITE));				   
+	netsnmp_register_instance(netsnmp_create_handler_registration
+				  ("cyIPv6Method",
+				   do_cyIPv6Method,
+				   cyIPv6Method_oid,
+				   OID_LENGTH(cyIPv6Method_oid),
+				   HANDLER_CAN_RWRITE));				   
+	netsnmp_register_instance(netsnmp_create_handler_registration
+				  ("cyDHCPv6Opts",
+				   do_cyDHCPv6Opts,
+				   cyDHCPv6Opts_oid,
+				   OID_LENGTH(cyDHCPv6Opts_oid),
+				   HANDLER_CAN_RWRITE));				   
+				   
+				   
+	netsnmp_register_instance(netsnmp_create_handler_registration
+				  ("cyEthIPaddr6",
+				   do_cyEthIPaddr6,
+				   cyEthIPaddr6_oid,
+				   OID_LENGTH(cyEthIPaddr6_oid),
+				   HANDLER_CAN_RWRITE));				   
+	netsnmp_register_instance(netsnmp_create_handler_registration
+				  ("cyEthPrefix6",
+				   do_cyEthPrefix6,
+				   cyEthPrefix6_oid,
+				   OID_LENGTH(cyEthPrefix6_oid),
+				   HANDLER_CAN_RWRITE));
+
+	netsnmp_register_instance(netsnmp_create_handler_registration
+				  ("cyMultipleIP",
+				   do_cyMultipleIP,
+				   cyMultipleIP_oid,
+				   OID_LENGTH(cyMultipleIP_oid),
+				   HANDLER_CAN_RWRITE));
+	netsnmp_register_instance(netsnmp_create_handler_registration
+				  ("cyDNSdomain",
+				   do_cyDNSdomain,
+				   cyDNSdomain_oid,
+				   OID_LENGTH(cyDNSdomain_oid),
+				   HANDLER_CAN_RWRITE));
+	netsnmp_register_instance(netsnmp_create_handler_registration
+				  ("cySerialRlogin",
+				   do_cySerialRlogin,
+				   cySerialRlogin_oid,
+				   OID_LENGTH(cySerialRlogin_oid),
+				   HANDLER_CAN_RWRITE));
+	netsnmp_register_instance(netsnmp_create_handler_registration
+				  ("cyMotd",
+				   do_cyMotd,
+				   cyMotd_oid,
+				   OID_LENGTH(cyMotd_oid),
+				   HANDLER_CAN_RWRITE));
+	netsnmp_register_instance(netsnmp_create_handler_registration
+				  ("cySerialNFS",
+				   do_cySerialNFS,
+				   cySerialNFS_oid,
+				   OID_LENGTH(cySerialNFS_oid),
+				   HANDLER_CAN_RWRITE));
+	netsnmp_register_instance(netsnmp_create_handler_registration
+				  ("cySerialLockDir",
+				   do_cySerialLockDir,
+				   cySerialLockDir_oid,
+				   OID_LENGTH(cySerialLockDir_oid),
+				   HANDLER_CAN_RWRITE));
+	netsnmp_register_instance(netsnmp_create_handler_registration
+				  ("cySerialSsh", do_cySerialSsh,
+				   cySerialSsh_oid,
+				   OID_LENGTH(cySerialSsh_oid),
+				   HANDLER_CAN_RWRITE));
+	netsnmp_register_instance(netsnmp_create_handler_registration
+				  ("cySerialFacility", do_cySerialFacility,
+				   cySerialFacility_oid,
+				   OID_LENGTH(cySerialFacility_oid),
+				   HANDLER_CAN_RWRITE));
+	netsnmp_register_instance(netsnmp_create_handler_registration
+				  ("cyResolverOrder", do_cyResolverOrder,
+				   cyResolverOrder_oid,
+				   OID_LENGTH(cyResolverOrder_oid),
+				   HANDLER_CAN_RWRITE));
+	netsnmp_register_instance(netsnmp_create_handler_registration
+				  ("cyEthDhcpc", do_cyEthDhcpc,
+				   cyEthDhcpc_oid,
+				   OID_LENGTH(cyEthDhcpc_oid),
+				   HANDLER_CAN_RWRITE));
+
+	memset(bufaux,0,CY_BUFAUX_SIZE+1);
+}
+
+/**
+ * Returns NULL if there was no error or an error message.
+ */
+const char *xinet_aton(const char *buffer, struct sockaddr_storage *server) {
+	
+	struct addrinfo *res = NULL;
+	struct addrinfo hints;
+	int n;
+	memset(&hints,0,sizeof(hints));
+	hints.ai_family = PF_UNSPEC;
+	hints.ai_flags = AI_NUMERICHOST;
+	n = getaddrinfo(buffer,NULL,&hints,&res);
+	
+	if (n == 0) {
+		memcpy(server,res->ai_addr,res->ai_addrlen);
+		freeaddrinfo(res);
+		return NULL;
+	} else {
+		const char *msg = gai_strerror(n);
+		return msg;
+	}
+}
+
+int
+do_cyHostName(netsnmp_mib_handler * handler,
+	      netsnmp_handler_registration * reginfo,
+	      netsnmp_agent_request_info * reqinfo,
+	      netsnmp_request_info * requests)
+{
+	int size;
+
+	switch (reqinfo->mode) {
+
+	case MODE_GET:
+		size = cy_rw_parse("/etc/hostname", NULL, bufaux,
+				  CY_BUFAUX_SIZE,0);
+		if (bufaux[size-1] == 0x0a) size--;
+		snmp_set_var_typed_value(requests->requestvb,
+					 ASN_OCTET_STR, (u_char *) bufaux,
+					 size);
+		break;
+
+	case MODE_SET_RESERVE1:
+		if (requests->requestvb->val_len > 40) {
+			netsnmp_set_request_error(reqinfo, requests,
+						  SNMP_ERR_WRONGLENGTH);
+			break;
+		}
+		if (requests->requestvb->type != ASN_OCTET_STR) {
+			netsnmp_set_request_error(reqinfo, requests,
+						  SNMP_ERR_WRONGTYPE);
+		}
+		break;
+
+	case MODE_SET_RESERVE2:
+		break;
+
+	case MODE_SET_FREE:
+		break;
+
+	case MODE_SET_ACTION:
+		size = cy_rw_parse("/etc/hostname", NULL,
+				   requests->requestvb->val.string,
+				   requests->requestvb->val_len,1);
+		break;
+
+	case MODE_SET_COMMIT:
+		break;
+
+	case MODE_SET_UNDO:
+		break;
+
+	default:
+		/*
+		 * we should never get here, so this is a really bad error 
+		 */
+		return SNMP_ERR_GENERR;
+	}
+
+	return SNMP_ERR_NOERROR;
+}
+
+
+int
+do_cyConsoleBanner(netsnmp_mib_handler * handler,
+		   netsnmp_handler_registration * reginfo,
+		   netsnmp_agent_request_info * reqinfo,
+		   netsnmp_request_info * requests)
+{
+	int size;
+
+	switch (reqinfo->mode) {
+
+	case MODE_GET:
+		size = cy_rw_parse("/etc/issue", NULL, bufaux,
+				  CY_BUFAUX_SIZE,0);
+		size --;
+		bufaux[size] = 0x00;
+		snmp_set_var_typed_value(requests->requestvb,
+					 ASN_OCTET_STR, (u_char *) bufaux,
+					 size);
+		break;
+
+	case MODE_SET_RESERVE1:
+		if (requests->requestvb->type != ASN_OCTET_STR) {
+			netsnmp_set_request_error(reqinfo, requests,
+						  SNMP_ERR_WRONGTYPE);
+		}
+		break;
+
+	case MODE_SET_RESERVE2:
+		break;
+
+	case MODE_SET_FREE:
+		break;
+
+	case MODE_SET_ACTION:
+		size = cy_rw_parse("/etc/issue", NULL,
+				   requests->requestvb->val.string,
+				   requests->requestvb->val_len,1);
+		break;
+
+	case MODE_SET_COMMIT:
+		break;
+
+	case MODE_SET_UNDO:
+		break;
+
+	default:
+/*
+ * we should never get here, so this is a really bad error 
+ */
+		return SNMP_ERR_GENERR;
+	}
+
+	return SNMP_ERR_NOERROR;
+}
+
+int
+do_cyMotd(netsnmp_mib_handler * handler,
+	  netsnmp_handler_registration * reginfo,
+	  netsnmp_agent_request_info * reqinfo,
+	  netsnmp_request_info * requests)
+{
+	int size;
+
+	switch (reqinfo->mode) {
+
+	case MODE_GET:
+		size = cy_rw_parse("/etc/motd", NULL, bufaux, CY_BUFAUX_SIZE,0);
+
+		snmp_set_var_typed_value(requests->requestvb,
+					 ASN_OCTET_STR, (u_char *) bufaux,
+					 size);
+		break;
+
+	case MODE_SET_RESERVE1:
+		if (requests->requestvb->val_len > 250) {
+			netsnmp_set_request_error(reqinfo, requests,
+						  SNMP_ERR_WRONGLENGTH);
+			break;
+		}
+		if (requests->requestvb->type != ASN_OCTET_STR) {
+			netsnmp_set_request_error(reqinfo, requests,
+						  SNMP_ERR_WRONGTYPE);
+		}
+		break;
+
+	case MODE_SET_RESERVE2:
+		break;
+
+	case MODE_SET_FREE:
+		break;
+
+	case MODE_SET_ACTION:
+		size = cy_rw_parse("/etc/motd", NULL,
+				   requests->requestvb->val.string,
+				   requests->requestvb->val_len,1);
+		break;
+
+	case MODE_SET_COMMIT:
+		break;
+
+	case MODE_SET_UNDO:
+		break;
+
+	default:
+		/*
+		 * we should never get here, so this is a really bad error 
+		 */
+		return SNMP_ERR_GENERR;
+	}
+
+	return SNMP_ERR_NOERROR;
+}
+
+int
+do_cyEthDhcpc(netsnmp_mib_handler * handler,
+	      netsnmp_handler_registration * reginfo,
+	      netsnmp_agent_request_info * reqinfo,
+	      netsnmp_request_info * requests)
+{
+	int value;
+
+	switch (reqinfo->mode) {
+
+	case MODE_GET:
+		value = cy_rwsp_conf("conf","dhcp_client", bufaux, CY_BUFAUX_SIZE,0);
+		if (value) value = atoi(bufaux);
+		snmp_set_var_typed_value(requests->requestvb, ASN_INTEGER,
+					 (u_char *) &value, sizeof(int)); 
+		break;
+
+	case MODE_SET_RESERVE1:
+		if (requests->requestvb->type != ASN_INTEGER) {
+			netsnmp_set_request_error(reqinfo, requests,
+						  SNMP_ERR_WRONGTYPE);
+			break;
+		}
+		if (*(requests->requestvb->val.integer) > 2) {
+			netsnmp_set_request_error(reqinfo, requests,
+						  SNMP_ERR_WRONGVALUE);
+		}
+		break;
+
+	case MODE_SET_RESERVE2:
+		break;
+
+	case MODE_SET_FREE:
+		break;
+
+	case MODE_SET_ACTION:
+		sprintf(bufaux,"%d",(int)*requests->requestvb->val.integer);
+		cy_rwsp_conf("conf","dhcp_client",bufaux, strlen(bufaux), 1);
+		break;
+
+	case MODE_SET_COMMIT:
+		break;
+
+	case MODE_SET_UNDO:
+		break;
+
+	default:
+		/*
+		 * we should never get here, so this is a really bad error 
+		 */
+		return SNMP_ERR_GENERR;
+	}
+
+	return SNMP_ERR_NOERROR;
+}
+
+int
+do_cyEthIPaddr(netsnmp_mib_handler * handler,
+	       netsnmp_handler_registration * reginfo,
+	       netsnmp_agent_request_info * reqinfo,
+	       netsnmp_request_info * requests)
+{
+	int size;
+	struct in_addr aux;
+
+	switch (reqinfo->mode) {
+
+	case MODE_GET:
+		memset(bufaux,0,CY_BUFAUX_SIZE);
+		size = cy_rwsp_conf("conf","eth_ip", bufaux, CY_BUFAUX_SIZE,0);
+		if (inet_aton(bufaux,&aux) == 0) {
+			memset(&aux,0,sizeof(aux));
+		}
+		snmp_set_var_typed_value(requests->requestvb, ASN_IPADDRESS, 
+				(u_char *) &aux.s_addr, sizeof(long));
+		break;
+
+	case MODE_SET_RESERVE1:
+		if (requests->requestvb->type != ASN_IPADDRESS) {
+			netsnmp_set_request_error(reqinfo, requests,
+						  SNMP_ERR_WRONGTYPE);
+			break;
+		}
+		aux.s_addr = *requests->requestvb->val.integer;
+		paux = inet_ntoa(aux);
+		if (!inet_aton(paux, &aux)) {
+			netsnmp_set_request_error(reqinfo, requests,
+						  SNMP_ERR_WRONGVALUE);
+			break;
+		}
+		strcpy(bufaux,paux);
+		break;
+
+	case MODE_SET_RESERVE2:
+		break;
+
+	case MODE_SET_FREE:
+		break;
+
+	case MODE_SET_ACTION:
+		size = cy_rwsp_conf("conf","eth_ip", bufaux, strlen(bufaux),1);
+		break;
+
+	case MODE_SET_COMMIT:
+		break;
+
+	case MODE_SET_UNDO:
+		break;
+
+	default:
+		/*
+		 * we should never get here, so this is a really bad error 
+		 */
+		return SNMP_ERR_GENERR;
+	}
+
+	return SNMP_ERR_NOERROR;
+}
+
+int
+do_cyEnableIPv4(netsnmp_mib_handler * handler,
+	    netsnmp_handler_registration * reginfo,
+	    netsnmp_agent_request_info * reqinfo,
+	    netsnmp_request_info * requests)
+{
+	int size;
+
+	switch (reqinfo->mode) {
+
+	case MODE_GET:
+		size = cy_rwsp_conf("conf","enableIPv4", bufaux, CY_BUFAUX_SIZE,0);
+		if (size) {
+			if (strcasecmp("yes",bufaux) == 0) {
+				size = 1;
+			} else if (strcasecmp("no",bufaux) == 0) {
+				size = 0;
+			} else {
+				size = atoi(bufaux);
+			}
+		} else {
+			size = 1; // the default is "yes" for IPv4
+		}
+		snmp_set_var_typed_value(requests->requestvb, ASN_INTEGER,
+					 (u_char *) &size, sizeof(int));
+		break;
+
+	case MODE_SET_RESERVE1:
+		if (requests->requestvb->type != ASN_INTEGER) {
+			netsnmp_set_request_error(reqinfo, requests,
+						  SNMP_ERR_WRONGTYPE);
+			break;
+		}
+		if (*requests->requestvb->val.integer != 0 &&
+		    *requests->requestvb->val.integer != 1) {
+			netsnmp_set_request_error(reqinfo, requests,
+						  SNMP_ERR_WRONGVALUE);
+			break;
+		}
+		break;
+
+	case MODE_SET_RESERVE2:
+		break;
+
+	case MODE_SET_FREE:
+		break;
+
+	case MODE_SET_ACTION:
+		sprintf(bufaux,"%s", (*requests->requestvb->val.integer == 0) ? "no" : "yes");
+		size = cy_rwsp_conf("conf","enableIPv4", bufaux, strlen(bufaux), 1);
+		break;
+
+	case MODE_SET_COMMIT:
+		break;
+
+	case MODE_SET_UNDO:
+		break;
+
+	default:
+		/*
+		 * we should never get here, so this is a really bad error 
+		 */
+		return SNMP_ERR_GENERR;
+	}
+
+	return SNMP_ERR_NOERROR;
+}
+
+int
+do_cyEnableIPv6(netsnmp_mib_handler * handler,
+	    netsnmp_handler_registration * reginfo,
+	    netsnmp_agent_request_info * reqinfo,
+	    netsnmp_request_info * requests)
+{
+	int size;
+
+	switch (reqinfo->mode) {
+
+	case MODE_GET:
+		size = cy_rwsp_conf("conf","enableIPv6", bufaux, CY_BUFAUX_SIZE,0);
+		if (size) {
+			if (strcasecmp("yes",bufaux)==0) {
+				size = 1;
+			} else if (strcasecmp("no",bufaux)==0) {
+				size = 0;
+			} else {
+				size = atoi(bufaux);
+			}
+		} else {
+			size = 0; // the default is "no" for IPv6
+		}
+		snmp_set_var_typed_value(requests->requestvb, ASN_INTEGER,
+					 (u_char *) &size, sizeof(int));
+		break;
+
+	case MODE_SET_RESERVE1:
+		if (requests->requestvb->type != ASN_INTEGER) {
+			netsnmp_set_request_error(reqinfo, requests,
+						  SNMP_ERR_WRONGTYPE);
+			break;
+		}
+		if (*requests->requestvb->val.integer != 0 &&
+		    *requests->requestvb->val.integer != 1) {
+			netsnmp_set_request_error(reqinfo, requests,
+						  SNMP_ERR_WRONGVALUE);
+			break;
+		}
+		break;
+
+	case MODE_SET_RESERVE2:
+		break;
+
+	case MODE_SET_FREE:
+		break;
+
+	case MODE_SET_ACTION:
+		sprintf(bufaux,"%s", (*requests->requestvb->val.integer == 0) ? "no" : "yes");
+		size = cy_rwsp_conf("conf","enableIPv6", bufaux, strlen(bufaux), 1);
+		break;
+
+	case MODE_SET_COMMIT:
+		break;
+
+	case MODE_SET_UNDO:
+		break;
+
+	default:
+		/*
+		 * we should never get here, so this is a really bad error 
+		 */
+		return SNMP_ERR_GENERR;
+	}
+
+	return SNMP_ERR_NOERROR;
+}
+
+int
+do_cyIPv6Method(netsnmp_mib_handler * handler,
+	    netsnmp_handler_registration * reginfo,
+	    netsnmp_agent_request_info * reqinfo,
+	    netsnmp_request_info * requests)
+{
+	int size;
+	char *str;
+
+	switch (reqinfo->mode) {
+
+	case MODE_GET:
+		size = cy_rwsp_conf("conf","IPv6method", bufaux, CY_BUFAUX_SIZE,0);
+		if (size) {
+			if (strcasecmp("stateless_only",bufaux)==0) {
+				size = 0;
+			} else if (strcasecmp("static",bufaux)==0) {
+				size = 1;
+			} else if (strcasecmp("dhcp",bufaux)==0) {
+				size = 2;
+			} else {
+				size = atoi(bufaux);
+			}
+		} else {
+			size = 0; // stateless-only
+		}
+		snmp_set_var_typed_value(requests->requestvb, ASN_INTEGER,
+					 (u_char *) &size, sizeof(int));
+		break;
+
+	case MODE_SET_RESERVE1:
+		if (requests->requestvb->type != ASN_INTEGER) {
+			netsnmp_set_request_error(reqinfo, requests,
+						  SNMP_ERR_WRONGTYPE);
+			break;
+		}
+		if (*requests->requestvb->val.integer < 0 || 
+		    *requests->requestvb->val.integer > 2) {
+			netsnmp_set_request_error(reqinfo, requests,
+						  SNMP_ERR_WRONGVALUE);
+			break;
+		}
+		break;
+
+	case MODE_SET_RESERVE2:
+		break;
+
+	case MODE_SET_FREE:
+		break;
+
+	case MODE_SET_ACTION:
+		switch (*requests->requestvb->val.integer) {
+			case 0: str = "stateless_only"; break;
+			case 1: str = "static"; break;
+			case 2: str = "dhcp"; break;
+		}
+		sprintf(bufaux,"%d", str);
+		size = cy_rwsp_conf("conf","IPv6method", bufaux, strlen(bufaux), 1);
+		break;
+
+	case MODE_SET_COMMIT:
+		break;
+
+	case MODE_SET_UNDO:
+		break;
+
+	default:
+		/*
+		 * we should never get here, so this is a really bad error 
+		 */
+		return SNMP_ERR_GENERR;
+	}
+
+	return SNMP_ERR_NOERROR;
+}
+
+int
+do_cyDHCPv6Opts(netsnmp_mib_handler * handler,
+	    netsnmp_handler_registration * reginfo,
+	    netsnmp_agent_request_info * reqinfo,
+	    netsnmp_request_info * requests)
+{
+	int size;
+	char *str;
+
+	switch (reqinfo->mode) {
+
+	case MODE_GET:
+		size = cy_rwsp_conf("conf","dhcpv6_opts", bufaux, CY_BUFAUX_SIZE,0);
+		if (size) {
+			if (strcasecmp("none",bufaux)==0) {
+				size = 0;
+			} else if (strcasecmp("DNS",bufaux)==0) {
+				size = 1;
+			} else if (strcasecmp("domain",bufaux)==0) {
+				size = 2;
+			} else if (strcasecmp("DNS_domain",bufaux)==0) {
+				size = 3;
+			} else {
+				size = atoi(bufaux);
+			}
+		} else {
+			size = 0; // stateless-only
+		}
+		snmp_set_var_typed_value(requests->requestvb, ASN_INTEGER,
+					 (u_char *) &size, sizeof(int));
+		break;
+
+	case MODE_SET_RESERVE1:
+		if (requests->requestvb->type != ASN_INTEGER) {
+			netsnmp_set_request_error(reqinfo, requests,
+						  SNMP_ERR_WRONGTYPE);
+			break;
+		}
+		if (*requests->requestvb->val.integer < 0 || 
+		    *requests->requestvb->val.integer > 3) {
+			netsnmp_set_request_error(reqinfo, requests,
+						  SNMP_ERR_WRONGVALUE);
+			break;
+		}
+		break;
+
+	case MODE_SET_RESERVE2:
+		break;
+
+	case MODE_SET_FREE:
+		break;
+
+	case MODE_SET_ACTION:
+		switch (*requests->requestvb->val.integer) {
+			case 0: str = "none"; break;
+			case 1: str = "DNS"; break;
+			case 2: str = "domain"; break;
+			case 3: str = "DNS_domain"; break;
+		}
+		sprintf(bufaux,"%d", str);
+		size = cy_rwsp_conf("conf","dhcpv6_opts", bufaux, strlen(bufaux), 1);
+		break;
+
+	case MODE_SET_COMMIT:
+		break;
+
+	case MODE_SET_UNDO:
+		break;
+
+	default:
+		/*
+		 * we should never get here, so this is a really bad error 
+		 */
+		return SNMP_ERR_GENERR;
+	}
+
+	return SNMP_ERR_NOERROR;
+}
+
+int
+do_cyEthIPaddr6(netsnmp_mib_handler * handler,
+	       netsnmp_handler_registration * reginfo,
+	       netsnmp_agent_request_info * reqinfo,
+	       netsnmp_request_info * requests)
+{
+	int size;
+	struct sockaddr_storage server;
+	char *errorMessage;
+
+	switch (reqinfo->mode) {
+
+	case MODE_GET:
+		memset(bufaux,0,CY_BUFAUX_SIZE);
+		size = cy_rwsp_conf("conf","eth_ip6", bufaux, CY_BUFAUX_SIZE,0);
+		if (size == 0) {
+			strcpy(bufaux,"::");
+			size = strlen(bufaux);
+		}
+		
+		snmp_set_var_typed_value(requests->requestvb, ASN_OCTET_STR, 
+				(u_char *) bufaux, size);
+		break;
+
+	case MODE_SET_RESERVE1:
+		if (requests->requestvb->type != ASN_OCTET_STR) {
+			netsnmp_set_request_error(reqinfo, requests,
+						  SNMP_ERR_WRONGTYPE);
+			break;
+		}
+		errorMessage = xinet_aton(requests->requestvb->val.string, &server);
+		if (errorMessage != NULL || server.ss_family != AF_INET6) {
+			netsnmp_set_request_error(reqinfo, requests,
+						  SNMP_ERR_WRONGVALUE);
+			break;
+		}
+		break;
+
+	case MODE_SET_RESERVE2:
+		break;
+
+	case MODE_SET_FREE:
+		break;
+
+	case MODE_SET_ACTION:
+		size = cy_rwsp_conf("conf","eth_ip6", 
+				    requests->requestvb->val.string,
+				    requests->requestvb->val_len,1);
+		break;
+
+	case MODE_SET_COMMIT:
+		break;
+
+	case MODE_SET_UNDO:
+		break;
+
+	default:
+		/*
+		 * we should never get here, so this is a really bad error 
+		 */
+		return SNMP_ERR_GENERR;
+	}
+
+	return SNMP_ERR_NOERROR;
+}
+
+int
+do_cyEthPrefix6(netsnmp_mib_handler * handler,
+	    netsnmp_handler_registration * reginfo,
+	    netsnmp_agent_request_info * reqinfo,
+	    netsnmp_request_info * requests)
+{
+	int size;
+
+	switch (reqinfo->mode) {
+
+	case MODE_GET:
+		size = cy_rwsp_conf("conf","eth_prefix6", bufaux, CY_BUFAUX_SIZE,0);
+		if (size) size = atoi(bufaux);
+		snmp_set_var_typed_value(requests->requestvb, ASN_INTEGER,
+					 (u_char *) &size, sizeof(int));
+		break;
+
+	case MODE_SET_RESERVE1:
+		if (requests->requestvb->type != ASN_INTEGER) {
+			netsnmp_set_request_error(reqinfo, requests,
+						  SNMP_ERR_WRONGTYPE);
+			break;
+		}
+		if (*requests->requestvb->val.integer < 0 || 
+		    *requests->requestvb->val.integer > 128) {
+			netsnmp_set_request_error(reqinfo, requests,
+						  SNMP_ERR_WRONGVALUE);
+			break;
+		}
+		break;
+
+	case MODE_SET_RESERVE2:
+		break;
+
+	case MODE_SET_FREE:
+		break;
+
+	case MODE_SET_ACTION:
+		sprintf(bufaux,"%d", *requests->requestvb->val.integer);
+		size = cy_rwsp_conf("conf","eth_prefix6", bufaux, strlen(bufaux), 1);
+		break;
+
+	case MODE_SET_COMMIT:
+		break;
+
+	case MODE_SET_UNDO:
+		break;
+
+	default:
+		/*
+		 * we should never get here, so this is a really bad error 
+		 */
+		return SNMP_ERR_GENERR;
+	}
+
+	return SNMP_ERR_NOERROR;
+}
+
+int
+do_cyEthIPmask(netsnmp_mib_handler * handler,
+	       netsnmp_handler_registration * reginfo,
+	       netsnmp_agent_request_info * reqinfo,
+	       netsnmp_request_info * requests)
+{
+	int size;
+	struct in_addr aux;
+
+	switch (reqinfo->mode) {
+
+	case MODE_GET:
+		memset(bufaux,0,CY_BUFAUX_SIZE);
+		size = cy_rwsp_conf("conf","eth_mask", bufaux, CY_BUFAUX_SIZE, 0);
+		if (inet_aton(bufaux,&aux) == 0) {
+			memset(&aux,0,sizeof(aux));
+		}
+		snmp_set_var_typed_value(requests->requestvb, ASN_IPADDRESS, 
+				(u_char *) &aux.s_addr, sizeof(long));
+		break;
+
+	case MODE_SET_RESERVE1:
+		if (requests->requestvb->type != ASN_IPADDRESS) {
+			netsnmp_set_request_error(reqinfo, requests,
+						  SNMP_ERR_WRONGTYPE);
+			break;
+		}
+		aux.s_addr = *requests->requestvb->val.integer;
+		paux = inet_ntoa(aux);
+		if (!inet_aton(paux, &aux)) {
+			netsnmp_set_request_error(reqinfo, requests,
+						  SNMP_ERR_WRONGVALUE);
+			break;
+		}
+		strcpy(bufaux,paux);
+		break;
+
+	case MODE_SET_RESERVE2:
+		break;
+
+	case MODE_SET_FREE:
+		break;
+
+	case MODE_SET_ACTION:
+		size = cy_rwsp_conf("conf","eth_mask", bufaux, strlen(bufaux),1);
+		break;
+
+	case MODE_SET_COMMIT:
+		break;
+
+	case MODE_SET_UNDO:
+		break;
+
+	default:
+		/*
+		 * we should never get here, so this is a really bad error 
+		 */
+		return SNMP_ERR_GENERR;
+	}
+
+	return SNMP_ERR_NOERROR;
+}
+
+int
+do_cyEthMTU(netsnmp_mib_handler * handler,
+	    netsnmp_handler_registration * reginfo,
+	    netsnmp_agent_request_info * reqinfo,
+	    netsnmp_request_info * requests)
+{
+	int size;
+
+	switch (reqinfo->mode) {
+
+	case MODE_GET:
+		size = cy_rwsp_conf("conf","eth_mtu", bufaux, CY_BUFAUX_SIZE,0);
+		if (size) size = atoi(bufaux);
+		snmp_set_var_typed_value(requests->requestvb, ASN_INTEGER,
+					 (u_char *) &size, sizeof(int));
+		break;
+
+	case MODE_SET_RESERVE1:
+		if (requests->requestvb->type != ASN_INTEGER) {
+			netsnmp_set_request_error(reqinfo, requests,
+						  SNMP_ERR_WRONGTYPE);
+			break;
+		}
+		break;
+
+	case MODE_SET_RESERVE2:
+		break;
+
+	case MODE_SET_FREE:
+		break;
+
+	case MODE_SET_ACTION:
+		sprintf(bufaux,"%d", *requests->requestvb->val.integer);
+		size = cy_rwsp_conf("conf","eth_mtu", bufaux, strlen(bufaux), 1);
+		break;
+
+	case MODE_SET_COMMIT:
+		break;
+
+	case MODE_SET_UNDO:
+		break;
+
+	default:
+		/*
+		 * we should never get here, so this is a really bad error 
+		 */
+		return SNMP_ERR_GENERR;
+	}
+
+	return SNMP_ERR_NOERROR;
+}
+
+int
+do_cyEthIPaddr2(netsnmp_mib_handler * handler,
+		netsnmp_handler_registration * reginfo,
+		netsnmp_agent_request_info * reqinfo,
+		netsnmp_request_info * requests)
+{
+	int size;
+	struct in_addr aux;
+
+	switch (reqinfo->mode) {
+
+	case MODE_GET:
+		size = cy_rwsp_conf("conf","eth_ip_alias", bufaux, CY_BUFAUX_SIZE, 0);
+		if (!size) { 
+			aux.s_addr = 0;
+		} else {
+			inet_aton(bufaux,&aux);
+		}
+		snmp_set_var_typed_value(requests->requestvb, ASN_IPADDRESS, 
+			(u_char *) &aux.s_addr, sizeof(long));
+		break;
+
+	case MODE_SET_RESERVE1:
+		if (requests->requestvb->type != ASN_IPADDRESS) {
+			netsnmp_set_request_error(reqinfo, requests,
+						  SNMP_ERR_WRONGTYPE);
+			break;
+		}
+		aux.s_addr = *requests->requestvb->val.integer;
+		paux = inet_ntoa(aux);
+		if (!inet_aton(paux, &aux)) {
+			netsnmp_set_request_error(reqinfo, requests,
+						  SNMP_ERR_WRONGVALUE);
+			break;
+		}
+		strcpy(bufaux,paux);
+		break;
+
+	case MODE_SET_RESERVE2:
+		break;
+
+	case MODE_SET_FREE:
+		break;
+
+	case MODE_SET_ACTION:
+		size = cy_rwsp_conf("conf","eth_ip_alias", bufaux, strlen(bufaux),1);
+		break;
+
+	case MODE_SET_COMMIT:
+		break;
+
+	case MODE_SET_UNDO:
+		break;
+
+	default:
+		/*
+		 * we should never get here, so this is a really bad error 
+		 */
+		return SNMP_ERR_GENERR;
+	}
+
+	return SNMP_ERR_NOERROR;
+}
+
+int
+do_cyEthIPmask2(netsnmp_mib_handler * handler,
+		netsnmp_handler_registration * reginfo,
+		netsnmp_agent_request_info * reqinfo,
+		netsnmp_request_info * requests)
+{
+	int size;
+	struct in_addr aux;
+
+	switch (reqinfo->mode) {
+
+	case MODE_GET:
+		size = cy_rwsp_conf("conf","eth_mask_alias", bufaux,
+				   CY_BUFAUX_SIZE, 0);
+		if (!size) {
+			aux.s_addr = 0;
+		} else {
+			inet_aton(bufaux,&aux);
+		}
+		snmp_set_var_typed_value(requests->requestvb, ASN_IPADDRESS, 
+			(u_char *) &aux.s_addr, sizeof(long));
+		break;
+
+	case MODE_SET_RESERVE1:
+		if (requests->requestvb->type != ASN_IPADDRESS) {
+			netsnmp_set_request_error(reqinfo, requests,
+						  SNMP_ERR_WRONGTYPE);
+			break;
+		}
+		aux.s_addr = *requests->requestvb->val.integer;
+		paux = inet_ntoa(aux);
+		if (!inet_aton(paux, &aux)) {
+			netsnmp_set_request_error(reqinfo, requests,
+						  SNMP_ERR_WRONGVALUE);
+			break;
+		}
+		strcpy(bufaux,paux);
+		break;
+
+	case MODE_SET_RESERVE2:
+		break;
+
+	case MODE_SET_FREE:
+		break;
+
+	case MODE_SET_ACTION:
+		size = cy_rwsp_conf("conf","eth_mask_alias", bufaux, strlen(bufaux),1);
+		break;
+
+	case MODE_SET_COMMIT:
+		break;
+
+	case MODE_SET_UNDO:
+		break;
+
+	default:
+		/*
+		 * we should never get here, so this is a really bad error 
+		 */
+		return SNMP_ERR_GENERR;
+	}
+
+	return SNMP_ERR_NOERROR;
+}
+
+int
+do_cyResolverOrder(netsnmp_mib_handler * handler,
+		   netsnmp_handler_registration * reginfo,
+		   netsnmp_agent_request_info * reqinfo,
+		   netsnmp_request_info * requests)
+{
+	int size;
+	unsigned char *order_list[] = {
+		"", "hosts", "bind", "hosts,bind", "bind,hosts"
+	};
+
+	switch (reqinfo->mode) {
+
+	case MODE_GET:
+		size = cy_rw_parse("/etc/host.conf", "order", bufaux,
+				  CY_BUFAUX_SIZE,0);
+		snmp_set_var_typed_value(requests->requestvb,
+					 ASN_OCTET_STR, (u_char *) bufaux,
+					 size);
+		break;
+
+	case MODE_SET_RESERVE1:
+		if (requests->requestvb->val_len > 15) {
+			netsnmp_set_request_error(reqinfo, requests,
+						  SNMP_ERR_WRONGLENGTH);
+			break;
+		}
+		if (requests->requestvb->type != ASN_OCTET_STR) {
+			netsnmp_set_request_error(reqinfo, requests,
+						  SNMP_ERR_WRONGTYPE);
+			break;
+		}
+		if ((size = requests->requestvb->val_len)) {
+			
+			strncpy(bufaux,requests->requestvb->val.string,size);
+			bufaux[size] = 0x00;
+
+			for (size = 0; size < 5; size++) {
+				if (!strcmp(bufaux,order_list[size])) {
+					break;
+				}
+			}
+			if (size == 5) {
+				netsnmp_set_request_error(reqinfo,
+							  requests,
+							  SNMP_ERR_WRONGVALUE);
+			}
+		}
+		break;
+
+	case MODE_SET_RESERVE2:
+		break;
+
+	case MODE_SET_FREE:
+		break;
+
+	case MODE_SET_ACTION:
+		size = cy_rw_parse("/etc/host.conf", "order",
+				   requests->requestvb->val.string,
+				   requests->requestvb->val_len, 1);
+		break;
+
+	case MODE_SET_COMMIT:
+		break;
+
+	case MODE_SET_UNDO:
+		break;
+
+	default:
+		/*
+		 * we should never get here, so this is a really bad error 
+		 */
+		return SNMP_ERR_GENERR;
+	}
+
+	return SNMP_ERR_NOERROR;
+}
+
+int
+do_cyMultipleIP(netsnmp_mib_handler * handler,
+		netsnmp_handler_registration * reginfo,
+		netsnmp_agent_request_info * reqinfo,
+		netsnmp_request_info * requests)
+{
+	int size;
+
+	switch (reqinfo->mode) {
+
+	case MODE_GET:
+		size = cy_rw_parse("/etc/host.conf", "multi", bufaux,
+				  CY_BUFAUX_SIZE, 0);
+
+		snmp_set_var_typed_value(requests->requestvb,
+					 ASN_OCTET_STR, (u_char *) bufaux,
+					 size);
+		break;
+
+	case MODE_SET_RESERVE1:
+		if (requests->requestvb->val_len > 4) {
+			netsnmp_set_request_error(reqinfo, requests,
+						  SNMP_ERR_WRONGLENGTH);
+			break;
+		}
+		if (requests->requestvb->type != ASN_OCTET_STR) {
+			netsnmp_set_request_error(reqinfo, requests,
+						  SNMP_ERR_WRONGTYPE);
+			break;
+		}
+		if ((size = requests->requestvb->val_len)) {
+			strncpy(bufaux,requests->requestvb->val.string,size);
+			bufaux[size] = 0x00;
+			if (strcmp(bufaux, "ON")) {
+				if (strcmp(bufaux, "OFF")) {
+					netsnmp_set_request_error(reqinfo,
+								  requests,
+								  SNMP_ERR_WRONGTYPE);
+				}
+			}
+		}
+		break;
+
+	case MODE_SET_RESERVE2:
+		break;
+
+	case MODE_SET_FREE:
+		break;
+
+	case MODE_SET_ACTION:
+		size = cy_rw_parse("/etc/host.conf", "multi",
+				   requests->requestvb->val.string,
+				   requests->requestvb->val_len,1);
+		break;
+
+	case MODE_SET_COMMIT:
+		break;
+
+	case MODE_SET_UNDO:
+		break;
+
+	default:
+		/*
+		 * we should never get here, so this is a really bad error 
+		 */
+		return SNMP_ERR_GENERR;
+	}
+
+	return SNMP_ERR_NOERROR;
+}
+
+int
+do_cyDNSpriserv(netsnmp_mib_handler * handler,
+		netsnmp_handler_registration * reginfo,
+		netsnmp_agent_request_info * reqinfo,
+		netsnmp_request_info * requests)
+{
+	int size;
+	struct sockaddr_storage server;
+	char *errorMessage;
+
+	switch (reqinfo->mode) {
+
+	case MODE_GET:
+		size = cy_rw_parse("/etc/resolv.conf", "nameserver", bufaux,
+				  CY_BUFAUX_SIZE, 0);
+		if (size == 0) {
+			strcpy(bufaux,"::");
+			size = strlen(bufaux);
+		}
+		snmp_set_var_typed_value(requests->requestvb, ASN_OCTET_STR, 
+				(u_char *) bufaux, size);
+		break;
+
+	case MODE_SET_RESERVE1:
+		if (requests->requestvb->type != ASN_OCTET_STR) {
+			netsnmp_set_request_error(reqinfo, requests,
+						  SNMP_ERR_WRONGTYPE);
+			break;
+		}
+		errorMessage = xinet_aton(requests->requestvb->val.string, &server);
+		if (errorMessage != NULL || 
+			((server.ss_family != AF_INET6) && (server.ss_family != AF_INET))) {
+			netsnmp_set_request_error(reqinfo, requests,
+						  SNMP_ERR_WRONGVALUE);
+			break;
+		}
+		break;
+
+	case MODE_SET_RESERVE2:
+		break;
+
+	case MODE_SET_FREE:
+		break;
+
+	case MODE_SET_ACTION:
+		size = cy_rw_parse("/etc/resolv.conf", "nameserver",
+				   requests->requestvb->val.string,
+				   requests->requestvb->val_len,1);
+		break;
+
+	case MODE_SET_COMMIT:
+		break;
+
+	case MODE_SET_UNDO:
+		break;
+
+	default:
+		/*
+		 * we should never get here, so this is a really bad error 
+		 */
+		return SNMP_ERR_GENERR;
+	}
+
+	return SNMP_ERR_NOERROR;
+}
+
+int
+do_cyDNSsecserv(netsnmp_mib_handler * handler,
+		netsnmp_handler_registration * reginfo,
+		netsnmp_agent_request_info * reqinfo,
+		netsnmp_request_info * requests)
+{
+	int size;
+	struct sockaddr_storage server;
+	char *errorMessage;
+
+	switch (reqinfo->mode) {
+
+	case MODE_GET:
+		size = cy_rw_parse("/etc/resolv.conf", "2nameserver",
+				  bufaux, CY_BUFAUX_SIZE, 0);
+		if (size == 0) {
+			strcpy(bufaux,"::");
+			size = strlen(bufaux);
+		}
+		snmp_set_var_typed_value(requests->requestvb, ASN_OCTET_STR, 
+				(u_char *) bufaux, size);
+		break;
+
+	case MODE_SET_RESERVE1:
+		if (requests->requestvb->type != ASN_OCTET_STR) {
+			netsnmp_set_request_error(reqinfo, requests,
+						  SNMP_ERR_WRONGTYPE);
+			break;
+		}
+		errorMessage = xinet_aton(requests->requestvb->val.string, &server);
+		if (errorMessage != NULL || 
+			((server.ss_family != AF_INET6) && (server.ss_family != AF_INET))) {
+			netsnmp_set_request_error(reqinfo, requests,
+						  SNMP_ERR_WRONGVALUE);
+			break;
+		}
+		break;
+
+	case MODE_SET_RESERVE2:
+		break;
+
+	case MODE_SET_FREE:
+		break;
+
+	case MODE_SET_ACTION:
+		size = cy_rw_parse("/etc/resolv.conf", "2nameserver",
+				   requests->requestvb->val.string,
+				   requests->requestvb->val_len,1);
+		break;
+
+	case MODE_SET_COMMIT:
+		break;
+
+	case MODE_SET_UNDO:
+		break;
+
+	default:
+		/*
+		 * we should never get here, so this is a really bad error 
+		 */
+		return SNMP_ERR_GENERR;
+	}
+
+	return SNMP_ERR_NOERROR;
+}
+
+int
+do_cyDNSdomain(netsnmp_mib_handler * handler,
+	       netsnmp_handler_registration * reginfo,
+	       netsnmp_agent_request_info * reqinfo,
+	       netsnmp_request_info * requests)
+{
+	int size;
+
+	switch (reqinfo->mode) {
+
+	case MODE_GET:
+		size = cy_rw_parse("/etc/resolv.conf", "domain", bufaux,
+				  CY_BUFAUX_SIZE, 0);
+
+		snmp_set_var_typed_value(requests->requestvb,
+					 ASN_OCTET_STR, (u_char *) bufaux,
+					 size);
+		break;
+
+	case MODE_SET_RESERVE1:
+		if (requests->requestvb->val_len > 40) {
+			netsnmp_set_request_error(reqinfo, requests,
+						  SNMP_ERR_WRONGLENGTH);
+			break;
+		}
+		if (requests->requestvb->type != ASN_OCTET_STR) {
+			netsnmp_set_request_error(reqinfo, requests,
+						  SNMP_ERR_WRONGTYPE);
+			break;
+		}
+		break;
+
+	case MODE_SET_RESERVE2:
+		break;
+
+	case MODE_SET_FREE:
+		break;
+
+	case MODE_SET_ACTION:
+		size = cy_rw_parse("/etc/resolv.conf", "domain",
+				   requests->requestvb->val.string,
+				   requests->requestvb->val_len, 1);
+		break;
+
+	case MODE_SET_COMMIT:
+		break;
+
+	case MODE_SET_UNDO:
+		break;
+
+	default:
+		/*
+		 * we should never get here, so this is a really bad error 
+		 */
+		return SNMP_ERR_GENERR;
+	}
+
+	return SNMP_ERR_NOERROR;
+}
+
+int
+do_cySerialInclude(netsnmp_mib_handler * handler,
+		   netsnmp_handler_registration * reginfo,
+		   netsnmp_agent_request_info * reqinfo,
+		   netsnmp_request_info * requests)
+{
+	int size;
+
+	switch (reqinfo->mode) {
+
+	case MODE_GET:
+		size = cy_rwsp_conf("conf","include", bufaux, CY_BUFAUX_SIZE, 0);
+		snmp_set_var_typed_value(requests->requestvb,
+					 ASN_OCTET_STR, (u_char *) bufaux,
+					 size);
+		break;
+
+	case MODE_SET_RESERVE1:
+		if (requests->requestvb->val_len > 40) {
+			netsnmp_set_request_error(reqinfo, requests,
+						  SNMP_ERR_WRONGLENGTH);
+			break;
+		}
+		if (requests->requestvb->type != ASN_OCTET_STR) {
+			netsnmp_set_request_error(reqinfo, requests,
+						  SNMP_ERR_WRONGTYPE);
+			break;
+		}
+		break;
+
+	case MODE_SET_RESERVE2:
+		break;
+
+	case MODE_SET_FREE:
+		break;
+
+	case MODE_SET_ACTION:
+		size = cy_rwsp_conf("conf","include",
+				    requests->requestvb->val.string,
+				    requests->requestvb->val_len, 1);
+		break;
+
+	case MODE_SET_COMMIT:
+		break;
+
+	case MODE_SET_UNDO:
+		break;
+
+	default:
+		/*
+		 * we should never get here, so this is a really bad error 
+		 */
+		return SNMP_ERR_GENERR;
+	}
+
+	return SNMP_ERR_NOERROR;
+}
+
+int
+do_cySerialNFS(netsnmp_mib_handler * handler,
+	       netsnmp_handler_registration * reginfo,
+	       netsnmp_agent_request_info * reqinfo,
+	       netsnmp_request_info * requests)
+{
+	int size;
+
+	switch (reqinfo->mode) {
+
+	case MODE_GET:
+		size = cy_rwsp_conf("conf","nfs_data_buffering", bufaux,
+				   CY_BUFAUX_SIZE, 0);
+		snmp_set_var_typed_value(requests->requestvb,
+					 ASN_OCTET_STR, (u_char *) bufaux,
+					 size);
+		break;
+
+	case MODE_SET_RESERVE1:
+		if (requests->requestvb->val_len > 50) {
+			netsnmp_set_request_error(reqinfo, requests,
+						  SNMP_ERR_WRONGLENGTH);
+			break;
+		}
+		if (requests->requestvb->type != ASN_OCTET_STR) {
+			netsnmp_set_request_error(reqinfo, requests,
+						  SNMP_ERR_WRONGTYPE);
+			break;
+		}
+		break;
+
+	case MODE_SET_RESERVE2:
+		break;
+
+	case MODE_SET_FREE:
+		break;
+
+	case MODE_SET_ACTION:
+		size = cy_rwsp_conf("conf","nfs_data_buffering",
+				    requests->requestvb->val.string,
+				    requests->requestvb->val_len, 1);
+		break;
+
+	case MODE_SET_COMMIT:
+		break;
+
+	case MODE_SET_UNDO:
+		break;
+
+	default:
+		/*
+		 * we should never get here, so this is a really bad error 
+		 */
+		return SNMP_ERR_GENERR;
+	}
+	return SNMP_ERR_NOERROR;
+}
+
+int
+do_cySerialLockDir(netsnmp_mib_handler * handler,
+		   netsnmp_handler_registration * reginfo,
+		   netsnmp_agent_request_info * reqinfo,
+		   netsnmp_request_info * requests)
+{
+	int size;
+
+	switch (reqinfo->mode) {
+
+	case MODE_GET:
+		size = cy_rwsp_conf("conf","lockdir", bufaux, CY_BUFAUX_SIZE, 0);
+		snmp_set_var_typed_value(requests->requestvb,
+					 ASN_OCTET_STR, (u_char *) bufaux,
+					 size);
+		break;
+
+	case MODE_SET_RESERVE1:
+		if (requests->requestvb->val_len > 50) {
+			netsnmp_set_request_error(reqinfo, requests,
+						  SNMP_ERR_WRONGLENGTH);
+			break;
+		}
+		if (requests->requestvb->type != ASN_OCTET_STR) {
+			netsnmp_set_request_error(reqinfo, requests,
+						  SNMP_ERR_WRONGTYPE);
+		}
+		break;
+
+	case MODE_SET_RESERVE2:
+		break;
+
+	case MODE_SET_FREE:
+		break;
+
+	case MODE_SET_ACTION:
+		size =
+		    cy_rwsp_conf("conf","lockdir",
+				    requests->requestvb->val.string,
+				    requests->requestvb->val_len, 1);
+		break;
+
+	case MODE_SET_COMMIT:
+		break;
+
+	case MODE_SET_UNDO:
+		break;
+
+	default:
+		/*
+		 * we should never get here, so this is a really bad error 
+		 */
+		return SNMP_ERR_GENERR;
+	}
+
+	return SNMP_ERR_NOERROR;
+}
+
+int
+do_cySerialRlogin(netsnmp_mib_handler * handler,
+		  netsnmp_handler_registration * reginfo,
+		  netsnmp_agent_request_info * reqinfo,
+		  netsnmp_request_info * requests)
+{
+	int size;
+
+	switch (reqinfo->mode) {
+
+	case MODE_GET:
+		size = cy_rwsp_conf("conf","rlogin", bufaux, CY_BUFAUX_SIZE, 0);
+		snmp_set_var_typed_value(requests->requestvb,
+					 ASN_OCTET_STR, (u_char *) bufaux,
+					 size);
+		break;
+
+	case MODE_SET_RESERVE1:
+		if (requests->requestvb->val_len > 50) {
+			netsnmp_set_request_error(reqinfo, requests,
+						  SNMP_ERR_WRONGLENGTH);
+			break;
+		}
+		if (requests->requestvb->type != ASN_OCTET_STR) {
+			netsnmp_set_request_error(reqinfo, requests,
+						  SNMP_ERR_WRONGTYPE);
+		}
+		break;
+
+	case MODE_SET_RESERVE2:
+		break;
+
+	case MODE_SET_FREE:
+		break;
+
+	case MODE_SET_ACTION:
+		size = cy_rwsp_conf("conf","rlogin",
+				    requests->requestvb->val.string,
+				    requests->requestvb->val_len, 1);
+		break;
+
+	case MODE_SET_COMMIT:
+		break;
+
+	case MODE_SET_UNDO:
+		break;
+
+	default:
+		/*
+		 * we should never get here, so this is a really bad error 
+		 */
+		return SNMP_ERR_GENERR;
+	}
+
+	return SNMP_ERR_NOERROR;
+}
+
+int
+do_cySerialPppd(netsnmp_mib_handler * handler,
+		netsnmp_handler_registration * reginfo,
+		netsnmp_agent_request_info * reqinfo,
+		netsnmp_request_info * requests)
+{
+	int size;
+
+	switch (reqinfo->mode) {
+
+	case MODE_GET:
+		size = cy_rwsp_conf("conf","pppd", bufaux, CY_BUFAUX_SIZE, 0);
+		snmp_set_var_typed_value(requests->requestvb,
+					 ASN_OCTET_STR, (u_char *) bufaux,
+					 size);
+		break;
+
+	case MODE_SET_RESERVE1:
+		if (requests->requestvb->val_len > 50) {
+			netsnmp_set_request_error(reqinfo, requests,
+						  SNMP_ERR_WRONGLENGTH);
+			break;
+		}
+		if (requests->requestvb->type != ASN_OCTET_STR) {
+			netsnmp_set_request_error(reqinfo, requests,
+						  SNMP_ERR_WRONGTYPE);
+		}
+		break;
+
+	case MODE_SET_RESERVE2:
+		break;
+
+	case MODE_SET_FREE:
+		break;
+
+	case MODE_SET_ACTION:
+		size = cy_rwsp_conf("conf","ppp", requests->requestvb->val.string,
+				    requests->requestvb->val_len, 1);
+		break;
+
+	case MODE_SET_COMMIT:
+		break;
+
+	case MODE_SET_UNDO:
+		break;
+
+	default:
+		/*
+		 * we should never get here, so this is a really bad error 
+		 */
+		return SNMP_ERR_GENERR;
+	}
+
+	return SNMP_ERR_NOERROR;
+}
+
+int
+do_cySerialTelnet(netsnmp_mib_handler * handler,
+		  netsnmp_handler_registration * reginfo,
+		  netsnmp_agent_request_info * reqinfo,
+		  netsnmp_request_info * requests)
+{
+	int size;
+
+	switch (reqinfo->mode) {
+
+	case MODE_GET:
+		size = cy_rwsp_conf("conf","telnet", bufaux, CY_BUFAUX_SIZE, 0);
+		snmp_set_var_typed_value(requests->requestvb,
+					 ASN_OCTET_STR, (u_char *) bufaux,
+					 size);
+		break;
+
+	case MODE_SET_RESERVE1:
+		if (requests->requestvb->val_len > 50) {
+			netsnmp_set_request_error(reqinfo, requests,
+						  SNMP_ERR_WRONGLENGTH);
+			break;
+		}
+		if (requests->requestvb->type != ASN_OCTET_STR) {
+			netsnmp_set_request_error(reqinfo, requests,
+						  SNMP_ERR_WRONGTYPE);
+		}
+		break;
+
+	case MODE_SET_RESERVE2:
+		break;
+
+	case MODE_SET_FREE:
+		break;
+
+	case MODE_SET_ACTION:
+		size = cy_rwsp_conf("conf","telnet",
+				    requests->requestvb->val.string,
+				    requests->requestvb->val_len, 1);
+		break;
+
+	case MODE_SET_COMMIT:
+		break;
+
+	case MODE_SET_UNDO:
+		break;
+
+	default:
+		/*
+		 * we should never get here, so this is a really bad error 
+		 */
+		return SNMP_ERR_GENERR;
+	}
+
+	return SNMP_ERR_NOERROR;
+}
+
+int
+do_cySerialSsh(netsnmp_mib_handler * handler,
+	       netsnmp_handler_registration * reginfo,
+	       netsnmp_agent_request_info * reqinfo,
+	       netsnmp_request_info * requests)
+{
+	int size;
+
+	switch (reqinfo->mode) {
+
+	case MODE_GET:
+		size = cy_rwsp_conf("conf","ssh", bufaux, CY_BUFAUX_SIZE, 0);
+		snmp_set_var_typed_value(requests->requestvb,
+					 ASN_OCTET_STR, (u_char *) bufaux,
+					 size);
+		break;
+
+	case MODE_SET_RESERVE1:
+		if (requests->requestvb->val_len > 50) {
+			netsnmp_set_request_error(reqinfo, requests,
+						  SNMP_ERR_WRONGLENGTH);
+			break;
+		}
+		if (requests->requestvb->type != ASN_OCTET_STR) {
+			netsnmp_set_request_error(reqinfo, requests,
+						  SNMP_ERR_WRONGTYPE);
+		}
+		break;
+
+	case MODE_SET_RESERVE2:
+		break;
+
+	case MODE_SET_FREE:
+		break;
+
+	case MODE_SET_ACTION:
+		size = cy_rwsp_conf("conf","ssh", requests->requestvb->val.string,
+				    requests->requestvb->val_len, 1);
+		break;
+
+	case MODE_SET_COMMIT:
+		break;
+
+	case MODE_SET_UNDO:
+		break;
+
+	default:
+		/*
+		 * we should never get here, so this is a really bad error 
+		 */
+		return SNMP_ERR_GENERR;
+	}
+
+	return SNMP_ERR_NOERROR;
+}
+
+int
+do_cySerialLocalLogins(netsnmp_mib_handler * handler,
+		       netsnmp_handler_registration * reginfo,
+		       netsnmp_agent_request_info * reqinfo,
+		       netsnmp_request_info * requests)
+{
+	int size;
+
+	switch (reqinfo->mode) {
+
+	case MODE_GET:
+		size = cy_rwsp_conf("conf","locallogins", bufaux, CY_BUFAUX_SIZE, 0);
+		if (size) size = atoi(bufaux);
+		snmp_set_var_typed_value(requests->requestvb,
+					 ASN_INTEGER, (u_char *) &size,
+					 sizeof(int));
+		break;
+
+	case MODE_SET_RESERVE1:
+		if (requests->requestvb->val_len > 1) {
+			netsnmp_set_request_error(reqinfo, requests,
+						  SNMP_ERR_WRONGLENGTH);
+			break;
+		}
+		if (requests->requestvb->type != ASN_INTEGER) {
+			netsnmp_set_request_error(reqinfo, requests,
+						  SNMP_ERR_WRONGTYPE);
+		}
+		break;
+
+	case MODE_SET_RESERVE2:
+		break;
+
+	case MODE_SET_FREE:
+		break;
+
+	case MODE_SET_ACTION:
+		sprintf(bufaux,"%d", *requests->requestvb->val.integer);
+		size = cy_rwsp_conf("conf","locallogins", bufaux, strlen(bufaux),1);
+		break;
+
+	case MODE_SET_COMMIT:
+		break;
+
+	case MODE_SET_UNDO:
+		break;
+
+	default:
+		/*
+		 * we should never get here, so this is a really bad error 
+		 */
+		return SNMP_ERR_GENERR;
+	}
+
+	return SNMP_ERR_NOERROR;
+}
+
+int
+do_cySerialFacility(netsnmp_mib_handler * handler,
+		    netsnmp_handler_registration * reginfo,
+		    netsnmp_agent_request_info * reqinfo,
+		    netsnmp_request_info * requests)
+{
+	int size;
+
+	switch (reqinfo->mode) {
+
+	case MODE_GET:
+		size = cy_rwsp_conf("conf","facility", bufaux, CY_BUFAUX_SIZE, 0);
+		if (size) size = atoi(bufaux);
+		snmp_set_var_typed_value(requests->requestvb, ASN_INTEGER,
+					 (u_char *) &size, sizeof(int));
+		break;
+
+	case MODE_SET_RESERVE1:
+		if (*requests->requestvb->val.integer > 7) {
+			netsnmp_set_request_error(reqinfo, requests,
+						  SNMP_ERR_WRONGVALUE);
+			break;
+		}
+		if (requests->requestvb->type != ASN_INTEGER) {
+			netsnmp_set_request_error(reqinfo, requests,
+						  SNMP_ERR_WRONGTYPE);
+		}
+		break;
+
+	case MODE_SET_RESERVE2:
+		break;
+
+	case MODE_SET_FREE:
+		break;
+
+	case MODE_SET_ACTION:
+		sprintf(bufaux,"%d", *requests->requestvb->val.integer);
+		size = cy_rwsp_conf("conf","facility",bufaux,strlen(bufaux),1);
+		break;
+
+	case MODE_SET_COMMIT:
+		break;
+
+	case MODE_SET_UNDO:
+		break;
+
+	default:
+		/*
+		 * we should never get here, so this is a really bad error 
+		 */
+		return SNMP_ERR_GENERR;
+	}
+
+	return SNMP_ERR_NOERROR;
+}
+
+int
+do_cySerialDBFacility(netsnmp_mib_handler * handler,
+		      netsnmp_handler_registration * reginfo,
+		      netsnmp_agent_request_info * reqinfo,
+		      netsnmp_request_info * requests)
+{
+	int size;
+
+	switch (reqinfo->mode) {
+
+	case MODE_GET:
+		size = cy_rwsp_conf("conf","DB_facility", bufaux, CY_BUFAUX_SIZE, 0);
+		if (size) size = atoi(bufaux);
+		snmp_set_var_typed_value(requests->requestvb, ASN_INTEGER,
+					 (u_char *) &size, sizeof(int));
+		break;
+
+	case MODE_SET_RESERVE1:
+		if (*requests->requestvb->val.integer > 7) {
+			netsnmp_set_request_error(reqinfo, requests,
+						  SNMP_ERR_WRONGVALUE);
+			break;
+		}
+		if (requests->requestvb->type != ASN_INTEGER) {
+			netsnmp_set_request_error(reqinfo, requests,
+						  SNMP_ERR_WRONGTYPE);
+		}
+		break;
+
+	case MODE_SET_RESERVE2:
+		break;
+
+	case MODE_SET_FREE:
+		break;
+
+	case MODE_SET_ACTION:
+		sprintf(bufaux,"%d", *requests->requestvb->val.integer);
+		size = cy_rwsp_conf("conf","DB_facility", bufaux,strlen(bufaux), 1);
+		break;
+
+	case MODE_SET_COMMIT:
+		break;
+
+	case MODE_SET_UNDO:
+		break;
+
+	default:
+		/*
+		 * we should never get here, so this is a really bad error 
+		 */
+		return SNMP_ERR_GENERR;
+	}
+
+	return SNMP_ERR_NOERROR;
+}

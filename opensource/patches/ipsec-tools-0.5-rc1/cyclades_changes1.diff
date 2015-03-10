@@ -1,0 +1,28 @@
+Index: acracoon.m4
+===================================================================
+RCS file: /usr/cvsroot/tslinux_mv21/ipsec/ipsec-tools-0.5-rc1/acracoon.m4,v
+retrieving revision 1.1
+retrieving revision 1.2
+diff -u -r1.1 -r1.2
+--- ipsec-tools-0.5-rc1/acracoon.m4	11 Feb 2005 10:38:53 -0000	1.1
++++ ipsec-tools-0.5-rc1/acracoon.m4	11 Feb 2005 11:17:41 -0000	1.2
+@@ -94,7 +92,7 @@
+ 	AC_MSG_CHECKING(getaddrinfo bug)
+ 	saved_CFLAGS=$CFLAGS
+ 	CFLAGS="-Wall -O2"
+-	AC_TRY_RUN([
++	AC_TRY_COMPILE([
+ 	#include <sys/types.h>
+ 	#include <sys/socket.h>
+ 	#include <netdb.h>
+@@ -186,8 +184,8 @@
+ 	buggygetaddrinfo=no,
+ 	AC_MSG_RESULT(buggy)
+ 	buggygetaddrinfo=yes,
+-	AC_MSG_RESULT(buggy)
+-	buggygetaddrinfo=yes)
++	AC_MSG_RESULT(assuming getaddrinfo is not buggy)
++	buggygetaddrinfo=no)
+ 	CFLAGS=$saved_CFLAGS
+ 	unset saved_CFLAGS
+ ])

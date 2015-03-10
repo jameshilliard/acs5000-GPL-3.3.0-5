@@ -1,0 +1,1717 @@
+-- Avocent Vendor ACS5000 TRAP MIB OID Tree
+-- Release 08/26/2010
+
+CYCLADES-ACS5000-TRAP-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+   enterprises,MODULE-IDENTITY,OBJECT-IDENTITY,OBJECT-TYPE
+        FROM SNMPv2-SMI
+   TRAP-TYPE
+      FROM RFC-1215;
+
+--------------------------------------------------------------------
+-- Object Groupings
+-- Familyoid 8
+-- Productoid 1
+-- Managementoid 2
+-- TrapObjectoid 6
+--------------------------------------------------------------------
+
+-- cyclades 	OBJECT IDENTIFIER ::= { enterprises 2925 }
+
+cyACS5KMgmt	MODULE-IDENTITY
+	LAST-UPDATED	"201008260000Z"
+	ORGANIZATION	"Avocent Corporation"
+	CONTACT-INFO    "postal : Avocent Corporation
+                                  47281 Bayside Parkway
+                                  Fremont, CA 94538, USA
+                         e-mail : Technical Support
+                                  techsupport@avocent.com"
+	DESCRIPTION
+	"This module defines the Cyclades TRAP MIB extensions to
+         ACS5000 product family."
+	REVISION	"201008260000Z"
+	DESCRIPTION	"Updating traps"
+::= { enterprises 2925 8 }
+
+----------------------------------------------------------------------
+-- ACS5000 Trap Object   2925.8.6 (cyclades.cyACS5KMgmt.cyAcs5k5kTrapObject)
+--
+-- The following objects are implemented only for the generation of
+-- TRAPs. The objects are sent in traps and are not accessible in
+-- any other way.
+----------------------------------------------------------------------
+
+cyAcs5kTrapObject OBJECT-IDENTITY  
+	STATUS current
+	DESCRIPTION " Define the trap objects "
+	::= { cyACS5KMgmt  6  }
+
+cyAcs5kModel      OBJECT-IDENTITY  
+	STATUS current
+	DESCRIPTION " Define the appliance models "
+	::= { cyACS5KMgmt  7  }
+cyAcs5004          OBJECT-IDENTITY  
+	STATUS current
+	DESCRIPTION " Define the appliance model ACS5004 "
+	::= { cyAcs5kModel 4  }
+cyAcs5008          OBJECT-IDENTITY  
+	STATUS current
+	DESCRIPTION " Define the appliance model ACS5008 "
+	::= { cyAcs5kModel 8  }
+cyAcs5016         OBJECT-IDENTITY  
+	STATUS current
+	DESCRIPTION " Define the appliance model ACS5016 "
+	::= { cyAcs5kModel 16 }
+cyAcs5032         OBJECT-IDENTITY  
+	STATUS current
+	DESCRIPTION " Define the appliance model ACS5032 "
+	::= { cyAcs5kModel 32 }
+cyAcs5048         OBJECT-IDENTITY  
+	STATUS current
+	DESCRIPTION " Define the appliance model ACS5048 "
+	::= { cyAcs5kModel 48 }
+
+cyAcs5kTrapObjectUserName OBJECT-TYPE
+      SYNTAX OCTET STRING
+      MAX-ACCESS accessible-for-notify
+      STATUS current
+  --% AVAILABILITY public
+      DESCRIPTION 
+      "This object is sent in a trap to identify the name of the user
+       for which the trap condition occurred."
+       ::= { cyAcs5kTrapObject 1 }
+
+cyAcs5kTrapObjectTargetUserName OBJECT-TYPE
+      SYNTAX OCTET STRING
+      MAX-ACCESS accessible-for-notify
+      STATUS current
+  --% AVAILABILITY public
+      DESCRIPTION 
+      "This object is sent in a trap to identify the name of the user
+       for which the trap condition occurred."
+       ::= { cyAcs5kTrapObject 2 }        
+
+cyAcs5kTrapObjectSerialPort OBJECT-TYPE
+      SYNTAX INTEGER
+      MAX-ACCESS accessible-for-notify
+      STATUS current
+      DESCRIPTION       
+      "This object is sent in a trap to identify which serial port number 
+       the trap condition occurred."
+  --% AVAILABILITY public                         
+      ::= { cyAcs5kTrapObject 3 }
+
+cyAcs5kTrapObjectSerialSessionType OBJECT-TYPE
+      SYNTAX INTEGER {
+                        cas-ssh(1),
+                        cas-telnet(2),
+                        cas-rawdata(3),
+                        ts(4),
+                        dial-in(5)
+                     }
+      MAX-ACCESS accessible-for-notify
+      STATUS current
+      DESCRIPTION 
+      "This object is sent in a trap to identify type of Serial Session."
+  --% AVAILABILITY public                         
+      ::= { cyAcs5kTrapObject 4 }
+      
+cyAcs5kTrapObjectSerialPortName OBJECT-TYPE
+      SYNTAX OCTET STRING 
+      MAX-ACCESS accessible-for-notify
+      STATUS current
+      DESCRIPTION 
+      "This object is sent in a trap to identify the target Device by 
+       name - alias of the serial port."
+  --% AVAILABILITY public                         
+      ::= { cyAcs5kTrapObject 5 }
+            
+cyAcs5kTrapObjectAlertMessage OBJECT-TYPE
+      SYNTAX OCTET STRING
+      MAX-ACCESS accessible-for-notify
+      STATUS current
+  --% AVAILABILITY public
+      DESCRIPTION
+      "This object is sent in a trap to identify the line text where 
+       the alert string was detected."
+      ::= { cyAcs5kTrapObject 6 }
+      
+cyAcs5kTrapObjectAlertString OBJECT-TYPE
+      SYNTAX OCTET STRING
+      MAX-ACCESS accessible-for-notify
+      STATUS current
+      DESCRIPTION       
+      "This object is sent in a trap to identify the alert string 
+       that matched in the alert message."
+  --% AVAILABILITY public                         
+      ::= { cyAcs5kTrapObject 7}
+
+cyAcs5kTrapObjectPMCount OBJECT-TYPE
+      SYNTAX INTEGER
+      MAX-ACCESS accessible-for-notify
+      STATUS current
+  --% AVAILABILITY public      
+      DESCRIPTION       
+      "This object is sent in a trap to identify number of PDU on 
+       the chain"
+      ::= { cyAcs5kTrapObject 8 }
+
+cyAcs5kTrapObjectPMSocketCount OBJECT-TYPE
+      SYNTAX INTEGER
+      MAX-ACCESS accessible-for-notify
+      STATUS current
+  --% AVAILABILITY public      
+      DESCRIPTION
+      "This object is sent in a trap to identify number of outlets 
+       on the chain"
+      ::= { cyAcs5kTrapObject 9 }
+
+cyAcs5kTrapObjectPMNumber OBJECT-TYPE
+      SYNTAX INTEGER
+      MAX-ACCESS accessible-for-notify
+      STATUS current
+  --% AVAILABILITY public          
+      DESCRIPTION       
+      "This object is sent in a trap to identify the IPDU # the trap 
+       condition occurred on."         
+      ::= { cyAcs5kTrapObject 10 }
+
+cyAcs5kTrapObjectPMSocketNumber OBJECT-TYPE
+      SYNTAX INTEGER
+      MAX-ACCESS accessible-for-notify
+      STATUS current
+      DESCRIPTION       
+      "This object is sent in a trap to identify outlet number the trap
+         condition occurred on."
+  --% AVAILABILITY public   
+      ::= { cyAcs5kTrapObject 11 }
+      
+cyAcs5kTrapObjectPMSocketName OBJECT-TYPE
+      SYNTAX OCTET STRING
+      MAX-ACCESS accessible-for-notify
+      STATUS current
+      DESCRIPTION       
+      "This object is sent in a trap to identify outlet association 
+       with serial port name if there any association or the name 
+       stored in the PM."
+  --% AVAILABILITY public   
+      ::= { cyAcs5kTrapObject 12 }
+            
+cyAcs5kTrapObjectDaemonName OBJECT-TYPE
+        SYNTAX OCTET STRING
+        MAX-ACCESS accessible-for-notify
+        STATUS current            
+        DESCRIPTION     
+        "This object is sent in a trap to indicate the Daemon name
+        that has started/stopped."
+  --% AVAILABILITY public          
+        ::= { cyAcs5kTrapObject 13 }
+
+cyAcs5kTrapObjectPMCurrentValue OBJECT-TYPE
+        SYNTAX OCTET STRING
+        MAX-ACCESS accessible-for-notify
+        STATUS current            
+        DESCRIPTION     
+        "This object is sent in a trap to detected current value of the PM."
+  --% AVAILABILITY public               
+        ::= { cyAcs5kTrapObject 14 }
+        
+cyAcs5kTrapFirmwareVersion OBJECT-TYPE
+        SYNTAX OCTET STRING
+        MAX-ACCESS accessible-for-notify
+        STATUS current            
+        DESCRIPTION
+        "This object is sent in a trap to identify current Firmware version."
+  --% AVAILABILITY public  
+        ::= { cyAcs5kTrapObject 15 }
+
+cyAcs5kTrapNewFirmwareVersion OBJECT-TYPE
+        SYNTAX OCTET STRING
+        MAX-ACCESS accessible-for-notify
+        STATUS current            
+        DESCRIPTION
+        "This object is sent in a trap to identify new Firmware version."
+  --% AVAILABILITY public  
+        ::= { cyAcs5kTrapObject 16 }
+        
+cyAcs5kTrapFirmwareUpgradeResult  OBJECT-TYPE
+        SYNTAX INTEGER  {
+                        imageUpgradeSuccess(1),
+                        imageUpgradeInternalError(2)
+               }
+        MAX-ACCESS accessible-for-notify
+        STATUS current            
+        DESCRIPTION     
+        "This object is sent in a trap to identify the firmware upgrade result."
+  --% AVAILABILITY public  
+        ::= { cyAcs5kTrapObject 17 }
+
+cyAcs5kTrapObjectSessionType OBJECT-TYPE
+      SYNTAX INTEGER {
+                      ssh(1),
+                      telnet(2),
+                      webui(3),
+	   	      console(4)
+             }
+      MAX-ACCESS accessible-for-notify
+      STATUS current
+      DESCRIPTION 
+      "This object is sent in a trap to identify type of Session 
+       for access to appliance."
+  --% AVAILABILITY public                         
+      ::= { cyAcs5kTrapObject 18 }  
+      
+cyAcs5kTrapObjectTargetedSerialPort OBJECT-TYPE
+      SYNTAX INTEGER
+      MAX-ACCESS accessible-for-notify
+      STATUS current
+      DESCRIPTION       
+      "This object is sent in a trap to identify which port 
+       the trap condition occurred."
+  --% AVAILABILITY public                         
+      ::= { cyAcs5kTrapObject 19 }
+
+cyAcs5kTrapObjectDataBufferSize OBJECT-TYPE
+      SYNTAX INTEGER
+      MAX-ACCESS accessible-for-notify
+      STATUS current
+      DESCRIPTION       
+      "This object is sent in a trap to identify current size of 
+       global buffer."
+  --% AVAILABILITY public                         
+      ::= { cyAcs5kTrapObject 20 }
+      
+cyAcs5kTrapObjectProcessID OBJECT-TYPE
+      SYNTAX INTEGER
+      MAX-ACCESS accessible-for-notify
+      STATUS current
+      DESCRIPTION       
+      "This object is sent in a trap to identify which session lost 
+       data through SSH or telnet session for the appliance."
+  --% AVAILABILITY public                         
+      ::= { cyAcs5kTrapObject 21 }      
+                      
+cyAcs5kTrapObjectAlertIndex OBJECT-TYPE
+      SYNTAX INTEGER
+      MAX-ACCESS accessible-for-notify
+      STATUS current
+      DESCRIPTION       
+      "This object is sent in a trap to identify the alert string 
+       that matched in the alert message."
+  --% AVAILABILITY public                         
+      ::= { cyAcs5kTrapObject 22}
+
+cyAcs5kTrapObjectPMPhase OBJECT-TYPE
+        SYNTAX OCTET STRING
+        MAX-ACCESS accessible-for-notify
+        STATUS current            
+        DESCRIPTION
+        "This object is sent in a trap to identify the Phase of the IPDU
+         where the trap occurred."
+  --% AVAILABILITY public  
+        ::= { cyAcs5kTrapObject 23 }
+        
+cyAcs5kTrapObjectPMType OBJECT-TYPE
+      SYNTAX INTEGER {
+		cyclades(1),
+		spc(2),
+		serverTech(3)
+      }
+       MAX-ACCESS accessible-for-notify
+       STATUS current            
+       DESCRIPTION
+       "This object is sent in a trap to identify the vendor of the IPDU
+        where the trap occurred.
+       "
+  --% AVAILABILITY public  
+        ::= { cyAcs5kTrapObject 24 }
+        
+cyAcs5kTrapObjectPMId OBJECT-TYPE
+        SYNTAX OCTET STRING
+        MAX-ACCESS accessible-for-notify
+        STATUS current            
+        DESCRIPTION
+        "This object is sent in a trap to identify the ID of the IPDU
+         where the trap occurred."
+  --% AVAILABILITY public  
+        ::= { cyAcs5kTrapObject 25 }
+        
+cyAcs5kTrapObjectPMSocketOldName OBJECT-TYPE
+      SYNTAX OCTET STRING
+      MAX-ACCESS accessible-for-notify
+      STATUS current
+      DESCRIPTION       
+      "This object is sent in a trap to identify the old outlet  
+       name stored in the PM."
+  --% AVAILABILITY public   
+      ::= { cyAcs5kTrapObject 26 }
+
+cyAcs5kTrapObjectPMIdOld OBJECT-TYPE
+        SYNTAX OCTET STRING
+        MAX-ACCESS accessible-for-notify
+        STATUS current
+        DESCRIPTION
+        "This object is sent in a trap to identify the old ID of the IPDU
+         where the trap occurred."
+  --% AVAILABILITY public
+        ::= { cyAcs5kTrapObject 27 }
+
+cyAcs5kTrapObjectPMElementType OBJECT-TYPE
+        SYNTAX OCTET STRING
+        MAX-ACCESS accessible-for-notify
+        STATUS current           
+        DESCRIPTION
+        "This object is sent in a trap to identify the Element Type of the PDU
+         where the trap occurred."
+  --% AVAILABILITY public
+        ::= { cyAcs5kTrapObject 28 }
+
+cyAcs5kTrapObjectPMElementName OBJECT-TYPE
+        SYNTAX OCTET STRING
+        MAX-ACCESS accessible-for-notify
+        STATUS current           
+        DESCRIPTION
+        "This object is sent in a trap to identify the Element of the PDU
+         where the trap occurred."
+  --% AVAILABILITY public 
+        ::= { cyAcs5kTrapObject 29 }
+        
+cyAcs5kTrapObjectPowerSupplyNumber OBJECT-TYPE
+        SYNTAX INTEGER
+        MAX-ACCESS accessible-for-notify
+        STATUS current           
+        DESCRIPTION
+        "This object is sent in a trap to identify the Power Supply
+         where the trap occurred."
+  --% AVAILABILITY public 
+        ::= { cyAcs5kTrapObject 30 }
+
+cyAcs5kTrapObjectPowerSupplyOldState OBJECT-TYPE
+        SYNTAX INTEGER {
+             powerSupplyOn(1),
+             powerSupplyOff(2)
+           }
+        MAX-ACCESS accessible-for-notify
+        STATUS current           
+        DESCRIPTION
+        "This object is sent in a trap to identify the old state of the Power Supply
+         where the trap occurred."
+  --% AVAILABILITY public 
+        ::= { cyAcs5kTrapObject 31 }
+
+cyAcs5kTrapObjectPowerSupplyNewState OBJECT-TYPE
+        SYNTAX INTEGER {
+             powerSupplyOn(1),
+             powerSupplyOff(2)
+           }
+        MAX-ACCESS accessible-for-notify
+        STATUS current           
+        DESCRIPTION
+        "This object is sent in a trap to identify the new state of the Power Supply
+         where the trap occurred."
+  --% AVAILABILITY public 
+        ::= { cyAcs5kTrapObject 32 }
+            
+--------------------------------------------------------------------------------
+-- Enterprise Traps
+-- ACS5000 models: 
+--         ACS5004: 2925.8.7.4  (cyclades.cyACS5KMgmt.cyAcs5kModel.ACS5004)
+--         ACS5008: 2925.8.7.8  (cyclades.cyACS5KMgmt.cyAcs5kModel.ACS5008)
+--         ACS5016: 2925.8.7.16 (cyclades.cyACS5KMgmt.cyAcs5kModel.ACS5016)
+--         ACS5032: 2925.8.7.32 (cyclades.cyACS5KMgmt.cyAcs5kModel.ACS5032)
+--         ACS5048: 2925.8.7.48 (cyclades.cyACS5KMgmt.cyAcs5kModel.ACS5048)
+--  The above Enterprise OIDs will be used for registering each Model for NNM
+--  module. 
+--------------------------------------------------------------------------------
+
+cyAcs5kRebootStartedTrap TRAP-TYPE
+      ENTERPRISE  cyACS5KMgmt
+      VARIABLES   { cyAcs5kTrapObjectUserName }
+      DESCRIPTION
+         "ACS5000 is in process of rebooting.
+         The name of the user who issued the command is contained
+         in cyAcs5kTrapObjectUserName."
+      --#SUMMARY     "The appliance is rebooting. Command issued by user: %s."
+      --#ARGUMENTS   { 0 }
+      --#SEVERITY    INFORMATIONAL
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=15 
+      ::= 1
+
+cyAcs5kUserLoginTrap TRAP-TYPE
+      ENTERPRISE  cyACS5KMgmt
+      VARIABLES   { cyAcs5kTrapObjectUserName, cyAcs5kTrapObjectSessionType}
+      DESCRIPTION
+         "This trap is sent when user logged into the appliance.
+          The name of the user who logged in is contained in 
+     cyAcs5kTrapObjectUserName and the method used to log into appliance 
+     is contained in cyAcs5kTrapObjectSessionType."
+      --#SUMMARY     "A user logged into the appliance. User: %s. Session type: %d."
+      --#ARGUMENTS   { 0, 1 }
+      --#SEVERITY    INFORMATIONAL
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=15
+      ::= 2
+
+cyAcs5kUserLogoutTrap TRAP-TYPE
+      ENTERPRISE  cyACS5KMgmt
+      VARIABLES   { cyAcs5kTrapObjectUserName, cyAcs5kTrapObjectSessionType }
+      DESCRIPTION
+         "A user logged out of the appliance.
+     The name of the user who logged in is contained in 
+     cyAcs5kTrapObjectUserName and the method used to log into appliance 
+     is contained in cyAcs5kTrapObjectSessionType."
+      --#SUMMARY     "A user logged out of the appliance. User: %s. Session type: %d."
+      --#ARGUMENTS   { 0, 1}
+      --#SEVERITY    INFORMATIONAL
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=15
+      ::= 3
+
+cyAcs5kAuthenticationFailureTrap TRAP-TYPE
+      ENTERPRISE  cyACS5KMgmt
+      VARIABLES   { cyAcs5kTrapObjectUserName }
+      DESCRIPTION
+         "A user failed to authenticate with the appliance.
+         The name of the user who failed to authenticate is contained in cyAcs5kTrapObjectUserName."
+      --#SUMMARY     "User authentication failed. User: %s."
+      --#ARGUMENTS   {0}
+      --#SEVERITY    INFORMATIONAL
+      --#CATEGORY    "Error Events"
+      --% TrapTypeEnum=15 
+      ::= 4
+
+cyAcs5kSerialSessionStartedTrap TRAP-TYPE
+      ENTERPRISE  cyACS5KMgmt
+      VARIABLES   {
+                     cyAcs5kTrapObjectUserName,
+                     cyAcs5kTrapObjectSerialPortName,
+                     cyAcs5kTrapObjectSerialPort,
+                     cyAcs5kTrapObjectSerialSessionType
+                     
+                  }
+      DESCRIPTION
+         "This trap is sent when a serial session has started on particular port.
+         The name of the user who is connected to the session is contained in cyAcs5kTrapObjectUserName.
+         The serial port number on the appliance is contained in cyAcs5kTrapObjectSerialPort.
+         The serial port name on the appliance is contained in cyAcs5kTrapObjectSerialPortName
+         The type of protocol running on this serial port is contained in 
+    cyAcs5kTrapObjectSerialSessionType. "
+      --#SUMMARY     "Serial session started. User: %s. Port name: %s. Port number: %d. Session type: %d."          
+      --#ARGUMENTS   { 0, 1, 2, 3 }
+      --#SEVERITY    INFORMATIONAL
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 5
+      
+cyAcs5kSerialSessionStoppedTrap TRAP-TYPE
+      ENTERPRISE  cyACS5KMgmt
+      VARIABLES   {
+                     cyAcs5kTrapObjectUserName,
+                     cyAcs5kTrapObjectSerialPortName,
+                     cyAcs5kTrapObjectSerialPort,
+                     cyAcs5kTrapObjectSerialSessionType
+                  }
+      DESCRIPTION
+        "This trap is sent when a serial session has stopped.
+        The user who was connected to the session is contained in cyAcs5kTrapObjectUserName.
+        The serial port number on the appliance is contained in cyAcs5kTrapObjectSerialPort.
+        The serial port name on the appliance is contained in cyAcs5kTrapObjectSerialPortName
+        The type of protocol running on this port is contained in 
+   cyAcs5kTrapObjectSerialSessionType."
+      --#SUMMARY     "Serial session stopped. User: %s. Port name: %s. Port number: %d. Session type: %d."  
+      --#ARGUMENTS   { 0, 1, 2, 3 }
+      --#SEVERITY    INFORMATIONAL
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 6
+
+cyAcs5kPortAuthenticationFailureTrap TRAP-TYPE
+      ENTERPRISE  cyACS5KMgmt
+      VARIABLES   {
+                     cyAcs5kTrapObjectUserName,
+                     cyAcs5kTrapObjectSerialPortName,
+                     cyAcs5kTrapObjectSerialPort,
+                     cyAcs5kTrapObjectSerialSessionType
+                     
+                  }
+      DESCRIPTION      
+        "This trap is sent when a serial session authentication fails.
+        The name of the user who failed to authenticate is contained in cyAcs5kTrapObjectUserName.
+        The serial port number on the appliance is contained in cyAcs5kTrapObjectSerialPort.
+        The serial port name on the appliance is contained in cyAcs5kTrapObjectSerialPortName
+        The type of protocol configured on this port is contained in cyAcs5kTrapObjectSerialSessionType."
+      --#SUMMARY     "Serial session authentication failed. User: %s. Port name: %s. Port number: %d. Session type: %d." 
+      --#ARGUMENTS   { 0, 1, 2, 3 }
+      --#SEVERITY    INFORMATIONAL
+      --#CATEGORY    "Error Events"           
+      --% TrapTypeEnum=6                     
+      ::= 7              
+      
+cyAcs5kPortAlertTrap TRAP-TYPE      
+      ENTERPRISE  cyACS5KMgmt
+      VARIABLES   {     
+                        cyAcs5kTrapObjectSerialPortName,                        
+                        cyAcs5kTrapObjectSerialPort,
+			cyAcs5kTrapObjectAlertIndex,
+                        cyAcs5kTrapObjectAlertString,
+                        cyAcs5kTrapObjectAlertMessage
+                  }
+      DESCRIPTION      
+        "The appliance detected a port alert on a serial port.
+         The serial port number the port alert was detected on is 
+         contained in cyAcs5kTrapObjectSerialPort.
+         The serial port name the port alert was detected on is 
+         contained in cyAcs5kTrapObjectSerialPortName.
+	 The index of the port alert that was detected is contained
+	 in cyAcs5kTrapObjectAlertIndex.
+         The port alert that was detected is contained in 
+	 cyAcs5kTrapObjectAlertString.
+         The line text where the port alert was detected is 
+         contained in cyAcs5kTrapObjectAlertMessage."
+      --#SUMMARY     "A port alert was detected on a serial port. Port name: %s. Port number: %d. Port alert index: %d. Port alert string: %s. Line text: %s." 
+      --#ARGUMENTS   { 0, 1, 2, 3, 4 }
+      --#SEVERITY    CRITICAL
+      --#CATEGORY    "Error Events"           
+      --% TrapTypeEnum=19                     
+      ::= 8  
+      
+cyAcs5kPortPowerOnDetectTrap TRAP-TYPE
+      ENTERPRISE  cyACS5KMgmt
+      VARIABLES   {     
+                        cyAcs5kTrapObjectSerialPortName,
+                        cyAcs5kTrapObjectSerialPort                        
+                  }    
+      DESCRIPTION
+        "The appliance has detected that the power on/off control signal
+         (RS232C - DCD signal) is high on a serial port indicating that the
+         server attached to the port is powered on.
+         This trap is sent on initialization if the condition is detected.
+         Subsequent traps occur only if there is a transition of the DCD
+         signal from low to high.
+         The affected serial port number is contained in cyAcs5kTrapObjectSerialPort.
+         The affected serial port name is contained in cyAcs5kTrapObjectSerialPortName."
+      --#SUMMARY     "Power on detected on a serial port. Port name: %s. Port number: %d."
+      --#ARGUMENTS   { 0, 1}
+      --#SEVERITY    MINOR
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=22
+      ::= 9    
+      
+cyAcs5kPortPowerOffDetectTrap TRAP-TYPE
+      ENTERPRISE  cyACS5KMgmt
+      VARIABLES   {     
+                        cyAcs5kTrapObjectSerialPortName,
+                        cyAcs5kTrapObjectSerialPort                        
+                  }   
+     DESCRIPTION
+        "The appliance has detected that the power on/off control signal
+         (RS232C - DCD signal) is low on a serial port indicating that the
+         server attached to the port is powered off.
+         This trap is sent on initialization if the condition is detected.
+         Subsequent traps occur only if there is a transition of the DCD
+         signal from high to low.
+         The affected serial port number is contained in cyAcs5kTrapObjectSerialPort.
+         The affected serial port name is contained in cyAcs5kTrapObjectSerialPortName."
+      --#SUMMARY     "Power off detected on a serial port. Port name: %s. Port number: %d."
+      --#ARGUMENTS   { 0, 1}
+      --#SEVERITY    CRITICAL
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=23
+      ::= 10          
+                                  
+cyAcs5kDaemonStarted TRAP-TYPE
+      ENTERPRISE  cyACS5KMgmt
+      VARIABLES   { cyAcs5kTrapObjectUserName, cyAcs5kTrapObjectDaemonName }
+      DESCRIPTION
+         "This trap is generated when daemon in the appliance started.
+          The daemon name is contained in cyAcs5kTrapObjectDaemonName.
+          The name of the user who start the daemon is contained in cyAcs5kTrapObjectUserName.
+         "
+      --#SUMMARY     "A daemon started. User: %s. Daemon name: %s."
+      --#ARGUMENTS   { 0, 1 }
+      --#SEVERITY    INFORMATIONAL
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 11     
+
+cyAcs5kDaemonStoped TRAP-TYPE
+      ENTERPRISE  cyACS5KMgmt
+      VARIABLES   { cyAcs5kTrapObjectUserName, cyAcs5kTrapObjectDaemonName }
+      DESCRIPTION
+         "This trap is generated when daemon in the appliance stopped.
+     The daemon name is contained in cyAcs5kTrapObjectDaemonName.
+     The name of the user who stop the daemon is contained in cyAcs5kTrapObjectUserName.
+         "
+      --#SUMMARY     "A daemon stopped. User: %s. Daemon name: %s."
+      --#ARGUMENTS   { 0, 1 }
+      --#SEVERITY    INFORMATIONAL
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 12     
+  
+cyAcs5kAdminSessionTerminatedTrap TRAP-TYPE
+      ENTERPRISE  cyACS5KMgmt
+      VARIABLES   {     cyAcs5kTrapObjectUserName, 
+                        cyAcs5kTrapObjectTargetUserName
+                  }
+      DESCRIPTION
+         "This trap is generated when one previous admin session is 
+     terminated by another admin user.
+          The name of the user who terminated the session is contained in cyAcs5kTrapObjectUserName.
+     The name of the user who was terminated from the session is contained 
+     in cyAcs5kTrapObjectTargetUserName."
+      --#SUMMARY     "Admin session terminated. Command issued by user: %s. Terminated user: %s."
+      --#ARGUMENTS   { 0, 1 }
+      --#SEVERITY    INFORMATIONAL
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 13
+        
+cyAcs5kConfigurationSavedTrap TRAP-TYPE
+      ENTERPRISE  cyACS5KMgmt
+      VARIABLES   {     
+                        cyAcs5kTrapObjectUserName
+                  }
+      DESCRIPTION            
+         "This trap is generated when 'saveconf' command is successful.
+          cyAcs5kTrapObjectUserName is name of the user who executed saveconf."         
+      --#SUMMARY     "Configuration saved to flash. User: %s."
+      --#ARGUMENTS   {0}
+      --#SEVERITY    INFORMATIONAL
+      --#CATEGORY    "Configuration Events"
+      --% TrapTypeEnum=9
+      ::= 14
+
+cyAcs5kConfigurationActivatedTrap TRAP-TYPE
+      ENTERPRISE  cyACS5KMgmt
+      VARIABLES   {
+                        cyAcs5kTrapObjectUserName
+                  }
+      DESCRIPTION
+      "This trap is generated when the configuration is activated.
+       cyAcs5kTrapObjectUserName is name of the user who activated new configuration."
+      --#SUMMARY     "Configuration activated. User: %s."
+      --#ARGUMENTS   {0}
+      --#SEVERITY    INFORMATIONAL
+      --#CATEGORY    "Configuration Events"
+      --% TrapTypeEnum=9
+      ::= 15    
+
+cyAcs5kLocalUserAddedTrap TRAP-TYPE
+      ENTERPRISE  cyACS5KMgmt
+      VARIABLES   {     
+                        cyAcs5kTrapObjectUserName,
+                        cyAcs5kTrapObjectTargetUserName 
+                  }
+      DESCRIPTION
+      "A new user has been added to the local user database.
+       The name of the user who added the new user is contained in cyAcs5kTrapObjectUserName.
+       The name of the new user is contained in cyAcs5kTrapObjectTargetUserName."
+      --#SUMMARY     "A user was added to the local user database. Command issued by user: %s. New user: %s."
+      --#ARGUMENTS   { 0, 1}
+      --#SEVERITY    INFORMATIONAL
+      --#CATEGORY    "Configuration Events"
+      --% TrapTypeEnum=9
+      ::= 16   
+      
+cyAcs5kLocalUserDeletedTrap TRAP-TYPE
+      ENTERPRISE  cyACS5KMgmt
+      VARIABLES   {     
+                        cyAcs5kTrapObjectUserName,
+                        cyAcs5kTrapObjectTargetUserName 
+                  }
+      DESCRIPTION
+      "A user has been deleted from the local user database.
+       The name of the user who deleted the user is contained in cyAcs5kTrapObjectUserName.
+       The name of the user who was deleted is contained in cyAcs5kTrapObjectTargetUserName."
+      --#SUMMARY     "A user was deleted to the local user database. Command issued by user: %s. Deleted user: %s."
+      --#ARGUMENTS   {0,1}
+      --#SEVERITY    INFORMATIONAL
+      --#CATEGORY    "Configuration Events"
+      --% TrapTypeEnum=9
+      ::= 17
+
+cyAcs5kDataBufferFullThresholdLowTrap TRAP-TYPE
+      ENTERPRISE  cyACS5KMgmt
+      VARIABLES   {
+                     cyAcs5kTrapObjectDataBufferSize         
+                  }
+      DESCRIPTION
+      "This trap is generated when the appliance is managed by DsView and 
+       global data buffer has reached configured Low level Threshold.
+       cyAcs5kTrapObjectDataBufferSize is current size of the buffer."
+      --#SUMMARY     "Data Buffering for DSView data log is getting full (low threshold). Buffer size: %d."
+      --#ARGUMENTS   {0}
+      --#SEVERITY    INFORMATIONAL
+      --#CATEGORY    "Error Events"
+      --% TrapTypeEnum=9
+      ::= 18      
+      
+cyAcs5kDataBufferFullThresholdMedTrap TRAP-TYPE
+      ENTERPRISE  cyACS5KMgmt
+      VARIABLES   {
+                     cyAcs5kTrapObjectDataBufferSize 
+                  }
+      DESCRIPTION
+      "This trap is generated when the appliance is managed by DsView and 
+       global data buffer has reached configured Med level Threshold.
+       cyAcs5kTrapObjectDataBufferSize is current size of the buffer."
+      --#SUMMARY     "Data Buffering for DSView data log is almost full (medium threshold). Buffer size: %d."
+      --#ARGUMENTS   {0}
+      --#SEVERITY    ALERT
+      --#CATEGORY    "Error Events"
+      --% TrapTypeEnum=9
+      ::= 19      
+
+cyAcs5kDataBufferFullLostDataTrap TRAP-TYPE
+      ENTERPRISE  cyACS5KMgmt
+      DESCRIPTION
+      "This trap is generated when the appliance is managed by DsView and 
+       global data buffer has exceeded beyond the size of buffer and data lost has occurred."
+      --#SUMMARY     "Data Buffering for DSView data log had data loss because buffer full."
+      --#SEVERITY    ALERT
+      --#CATEGORY    "Error Events"
+      --% TrapTypeEnum=9
+      ::= 20      
+      
+cyAcs5kApplianceLostDataTrap TRAP-TYPE
+      ENTERPRISE  cyACS5KMgmt
+      VARIABLES   {
+                     cyAcs5kTrapObjectProcessID,    
+                     cyAcs5kTrapObjectUserName
+                  }      
+      DESCRIPTION
+      "This trap is generated when the appliance is managed by DsView and 
+       Appliance data lost occurred on ssh or telnet session.
+       cyAcs5kTrapObjectProcessID is process id of the telnet or ssh session.
+       cyAcs5kTrapObjectUserName is name of user who session is active and data lost occurred.
+      "
+      --#SUMMARY     "Appliance data log loss. Process ID: %d. User: %s."
+      --#ARGUMENTS   { 0, 1}
+      --#SEVERITY    ALERT
+      --#CATEGORY    "Error Events"
+      --% TrapTypeEnum=9
+      ::= 21        
+      
+--------------------------------------------------------------------------------
+-- Power Management Enterprise Traps
+--------------------------------------------------------------------------------
+
+cyPMOnlineTrap TRAP-TYPE
+      ENTERPRISE  cyACS5KMgmt
+      VARIABLES   { 
+                        cyAcs5kTrapObjectSerialPort,
+			cyAcs5kTrapObjectPMNumber,
+			cyAcs5kTrapObjectPMId,
+                        cyAcs5kTrapObjectPMSocketCount,                        
+			cyAcs5kTrapObjectPMType
+                  }
+      DESCRIPTION
+      "A power device attached to the appliance is online. 
+      The port number on the appliance that the power device is 
+      attached to is contained in cyAcs5kTrapObjectSerialPort.
+      The power device number in the chain is contained in cyAcs5kTrapObjectPMNumber.
+      The power device ID is contained in cyAcs5kTrapObjectPMId.
+      The number of outlets of the power device is contained in cyAcs5kTrapObjectPMSocketCount.
+      The vendor of the power device is contained in cyAcs5kTrapObjectPMType"      
+      --#SUMMARY     "A power device is online. Port number: %d. Power device number: %d. Power device ID: %s. Number of sockets: %d. Type: %d."
+      --#ARGUMENTS   { 0, 1, 2, 3, 4}
+      --#SEVERITY    INFORMATIONAL
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 22    
+
+cyPMOfflineTrap TRAP-TYPE
+      ENTERPRISE  cyACS5KMgmt
+      VARIABLES   {     
+                        cyAcs5kTrapObjectSerialPort,
+			cyAcs5kTrapObjectPMNumber,
+			cyAcs5kTrapObjectPMId,
+                        cyAcs5kTrapObjectPMSocketCount,                        
+			cyAcs5kTrapObjectPMType
+                  }
+      DESCRIPTION
+      "A power device attached to the appliance is offline.
+      The port number on the appliance that the power device is 
+      attached to is contained in cyAcs5kTrapObjectSerialPort.
+      The power device number in the chain is contained in cyAcs5kTrapObjectPMNumber.
+      The power device ID is contained in cyAcs5kTrapObjectPMId.
+      The number of outlets of the power device is contained in cyAcs5kTrapObjectPMSocketCount.
+      The vendor of the power device is contained in cyAcs5kTrapObjectPMType"      
+      --#SUMMARY     "A power device is offline. Port number: %d. Power device number: %d. Power device ID: %s. Number of sockets: %d. Type: %d."
+      --#ARGUMENTS   { 0, 1, 2, 3, 4}
+      --#SEVERITY    CRITICAL
+      --#CATEGORY    "Error Events"
+      --% TrapTypeEnum=9
+      ::= 23
+
+cyPMOutletOnTrap TRAP-TYPE
+      ENTERPRISE  cyACS5KMgmt
+      VARIABLES   { 
+                        cyAcs5kTrapObjectUserName, 
+                        cyAcs5kTrapObjectSerialPort,
+                        cyAcs5kTrapObjectPMSocketNumber,
+			cyAcs5kTrapObjectPMNumber,
+			cyAcs5kTrapObjectPMId,
+			cyAcs5kTrapObjectPMSocketName
+                  }
+      DESCRIPTION
+      "An outlet on a chain of power device has been issued the on command.
+      The name of the user who issued the on command is contained 
+      in cyAcs5kTrapObjectUserName.      
+      The port number on the appliance that the chain of power device is
+      attached to is contained in cyAcs5kTrapObjectSerialPort.
+      The power device number in the chain is contained in cyAcs5kTrapObjectPMNumber.
+      The ID of the power device is contained in cyAcs5kTrapObjectPMId.
+      The socket number that was issued the on command is contained 
+      in cyAcs5kTrapObjectPMSocketNumber.
+      The socket name that was issued the on command is contained in 
+      cyAcs5kTrapObjectPMSocketName."      
+      --#SUMMARY  "The on command was issued to a power device socket. Command issued by user: %s. Power device port number: %d. Power device number: %d. Power device ID: %s. Socket number: %d. Socket name: %s."
+      --#ARGUMENTS   { 0, 1, 3, 4, 2, 5}
+      --#SEVERITY    MINOR
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 24
+
+cyPMOutletOffTrap TRAP-TYPE
+      ENTERPRISE  cyACS5KMgmt
+      VARIABLES   { 
+                        cyAcs5kTrapObjectUserName, 
+                        cyAcs5kTrapObjectSerialPort,
+                        cyAcs5kTrapObjectPMSocketNumber,
+			cyAcs5kTrapObjectPMNumber,
+			cyAcs5kTrapObjectPMId,
+			cyAcs5kTrapObjectPMSocketName
+                  }
+      DESCRIPTION
+         "An outlet on a chain of power device has been issued the off command.
+         The port number on the appliance that the chain of power device is
+         attached to is contained in cyAcs5kTrapObjectSerialPort.
+         The power device number in the chain is contained in cyAcs5kTrapObjectPMNumber.
+         The ID of the power device is contained in cyAcs5kTrapObjectPMId.
+         The socket number that was issued the off command is contained 
+         in cyAcs5kTrapObjectPMSocketNumber.
+         The socket name that was issued the off command is contained 
+         in cyAcs5kTrapObjectPMSocketName.
+         The name of the user who issued the off command is contained 
+         in cyAcs5kTrapObjectUserName."      
+      --#SUMMARY     "The off command was issued to a power device socket. Command issued by user: %s. Power device port number: %d. Power device number: %d. Power device ID: %s. Socket number: %d. Socket name: %s."
+      --#ARGUMENTS   { 0, 1, 3, 4, 2, 5}
+      --#SEVERITY    MINOR
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 25    
+
+cyPMOutletCmdCycleTrap TRAP-TYPE
+      ENTERPRISE  cyACS5KMgmt
+      VARIABLES   { 
+                        cyAcs5kTrapObjectUserName, 
+                        cyAcs5kTrapObjectSerialPort,
+                        cyAcs5kTrapObjectPMSocketNumber,
+                        cyAcs5kTrapObjectPMNumber,
+                        cyAcs5kTrapObjectPMId,
+                        cyAcs5kTrapObjectPMSocketName
+                  }
+      DESCRIPTION
+      "An outlet on a chain of power device has completed the cycle command.
+      The port number on the appliance that the chain of power device is
+      attached to is contained in cyAcs5kTrapObjectSerialPort.
+      The power device number in the chain is contained in cyAcs5kTrapObjectPMNumber.
+      The ID of the power device is contained in cyAcs5kTrapObjectPMId.
+      The socket number that was issued the cycle command is contained
+      in cyAcs5kTrapObjectPMSocketNumber.
+      The socket name that was issued the cycle command is contained
+      in cyAcs5kTrapObjectPMSocketName.
+      The name of the user who issued the cycle command is contained 
+      in cyAcs5kTrapObjectUserName."      
+      --#SUMMARY     "The cycle command was issued to a power device socket.  Command issued by user: %s. Power device port number: %d. Power device number: %d. Power device ID: %s. Socket number: %d. Socket name: %s."
+      --#ARGUMENTS   { 0, 1, 3, 4, 2, 5}
+      --#SEVERITY    MINOR
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 26
+   
+cyPMMaxLoadThresholdReachedTrap TRAP-TYPE
+      ENTERPRISE  cyACS5KMgmt
+      VARIABLES   { 
+                        cyAcs5kTrapObjectSerialPort,
+			cyAcs5kTrapObjectPMNumber,
+			cyAcs5kTrapObjectPMId,
+			cyAcs5kTrapObjectPMPhase,
+                        cyAcs5kTrapObjectPMCurrentValue  
+                  }
+      DESCRIPTION
+      "A power device attached to the appliance exceeded the total load
+       maximum threshold.
+       The port number on the appliance that the power device is attached
+       to is contained in the cyAcs5kTrapObjectSerialPort.
+       The IPDU# that exceeded the total load maximum threshold is 
+       contained in the cyAcs5kTrapObjectPMNumber.
+       The ID of the IPDU that exceeded the total load maximum threshold is 
+       contained in the cyAcs5kTrapObjectPMId.
+       The Phase of the IPDU that detected the problem is contained in 
+       the cyAcs5kTrapObjectPMPhase.
+       The current value detected when this trap was originated is contained in
+       cyAcs5kTrapObjectPMCurrentValue."
+      --#SUMMARY     "Power device exceeded the total load maximum threshold. Power device port number: %d. Power device number: %d. Power device ID: %s. Phase: %s. Current detected: %s amps."
+      --#ARGUMENTS   { 0, 1, 2, 3, 4}
+      --#SEVERITY    ALERT
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 27
+      
+cyPMMinLoadThresholdReachedTrap TRAP-TYPE
+      ENTERPRISE  cyACS5KMgmt
+      VARIABLES   { 
+                        cyAcs5kTrapObjectSerialPort,
+			cyAcs5kTrapObjectPMNumber,
+			cyAcs5kTrapObjectPMId,
+			cyAcs5kTrapObjectPMPhase,
+                        cyAcs5kTrapObjectPMCurrentValue  
+                  }
+      DESCRIPTION
+        "A power device attached to the appliance exceeded the total 
+         load minimum threshold.
+         The port number on the appliance that the power device is attached 
+         to is contained in the cyAcs5kTrapObjectSerialPort.
+         The IPDU# that exceeded the total load minimum threshold is contained 
+         in the cyAcs5kTrapObjectPMNumber.
+         The ID of the IPDU that exceeded the total load maximum threshold is 
+         contained in the cyAcs5kTrapObjectPMId.
+    	 The Phase of the IPDU that detected the problem is contained in 
+         the cyAcs5kTrapObjectPMPhase.
+         The current value detected when this trap was originated is contained in
+         cyAcs5kTrapObjectPMCurrentValue."
+      --#SUMMARY     "Power device is back below the alarm threshold. Power device port number: %d. Power device number: %d. Power device ID: %s. Phase: %s. Current detected: %s amps."
+      --#ARGUMENTS   { 0, 1, 2, 3, 4}
+      --#SEVERITY    INFORMATIONAL
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 28
+
+---------------------------------------
+-- Appliance Alert Event
+---------------------------------------
+cyAcs5kApplianceAlertTrap  TRAP-TYPE
+      ENTERPRISE  cyACS5KMgmt
+      VARIABLES   { 
+                        cyAcs5kTrapObjectUserName,
+			cyAcs5kTrapObjectAlertIndex,
+                        cyAcs5kTrapObjectAlertString,
+                        cyAcs5kTrapObjectAlertMessage
+                  }
+      DESCRIPTION
+       "An appliance alert was detected on a ssh or telnet session.
+       The name of user who was logged into the appliance when 
+       trap occurred is contained in cyAcs5kTrapObjectUserName.
+       The index of the appliance alert that was detected in the message is 
+       contained in cyAcs5kTrapObjectAlertIndex.
+       The appliance alert that was detected is contained in cyAcs5kTrapObjectAlertString.
+       The line text where the appliance alert was detected is contained 
+       in cyAcs5kTrapObjectAlertMessage."
+      --#SUMMARY     "An appliance alert was detected. User: %s. Alert index: %d. Alert string: %s. Line text: %s." 
+      --#ARGUMENTS   { 0, 1, 2, 3}
+      --#SEVERITY    CRITICAL
+      --#CATEGORY    "Error Events"           
+      --% TrapTypeEnum=9
+      ::= 29      
+      
+---------------------------------------------------------------
+-- Firmware Upgrade Traps when the process is started by DSView
+---------------------------------------------------------------
+cyAcs5kFirmwareUpgradeStarted TRAP-TYPE
+      ENTERPRISE  cyACS5KMgmt
+      VARIABLES   {     
+                        cyAcs5kTrapObjectUserName,
+                        cyAcs5kTrapFirmwareVersion,
+                        cyAcs5kTrapNewFirmwareVersion
+                        
+                  }
+      DESCRIPTION
+       "The appliance has started an upgrade of a software image by DSView.
+       The name of the user who initiate the process is contained 
+       in cyAcs5kTrapObjectUserName.
+       The current firmware version is contained in cyAcs5kTrapFirmwareVersion.
+       The new firmware version is contained in cyAcs5kTrapNewFirmwareVersion."
+      --#SUMMARY     "Image upgrade started by DSView. User: %s. Current version: %s. New version: %s."
+      --#ARGUMENTS   { 0, 1, 2}
+      --#SEVERITY    INFORMATIONAL
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 30
+
+cyAcs5kFirmwareUpgradeResultsTrap TRAP-TYPE
+      ENTERPRISE  cyACS5KMgmt
+      VARIABLES   {     
+                        cyAcs5kTrapFirmwareUpgradeResult ,                        
+                        cyAcs5kTrapNewFirmwareVersion
+                  }
+      DESCRIPTION
+      "This trap is generated when Firmware upgraded is done to indicate the result.
+       The new FW version is contained in cyAcs5kTrapNewFirmwareVersion.
+       The result of the process is contained in cyAcs5kTrapFirmwareUpgradeResult."
+      --#SUMMARY     "Image upgrade result. Result: %d. New firmware version: %s."
+      --#ARGUMENTS   {0,1}
+      --#SEVERITY    INFORMATIONAL
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 31            
+      
+------------------------------
+-- PM Firmware Upgrade Traps 
+------------------------------
+cyAcs5kPMFirmwareUpgradeStarted TRAP-TYPE
+      ENTERPRISE  cyACS5KMgmt
+      VARIABLES   {     
+                        cyAcs5kTrapObjectUserName,
+                        cyAcs5kTrapObjectSerialPort,
+			cyAcs5kTrapObjectPMNumber,
+                        cyAcs5kTrapFirmwareVersion,
+                        cyAcs5kTrapNewFirmwareVersion              
+                  }
+      DESCRIPTION
+       "The appliance has started an upgrade of the PM software.
+       The name of the user who initiate the process is contained in cyAcs5kTrapObjectUserName.
+       The port number on the appliance that the power device is attached to is
+       contained in the cyAcs5kTrapObjectSerialPort.
+       The IPDU# that gone beneath the minimum threshold is contained in the cyAcs5kTrapObjectPMNumber.
+       The current firmware version is contained in cyAcs5kTrapFirmwareVersion.
+       The new firmware version is contained in cyAcs5kTrapNewFirmwareVersion."
+      --#SUMMARY     "PM image upgrade started. User: %s. Power device port number: %d. Power device number: %d. Current version: %s. New version: %s."
+      --#ARGUMENTS   { 0, 1, 2, 3, 4}
+      --#SEVERITY    INFORMATIONAL
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 32
+
+cyAcs5kPMFirmwareUpgradeResultsTrap TRAP-TYPE
+      ENTERPRISE  cyACS5KMgmt
+      VARIABLES   {     
+                      cyAcs5kTrapObjectSerialPort,
+		      cyAcs5kTrapObjectPMNumber,
+                      cyAcs5kTrapFirmwareUpgradeResult,                        
+                      cyAcs5kTrapNewFirmwareVersion
+                  }
+      DESCRIPTION
+      "This trap is generated when Firmware upgraded is done to indicate the result.
+       The port number on the appliance that the power device is attached to is
+       contained in the cyAcs5kTrapObjectSerialPort.
+       The IPDU# that gone beneath the minimum threshold is contained in the cyAcs5kTrapObjectPMNumber.
+       The new FW version is contained in cyAcs5kTrapNewFirmwareVersion.
+       The result of the process is contained in cyAcs5kTrapFirmwareUpgradeResult."
+      --#SUMMARY     "PM image upgrade result. Power device port number:%d. Power device number: %d. Result: %d. New firmware version: %s."
+      --#ARGUMENTS   {0,1,2,3}
+      --#SEVERITY    INFORMATIONAL
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 33            
+   
+cyAcs5kSerialSessionStoppedPortInUseTrap TRAP-TYPE
+      ENTERPRISE  cyACS5KMgmt
+      VARIABLES   {
+                     cyAcs5kTrapObjectUserName,
+                     cyAcs5kTrapObjectSerialPortName,
+                     cyAcs5kTrapObjectSerialPort,
+                     cyAcs5kTrapObjectSerialSessionType
+                  }
+      DESCRIPTION
+       "This trap is sent when a serial session has stopped.
+        But, there is still active sessions on this port.
+        The user who was connected to the session is contained in cyAcs5kTrapObjectUserName.
+        The serial port number on the appliance is contained in cyAcs5kTrapObjectSerialPort.
+        The serial port name on the appliance is contained in cyAcs5kTrapObjectSerialPortName
+        The type of protocol running on this port is contained in cyAcs5kTrapObjectSerialSessionType."
+      --#SUMMARY     "Serial session stopped. User: %s. Port name: %s. Port number: %d. Session type: %d."
+      --#ARGUMENTS   { 0, 1, 2, 3 }
+      --#SEVERITY    INFORMATIONAL
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 35
+
+--------------------------------------------------------------------------------
+-- New Power Management Enterprise Traps
+--------------------------------------------------------------------------------
+cyPMOutletStatusOnTrap TRAP-TYPE
+      ENTERPRISE  cyACS5KMgmt
+      VARIABLES   { 
+                        cyAcs5kTrapObjectSerialPort,
+			cyAcs5kTrapObjectPMNumber,
+			cyAcs5kTrapObjectPMId,
+                        cyAcs5kTrapObjectPMSocketNumber,
+			cyAcs5kTrapObjectPMSocketName
+                  }
+      DESCRIPTION
+      "An outlet on a chain of power device has changed to the on state.
+      The port number on the appliance that the chain of power device is
+      attached to is contained in cyAcs5kTrapObjectSerialPort.
+      The ID of the power device is contained in cyAcs5kTrapObjectPMId.
+      The socket number that has changed to the on state is contained 
+      The number of the power device is contained in the cyAcs5kTrapObjectPMNumber.
+      in cyAcs5kTrapObjectPMSocketNumber.
+      The socket name that has changed to the on state is contained in 
+      cyAcs5kTrapObjectPMSocketName."      
+      --#SUMMARY  "Power device socket state changed to on. Power device port number: %d. Power device number: %d. Power device ID: %s. Socket number: %d. Socket name: %s."
+      --#ARGUMENTS   { 0, 1, 2, 3, 4}
+      --#SEVERITY    MINOR
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 36
+
+cyPMOutletStatusOffTrap TRAP-TYPE
+      ENTERPRISE  cyACS5KMgmt
+      VARIABLES   { 
+                        cyAcs5kTrapObjectSerialPort,
+			cyAcs5kTrapObjectPMNumber,
+			cyAcs5kTrapObjectPMId,
+                        cyAcs5kTrapObjectPMSocketNumber,
+			cyAcs5kTrapObjectPMSocketName
+                  }
+      DESCRIPTION
+      "An outlet on a chain of power device has changed to the off state.
+      The port number on the appliance that the chain of power device is
+      attached to is contained in cyAcs5kTrapObjectSerialPort.
+      The number of the power device is contained in the cyAcs5kTrapObjectPMNumber.
+      The ID of the power device is contained in cyAcs5kTrapObjectPMId.
+      The socket number that has changed to the off state is contained 
+      in cyAcs5kTrapObjectPMSocketNumber.
+      The socket name that has changed to the off state is contained in 
+      cyAcs5kTrapObjectPMSocketName."      
+      --#SUMMARY  "Power device socket state changed to off. Power device port number: %d. Power device number: %d. Power device ID: %s. Socket number: %d. Socket name: %s."
+      --#ARGUMENTS   { 0, 1, 2, 3, 4}
+      --#SEVERITY    MINOR
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 37
+
+cyPMOutletOnSenseFailTrap TRAP-TYPE
+      ENTERPRISE  cyACS5KMgmt
+      VARIABLES   { 
+                        cyAcs5kTrapObjectSerialPort,
+			cyAcs5kTrapObjectPMNumber,
+			cyAcs5kTrapObjectPMId,
+                        cyAcs5kTrapObjectPMSocketNumber,
+			cyAcs5kTrapObjectPMSocketName
+                  }
+      DESCRIPTION
+      "A power device attached to the appliance has detected an on sense
+      failure for a socket.
+      An on sense failure occurs when a socket should be in the on state
+      but is actually in the off state.
+      The port number on the appliance that the chain of power device is
+      attached to is contained in cyAcs5kTrapObjectSerialPort.
+      The number of the power device is contained in the cyAcs5kTrapObjectPMNumber.
+      The ID of the power device is contained in cyAcs5kTrapObjectPMId.
+      The socket number that has changed to the on state is contained 
+      in cyAcs5kTrapObjectPMSocketNumber.
+      The socket name that has changed to the on state is contained in 
+      cyAcs5kTrapObjectPMSocketName."      
+      --#SUMMARY  "Power device socket on sense failure. Power device port number: %d. Power device number: %d. Power device ID: %s. Socket number: %d. Socket name: %s."
+      --#ARGUMENTS   { 0, 1, 2, 3, 4}
+      --#SEVERITY    MINOR
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 38
+
+cyPMOutletOffSenseFailTrap TRAP-TYPE
+      ENTERPRISE  cyACS5KMgmt
+      VARIABLES   { 
+                        cyAcs5kTrapObjectSerialPort,
+			cyAcs5kTrapObjectPMNumber,
+			cyAcs5kTrapObjectPMId,
+                        cyAcs5kTrapObjectPMSocketNumber,
+			cyAcs5kTrapObjectPMSocketName
+                  }
+      DESCRIPTION
+      "A power device attached to the appliance has detected an off sense
+      failure for a socket.
+      An off sense failure occurs when a socket should be in the off state
+      but is actually in the on state.
+      The port number on the appliance that the chain of power device is
+      attached to is contained in cyAcs5kTrapObjectSerialPort.
+      The number of the power device is contained in the cyAcs5kTrapObjectPMNumber.
+      The ID of the power device is contained in cyAcs5kTrapObjectPMId.
+      The socket number that has changed to the on state is contained 
+      in cyAcs5kTrapObjectPMSocketNumber.
+      The socket name that has changed to the on state is contained in 
+      cyAcs5kTrapObjectPMSocketName."      
+      --#SUMMARY  "Power device socket off sense failure. Power device port number: %d. Power device number: %d. Power device ID: %s. Socket number: %d. Socket name: %s."
+      --#ARGUMENTS   { 0, 1, 2, 3, 4}
+      --#SEVERITY    MINOR
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 39
+
+cyPMOutletNameChangedTrap TRAP-TYPE
+      ENTERPRISE  cyACS5KMgmt
+      VARIABLES   { 
+                        cyAcs5kTrapObjectSerialPort,
+			cyAcs5kTrapObjectPMNumber,
+			cyAcs5kTrapObjectPMId,
+                        cyAcs5kTrapObjectPMSocketNumber,
+			cyAcs5kTrapObjectPMSocketOldName,
+			cyAcs5kTrapObjectPMSocketName
+                  }
+      DESCRIPTION
+      "The name of socket was changed.
+      The port number on the appliance that the chain of power device is
+      attached to is contained in cyAcs5kTrapObjectSerialPort.
+      The number of the power device is contained in the cyAcs5kTrapObjectPMNumber.
+      The ID of the power device is contained in cyAcs5kTrapObjectPMId.
+      The socket number that has changed to the on state is contained 
+      in cyAcs5kTrapObjectPMSocketNumber.
+      The socket name that has changed to the on state is contained in 
+      cyAcs5kTrapObjectPMSocketName."      
+      --#SUMMARY  "Power device socket name was changed. Power device port number: %d. Power device number: %d. Power device ID: %s. Socket number: %d. Old socket name: %s. New socket name: %s."
+      --#ARGUMENTS   { 0, 1, 2, 3, 4, 5}
+      --#SEVERITY    MINOR
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 40
+
+cyPMInletTotalLoadHighTrap TRAP-TYPE
+      ENTERPRISE  cyACS5KMgmt
+      VARIABLES   { 
+                        cyAcs5kTrapObjectSerialPort,
+			cyAcs5kTrapObjectPMNumber,
+			cyAcs5kTrapObjectPMId,
+			cyAcs5kTrapObjectPMPhase
+                  }
+      DESCRIPTION
+      "A power device attached to the appliance has exceeded the maximum
+       threshold for total load of an inlet.
+       The port number on the appliance that the power device is attached
+       to is contained in the cyAcs5kTrapObjectSerialPort.
+       The number of the IPDU that has exceeded the maximum threshold for total load
+       of an inlet is contained in the cyAcs5kTrapObjectPMNumber.
+       The IPDU ID that has exceeded the maximum threshold for total load
+       of an inlet is contained in the cyAcs5kTrapObjectPMId.
+       The inlet of the power device is contained in the cyAcs5kTrapObjectPMPhase."
+      --#SUMMARY     "Power device inlet exceeded the total load maximum threshold. Power device port number: %d. Power device number: %d. Power device ID: %s. Inlet: %s. "
+      --#ARGUMENTS   { 0, 1, 2, 3}
+      --#SEVERITY    ALERT
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 41
+      
+cyPMInletTotalLoadLowTrap TRAP-TYPE
+      ENTERPRISE  cyACS5KMgmt
+      VARIABLES   { 
+                        cyAcs5kTrapObjectSerialPort,
+			cyAcs5kTrapObjectPMNumber,
+			cyAcs5kTrapObjectPMId,
+			cyAcs5kTrapObjectPMPhase
+                  }
+      DESCRIPTION
+      "A power device attached to the appliance has gone beneath the minimum
+       threshold for total load of an inlet.
+       The port number on the appliance that the power device is attached
+       to is contained in the cyAcs5kTrapObjectSerialPort.
+       The number of the IPDU that has exceeded the maximum threshold for total load
+       of an inlet is contained in the cyAcs5kTrapObjectPMNumber.
+       The IPDU ID that has gone beneath the minimum threshold for total load
+       of an inlet is contained in the cyAcs5kTrapObjectPMId.
+       The inlet of the power device is contained in the cyAcs5kTrapObjectPMPhase."
+      --#SUMMARY     "Power device inlet is back below the total load minimum threshold. Power device port number: %d. Power device number: %d. Power device ID: %s. Inlet: %s. "
+      --#ARGUMENTS   { 0, 1, 2, 3}
+      --#SEVERITY    ALERT
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 42
+      
+cyPMIdChangedTrap TRAP-TYPE
+      ENTERPRISE  cyACS5KMgmt
+      VARIABLES   {
+                  	cyAcs5kTrapObjectSerialPort,
+                  	cyAcs5kTrapObjectPMNumber,
+                  	cyAcs5kTrapObjectPMIdOld,
+                  	cyAcs5kTrapObjectPMId,
+                  	cyAcs5kTrapObjectPMType
+                  }
+      DESCRIPTION
+      "The ID of the power device was changed.
+       The port number on the appliance that the power device is attached to is contained in cyAcs5kTrapObjectSerialPort.
+       The power device number in the chain is contained in cyAcs5kTrapObjectPMNumber.
+       The old power device ID is contained in cyAcs5kTrapObjectPMIdOld.
+       The new power device ID is contained in cyAcs5kTrapObjectPMId.
+       The vendor of the power device is contained in cyAcs5kTrapObjectPMType."
+      --#SUMMARY     "Power device ID was changed. Power device port number: %d. Power device number: %d. Power device old ID: %s. Power device new ID: %s. Type: %d."
+      --#ARGUMENTS   { 0, 1, 2, 3, 4}
+      --#SEVERITY    MINOR
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 43
+
+cyPMHwOcpTripped TRAP-TYPE
+      ENTERPRISE  cyACS5KMgmt
+      VARIABLES   {     
+                  	cyAcs5kTrapObjectSerialPort,
+                  	cyAcs5kTrapObjectPMNumber,
+                  	cyAcs5kTrapObjectPMId,
+					cyAcs5kTrapObjectPMElementType,
+					cyAcs5kTrapObjectPMElementName
+                  }
+      DESCRIPTION
+      "This trap is generated when the HW overcurrent protection mechanism is tripped.
+       The port number on the appliance that the power device is attached to is contained in the cyAcs5kTrapObjectSerialPort.
+       The number of the power device that was tripped is contained in the cyAcs5kTrapObjectPMNumber.
+       The ID of the power device that was tripped is contained in the cyAcs5kTrapObjectPMId.
+       The Type of the PDU Element that detected the event is contained in the cyAcs5kTrapObjectPMElementType.
+       The Name of the Pdu Element that detected the event is contained in the cyAcs5kTrapObjectPMElementName. "
+      --#SUMMARY     "Power device HW overcurrent protection was tripped. Power Device port number:%d. Power device number: %d. Power device ID: %s. Elem Type: %s. Elem Name: %s."
+      --#ARGUMENTS   {0, 1, 2, 3, 4}
+      --#SEVERITY    INFORMATIONAL
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 44
+
+cyPMHwOcpReset TRAP-TYPE
+      ENTERPRISE  cyACS5KMgmt
+      VARIABLES   {
+						cyAcs5kTrapObjectSerialPort,
+                        cyAcs5kTrapObjectPMNumber,
+                        cyAcs5kTrapObjectPMId,
+						cyAcs5kTrapObjectPMElementType,
+                        cyAcs5kTrapObjectPMElementName 
+                  }
+      DESCRIPTION
+      "This trap is generated when the HW overcurrent protection mechanism in Cyclades-PM42 is reset.
+       The port number on the appliance that the power device is attached to is contained in the cyAcs5kTrapObjectSerialPort.
+       The number of the power device whose HW OCP was reset is contained in the cyAcs5kTrapObjectPMNumber.
+       The ID of the power device whose HW OCP was reset is contained in the cyAcs5kTrapObjectPMId.
+       The Type of the PDU Element that detected the event is contained in the cyAcs5kTrapObjectPMElementType.
+       The Name of the Pdu Element that detected the event is contained in the cyAcs5kTrapObjectPMElementName. "
+      --#SUMMARY     "Power device HW overcurrent protection was reset. Power Device  port number:%d. Power device number: %d. Power device ID: %s. Elem Type: %s. Elem Name: %s."
+      --#ARGUMENTS   {0, 1, 2, 3, 4}
+      --#SEVERITY    INFORMATIONAL
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 45
+
+cyPMMaxLoadBackTrap TRAP-TYPE
+      ENTERPRISE  cyACS5KMgmt
+      VARIABLES   {
+                  	cyAcs5kTrapObjectSerialPort,
+                  	cyAcs5kTrapObjectPMNumber,
+                  	cyAcs5kTrapObjectPMId,
+                  	cyAcs5kTrapObjectPMElementType,
+                  	cyAcs5kTrapObjectPMElementName,
+                  	cyAcs5kTrapObjectPMCurrentValue
+                  }
+      DESCRIPTION
+      "The current on a power device attached to the appliance is back to normal.
+       The port number on the appliance that the power device is attached to is contained in the cyAcs5kTrapObjectSerialPort.
+       The power device that detected the event is contained in the cyAcs5kTrapObjectPMNumber.
+       The ID of the power device that detected the event is contained in the cyAcs5kTrapObjectPMId.
+       The Type of the power device Element that detected the event is contained in the cyAcs5kTrapObjectPMElementType.
+       The Name of the power device Element that detected the event is contained in the cyAcs5kTrapObjectPMElementName.
+       The current value detected when this trap was originated is contained in cyAcs5kTrapObjectPMCurrentValue."
+      --#SUMMARY     "Power device normal current restored. Power device port number: %d. Power device number: %d. Power device ID: %s. Elem Type: %s. Elem Name: %s. Current detected: %s amps."
+      --#ARGUMENTS   { 0, 1, 2, 3, 4, 5}
+      --#SEVERITY    NON-CRITICAL
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 46
+
+cyPMMaxLoadHighTrap TRAP-TYPE
+      ENTERPRISE  cyACS5KMgmt
+      VARIABLES   {
+                        cyAcs5kTrapObjectSerialPort,
+                        cyAcs5kTrapObjectPMNumber,
+                        cyAcs5kTrapObjectPMId,
+                        cyAcs5kTrapObjectPMElementType,
+                        cyAcs5kTrapObjectPMElementName,
+                        cyAcs5kTrapObjectPMCurrentValue
+                  }
+      DESCRIPTION
+      "The current on a power device attached to the appliance is above its high critical threshold.
+       The port number on the appliance that the power device is attached to is contained in the cyAcs5kTrapObjectSerialPort.
+       The power device that detected the problem is contained in the cyAcs5kTrapObjectPMNumber.
+       The ID of the power device that detected the problem is contained in the cyAcs5kTrapObjectPMId.
+       The Type of the power device Element that detected the problem is contained in the cyAcs5kTrapObjectPMElementType.
+       The Name of the power device Element that detected the problem is contained in the cyAcs5kTrapObjectPMElementName.
+       The current value detected when this trap was originated is contained in cyAcs5kTrapObjectPMCurrentValue."
+      --#SUMMARY     "Power device current is above its high critical threshold. Power device port number: %d. Power device number: %d. Power device ID: %s. Elem Type: %s. Elem Name: %s. Current detected: %s amps."
+      --#ARGUMENTS   { 0, 1, 2, 3, 4, 5}
+      --#SEVERITY    NON-CRITICAL
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 47
+
+cyPMMinLoadLowTrap TRAP-TYPE
+      ENTERPRISE  cyACS5KMgmt
+      VARIABLES   {
+                        cyAcs5kTrapObjectSerialPort,
+                        cyAcs5kTrapObjectPMNumber,
+                        cyAcs5kTrapObjectPMId,
+                        cyAcs5kTrapObjectPMElementType,
+                        cyAcs5kTrapObjectPMElementName,
+                        cyAcs5kTrapObjectPMCurrentValue
+                  }
+      DESCRIPTION
+      "The current on a power device attached to the appliance is below its low critical threshold.
+       The port number on the appliance that the power device is attached to is contained in the cyAcs5kTrapObjectSerialPort.
+       The power device that detected the problem is contained in the cyAcs5kTrapObjectPMNumber.
+       The ID of the power device that detected the problem is contained in the cyAcs5kTrapObjectPMId.
+       The Type of the power device Element that detected the problem is contained in the cyAcs5kTrapObjectPMElementType.
+       The Name of the power device Element that detected the problem is contained in the cyAcs5kTrapObjectPMElementName.
+       The current value detected when this trap was originated is contained in cyAcs5kTrapObjectPMCurrentValue."
+      --#SUMMARY     "Power device current is below its low critical threshold. Power device port number: %d. Power device number: %d. Power device ID: %s. Elem Type: %s. Elem Name: %s. Current detected: %s amps."
+      --#ARGUMENTS   { 0, 1, 2, 3, 4, 5}
+      --#SEVERITY    NON-CRITICAL
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 48
+
+cyPMWarnLoadTrap TRAP-TYPE
+      ENTERPRISE  cyACS5KMgmt
+      VARIABLES   {
+                        cyAcs5kTrapObjectSerialPort,
+                        cyAcs5kTrapObjectPMNumber,
+                        cyAcs5kTrapObjectPMId,
+                        cyAcs5kTrapObjectPMElementType,
+                        cyAcs5kTrapObjectPMElementName,
+                        cyAcs5kTrapObjectPMCurrentValue
+                  }
+      DESCRIPTION
+      "The current on a power device attached to the appliance is above its high warning threshold.
+       The port number on the appliance that the power device is attached to is contained in the cyAcs5kTrapObjectSerialPort.
+       The power device that detected the problem is contained in the cyAcs5kTrapObjectPMNumber.
+       The ID of the power device that detected the problem is contained in the cyAcs5kTrapObjectPMId.
+       The Type of the power device Element that detected the problem is contained in the cyAcs5kTrapObjectPMElementType.
+       The Name of the power device Element that detected the problem is contained in the cyAcs5kTrapObjectPMElementName.
+       The current value detected when this trap was originated is contained in cyAcs5kTrapObjectPMCurrentValue."
+      --#SUMMARY     "Power device current is above its high warning threshold. Power device port number: %d. Power device number: %d. Power device ID: %s. Elem Type: %s. Elem Name: %s. Current detected: %s amps."
+      --#ARGUMENTS   { 0, 1, 2, 3, 4, 5}
+      --#SEVERITY    NON-CRITICAL
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 49
+
+cyPMLowLoadLowTrap TRAP-TYPE
+      ENTERPRISE  cyACS5KMgmt
+      VARIABLES   {
+                        cyAcs5kTrapObjectSerialPort,
+                        cyAcs5kTrapObjectPMNumber,
+                        cyAcs5kTrapObjectPMId,
+                        cyAcs5kTrapObjectPMElementType,
+                        cyAcs5kTrapObjectPMElementName,
+                        cyAcs5kTrapObjectPMCurrentValue
+                  }
+      DESCRIPTION
+      "The current on a power device attached to the appliance is below its low warning threshold.
+       The port number on the appliance that the power device is attached to is contained in the cyAcs5kTrapObjectSerialPort.
+       The power device that detected the problem is contained in the cyAcs5kTrapObjectPMNumber.
+       The ID of the power device that detected the problem is contained in the cyAcs5kTrapObjectPMId.
+       The Type of the power device Element that detected the problem is contained in the cyAcs5kTrapObjectPMElementType.
+       The Name of the power device Element that detected the problem is contained in the cyAcs5kTrapObjectPMElementName.
+       The current value detected when this trap was originated is contained in cyAcs5kTrapObjectPMCurrentValue."
+      --#SUMMARY     "Power device current is below its low warning threshold. Power device port number: %d. Power device number: %d. Power device ID: %s. Elem Type: %s. Elem Name: %s. Current detected: %s amps."
+      --#ARGUMENTS   { 0, 1, 2, 3, 4, 5}
+      --#SEVERITY    NON-CRITICAL
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 50
+
+cyPMOutletCycleFinishedTrap TRAP-TYPE
+      ENTERPRISE  cyACS5KMgmt
+      VARIABLES   { 
+                        cyAcs5kTrapObjectUserName,
+                        cyAcs5kTrapObjectSerialPort,
+                        cyAcs5kTrapObjectPMSocketNumber,
+						cyAcs5kTrapObjectPMNumber,
+						cyAcs5kTrapObjectPMId,
+						cyAcs5kTrapObjectPMSocketName
+                  }
+      DESCRIPTION
+      "An outlet on a chain of power device has completed the cycle command.
+      The port number on the appliance that the chain of power device is
+      attached to is contained in cyAcs5kTrapObjectSerialPort.
+      The power device number in the chain is contained in cyAcs5kTrapObjectPMNumber.
+      The ID of the power device is contained in cyAcs5kTrapObjectPMId.
+      The socket number that was issued the cycle command is contained 
+      in cyAcs5kTrapObjectPMSocketNumber.
+      The socket name that was issued the cycle command is contained 
+      in cyAcs5kTrapObjectPMSocketName.
+      The name of the user who issued the cycle command is contained 
+      in cyAcs5kTrapObjectUserName."      
+      --#SUMMARY     "The socket was power cycled. Command issued by user: %s. Power device port number: %d. Power device number: %d. Power device ID: %s. Socket number: %d. Socket name: %s."
+      --#ARGUMENTS   { 0, 1, 3, 4, 2, 5}
+      --#SEVERITY    MINOR
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 51 
+ 
+cyPMSensorThresholdNormalTrap TRAP-TYPE
+      ENTERPRISE  cyACS5KMgmt
+      VARIABLES   {
+                        cyAcs5kTrapObjectSerialPort,
+                        cyAcs5kTrapObjectPMNumber,
+                        cyAcs5kTrapObjectPMId,
+                        cyAcs5kTrapObjectPMElementType,
+                        cyAcs5kTrapObjectPMElementName,
+                        cyAcs5kTrapObjectPMCurrentValue
+                  }
+      DESCRIPTION
+      "A sensor attached to the appliance cleared its alarm.
+      The port number of the appliance where the sensor is attached to is contained in cyAcs5kTrapObjectSerialPort.
+      The number of the power device where the sensor is attached is contained in cyAcs5kTrapObjectPMNumber.
+      The ID of the power device where the sensor is attached is contained in cyAcs5kTrapObjectPMId.
+      The Type of the sensor is contained in cyAcs5kTrapObjectPMElementType.
+      The Name of the sensor is contained in cyAcs5kTrapObjectPMElementName.
+      The current value detected when this trap was originated is contained in cyAcs5kTrapObjectPMCurrentValue."
+      --#SUMMARY     "Power device environment sensor alarm was cleared. Power device port number: %d. Power device number: %d. Power device ID: %s. Sensor Type: %s. Sensor Name: %s. Current value: %s."
+      --#ARGUMENTS   { 0, 1, 2, 3, 4, 5}
+      --#SEVERITY    NON-CRITICAL
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 52
+
+cyPMSensorThresholdHighCriticalTrap TRAP-TYPE
+      ENTERPRISE  cyACS5KMgmt
+      VARIABLES   {
+                        cyAcs5kTrapObjectSerialPort,
+                        cyAcs5kTrapObjectPMNumber,
+                        cyAcs5kTrapObjectPMId,
+                        cyAcs5kTrapObjectPMElementType,
+                        cyAcs5kTrapObjectPMElementName,
+                        cyAcs5kTrapObjectPMCurrentValue
+                  }
+      DESCRIPTION
+      "A sensor attached to the appliance is above its high critical threshold.
+      The port number of the appliance where the sensor is attached to is contained in cyAcs5kTrapObjectSerialPort.
+      The number of the power device where the sensor is attached is contained in cyAcs5kTrapObjectPMNumber.
+      The ID of the power device where the sensor is attached is contained in cyAcs5kTrapObjectPMId.
+      The Type of the sensor is contained in cyAcs5kTrapObjectPMElementType.
+      The Name of the sensor is contained in cyAcs5kTrapObjectPMElementName.
+      The current value detected when this trap was originated is contained in cyAcs5kTrapObjectPMCurrentValue."
+      --#SUMMARY     "Power device environment sensor is above its high critical threshold. Power device port number: %d. Power device number: %d. Power device ID: %s. Sensor Type: %s. Sensor Name: %s. Current value: %s."
+      --#ARGUMENTS   { 0, 1, 2, 3, 4, 5}
+      --#SEVERITY    NON-CRITICAL
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 53
+
+cyPMSensorThresholdHighWarningTrap TRAP-TYPE
+      ENTERPRISE  cyACS5KMgmt
+      VARIABLES   {
+                        cyAcs5kTrapObjectSerialPort,
+                        cyAcs5kTrapObjectPMNumber,
+                        cyAcs5kTrapObjectPMId,
+                        cyAcs5kTrapObjectPMElementType,
+                        cyAcs5kTrapObjectPMElementName,
+                        cyAcs5kTrapObjectPMCurrentValue
+                  }
+      DESCRIPTION
+      "A sensor attached to the appliance is above its high warning threshold.
+      The port number of the appliance where the sensor is attached to is contained in cyAcs5kTrapObjectSerialPort.
+      The number of the power device where the sensor is attached is contained in cyAcs5kTrapObjectPMNumber.
+      The ID of the power device where the sensor is attached is contained in cyAcs5kTrapObjectPMId.
+      The Type of the sensor is contained in cyAcs5kTrapObjectPMElementType.
+      The Name of the sensor is contained in cyAcs5kTrapObjectPMElementName.
+      The current value detected when this trap was originated is contained in cyAcs5kTrapObjectPMCurrentValue."
+      --#SUMMARY     "Power device environment sensor is above its high warning threshold. Power device port number: %d. Power device number: %d. Power device ID: %s. Sensor Type: %s. Sensor Name: %s. Current value: %s."
+      --#ARGUMENTS   { 0, 1, 2, 3, 4, 5}
+      --#SEVERITY    NON-CRITICAL
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 54
+      
+cyPMSensorThresholdLowWarningTrap TRAP-TYPE
+      ENTERPRISE  cyACS5KMgmt
+      VARIABLES   {
+                        cyAcs5kTrapObjectSerialPort,
+                        cyAcs5kTrapObjectPMNumber,
+                        cyAcs5kTrapObjectPMId,
+                        cyAcs5kTrapObjectPMElementType,
+                        cyAcs5kTrapObjectPMElementName,
+                        cyAcs5kTrapObjectPMCurrentValue
+                  }
+      DESCRIPTION
+      "A sensor attached to the appliance is below its low warning threshold.
+      The port number of the appliance where the sensor is attached to is contained in cyAcs5kTrapObjectSerialPort.
+      The number of the power device where the sensor is attached is contained in cyAcs5kTrapObjectPMNumber.
+      The ID of the power device where the sensor is attached is contained in cyAcs5kTrapObjectPMId.
+      The Type of the sensor is contained in cyAcs5kTrapObjectPMElementType.
+      The Name of the sensor is contained in cyAcs5kTrapObjectPMElementName.
+      The current value detected when this trap was originated is contained in cyAcs5kTrapObjectPMCurrentValue."
+      --#SUMMARY     "Power device environment sensor is below its low warning threshold. Power device port number: %d. Power device number: %d. Power device ID: %s. Sensor Type: %s. Sensor Name: %s. Current value: %s."
+      --#ARGUMENTS   { 0, 1, 2, 3, 4, 5}
+      --#SEVERITY    NON-CRITICAL
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 55
+
+cyPMSensorThresholdLowCriticalTrap TRAP-TYPE
+      ENTERPRISE  cyACS5KMgmt
+      VARIABLES   {
+                        cyAcs5kTrapObjectSerialPort,
+                        cyAcs5kTrapObjectPMNumber,
+                        cyAcs5kTrapObjectPMId,
+                        cyAcs5kTrapObjectPMElementType,
+                        cyAcs5kTrapObjectPMElementName,
+                        cyAcs5kTrapObjectPMCurrentValue
+                  }
+      DESCRIPTION
+      "A sensor attached to the appliance is below its low critical threshold.
+      The port number of the appliance where the sensor is attached to is contained in cyAcs5kTrapObjectSerialPort.
+      The number of the power device where the sensor is attached is contained in cyAcs5kTrapObjectPMNumber.
+      The ID of the power device where the sensor is attached is contained in cyAcs5kTrapObjectPMId.
+      The Type of the sensor is contained in cyAcs5kTrapObjectPMElementType.
+      The Name of the sensor is contained in cyAcs5kTrapObjectPMElementName.
+      The current value detected when this trap was originated is contained in cyAcs5kTrapObjectPMCurrentValue."
+      --#SUMMARY     "Power device environment sensor is below its low critical threshold. Power device port number: %d. Power device number: %d. Power device ID: %s. Sensor Type: %s. Sensor Name: %s. Current value: %s."
+      --#ARGUMENTS   { 0, 1, 2, 3, 4, 5}
+      --#SEVERITY    NON-CRITICAL
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 56
+
+cyPMSensorThresholdDigitalSensorAlarmTrap TRAP-TYPE
+      ENTERPRISE  cyACS5KMgmt
+      VARIABLES   {
+                        cyAcs5kTrapObjectSerialPort,
+                        cyAcs5kTrapObjectPMNumber,
+                        cyAcs5kTrapObjectPMId,
+                        cyAcs5kTrapObjectPMElementType,
+                        cyAcs5kTrapObjectPMElementName,
+                        cyAcs5kTrapObjectPMCurrentValue
+                  }
+      DESCRIPTION
+      "A digital sensor attached to the appliance is in its alarm state.
+      The port number of the appliance where the sensor is attached to is contained in cyAcs5kTrapObjectSerialPort.
+      The number of the power device where the sensor is attached is contained in cyAcs5kTrapObjectPMNumber.
+      The ID of the power device where the sensor is attached is contained in cyAcs5kTrapObjectPMId.
+      The Type of the sensor is contained in cyAcs5kTrapObjectPMElementType.
+      The Name of the sensor is contained in cyAcs5kTrapObjectPMElementName.
+      The current value detected when this trap was originated is contained in cyAcs5kTrapObjectPMCurrentValue."
+      --#SUMMARY     "Power device environment digital sensor changed to alarm state. Power device port number: %d. Power device number: %d. Power device ID: %s. Sensor Type: %s. Sensor Name: %s. Current value: %s."
+      --#ARGUMENTS   { 0, 1, 2, 3, 4, 5}
+      --#SEVERITY    NON-CRITICAL
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 57
+      
+cyAcs5kPowerSupplyStatus TRAP-TYPE
+      ENTERPRISE  cyACS5KMgmt
+      VARIABLES   { 
+                 cyAcs5kTrapObjectPowerSupplyNumber,
+                 cyAcs5kTrapObjectPowerSupplyOldState,
+                 cyAcs5kTrapObjectPowerSupplyNewState
+               }
+      DESCRIPTION
+      "The state of the appliance power supply has changed.
+      The number of power supply is contained in cyAcs5kTrapObjectPowerSupplyNumber.
+      The old state of the power supply is contained in cyAcs5kTrapObjectSupplyOldState.
+      The new state of the power supply is contained in cyAcs5kTrapObjectSupplyNewState."
+      --#SUMMARY     "State of the power supply has been changed. Power supply number: %d. Old state: %d. New state: %d." 
+      --#ARGUMENTS   { 0, 1, 2}
+      --#SEVERITY    CRITICAL
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 58
+
+      
+END

@@ -1,0 +1,39 @@
+#!/bin/sh
+
+Model=`/bin/set_nports 1`
+MT=`/bin/set_nports 4`
+
+nportS=`/bin/set_nports S`
+nportA=`/bin/set_nports A`
+
+echo
+echo Running $0 with : $Model
+echo
+echo Number of serial ports detected : $nportS
+echo Number of auxiliary ports detected : $nportA
+echo
+
+while true
+do
+  MPID=`ps ax | grep "ping" | grep -v grep | cut -b -6`
+  if [ "$MPID" = "" ] ; then
+    ping -q -c 1 -s 1000 192.168.160.100 &
+  fi
+  cnt=1
+  while [ $cnt -le $nportS ]
+  do
+	stty -echo < /dev/ttyS$cnt
+    echo "MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMttyS"$cnt > /dev/ttyS$cnt
+    cnt=`expr $cnt + 1`
+  done
+  
+  cnt=1
+  while [ $cnt -le $nportA ]
+  do
+	stty -echo < /dev/ttyS$cnt
+    echo "MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMttyA"$cnt > /dev/ttyA$cnt
+    cnt=`expr $cnt + 1`
+  done
+  sleep 1
+done
+

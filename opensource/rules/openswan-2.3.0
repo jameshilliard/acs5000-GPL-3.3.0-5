@@ -1,0 +1,45 @@
+#
+#  Makefile for cyclades projects.
+#
+
+#
+# Addtional compiler and/or link options may be defined here
+#
+#CFLAGS += ...
+#LDFLAGS += ...
+
+#
+# Command line parameters for configure must be defined here
+#
+#CONFIGURE_PARMS := ...
+
+#CONFIG_ENV := ...
+
+CROSS_CC+=-I$(DIST_DIR)/$(GMP)/include
+
+MAKE_ENV = \
+	PATH=$(CROSS_PATH) \
+	HOST_CC=cc \
+	$(CROSS_ENV_TOOLS) \
+	CFLAGS="$(CFLAGS) -DHEADER_DES_LOCL_H" \
+	LDFLAGS="$(LDFLAGS) -L$(DIST_DIR)/$(GMP)/lib"
+
+MAKE_PARMS := \
+	DESTDIR=$(my_prefix)
+
+#
+#  more ac_variables for configure may be defined here
+#
+#CROSS_ENV_AC += ...
+
+$(CFG_COOKIE):
+	date > $@
+
+$(BLD_COOKIE):
+	$(MAKE_ENV) $(MAKE) programs $(MAKE_PARMS)
+	date > $@
+
+$(INST_COOKIE):
+	$(MAKE_ENV) $(MAKE) install $(MAKE_PARMS)
+	date > $@
+

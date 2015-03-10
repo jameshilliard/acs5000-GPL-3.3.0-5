@@ -1,0 +1,39 @@
+#define NUM_OF_OSDS		2
+#define MAX_VIDEO_CHANNELS	6
+
+#define	SPI_FROM_RTC		0
+#define SPI_FROM_OSD1		1
+#define SPI_FROM_OSD2		2
+
+#define OSDGETVIDEO		0
+#define OSDSETVIDEOON		1
+#define	OSDSETVIDEOOFF		2
+#define OSDSETPORT		3
+#define OSDGETPORT		4
+#define OSDGETOSD		5
+#define OSDSETOSDON		6
+#define	OSDSETOSDOFF		7
+#define OSDSETPOLARITY		8
+#define OSDSETBRIGHTNESS   	9
+#define OSDGETBRIGHTNESS   	10
+#define OSDSETCONTRAST     	11
+#define OSDGETCONTRAST     	12
+#define OSDAGCON		13
+#define	OSDAGCOFF		14
+#define	OSDGETAGC		15
+#define OSDSETTRANSPARENTON	16
+#define OSDSETTRANSPARENTOFF	17
+#define OSDSETVIDEOCOLOR	18
+#define OSDGETVERSION		19
+#define OSDGETSCREEN		20
+#define OSDSETLOCAL		21
+#define OSDSETREMOTE		22
+#define OSDSETRAMCHAR		23
+
+#define NUM_RAM_CHARS		8
+
+struct osdreq_ramchar{
+	__u16 index;
+	__u16 data[18];
+};
+

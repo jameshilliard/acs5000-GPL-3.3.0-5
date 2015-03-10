@@ -1,0 +1,83 @@
+#
+# pslave.conf	Sample server configuration file.
+#
+# Console Access Server Profile
+#
+
+
+conf.eth_ip	    200.200.200.1
+conf.eth_mask	255.255.255.0
+conf.eth_mtu	1500
+#conf.nfs_data_buffering 192.168.160.11:/tmp/ts_data_buffer
+conf.lockdir	/var/lock
+conf.facility	7
+
+all.speed       9600
+all.datasize    8
+all.stopbits    1
+all.parity      none
+all.authtype    radius
+all.term	vt100
+all.issue       \r\n\
+     Welcome to console access server %h port S%p \n\
+\r\n
+
+all.prompt	%h login: 
+all.term        vt100
+all.flow	hard
+all.poll_interval	0
+all.socket_port		7001+
+all.protocol socket_server
+all.data_buffering 0
+all.alarm 0
+all.syslog_buffering 0
+#all.dont_show_DBmenu 1
+
+#
+# Users joe and mark will only have access granted to the serial port ttyS2
+# 
+all.users ! joe, mark
+
+#
+# All sniff session will only display data send by servers connected
+# to the serial port.
+#
+all.sniff_mode out
+
+#
+# Only users peter and jonh can open a sniff session
+#
+all.admin_users peter, john
+
+#
+# Port-specific parameters
+#
+
+#-----------------
+# PORT 1
+#-----------------
+
+s1.tty		  ttyS1
+s1.protocol   socket_ssh
+s1.authtype   local
+s1.alias server_connected_serial1
+s1.ipno	192.168.1.101
+
+#-----------------
+# PORT 2
+#-----------------
+s2.tty		ttyS2
+s2.users   joe, mark
+s2.ipno	192.168.1.102
+
+#-----------------
+# PORT 8
+#-----------------
+
+s8.tty		  ttyS8
+s8.protocol   socket_ssh
+s8.authtype   none
+s8.alias server_connected_serial8
+s8.ipno	192.168.1.108
+
+

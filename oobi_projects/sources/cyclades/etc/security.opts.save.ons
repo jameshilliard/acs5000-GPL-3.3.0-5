@@ -1,0 +1,39 @@
+#
+# security.opts		Security Options
+#
+#	This file contains the definition of the current security profile,
+#   the ICMP reply state and some details about the "custom" profile.
+#
+
+# Security Profile currently set
+# < open | moderate | secured | custom >
+profile    custom
+
+# allow ssh connection to serial ports
+# < enabled | disabled >
+ssh2sport    enabled
+
+# allow telnet connection to serial ports
+# < enabled | disabled >
+telnet2sport    enabled
+
+# allow raw TCP socket connection to serial ports
+# < enabled | disabled >
+raw2sport    enabled
+
+# requires Authentication to connect to serial port
+# < enabled | disabled >
+auth2sport    disabled
+
+# reply Network Layer ICMP messages
+# < enabled | disabled >
+icmp    enabled
+
+# Bidirect Telnet (dynamic mode support)
+# < enabled | disabled >
+bidirect    enabled
+
+# allow Direct Access to KVM Ports
+# < enabled | disabled >
+directaccess    disabled
+

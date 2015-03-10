@@ -1,0 +1,308 @@
+#!/bin/sh 
+
+FILE_LOCK=/var/run/saveconf.pid
+
+if [ -f $FILE_LOCK ] ; then
+	echo "Error: saveconf or restoreconf already running!"
+	exit 1
+fi
+
+echo XXX > $FILE_LOCK
+
+CFG_FILE=/proc/flash/script
+TMP_DIR=/tmp
+CONFIG_FILE_LIST=/etc/config_files
+CONFIG_FILE=$TMP_DIR/saving_config
+CONFIG_FILE_list=""
+
+do_restart ()
+{
+	[ ! -s $CONFIG_FILE.restart ] && return
+	echo -n "Evaluating new config files ... "
+	mkdir -p $TMP_DIR/do_restart
+	echo "#!/bin/sh " > $CONFIG_FILE.sh
+	zcat $CONFIG_FILE.bk.gz | tar x -C $TMP_DIR/do_restart
+	cat $CONFIG_FILE.restart | while read file RST_PROC
+	do
+		cmp $file $TMP_DIR/do_restart/$file > /dev/null 2>&1
+		if [ $? -ne 0 ]; then
+			cat $CONFIG_FILE.sh |grep "$RST_PROC" >/dev/null 2>&1
+			if [ $? -ne 0 ]; then
+				echo "$RST_PROC" >> $CONFIG_FILE.sh
+			fi
+		fi
+	done
+	rm -rf $TMP_DIR/do_restart
+	echo "done."
+	if [ -s $CONFIG_FILE.sh ]; then
+		echo -n "Restarting processes ... "
+		/bin/sh $CONFIG_FILE.sh > /dev/null 2>&1
+		if [ $? -ne 0 ]; then
+			echo "error."
+			do_exit "*** ERROR: failed to restart processes" 1
+		else
+			echo "done."
+		fi
+		rm -f $CONFIG_FILE.sh
+	fi
+	rm -f $CONFIG_FILE.restart
+	return 0
+}
+
+do_exit ()
+{
+	CONFIG_FILE=$TMP_DIR/saving_config
+	if [ "$2" = "" ]; then
+		EXIT_CODE=1
+	else
+		EXIT_CODE=$2
+	fi
+	rm -rf $TMP_DIR/do_restart	
+	rm -f $CONFIG_FILE*
+	if [ "$1" = "" ]; then
+		echo -e "*** Aborting..."
+	else 
+		echo -e "$1"
+	fi
+	rm -f $FILE_LOCK
+	exit $EXIT_CODE
+}
+
+show_usage ()
+{
+	echo "Usage:"
+	echo "   Save to flash:              saveconf"
+	echo "   Save to flash and restart:  saveconf -r"
+	echo "   Save to local file:         saveconf local [text|wintxt|bin] <FILE>"
+	echo "   Save to FTP server:         saveconf ftp  [text|wintxt|bin] <FILE> <FTP_SERVER> <USER> <PASSWORD>"
+	echo "   Save to TFTP server:        saveconf tftp [text|wintxt|bin] <FILE> <TFTP_SERVER> "
+	echo "   Save to SSH server:         saveconf ssh  [text|wintxt|bin] <FILE> <SSH_SERVER> <USER>"
+	echo
+	echo "PS. Formats text and wintext are valid _ONLY_ if APM is being used."
+	echo
+	rm -f $FILE_LOCK
+	exit 0
+}
+
+# TARGET  = flash/ftp/tftp/local/ssh
+# RESTART = 0-NO , 1-YES
+# FILE_TYPE = text/wintx/bin
+# SERVER_IP = FTP_SERVER/TFTP_SERVER/SSH_SERVER
+# USER
+# PASSWORD
+# REMOTE_FILE
+
+# Trap signals so that this application is not interrupted
+trap do_exit SIGTERM SIGINT SIGQUIT SIGHUP
+umask 077
+
+RESTART=0
+
+if [ "x$1" = "x" -o "x$1" = "x-r" ]; then
+	TARGET=flash
+	FILE_TYPE=bin
+	if [ "x$1" = "x-r" ];then
+		RESTART=1
+	fi
+else
+	case $1 in
+		ftp | tftp | local | ssh ) TARGET=$1;;
+		* ) show_usage;;
+	esac
+
+	case $2 in
+		text | wintxt | bin) FILE_TYPE=$2;;
+		*) FILE_TYPE=;;
+	esac
+	if [ "x$FILE_TYPE" = "x" ]; then
+		FILE_TYPE=bin
+		if [ $# -lt 2 ]; then
+			show_usage
+		fi
+		REMOTE_FILE=$2
+		if [ "$TARGET" != "local" ];then
+			if [ $# -lt 3 ]; then
+				show_usage
+			fi
+			SERVER_IP=$3
+			if [ "$TARGET" != "tftp" ]; then
+				if [ $# -lt 4 ]; then
+					show_usage
+				fi
+				USER=$4
+				if [ "$TARGET" != "ssh" ]; then
+					if [ $# -lt 5 ]; then
+						show_usage
+					fi
+					PASSWORD=$5
+				fi
+			fi
+		fi
+	else 
+		if [ $# -lt 3 ]; then
+			show_usage
+		fi
+		REMOTE_FILE=$3
+		if [ "$TARGET" != "local" ];then
+			if [ $# -lt 4 ]; then
+				show_usage
+			fi
+			SERVER_IP=$4
+			if [ "$TARGET" != "tftp" ]; then
+				if [ $# -lt 5 ]; then
+					show_usage
+				fi
+				USER=$5
+				if [ "$TARGET" != "ssh" ]; then
+					if [ $# -lt 6 ]; then
+						show_usage
+					fi
+					PASSWORD=$6
+				fi
+			fi
+		fi
+	fi
+fi
+
+
+echo "Checking the configuration file list..."
+
+if [ $RESTART = 1 -a ! "$FILE_TYPE" = "bin" ]; then
+	grep -v ^# $CONFIG_FILE_LIST | while read file_l MARK RST_PROC ; do
+		for file in $file_l ; do
+  			[ -z "$file" ] && continue
+  			if [ -L $file -o -f $file -o -d $file ] ; then
+				if [ $RESTART = 1 -a "x$MARK" = "x*" ]; then
+    				echo "$file $RST_PROC" >> $CONFIG_FILE.restart
+				fi
+
+				if [ "$FILE_TYPE" = "bin" ]; then
+    				CONFIG_FILE_list="$file $CONFIG_FILE_list"
+				else
+					if [ "x$MARK" = "x*" ];then
+    					CONFIG_FILE_list="$file $CONFIG_FILE_list"
+					fi
+				fi
+  			else
+				if [ "$MSG" = "" ] ; then
+					MSG="Partially"
+				fi
+				echo "$0 : File '$file' does not exist !"
+			fi
+		done
+	done 
+else
+	for file in `cat /etc/config_files` ; do
+		[ "x${file:0:1}" = "x#" ] && continue
+		if [ -L $file -o -f $file -o -d $file ] ; then
+			CONFIG_FILE_list="$CONFIG_FILE_list $file"
+		else
+			if [ "$MSG" = "" ] ; then
+				MSG="Partially"
+			fi
+			echo "$0 : File '$file' does not exist !"
+		fi
+	done
+fi
+
+if [ -z "$CONFIG_FILE_list" ]; then
+	rm -f $FILE_LOCK
+	exit
+fi
+
+if [ $RESTART = 1 ]; then
+	cp -f $CFG_FILE $CONFIG_FILE.bk.gz
+	do_restart
+fi
+
+if [ "$FILE_TYPE" = "bin" ]; then
+	echo -n "Compressing configuration files into $CONFIG_FILE.tar.gz ... "
+	tar -pcf $CONFIG_FILE.tar $CONFIG_FILE_list > /dev/null 2>&1
+	if [ $? -ne 0 ]; then
+		echo ""
+		do_exit "*** ERROR: failed to create $CONFIG_FILE.gz" 1
+	fi
+	chmod 0600 $CONFIG_FILE.tar
+	gzip $CONFIG_FILE.tar
+	CONFIG_FILE=$CONFIG_FILE.tar.gz
+	echo "done."
+fi
+
+if [ "$TARGET" = "flash" ]; then
+	echo -n "Saving configuration files to flash ... "
+	cp $CONFIG_FILE $CFG_FILE
+	echo "done."
+	showlogmsg info "$0: CONFIG: Configuration saved to flash"
+	CONFIG_FILE=$TMP_DIR/saving_config
+	rm -f $CONFIG_FILE*
+	rm -f $FILE_LOCK
+	exit 
+fi
+
+TEMP_FILE=$TMP_DIR/ftp.cmd
+if [ "$FILE_TYPE" = "text" ]; then
+	dd if=/dev/zero of=$CONFIG_FILE bs=1 count=255 > /dev/null 2>&1
+
+	for file in $CONFIG_FILE_list 
+	do
+		echo -e "\n[[$file]]" >> $CONFIG_FILE
+		cat $file >> $CONFIG_FILE 
+	done
+fi
+
+if [ "$FILE_TYPE" = "wintxt" ]; then
+	NEWLINE='\r'
+	dd if=/dev/zero of=$CONFIG_FILE bs=1 count=255 > /dev/null 2>&1
+	echo -e "$NEWLINE" >> $CONFIG_FILE
+
+	for file in $CONFIG_FILE_list 
+	do
+		echo -e "[[$file]]$NEWLINE" >> $CONFIG_FILE
+		IFS=''
+		cat $file | while read LINE
+		do
+			echo -e "$LINE$NEWLINE" >> $CONFIG_FILE
+		done
+		unset IFS
+	done
+fi
+
+if [ "$TARGET" = "ftp" ]; then
+	echo "user $USER $PASSWORD" > $TEMP_FILE
+	echo "bin" >> $TEMP_FILE
+	echo "put $CONFIG_FILE $REMOTE_FILE" >> $TEMP_FILE
+	echo "quit" >> $TEMP_FILE
+
+	echo "Saving file $REMOTE_FILE to $SERVER_IP FTP server."
+	echo "User: $USER"
+	#echo "Please provide the password for $USER."
+	ftp -n $SERVER_IP < $TEMP_FILE
+	rm -f $TEMP_FILE
+fi
+
+if [ "$TARGET" = "tftp" ]; then
+	echo -n "Saving file $REMOTE_FILE in $SERVER_IP TFTP server ... "
+	tftp -p -l $CONFIG_FILE -r $REMOTE_FILE $SERVER_IP >/dev/null 2>&1
+	if [ $? -ne 0 ]; then
+		echo ""
+		do_exit "*** ERROR: file transfer failed." 1
+	fi
+fi
+
+if [ "$TARGET" = "local" ]; then
+	cp $CONFIG_FILE $REMOTE_FILE 
+fi
+
+if [ "$TARGET" = "ssh" ]; then
+	echo "Saving file $REMOTE_FILE to $SERVER_IP SSH server, as $USER."
+	scp -S ssh -q $CONFIG_FILE $USER@$SERVER_IP:$REMOTE_FILE 2>/dev/null 
+	if [ $? -ne 0 ]; then
+		do_exit "*** ERROR: file transfer failed." 1
+	fi
+fi
+
+CONFIG_FILE=$TMP_DIR/saving_config
+rm -f $CONFIG_FILE*
+rm -f $FILE_LOCK
+echo "done."
+exit 0

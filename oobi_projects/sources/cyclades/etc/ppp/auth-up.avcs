@@ -1,0 +1,21 @@
+#!/bin/sh
+#
+# This script is run by the pppd/ipppd after the link is authenticated.
+#
+# This script is called with the following arguments:
+#    Arg  Name                          Example
+#    $1   Interface name                ippp0
+#    $2   Authentication user name      mary 
+#    $3   Username of ipppd		root
+#    $4   Device name			/dev/ippp0
+#    $5   Speed				64000
+#    $6   Remote number			"8358662"
+#    $7	  Call direction		incoming
+
+PPP_IFACE="$1"
+PPP_PEERNAME="$2"
+PPP_USERNAME="$3"
+PPP_DEVICE="$4"
+PPP_SPEED="$5"
+PPP_REMOTE="$6"
+PPP_DIRECTION="$7"

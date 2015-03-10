@@ -1,0 +1,42 @@
+Index: crypto_openssl.c
+===================================================================
+RCS file: /usr/cvsroot/tslinux_mv21/ipsec/ipsec-tools-0.5-rc1/src/racoon/crypto_openssl.c,v
+retrieving revision 1.1
+retrieving revision 1.2
+diff -u -r1.1 -r1.2
+--- ipsec-tools-0.5-rc1/src/racoon/crypto_openssl.c	11 Feb 2005 10:38:59 -0000	1.1
++++ ipsec-tools-0.5-rc1/src/racoon/crypto_openssl.c	2 Aug 2005 23:26:05 -0000	1.2
+@@ -39,6 +39,22 @@
+ #include <limits.h>
+ #include <string.h>
+ 
++//[GY]05/aug/02 - "defines" included from openssl/sha.h due to conflict when
++//                OpenSSL upgrade to 0.9.8 version
++#define HEADER_SHA_H
++#define SHA_DIGEST_LENGTH 20
++#define SHA_LONG unsigned int
++#define SHA_LBLOCK      16
++
++typedef struct SHAstate_st
++        {
++        SHA_LONG h0,h1,h2,h3,h4;
++        SHA_LONG Nl,Nh;
++        SHA_LONG data[SHA_LBLOCK];
++        unsigned int num;
++        } SHA_CTX;
++//GY
++
+ /* get openssl/ssleay version number */
+ #include <openssl/opensslv.h>
+ 
+@@ -54,7 +70,9 @@
+ #include <openssl/bn.h>
+ #include <openssl/dh.h>
+ #include <openssl/md5.h>
+-#include <openssl/sha.h>
++//[GY]05/aug/02 - excluded due to conflict when OpenSSL upgrade to 0.9.8 version
++//#include <openssl/sha.h>
++//GY
+ #include <openssl/hmac.h>
+ #include <openssl/des.h>
+ #include <openssl/crypto.h>

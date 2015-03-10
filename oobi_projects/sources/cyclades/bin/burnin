@@ -1,0 +1,33 @@
+#!/bin/sh
+
+if [ $# -gt 0 ] ; then
+  config_eth0 ip $1
+fi
+
+MPID=`ps ax | grep "cy_ras" | grep -v grep | cut -b -6`
+if [ ! "$MPID" = "" ] ; then
+  kill -int $MPID
+fi
+
+MPID=`ps ax | grep "cy_buffering" | grep -v grep | cut -b -6`
+if [ ! "$MPID" = "" ] ; then
+  kill -int $MPID
+fi
+
+MPID=`ps ax | grep "pmd" | grep -v grep | cut -b -6`
+if [ ! "$MPID" = "" ] ; then
+  kill -int $MPID
+fi
+
+#MPID=`ps ax | grep "kvmd" | grep -v grep | cut -b -6`
+#if [ ! "$MPID" = "" ] ; then
+#  kill -int $MPID
+#fi
+
+echo
+echo "Preparing the environment for burn-in tests. Please wait..."
+sleep 10
+tstest
+echo
+echo "Tests done\r\n!"
+

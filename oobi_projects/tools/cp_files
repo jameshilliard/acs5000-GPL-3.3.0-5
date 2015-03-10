@@ -1,0 +1,71 @@
+#!/bin/sh
+
+TOOLS=$(dirname $0)
+
+. ${TOOLS}/shell_utils
+
+#
+# Start
+#
+
+check_vars TARGET_DIR MVL_FILES MVL_TARGET_DIR
+
+check_dirs ${ROOT_PROJ} ${TARGET_DIR}
+
+check_files ${ROOT_PROJ}/${MVL_FILES}
+
+copy_dir()
+{
+  cd ${1} || exit -1
+  for f in *
+  do
+    if [ -d ${f} ] ; then
+      install -d ${2}/${f}	
+      copy_dir ${1}/${f} ${2}/${f} ${3}
+    else
+      if [ -L ${f} ] ; then
+        cp -af ${f} ${2}/${f}
+      else
+        cp -a ${f} ${2}/${f}
+		chmod u+w ${2}/${f} 
+        if [ -z "${3}" ]; then
+          ${STRIP} ${TARGET_DIR}/${file}
+        fi
+      fi
+    fi
+  done
+  cd -
+}
+
+result=0
+
+while read file nostrip  
+do
+  if [ -z "${file}" ] ; then
+    break
+  fi
+  if [ -e ${MVL_TARGET_DIR}/${file} ] ; then
+    if [ -d ${MVL_TARGET_DIR}/${file} ] ; then
+      copy_dir ${MVL_TARGET_DIR}/${file} ${TARGET_DIR}/${file} ${nostrip}
+    else
+      install -d $(dirname ${TARGET_DIR}/${file})
+      if [ -L ${MVL_TARGET_DIR}/${file} ] ; then
+        cp -af ${MVL_TARGET_DIR}/${file} ${TARGET_DIR}/${file}
+      else 
+        cp -a ${MVL_TARGET_DIR}/${file} ${TARGET_DIR}/${file} || exit -1
+		chmod u+w ${TARGET_DIR}/${file} 
+        if [ -z "${nostrip}" ]; then
+          ${STRIP} ${TARGET_DIR}/${file}
+        fi
+      fi
+    fi
+  else
+	echo "ERROR: file '${MVL_TARGET_DIR}/${file}' does not exist."
+	result=-2
+  fi
+done << -EOF
+$(< ${ROOT_PROJ}/${MVL_FILES})
+-EOF
+
+exit ${result}
+

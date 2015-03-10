@@ -1,0 +1,11 @@
+#!/bin/sh
+
+szP1=2 \
+szP2=2 \
+szP3=30 \
+szP5=40 \
+szP6=40 \
+szP7=3 \
+szP8=3 \
+do_create_cf $*
+

@@ -1,0 +1,2 @@
+#!/bin/sh
+PPP_DEV=$1

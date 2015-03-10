@@ -1,0 +1,192 @@
+
+Source:		http://www.netcore.fi/pekkas/linux/ipv6/
+Package:	netbsd-tftp-20020313.tar.gz
+
+This package has been ported from BSD.
+
+The main differences are related to struct's sockaddr_in, sockaddr_in6
+and sockaddr_storage which in BSD have a field to tell its size.
+
+Also, the Makefile was re-made to work in Linux and to support
+cross-compiling.
+
+RGB 2007-09-13
+
+
+===============================================================================
+Diff between the original and the first modified version.
+===============================================================================
+
+Only in netbsd-tftp-20020313: bsdport.c
+Only in netbsd-tftp-20020313: bsdport.h
+diff -r netbsd-tftp-20020313.ori/main.c netbsd-tftp-20020313/main.c
+71a72
+> #include "bsdport.h"
+214,215c215,216
+< 		ss.ss_len = res->ai_addrlen;
+< 		if (bind(f, (struct sockaddr *)&ss, ss.ss_len) < 0) {
+---
+> 		IF_HAVE_SS_LEN( ss.ss_len = res->ai_addrlen; )
+> 		if (bind(f, (struct sockaddr *)&ss, res->ai_addrlen) < 0) {
+diff -r netbsd-tftp-20020313.ori/Makefile netbsd-tftp-20020313/Makefile
+1,2c1,8
+< #	$NetBSD: Makefile,v 1.7 2001/11/19 03:20:02 itojun Exp $
+< #	@(#)Makefile	8.1 (Berkeley) 6/6/93
+---
+> #
+> # Simple Makefile to compile tftp + tftpd
+> #
+> # If you want to compile only one of them then you can override the
+> # variable PROGS in the 'make' command line.
+> #
+> # The programs will be installed in $(PREFIX)/usr/sbin/
+> #
+4,5c10,12
+< PROG=	tftp
+< SRCS=	main.c tftp.c tftpsubs.c
+---
+> PROGS  := tftp in.tftpd
+> PREFIX :=
+> EXTRA_CFLAGS :=
+7c14,49
+< .include <bsd.prog.mk>
+---
+> CFLAGS := -DHAVE_STRLCPY=0 -Dlint
+> 
+> # Programs: Can be overriden too.
+> CC	:= gcc
+> STRIP	:= strip
+> INSTALL	:= install
+> 
+> #Q:=echo
+> Q:=
+> 
+> HEADERS:=tftpsubs.h bsdport.h
+> 
+> all: $(PROGS)
+> 
+> install: $(PROGS)
+> 	@for prog in $^; do \
+> 		$(Q) $(INSTALL) -v $$prog $(PREFIX)/usr/sbin/$$prog ; \
+> 	done
+> 
+> in.tftpd : tftpd.o tftpsubs.o bsdport.o
+> 	$(Q) $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -o $@.gdb $^
+> 	$(Q) $(STRIP) -g --strip-unneeded -o $@ $@.gdb
+> 
+> tftp  : main.o tftp.o tftpsubs.o bsdport.o
+> 	$(Q) $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -o $@.gdb $^
+> 	$(Q) $(STRIP) -g --strip-unneeded -o $@ $@.gdb
+> 
+> %.o : %.c $(HEADERS)
+> 	$(Q) $(CC) $(CFLAGS) $(EXTRA_CFLAGS) -Wall -o $@ -c $<
+> 
+> .PHONY:  force
+> 
+> clean:
+> 	rm -fv *.o *.gdb in.tftpd tftp
+> 
+> force: ;
+diff -r netbsd-tftp-20020313.ori/tftp.c netbsd-tftp-20020313/tftp.c
+38d37
+< #if 0
+40,42d38
+< #else
+< __RCSID("$NetBSD: tftp.c,v 1.15 2000/12/30 18:00:18 itojun Exp $");
+< #endif
+68a65
+> #include "bsdport.h"
+120c117,118
+< 	memcpy(&peer, &peeraddr, peeraddr.ss_len);
+---
+> 
+> 	memcpy(&peer, &peeraddr, SS_LEN(&peeraddr));
+143c141
+< 		    (struct sockaddr *)&peer, peer.ss_len);
+---
+> 			(struct sockaddr *)&peer, SS_LEN(&peer));
+239c237
+< 	memcpy(&peer, &peeraddr, peeraddr.ss_len);
+---
+> 	memcpy(&peer, &peeraddr, SS_LEN(&peeraddr));
+259c257
+< 		    peer.ss_len) != size) {
+---
+> 				SS_LEN(&peer)) != size) {
+325c323
+< 	    peer.ss_len);
+---
+> 		SS_LEN(&peer));
+405c403
+< 	if (sendto(f, ackbuf, msglen, 0, peer, peer->sa_len) != length)
+---
+> 	if (sendto(f, ackbuf, msglen, 0, peer, SA_LEN(peer)) != length)
+507c505
+< 	if (getnameinfo(sa, sa->sa_len, NULL, 0, a, sizeof(a), NI_NUMERICSERV))
+---
+> 	if (getnameinfo(sa, SA_LEN(sa), NULL, 0, a, sizeof(a), NI_NUMERICSERV))
+509c507
+< 	if (getnameinfo(sb, sb->sa_len, NULL, 0, b, sizeof(b), NI_NUMERICSERV))
+---
+> 	if (getnameinfo(sb, SA_LEN(sa), NULL, 0, b, sizeof(b), NI_NUMERICSERV))
+diff -r netbsd-tftp-20020313.ori/tftpd.c netbsd-tftp-20020313/tftpd.c
+38,40d37
+< __COPYRIGHT("@(#) Copyright (c) 1983, 1993\n\
+< 	The Regents of the University of California.  All rights reserved.\n");
+< #if 0
+42,44d38
+< #else
+< __RCSID("$NetBSD: tftpd.c,v 1.24 2001/10/09 18:46:18 christos Exp $");
+< #endif
+79a74
+> #include "bsdport.h"
+118c113
+< static void	 usage(void);
+---
+> static void	 usage(const char *);
+141c136
+< usage(void)
+---
+> usage(const char *progname)
+145,146c140,141
+<     "Usage: %s [-dln] [-u user] [-g group] [-s directory] [directory ...]",
+< 		    getprogname());
+---
+> 		"Usage: %s [-dln] [-u user] [-g group] [-s directory] [directory ...]",
+> 		progname);
+156a152
+> 	const char	*progname;
+163a160,161
+> 	progname = argv[0];
+> 
+200c198
+< 			usage();
+---
+> 			usage(progname);
+219c217
+< 		usage();
+---
+> 		usage(progname);
+371c369
+< 		me.ss_len = from.ss_len;
+---
+> 		IF_HAVE_SS_LEN( me.ss_len = from.ss_len; )
+382c380
+< 	if (bind(peer, (struct sockaddr *)&me, me.ss_len) < 0) {
+---
+> 	if (bind(peer, (struct sockaddr *)&me, SS_LEN(&me)) < 0) {
+386c384
+< 	if (connect(peer, (struct sockaddr *)&from, from.ss_len) < 0) {
+---
+> 	if (connect(peer, (struct sockaddr *)&from, SS_LEN(&from)) < 0) {
+858c856
+< 	if (getnameinfo(fromp, fromp->sa_len, hbuf, sizeof(hbuf), NULL, 0, 0))
+---
+> 	if (getnameinfo(fromp, SA_LEN(fromp), hbuf, sizeof(hbuf), NULL, 0, 0))
+diff -r netbsd-tftp-20020313.ori/tftpsubs.c netbsd-tftp-20020313/tftpsubs.c
+38d37
+< #if 0
+40,42d38
+< #else
+< __RCSID("$NetBSD: tftpsubs.c,v 1.6 1999/07/12 20:19:21 itojun Exp $");
+< #endif

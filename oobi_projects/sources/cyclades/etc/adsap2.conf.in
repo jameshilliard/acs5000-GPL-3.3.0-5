@@ -1,0 +1,5 @@
+# state: secure or trust-all
+state trust-all
+
+# authserver: list of up to 4 @DSVIEW_CAP@ servers each one followed by comma
+#authserver 1.1.1.1,2.2.2.2,3.3.3.3,4.4.4.4, 

@@ -1,0 +1,157 @@
+#!/bin/sh
+
+cmd_hist=$(history 1)
+
+if [ -z "$(echo ${cmd_hist} | grep mk_env)" ] ; then
+  if [ -n "$(echo ${0} | grep mk_env)" ] ; then
+    echo
+    echo "Command must be executed this way: '. ${0} $*'"
+    echo
+    return > /dev/null 2>&1
+    exit
+  fi 
+  echo
+  echo "Command 'mk_env' must be executed with history enabled'"
+  echo
+  return > /dev/null 2>&1
+  exit
+fi
+
+my_dir=$(echo ${cmd_hist} | cut -d ' ' -f 3)
+dot=$(echo ${cmd_hist} | cut -d ' ' -f 2)
+
+if [ ! "${dot}" = "." ] ; then
+  echo
+  echo "Command must be executed this way: '. ${my_dir} $*'"
+  echo
+  return > /dev/null 2>&1
+  exit
+fi 
+
+unset -v dot cmd_hist
+
+curr_dir=$(pwd)
+my_dir=$(dirname ${my_dir})
+
+if [ "${my_dir}" = "." ] ; then
+  my_dir=".."
+else
+  my_dir=$(dirname ${my_dir})
+fi
+
+usage_rot ()
+{
+  if [ -n "$1" ] ; then
+    echo
+    echo $1
+  fi
+  echo
+  echo "USAGE: $0 [-J <java-config>] [-D <debug>] -{s|u}"
+  echo
+  echo "  -s: set and list the enviroment variables"
+  echo "  -u: unset the enviroment variables"
+  echo
+  echo "  <debug>: 0 -> disable, 1 -> enable, default 0"
+  echo "  <java-config>: default 'java.conf' in <OPENSOURCE_DIR>/tools"
+  echo
+}
+
+do_exit ()
+{
+  unset -f do_exit usage_rot 
+  unset -v JVD action DBG
+  [ ! "${my_dir}" = "." ] && cd ${curr_dir}
+  unset -v my_dir curr_dir
+}
+
+do_list ()
+{
+  alias make xmake xquilt 2>/dev/null
+  echo
+  echo  "OPENSOURCE_DIR : [$OPENSOURCE_DIR]"
+  echo  "APPL_DEBUG     : [$APPL_DEBUG]"
+  echo  "JAVA_CONF      : [$OPENSOURCE_DIR/${TOOLS}/$JAVA_CONF]"
+  echo
+}
+
+JVD=java.conf
+TARBAL=tarbal
+PATCHES=patches
+action="0"
+OPTIND=1
+DBG=${APPL_DEBUG:=0}
+
+while getopts "ulsJ:D:" op ; do
+case $op in
+u|s)
+  if [ "$action" == "0" ] ; then
+    action="$op"
+  else
+  usage_rot "Only one option of [u,s] must be used at a once."
+  do_exit
+  return 0
+  fi
+  ;;
+J)
+  JVD=$OPTARG
+  ;;
+D)
+  DBG=$OPTARG
+  ;;
+esac
+done
+  
+case $action in
+u)
+  unalias make xmake xquilt 2>/dev/null
+  PS1='[\u@\h \W]\$ '
+  unset -f do_list
+  unset -v OPENSOURCE_DIR JAVA_CONF TOOLS TARBAL PATCHES APPL_DEBUG
+  export -n OPENSOURCE_DIR JAVA_CONF TOOLS TARBAL PATCHES APPL_DEBUG
+  ;;
+s)
+  [ ! "${my_dir}" = "." ] && cd ${my_dir}
+  if [ ! -d dummy ] ; then
+    mkdir dummy
+    cd dummy
+    ln -sf /bin/true ldconfig
+    ln -sf /bin/true strip
+    cd -
+  fi
+  PS1='\[\033[01;32m\]\u@BUILTIN\[\033[01;34m\] \W \>\[\033[00m\] '
+  alias make=make-3.81
+  alias xmake='make-3.81 -f ${OPENSOURCE_DIR}/${TOOLS}/Makefile'
+  alias xquilt='QUILT_PATCHES=${OPENSOURCE_DIR}/patches/$(basename $(pwd)) quilt'
+  export TARBAL PATCHES
+  export TOOLS=tools
+  export APPL_DEBUG=$DBG
+
+  if [ -d ${TOOLS} -a -d ${TARBAL} -a -d ${PATCHES} -a \
+       -f ${TOOLS}/Makefile -a -x ${TOOLS}/mk_env ] ; then
+    export OPENSOURCE_DIR=$(pwd)
+  else
+    echo
+    echo "ERROR: current directory does not seem to home a good source tree,"
+    echo "       OPENSOURCE_DIR not changed/set."
+    echo
+    do_exit
+    return 0
+  fi
+  if [ -f ${OPENSOURCE_DIR}/${TOOLS}/${JVD} ] ; then
+    export JAVA_CONF=$JVD
+  else
+    echo
+    echo "ERROR: Invalid java configuration file '$JVD'."
+    echo
+    do_exit
+    return 0
+  fi
+  do_list
+  echo "Execute 'do_list' to display all variables again" 
+  echo
+  ;;
+?)
+  usage_rot
+  ;;
+esac
+do_exit

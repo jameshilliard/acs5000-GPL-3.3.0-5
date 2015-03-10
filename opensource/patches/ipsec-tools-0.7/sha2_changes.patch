@@ -1,0 +1,20 @@
+--- ipsec-tools-0.7/src/racoon/missing/crypto/sha2/sha2.h.orig	2007-10-22 09:01:43.000000000 -0200
++++ ipsec-tools-0.7/src/racoon/missing/crypto/sha2/sha2.h	2007-10-22 09:04:24.000000000 -0200
+@@ -68,7 +68,7 @@ typedef unsigned int u_int32_t;		/* 4-by
+ typedef unsigned long long u_int64_t;	/* 8-bytes (64-bits) */
+ #endif
+ 
+-#ifndef HAVE_SHA2_IN_SHA_H
++//#ifndef HAVE_SHA2_IN_SHA_H
+ /*
+  * Most BSD systems already define u_intXX_t types, as does Linux.
+  * Some systems, however, like Compaq's Tru64 Unix instead can use
+@@ -112,7 +112,7 @@ typedef struct _SHA512_CTX {
+ } SHA512_CTX;
+ 
+ #endif /* SHA2_USE_INTTYPES_H */
+-#endif /* HAVE_SHA2_IN_SHA_H */
++//#endif /* HAVE_SHA2_IN_SHA_H */
+ 
+ typedef SHA512_CTX SHA384_CTX;
+ 

@@ -1,0 +1,2092 @@
+/*
+ * conf.c	Read the configuration file.
+ *
+ * Version:	@(#)conf.c  1.25  08-Nov-1997  MvS.
+ *
+ *
+ */
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <string.h>
+#include <signal.h>
+#include <ctype.h>
+#include <netdb.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <stddef.h>
+#include <errno.h>   
+#include <termios.h>
+#include <syslog.h>   
+#include "server.h"
+
+static int start, end;
+
+static int check_alias(char *str);
+static int check_users(char *users);
+static int check_group(char *group);
+#ifdef PMD
+static int check_pmtype(char *s);
+static int check_pmusers(char *s);
+static int check_pmoutlet(char *s);
+#endif
+#if defined(ALERTSenable) || defined(CY_DLA_ALERT)
+static int check_port_alert_strings(char *port_alert_strings); //[GY]2006/Apr/24
+#endif
+#ifdef NISenable
+static int parse_linenis(unsigned char *buf, unsigned char **word,
+					unsigned char **argument);
+static int conv_nistype();
+static int determine_nis(unsigned char *s);
+#endif
+/*
+ *	Types of authentication.
+ */
+static struct lst radlst[] = {
+	{ "none",					AUTH_NONE  },
+	{ "radius",					AUTH_RADIUS  },
+	{ "TacacsPlus",				AUTH_TacacsPlus  },
+	{ "remote",					AUTH_REMOTE  },
+	{ "local",					AUTH_LOCAL  },
+	{ "radius/local",			AUTH_RADIUS_LOCAL  },
+	{ "TacacsPlus/local",		AUTH_TacacsPlus_LOCAL  },
+	{ "local/radius",			AUTH_LOCAL_RADIUS  },
+	{ "local/TacacsPlus",		AUTH_LOCAL_TacacsPlus  },
+	{ "RadiusDownLocal",		AUTH_RADIUS_DOWN_LOCAL  },
+	{ "TacacsPlusDownLocal",	AUTH_TacacsPlus_DOWN_LOCAL  },
+#ifdef KRBenable
+	{ "kerberos",               AUTH_KERBEROS },
+#endif
+	{ "ldap",                   AUTH_LDAP },
+	{ "ldap/local",             AUTH_LDAP_LOCAL },
+#ifdef KRBenable
+	{ "kerberos/local",      	AUTH_KERBEROS_LOCAL },
+	{ "kerberosDownLocal",      AUTH_KERBEROS_DOWN_LOCAL },
+#endif
+	{ "ldapDownLocal",          AUTH_LDAP_DOWN_LOCAL },
+#ifdef RADIUS2FACTORenable
+	{ "ldapDownLocal-radius",   AUTH_LDAP_DOWN_LOCAL_AND_RADIUS },
+#endif
+#ifdef NISenable
+	{ "Nis",          			AUTH_NIS },
+	{ "Nis/Local",          	AUTH_NIS_LOCAL },
+	{ "NisDownLocal",          	AUTH_NIS_DOWN_LOCAL },
+	{ "Local/Nis",          	AUTH_LOCAL_NIS },
+#endif
+#ifdef OTPenable
+	{ "otp",          		AUTH_OTP },
+	{ "otp/local",          	AUTH_OTP_LOCAL }, //[RK]Jan/18/06 - 2.6.1
+#endif
+#ifdef ADSAP2
+	{ "DSView",					AUTH_DSVIEW },
+	{ "DSView/local",			AUTH_DSVIEW_LOCAL },
+	{ "DSViewDownLocal",		AUTH_DSVIEW_DOWN_LOCAL },
+#endif
+	{ NULL,	0  },
+};
+
+/*
+ *	Activate(1) or not(0) type
+ */
+static struct lst oneZerolst[] = {
+	{ "0",	0},
+	{ "1",	1},
+	{ NULL,	0},
+};
+
+static struct lst onetwoZerolst[] = {
+	{ "0",	0},
+	{ "1",	1},
+	{ "2",	2},
+	{ NULL,	0},
+};
+
+#ifdef PMD
+/*
+ *	Types of session to IDPU.
+ */
+static struct lst pmsesslst[] = {
+	{ "none",	PMSESS_NONE },
+	{ "ssh",	PMSESS_SSH },
+	{ "telnet",	PMSESS_TELNET },
+	{ "ssh_telnet",	PMSESS_SSH | PMSESS_TELNET },
+	{ NULL,		PMSESS_NONE },
+};
+#endif
+
+/*
+ *	Types of flow control.
+ */
+static struct lst flowlst[] = {
+	{ "none",	FLOW_NONE },
+	{ "hard",	FLOW_HARD },
+	{ "soft",	FLOW_SOFT },
+	{ NULL,	0		},
+};
+
+/*
+ *	Types of sniff session mode.
+ */
+static struct lst sniff_list[] = {
+	{ "out",	0 },
+	{ "in",		1 },
+	{ "i/o",	2 },
+	{ "no",		3 },	//[RK]May/22/03 - Performance Improvement
+	{ NULL,	0},
+};
+
+/*
+ *	Multiuser Notification.
+ */
+static struct lst multiuser_notif_list[] = {
+	{ "off",	0 },
+	{ "on",		1 },
+	{ NULL,	0},
+};
+
+/*  
+ *	Types of data buffering mode.
+ */
+static struct lst DBlst[] = {
+	{ "cir",       CIR_mode },       //0
+	{ "lin",       LIN_mode },       //1
+#ifdef DLSenable
+	{ "dls",       DLS_mode },       //2
+	{ "dls_local", DLS_LOCAL_mode }, //3
+#endif
+	{ NULL,	0},
+};
+
+/*  
+ *	Data Buffer User Logs.
+ */
+static struct lst DBusrloglst[] = {
+	{ "off",	0 },
+	{ "on",		1 },
+	{ NULL,	0},
+};
+
+/*
+*    Yes/No list
+*/
+static struct lst yesNolst[] = {
+	{ "yes",	1},
+	{ "no",		0},
+	{ "1",		1},
+	{ "0",		0},
+	{ NULL, 0},
+};
+
+/*
+ *	Multiple sessions enabled or not.
+ */
+static struct lst mult_sess_list[] = {
+	{ "no",				NO_MULTIPLE_SESSIONS },
+	{ "yes",			MULTIPLE_RW_AND_SNIFF_SESSIONS },
+	{ "RW_session",		RW_SESSIONS_ONLY	},
+	{ "sniff_session",  SNIFF_SESSIONS_ONLY	},
+	{ "0",				NO_MULTIPLE_SESSIONS },
+	{ "1",				MULTIPLE_RW_AND_SNIFF_SESSIONS },
+	{ NULL,	0},
+};
+
+/*
+ *	Types of parity.
+ */
+static struct lst paritylst[] = {
+	{ "none",	1 },
+	{ "odd",	2 },
+	{ "even",	3 },
+	{ NULL,	0},
+};
+
+/*
+ *	Protocols.
+ */
+static struct lst prlst[] = {
+	{ "login",	P_LOCAL    },
+	{ "rlogin",	P_RLOGIN   },
+	{ "telnet",	P_TELNET   },
+#ifdef BIDIRECT
+	{ "telnet_bidirect",	P_TELNET_BIDIRECT   },
+#endif
+	{ "ssh",	P_SSH      },  
+	{ "ssh2",	P_SSH2     },  
+	{ "slip",	P_SLIP     },
+	{ "cslip",	P_CSLIP    },
+	{ "ppp",	P_PPP      },
+	{ "ppp_only",	P_PPP_ONLY },
+	{ "tcpclear",	P_TCPCLEAR },
+	{ "tcplogin",	P_TCPLOGIN },
+	{ "console",	P_CONSOLE  },
+	{ "socket_client",	P_SOCKET_CLIENT  },
+	{ "socket_server",	P_SOCKET_SERVER  },
+	{ "socket_ssh",		P_SOCKET_SSH  },
+	{ "socket_server_ssh",	P_SOCKET_SERVER_SSH  },
+	{ "raw_data",		P_SOCKET_SERVER_RAW  },
+#ifdef OLDPMD
+	{ "ipdu", P_IPDU },
+#endif
+#ifdef MODBUS
+	{ "modbus",		P_MODBUS  },
+#endif
+#ifdef BILLING
+	{ "billing",	P_BILLING  },
+#endif
+#ifdef CUSTOMAPPLICS
+	{ "modem_replace",	P_MODEM  },
+	{ "raw_data_2way",	P_2WRAW  },
+	{ "generic_dial",	P_GENDIAL  },
+#endif
+	{ "lpd",	P_LPD  },
+#ifdef PMDNG
+	{ "pm_ng", P_IPDU },
+#endif
+	{ NULL,	0 },
+};
+
+#ifdef MODBUS
+/*
+ *	Modbus Serial Mode.
+ */
+static struct lst mbsmlst[] = {
+	{ "ascii",	0 },
+	{ "rtu",	1 },
+	{ NULL,	0	  },
+};
+#endif
+
+/*
+ *	Types of media.
+ */
+static struct lst medialst[] = {
+	{ "rs232",			RS232 },
+	{ "rs485_half",			RS485_HALF },
+	{ "rs422",			RS485_FULL_TERM },
+	{ "rs485_full",			RS485_FULL },
+	{ "rs485_half_terminator",	RS485_HALF_TERM },
+	{ "rs485_full_terminator",	RS485_FULL_TERM },
+	{ "rs422_terminator",		RS485_FULL_TERM },
+	{ "rs232_half",			RS232_HALF },
+	{ "rs232_half_cts",		RS232_HALF_CTS },
+	{ NULL,	0},
+};
+
+static struct lst authlist[] = {
+    {"radius",              AUTH_RADIUS },
+    {"tacplus",             AUTH_TacacsPlus  },
+    {"remote",              AUTH_REMOTE  },
+    {"local",               AUTH_LOCAL  },
+    {"radiuslocal",         AUTH_RADIUS_LOCAL  },
+    {"tacpluslocal",        AUTH_TacacsPlus_LOCAL },
+    {"localradius",         AUTH_LOCAL_RADIUS  },
+    {"localtacplus",        AUTH_LOCAL_TacacsPlus  },
+    {"radiusdownlocal",     AUTH_RADIUS_DOWN_LOCAL  },
+    {"tacplusdownlocal",    AUTH_TacacsPlus_DOWN_LOCAL  },
+#ifdef KRBenable
+    {"kerberos",            AUTH_KERBEROS },
+#endif
+    {"ldap",                AUTH_LDAP },
+#ifdef KRBenable
+    {"kerberoslocal",   	AUTH_KERBEROS_LOCAL },
+    {"kerberosdownlocal",   AUTH_KERBEROS_DOWN_LOCAL },
+#endif
+    {"ldaplocal",       	AUTH_LDAP_LOCAL },
+    {"ldapdownlocal",       AUTH_LDAP_DOWN_LOCAL },
+#ifdef RADIUS2FACTORenable
+	{"ldapdownlocal-radius",AUTH_LDAP_DOWN_LOCAL_AND_RADIUS },
+#endif
+#ifdef SMBenable
+    {"smb",                 AUTH_SMB },
+    {"smbdownlocal",        AUTH_SMB_DOWN_LOCAL },
+#endif
+#ifdef NISenable
+	{ "nis",       			AUTH_NIS },
+	{ "nislocal",          	AUTH_NIS_LOCAL },
+	{ "nisdownlocal",      	AUTH_NIS_DOWN_LOCAL },
+	{ "localnis",          	AUTH_LOCAL_NIS },
+#endif
+#ifdef OTPenable
+	{ "otp",	          	AUTH_OTP },
+#endif
+#ifdef ADSAP2
+	{ "@DSVIEW@",				AUTH_DSVIEW },
+	{ "@DSVIEW@local",		AUTH_DSVIEW_LOCAL },
+	{ "@DSVIEW@downlocal",	AUTH_DSVIEW_DOWN_LOCAL },
+#endif
+    {0,                 -1 }
+};
+
+static struct lst pppauthlist[] = {
+    {"unit-auth",           AUTH_SAME_AS_UNIT },
+    {"radius",              AUTH_RADIUS },
+    {"tacplus",             AUTH_TacacsPlus  },
+    {"remote",              AUTH_REMOTE  },
+    {"local",               AUTH_LOCAL  },
+    {"radiuslocal",         AUTH_RADIUS_LOCAL  },
+    {"tacpluslocal",        AUTH_TacacsPlus_LOCAL },
+    {"localradius",         AUTH_LOCAL_RADIUS  },
+    {"localtacplus",        AUTH_LOCAL_TacacsPlus  },
+    {"radiusdownlocal",     AUTH_RADIUS_DOWN_LOCAL  },
+    {"tacplusdownlocal",    AUTH_TacacsPlus_DOWN_LOCAL  },
+#ifdef KRBenable
+    {"kerberos",            AUTH_KERBEROS },
+#endif
+    {"ldap",                AUTH_LDAP },
+#ifdef KRBenable
+    {"kerberoslocal",   	AUTH_KERBEROS_LOCAL },
+    {"kerberosdownlocal",   AUTH_KERBEROS_DOWN_LOCAL },
+#endif
+    {"ldaplocal",       	AUTH_LDAP_LOCAL },
+    {"ldapdownlocal",       AUTH_LDAP_DOWN_LOCAL },
+#ifdef SMBenable
+    {"smb",                 AUTH_SMB },
+    {"smbdownlocal",        AUTH_SMB_DOWN_LOCAL },
+#endif
+#ifdef ADSAP2
+	{"@DSVIEW@",				AUTH_DSVIEW },
+	{"@DSVIEW@local",			AUTH_DSVIEW_LOCAL },
+	{"@DSVIEW@downlocal",		AUTH_DSVIEW_DOWN_LOCAL },
+#endif
+#ifdef NISenable
+    {"localnis",        AUTH_LOCAL_NIS},
+#endif
+    {0,                 -1 }
+};
+
+#ifdef IPv6enable
+/*
+ *	IPv6 address config method.
+ */
+static struct lst IPv6method[] = {
+	{ "stateless_only",	IPv6_STATELESS_ONLY },
+	{ "static",	        IPv6_STATIC },
+	{ "dhcp",           IPv6_DHCP },
+	{ NULL,	            0 },
+};
+/*
+ *	DHCPv6 config options.
+ */
+static struct lst dhcpv6_opts[] = {
+	{ "none",       DHCPv6_NONE },
+	{ "DNS",        DHCPv6_DNS },
+	{ "domain",     DHCPv6_DOMAIN },
+	{ "DNS_domain", (DHCPv6_DNS | DHCPv6_DOMAIN) },
+	{ NULL,	        0 },
+};
+#endif
+
+#define OFFSET_MAIN(x)	offsetof(struct main_cfg, x)
+#define OFFSET_LINE(x)	offsetof(struct line_cfg, x)
+
+/*
+ *	Define structure for the main configuration.
+ */
+struct conf main_cfg[] = {
+	{ "hostname",			C_STR,	NULL,	OFFSET_MAIN(hostname1)	},
+	{ "nfs_data_buffering",	C_MSTR,	NULL,	OFFSET_MAIN(nfs_data_buffering)	},
+#ifdef CYCLADES
+	{ "eth_ip",				C_IPNO,	NULL,	OFFSET_MAIN(eth_ip)		},
+	{ "eth_mask",			C_IPNO,	NULL,	OFFSET_MAIN(netmask)		},
+	{ "eth_ip_alias",		C_IPNO,	NULL,	OFFSET_MAIN(eth_ip_alias)		},
+	{ "eth_mask_alias",		C_IPNO,	NULL,	OFFSET_MAIN(eth_mask_alias)		},
+	{ "dhcp_client",		C_INT,	NULL,	OFFSET_MAIN(dhcpcd)		},
+	{ "eth_mac",			C_STR,	NULL,	OFFSET_MAIN(macaddress)		},
+	{ "eth_mtu",			C_INT,	NULL,	OFFSET_MAIN(mtu)		},
+	{ "nat_clustering_ip",	C_IPNO,	NULL,	OFFSET_MAIN(nat_clustering_ip)	},
+#else
+	{ "ipno",				C_IPNO,	NULL,	OFFSET_MAIN(ipno)		},
+#endif
+	{ "group",				C_LSTR,	NULL,	OFFSET_MAIN(groups), check_group},
+	{ "include",			C_CHR,	NULL,	OFFSET_MAIN(include)},
+	{ "host_config",		C_HCNF,	NULL,	OFFSET_MAIN(host_config)},
+	{ "lockdir",			C_STR,	NULL,	OFFSET_MAIN(lockdir)	},
+	{ "rlogin",				C_STR,	NULL,	OFFSET_MAIN(rlogin)	},
+	{ "telnet",				C_STR,	NULL,	OFFSET_MAIN(telnet)	},
+	{ "ssh",				C_STR,	NULL,	OFFSET_MAIN(ssh)		},
+	{ "pppd",				C_STR,	NULL,	OFFSET_MAIN(pppd)		},
+	{ "locallogins",		C_INT,	NULL,	OFFSET_MAIN(locallogins)	},
+//[RK]ALARM	{ "syslog",				C_HOST,	NULL,	OFFSET_MAIN(syslog)	},
+	{ "DB_facility",		C_INT,	NULL,	OFFSET_MAIN(DB_facility)	},
+	{ "facility",			C_INT,	NULL,	OFFSET_MAIN(facility)	},
+	{ "filterdir",			C_STR,	NULL,	OFFSET_MAIN(filterdir)	},
+	{ "#hostname",			C_XSTR,	NULL,	OFFSET_MAIN(hostname)	},
+	{ "#st_r tLocaloutes",	C_XSTR,	NULL,	OFFSET_MAIN(st_routes)	},
+	{ "#host_ipno",			C_XIPNO,NULL,	OFFSET_MAIN(host_ipno)	},
+	{ "#ipno",				C_XIPNO,NULL,	OFFSET_MAIN(ipno)		},
+	{ "authtype",			C_LIST,	authlist,	OFFSET_MAIN(authtype)	},
+	{ "pppauthtype",			C_LIST,	pppauthlist,	OFFSET_MAIN(pppauthtype)	},
+#ifdef CY_DLA_ALERT
+	{ "dla",				C_INT,	NULL,	OFFSET_MAIN(dla)	},
+	{ "alert",				C_INT,	NULL,	OFFSET_MAIN(alert)	},
+	{ "alert_strings",		C_CHAT,	NULL,	OFFSET_MAIN(alert_strings), check_port_alert_strings },
+	{ "dla_file",			C_STR,	NULL,	OFFSET_MAIN(dla_file) },
+#endif //CY_DLA_ALERT
+	{ "autodiscovery_probe_str",	C_CHAT,	NULL,	OFFSET_MAIN(ad_probe_str) },
+	{ "autodiscovery_answer_str",	C_CHAT,	NULL,	OFFSET_MAIN(ad_answer_str) },
+	//{ "autodiscovery_test",	C_LSTR,	NULL,	OFFSET_MAIN(ad_test) },
+#ifdef IPv6enable
+	{ "enableIPv4",			C_LIST, yesNolst,	OFFSET_MAIN(enableIPv4)	},
+	{ "enableIPv6",			C_LIST, yesNolst,	OFFSET_MAIN(enableIPv6)	},
+	{ "IPv6method",			C_LIST,	IPv6method,	OFFSET_MAIN(IPv6method)	},
+	{ "eth_ip6",			C_IPNO6,NULL,		OFFSET_MAIN(eth_ip6)	},
+	{ "eth_prefix6",		C_INT,	NULL,		OFFSET_MAIN(eth_prefix6)},
+	{ "ipno6",				C_IPNO6,NULL,		OFFSET_MAIN(ipno6)		},
+	{ "prefix6",			C_INT,  NULL,		OFFSET_MAIN(prefix6)	},
+	{ "dhcpv6_opts",		C_LIST,	dhcpv6_opts,OFFSET_MAIN(dhcpv6_opts)},
+#endif
+	{ NULL	}
+};
+
+/*
+ *	Define structure for the per-line configuration.
+ */
+struct conf line_cfg[] = {
+	{ "syslog_buffering",	C_INT,	NULL,	OFFSET_LINE(syslog_buffering)	},
+	{ "syslog_sess",		C_LIST,	oneZerolst,	OFFSET_LINE(syslog_sess)	},
+	{ "data_buffering",		C_INT,	NULL,	OFFSET_LINE(data_buffering)	},
+	//[RK]Feb/13/06 - data buffering is disable when connection is stablished
+	{ "data_buffering_sess",	C_LIST,	oneZerolst,	OFFSET_LINE(data_buffering_sess)},
+	{ "DB_mode",			C_LIST,	DBlst,	OFFSET_LINE(DB_mode)	},
+	{ "DB_user_logs",	    C_LIST, DBusrloglst, OFFSET_LINE(DB_user_logs)	},
+//[RK]ALARM	{ "syslog_level",		C_INT,	NULL,	OFFSET_LINE(syslog_level)	},
+//[RK]ALARM	{ "console_level",		C_INT,	NULL,	OFFSET_LINE(console_level)	},
+	{ "sniff_mode",			C_LIST,	sniff_list,	OFFSET_LINE(sniff_mode)	},
+	{ "multiple_sessions",	C_LIST,	mult_sess_list, OFFSET_LINE(multiple_sessions)	},
+	{ "multiuser_notif",	C_LIST, multiuser_notif_list, OFFSET_LINE(multiuser_notif)	},
+#ifdef WINEMSenable
+	{ "translation",		C_STR,	NULL,	OFFSET_LINE(translation)},
+	{ "web_WinEMS",         C_LIST, yesNolst,   OFFSET_LINE(web_WinEMS)}, 
+#endif
+	{ "escape_char",		C_CHAR,	NULL,	OFFSET_LINE(escape_char)},
+	{ "break_sequence",		C_STR,	NULL,	OFFSET_LINE(break_seq)},
+	{ "break_interval",		C_INT,	NULL,	OFFSET_LINE(break_interval)	}, //[RK]May/05/03
+	{ "poll_interval",		C_INT,	NULL,	OFFSET_LINE(poll_interval)	},
+	{ "tx_interval",		C_INT,	NULL,	OFFSET_LINE(tx_interval)	},
+	{ "idletimeout",		C_INT,	NULL,	OFFSET_LINE(idletimeout)	},
+	{ "dont_show_DBmenu",	C_INT,	NULL,	OFFSET_LINE(dont_show_db_op)	},
+	{ "DB_timestamp",		C_INT,	NULL,	OFFSET_LINE(DB_timestamp)	},
+	{ "tty",				C_STR,	NULL,	OFFSET_LINE(tty)		},
+	{ "protocol",			C_LIST,	prlst,	OFFSET_LINE(protocol)	},
+	{ "authtype",			C_LIST,	radlst,	OFFSET_LINE(authtype)	},
+#if !(defined(TARGET_AVCS) || defined(TARGET_ACS5K))
+	{ "biometric",			C_INT,oneZerolst,OFFSET_LINE(biometric) },
+#endif
+#ifdef IPMI
+	{ "IPMIServer",         C_INT,	NULL,	OFFSET_LINE(IPMIServer) },
+#endif
+	{ "socket_port",		C_INDY,	NULL,	OFFSET_LINE(socket_port)	},
+	{ "pool_socket_port",	C_INT,	NULL,	OFFSET_LINE(pool_socket_port)	},
+	{ "serverfarm",			C_STR,	NULL,	OFFSET_LINE(alias),	check_alias},
+	{ "alias",			C_STR,	NULL,	OFFSET_LINE(alias),	check_alias},
+	{ "pool_alias",	C_STR,	NULL,	OFFSET_LINE(pool_alias),	check_alias},
+	{ "media",				C_LIST,	medialst,	OFFSET_LINE(media)	},
+	{ "speed",				C_INT,	NULL,	OFFSET_LINE(speed)	},
+	{ "dcd",				C_INT,	NULL,	OFFSET_LINE(dcd)		},
+	{ "DTR_reset",			C_INT,	NULL,	OFFSET_LINE(DTR_reset)		},
+	{ "flow",				C_LIST, flowlst,OFFSET_LINE(flow)		},
+	{ "parity",				C_LIST, paritylst,OFFSET_LINE(Parity)	},
+	{ "stopbits",			C_INT,	NULL,	OFFSET_LINE(StopBits)	},
+	{ "datasize",			C_INT,	NULL,	OFFSET_LINE(DataSize)	},
+	{ "users",				C_MSTR,	NULL,	OFFSET_LINE(users), check_users},
+	{ "admin_users",		C_MSTR,	NULL,	OFFSET_LINE(admin_users), check_users},
+	{ "userauto",			C_STR,	NULL,	OFFSET_LINE(userauto)	},
+#ifndef CYCLADES
+	{ "debug",				C_INT,	NULL,	OFFSET_LINE(debug)	},
+#endif
+	{ "sysutmp",			C_INT,	NULL,	OFFSET_LINE(sysutmp)	},
+	{ "syswtmp",			C_INT,	NULL,	OFFSET_LINE(syswtmp)	},
+	{ "utmpfrom",			C_MSTR,	NULL,	OFFSET_LINE(utmp_from)	},
+	{ "emumodem",			C_INT,	NULL,	OFFSET_LINE(emumodem)	},
+	{ "porttype",			C_INT,	NULL,	OFFSET_LINE(porttype)	},
+	{ "radnullpass",		C_INT,	NULL,	OFFSET_LINE(radnullpass)	},
+	{ "authhost1",			C_HOST,	NULL,	OFFSET_LINE(authhost1)	},
+	{ "authhost2",			C_HOST,	NULL,	OFFSET_LINE(authhost2)	},
+	{ "accthost1",			C_HOST,	NULL,	OFFSET_LINE(accthost1)	},
+	{ "accthost2",			C_HOST,	NULL,	OFFSET_LINE(accthost2)	},
+	{ "radtimeout",			C_INT,	NULL,	OFFSET_LINE(timeout)	},
+	{ "radretries",			C_INT,	NULL,	OFFSET_LINE(retries)	},
+	{ "secret",				C_STR,	NULL,	OFFSET_LINE(secret)	},
+	{ "host",				C_HOST,	NULL,	OFFSET_LINE(host)		},
+#ifdef CUSTOMAPPLICS
+	{ "host_port",          C_INDY,	NULL,	OFFSET_LINE(host_port)	},
+	{ "host_idletime",      C_INT,	NULL,	OFFSET_LINE(host_idletime)	},
+#endif
+	{ "ipno",				C_IPDY,	NULL,	OFFSET_LINE(ipno)		},
+	{ "pool_ipno",			C_IPNO,	NULL,	OFFSET_LINE(pool_ipno)	},
+	{ "netmask",			C_IPNO,	NULL,	OFFSET_LINE(netmask)	},
+#ifdef IPv6enable
+	{ "ipno6",				C_IPDY6,NULL,	OFFSET_LINE(ipno6)		},
+	{ "pool_ipno6",			C_IPNO6,NULL,	OFFSET_LINE(pool_ipno6)	},
+	{ "prefix6",			C_INT,	NULL,	OFFSET_LINE(prefix6)	},
+#endif
+	{ "mtu",				C_INT,	NULL,	OFFSET_LINE(mtu)		},
+	{ "mru",				C_INT,	NULL,	OFFSET_LINE(mru)		},
+	{ "autoppp",			C_MSTR,	NULL,	OFFSET_LINE(autoppp)	},
+	{ "pppopt",				C_MSTR,	NULL,	OFFSET_LINE(pppopt)	},
+	{ "issue",				C_MSTR,	NULL,	OFFSET_LINE(issue)	},
+	{ "sttyCmd",			C_MSTR,	NULL,	OFFSET_LINE(sttyCmd)	},
+	{ "prompt",				C_MSTR,	NULL,	OFFSET_LINE(prompt)	},
+	{ "lf_suppress",		C_LIST,	onetwoZerolst,	OFFSET_LINE(lf_suppress)	},
+	{ "auto_answer_input",  C_STR,  NULL,   OFFSET_LINE(auto_answer_input)  },
+	{ "auto_answer_output", C_STR,  NULL,   OFFSET_LINE(auto_answer_output) },
+	{ "term",				C_STR,	NULL,	OFFSET_LINE(term)		},
+	{ "initchat",			C_CHAT,	NULL,	OFFSET_LINE(initchat)	},
+	{ "#virtual",			C_XINT,	NULL,	OFFSET_LINE(virtual)	},
+	{ "realm",				C_REALM,NULL,	OFFSET_LINE(realm)	},
+	{ "sconfkey", 		C_CHAR, NULL, 	OFFSET_LINE(sconfkey)},
+#ifdef PMD
+#ifdef OLDPMD
+	{ "pmtype", 		C_MSTR, NULL, 	OFFSET_LINE(pmtype), check_pmtype},
+#endif
+	{ "pmusers", 		C_MSTR, NULL, 	OFFSET_LINE(pmusers),check_pmusers},
+#ifdef OLDPMD
+	{ "pmoutlet",		C_MSTR, NULL, 	OFFSET_LINE(pmoutlet), check_pmoutlet},
+#endif
+	{ "pmkey", 		C_CHAR, NULL, 	OFFSET_LINE(pmkey)},
+#endif
+#ifdef IPMI
+	{ "IPMIkey",		C_CHAR,	NULL,	OFFSET_LINE(IPMIkey)},
+#endif
+	{ "SSH_exitkey",	C_CHAR,	NULL,	OFFSET_LINE(SSH_exitkey)},
+#ifdef OLDPMD
+	{ "pmNumOfOutlets",	C_INT,	NULL,	OFFSET_LINE(pmNumOfOutlets)}, //[RK]Nov/20/02 bug#88
+//       { "pmadmpasswd",         C_MSTR, NULL,   OFFSET_LINE(pmadmpasswd)},
+#endif
+#ifdef CYCLADES
+	{ "alarm",				C_INT,	NULL,	OFFSET_LINE(alarm)	},
+#ifdef WINEMSenable
+	{ "xml_monitor",			C_INT,	NULL,	OFFSET_LINE(xml_monitor)},
+#endif
+	{ "telnet_client_mode",		C_INT,	NULL,	OFFSET_LINE(telnet_client_mode)	}, //[RK]Nov/20/02 bug#88
+#ifdef ALERTSenable
+        { "port_alert_strings", C_CHAT, NULL,   OFFSET_LINE(port_alert_strings), check_port_alert_strings}, //[GY]2006/Apr/24
+#endif
+#endif
+#ifdef MODBUS
+	{ "modbus_smode",		C_LIST,	mbsmlst,	OFFSET_LINE(modbus_smode)	},
+#endif
+#ifdef BILLING
+	{ "billing_records",	C_INT,	NULL,	OFFSET_LINE(billing_records)	},  //mp.Jan2003
+	{ "billing_timeout",	C_INT,	NULL,	OFFSET_LINE(billing_timeout)	},  //mp.Jan2003
+	{ "billing_eor",	    C_STR,	NULL,	OFFSET_LINE(billing_eor)	    },  //mp.Aug2003
+	{ "billing_dir",	    C_STR,	NULL,	OFFSET_LINE(billing_dir)	    },  //mp.Jan2004
+#endif
+#ifdef CUSTOMAPPLICS
+	{ "mr_ip_timeout",	    C_INT,	NULL,	OFFSET_LINE(mr_ip_timeout)	},  //mp.Jun2004
+	{ "mr_telno",	        C_STR,	NULL,	OFFSET_LINE(mr_telno)	    },  //mp.Jun2004
+	{ "mr_modemtries",	    C_INT,	NULL,	OFFSET_LINE(mr_modemtries)	},  //mp.Jun2004
+	{ "mr_idletime",	    C_INT,	NULL,	OFFSET_LINE(mr_idletime)	},  //mp.Jun2004
+#endif
+	{ "#fast",		C_INT,	NULL,	OFFSET_LINE(fast)	}, //[RK]May/22/03 - Performance Improvement
+	{ "#auxflg",		C_INT,	NULL,	OFFSET_LINE(auxflg)	},
+#ifdef PMD
+	{ "pmsessions",		C_LIST, pmsesslst, 	OFFSET_LINE(pmsessions)},
+#endif
+#ifdef BIDIRECT
+	{ "logintimeout",	C_INT, NULL, OFFSET_LINE(lgtimeout) },
+	{ "termsh",			C_STR, NULL, OFFSET_LINE(termsh) },
+#endif
+	{ "autodiscovery",	C_LIST,	yesNolst, OFFSET_LINE(ad) },
+	{ "autodiscovery_timeout", C_INT, NULL, OFFSET_LINE(ad_timeout) },
+	{ NULL }
+};
+
+struct conf realm_cfg[] = {
+	{ "name",		C_STR,	NULL,	offsetof(struct realm_def, name)	},
+	{ "strip",		C_INT,	NULL,	offsetof(struct realm_def, strip)	},
+	{ "prefix",		C_INT,	NULL,	offsetof(struct realm_def, prefix)	},
+	{ "authhost1",		C_INT,	NULL,	offsetof(struct realm_def, authhost1)	},
+	{ "authhost2",		C_INT,	NULL,	offsetof(struct realm_def, authhost2)	},
+	{ "accthost1",		C_INT,	NULL,	offsetof(struct realm_def, accthost1)	},
+	{ "accthost2",		C_INT,	NULL,	offsetof(struct realm_def, accthost2)	},
+	{ "realm",		C_REALM,NULL,	offsetof(struct realm_def, next)	},
+	{ NULL, },
+};
+
+#ifdef PMD
+// This routine check if the configured IPDU type is valid. It checks
+// if the file /etc/pm.<pmtype> exist and if the this file does not exist
+// it returns error.
+#ifdef OLDPMD
+static int check_pmtype (char *s) {
+	char file[50], *t;
+	struct stat st;
+
+	sprintf(file, "/etc/pm.%s", s);
+	for(t = file; !isspace(*t) && *t; t++);
+	*t = 0;
+	if ( stat(file, &st) == -1) {
+		syslog(LOG_ERR, "rwconf.c:check_pmtype(): %s file does not exist", file);
+		return -1;
+	}
+	return 0;
+}
+#endif
+
+static int check_pmusers (char *s) {
+	// to be done
+	return 0;
+}
+
+#ifdef OLDPMD
+static int check_pmoutlet (char *s) {
+	// to be done
+	return 0;
+}
+#endif
+#endif
+
+static int check_group(char *group)
+{
+	int  flag;
+
+	for(flag=0; group; ++group) {
+		//XPRINTF("\r\ncheck_group 0 f=%x [%s]\r\n", flag, group);
+		switch(*group) {
+		case ':':
+			if (!(flag & 2)) {
+				//XPRINTF("\r\ncheck_group 1 f=%x [%s]\r\n", flag, group);
+				goto err_sintax;
+			}
+			flag = 0x13;
+			break;
+		case ' ':
+		case '\t':
+			if ((flag & 0x14) == 0x14) {
+				flag |= 0x20;
+				flag &= ~0x10;
+			}
+			break;
+		case ',':
+			if (!(flag & 0x20)) {
+				//XPRINTF("\r\ncheck_group 2 f=%x [%s]\r\n", flag, group);
+				goto err_sintax;
+			}
+			if (flag & 0x08) {
+				//XPRINTF("\r\ncheck_group 3 f=%x [%s]\r\n", flag, group);
+				goto err_sintax;
+			}
+			flag |= 0x08;
+			break;
+		case 0:
+			if (flag & 0x08) {
+				//XPRINTF("\r\ncheck_group 4 f=%x [%s]\r\n", flag, group);
+				goto err_sintax;
+			}
+			if (!(flag & 0x06)) {
+				//XPRINTF("\r\ncheck_group 5 f=%x [%s]\r\n", flag, group);
+				goto err_sintax;
+			}
+			group = (char *)-1;
+			break;
+		default:
+			if (flag & 1)
+				flag |= 0x34;
+			else
+				flag |= 0x02;
+			flag &= ~0x08;
+			break;
+		}
+	}
+
+	return(0);
+
+err_sintax:
+
+	return(-1);
+}
+
+static int check_alias(char *str)
+{
+	if (strpbrk(str, "/*?~")) return(-1);
+	return(0);
+}
+
+static int check_users(char *users)
+{
+	int  flag;
+
+	for(flag=0; users; ++users) {
+		switch(*users) {
+		case '!':
+			if (flag) goto err_sintax;
+			flag = 0x01;
+			break;
+		case ' ':
+		case '\t':
+			if (!(flag&0x13)) goto err_sintax;
+			if (flag & 0x02) {
+				flag |= 0x14;
+				flag &= ~0x02;
+			}
+			break;
+		case ',':
+			if (!(flag&0x06)) goto err_sintax;
+			if (flag&0x08) goto err_sintax;
+			flag |= 0x18;
+			flag &= ~0x06;
+			break;
+		case 0:
+			if (flag & 0x08) goto err_sintax;
+			if (!(flag&0x12)) goto err_sintax;
+			users = (char *)-1;
+			break;
+		default:
+			flag |= 0x02;
+			flag &= ~0x08;
+			break;
+		}
+	}
+
+	return(0);
+
+err_sintax:
+
+	return(-1);
+}
+
+//[GY]2006/Apr/25
+#if defined(ALERTSenable) || defined(CY_DLA_ALERT)
+static int check_port_alert_strings(char *port_alert_strings)
+{
+   char flag;
+   int str = 0, ch = 0;
+
+   for( flag=0 ; port_alert_strings; ++port_alert_strings ) {
+      switch( *port_alert_strings ) {
+      case '"':
+         if( !flag )
+            flag = 0x5;
+         else {
+            if( flag & 0x1 ) {
+               if( (ALERT_STRINGS_MIN_CHAR <= ch) && (ch <= ALERT_STRINGS_MAX_CHAR) ) {
+                  ch = 0;
+                  flag &= 0xc;
+               }
+               else
+                  goto err_sintax;
+            }
+            else {
+               if( flag & 0x2 )
+                  flag ^= 0x3;
+               else
+                  goto err_sintax;
+            }
+         }
+         break;
+      case ' ':
+      case '\t':
+         if( flag & 0x1 )
+            ch++;
+         break;
+      case ',':
+         if( !flag ) {
+            flag = 0xa;
+            str++;
+         }
+         else {
+            if( flag & 0x1 )
+               ch++;
+            else {
+               flag |= 0x2;
+               str++;
+            }
+         }
+         break;
+      case 0:
+         if( flag & 0x3 )
+            goto err_sintax;
+         port_alert_strings = (char *)-1;
+         break;
+      default:
+         if( flag & 0x1 )
+            ch++;
+         else
+            goto err_sintax;
+         break;
+      }
+   }
+   if( str >= ALERT_STRINGS_QUANTITY )
+      return(-1);
+   return(0);
+err_sintax:
+   return(-1);
+}
+#endif
+
+/*
+ *	Set a char.
+ */
+static int setchar(struct line_cfg *lines, char *ptr, char *val, int offs)
+{
+	int n, i;
+	char *p = val;
+	int qtd = end - start;
+
+	while(!(isspace(*p)) && *p) p++;
+	if (isblank(*p)) *p = 0;
+
+	/* ^ for control character. */
+	if (*val == '^' && (val[1] & 0xdf) >= 'A' && (val[1] & 0xdf) <= 'Z' && !val[2])
+		n = val[1] & 0x1f;
+	else 
+		return (-1);
+
+	if (lines != NULL) {
+		for(i = 0; i < qtd; i++)
+			*(int *)((char *)&lines[i] + offs) = n;
+	}
+	*(int *)(ptr + offs) = n;
+
+	return 0;
+}
+
+/*
+ *	Set an integer.
+ */
+static int setint(struct line_cfg *lines, char *ptr, char *val, int offs)
+{
+	int n, i;
+	int qtd = end - start;
+
+	if (sscanf(val, "%d", &n) != 1)
+		return -1;
+	if (lines != NULL) {
+		for(i = 0; i < qtd; i++)
+			*(int *)((char *)&lines[i] + offs) = n;
+	}
+	*(int *)(ptr + offs) = n;
+
+	return 0;
+}
+
+static int setintdy(struct line_cfg *lines, char *ptr, char *val, int offs)
+{
+	int n, i;
+	int dy = 0;
+	int qtd = end - start;
+	char *p;
+
+	if ((p = strchr(val, '+')) != NULL) {
+		dy = 1;
+		*p = 0;
+	}
+
+	if (sscanf(val, "%d", &n) != 1)
+		return -1;
+	if (lines != NULL) {
+		for(i = 0; i < qtd; i++)
+			if (dy) {
+				*(int *)((char *)&lines[i] + offs) = n + i;
+			} else {
+				*(int *)((char *)&lines[i] + offs) = n;
+			}
+	}
+	*(int *)(ptr + offs) = n;
+
+	return 0;
+}
+
+/*
+ *	Checks if a host configuration should be discarded or not
+ */
+static int sethcnf(char *val, struct main_cfg *main_conf)
+{
+	char *p = val;
+
+	while(!(isspace(*p)) && *p) p++;
+	if (isblank(*p)) *p = 0;
+
+	main_conf->host_config = 0;
+
+	if (!strcasecmp(val, ".end")) {
+		return(0);
+	}
+
+	if (main_conf->hostname && *main_conf->hostname && 
+		!strcmp(val, main_conf->hostname)) {
+		return(0);
+	}
+
+	main_conf->host_config = 1;
+	return(0);
+
+}
+
+
+/*
+ *	Set a static string with file name.
+ */
+static int setchr(char *ptr, char *val, int offs)
+{
+	char *p = val, *v = ptr+offs;
+
+	if (*v) return (-1);
+
+	while(!(isspace(*p)) && *p) p++;
+	if (isblank(*p)) *p = 0;
+
+	if (strlen(val) > 127) return(-1);
+
+	strcpy(v, val);
+	return(0);
+}
+
+/*
+ *	Set a list of string.
+ */
+static int setlstr(char *ptr, char *val, int offs, int doun)
+{
+    char *p, **s;
+    int len;
+
+	/*
+	 *	Specialcase "" as the empty string.
+	 */
+	if (doun)
+		tstr(0, val);
+	else if (strcmp(val, "\"\"") == 0) val = "";
+
+    len = strlen(val);
+
+    if ((p = shm_malloc(len + 4, TYPE_SHM_LSTR)) == NULL) {
+        return(0);
+    }
+
+    memcpy(p+4, val, len);
+
+	s = (char **)(ptr + offs);
+	*(char **)p = *s;
+	*s = p;
+
+    return(0);
+
+}
+
+/*
+ *	Set a string.
+ */
+static int setstr(struct line_cfg *lines, char *ptr, char *val, int offs, int doun, int trunc)
+{
+	int i;
+	char **s, **l;
+	char *p = val;
+	int qtd = end - start;
+
+	if (trunc) {
+		while(!(isspace(*p)) && *p) p++;
+		if (isblank(*p)) *p = 0;
+	}
+
+	/*
+	 *	Specialcase "" as the empty string.
+	 */
+	if (doun)
+		tstr(0, val);
+	else if (strcmp(val, "\"\"") == 0) val = "";
+
+	s =(char **)(ptr + offs);
+
+	if (*s != NULL) {
+		shm_free_str(*s);
+	}
+
+	*s = shm_strdup(val);
+
+	if (lines) {
+		for(i = 0; i < qtd; i++) {
+			l =(char **)((char *)&lines[i] + offs);
+			if (*l != NULL) shm_free_str(*l);
+			*l = *s;
+			shm_inc_count(*s);
+		}
+	}
+	return 0;
+}
+
+/*
+ *	Set a hostname. Return ipno.
+ */
+static int sethost(struct line_cfg *lines, char *ptr, char *val, int offs)
+{
+	int i;
+	unsigned int n;
+	struct hostent *h;
+	int qtd = end - start;
+
+	if (val[0] == 0)
+		n = 0;
+	else if ((int)(n = inet_addr(val)) == -1) {
+		if ((h = gethostbyname(val)) == NULL)
+			return -1;
+		n = *(unsigned int *)h->h_addr_list[0];
+	}
+
+	if (lines != NULL) {
+		for(i = 0; i < qtd; i++)
+			*(unsigned int *)((char *)&lines[i] + offs) = n;
+	}
+	*(unsigned int *)(ptr + offs) = n;
+
+	return 0;
+}
+
+/*
+ *	Set an IP address.
+ */
+static int setipno(struct line_cfg *lines, char *ptr, char *val, int offs)
+{
+	int i;
+	unsigned int n;
+	int qtd = end - start;
+
+	if ((int)(n = inet_addr(val)) == -1 && strcmp(val, "255.255.255.255") != 0)
+			return -1;
+
+	if (lines != NULL) {
+		for(i = 0; i < qtd; i++)
+			*(unsigned int *)((char *)&lines[i] + offs) = n;
+	}
+	*(unsigned int *)(ptr + offs) = n;
+
+	return 0;
+}
+
+#ifdef IPv6enable
+/*
+ *	Set an IPv6 address.
+ */
+static int setipno6(struct line_cfg *lines, char *ptr, char *val, int offs)
+{
+	struct addrinfo hints, *res = NULL;
+	struct sockaddr_storage *pipv6addr;
+	int i;
+	int qtd = end - start; //start is 0; end is 0 (main_cfg) or MAXVLINES (line_cfg)
+
+	memset(&hints, 0, sizeof(hints));
+	hints.ai_family = PF_UNSPEC;
+	hints.ai_flags = AI_NUMERICHOST;
+		
+	i = getaddrinfo(val, NULL, &hints, &res);
+
+	if (i) {
+		syslog (LOG_ERR, "\nsetipno6: ERROR = %s \n", gai_strerror(i));
+		//freeaddrinfo(res); not necessary?
+		return (-1);
+	}
+
+	if (lines != NULL) {
+		for(i = 0; i < qtd; i++) {
+			pipv6addr = (struct sockaddr_storage *)((char *)&lines[i] + offs);
+			memcpy(pipv6addr, res->ai_addr, res->ai_addrlen);
+		}
+	}
+	pipv6addr = (struct sockaddr_storage *)(ptr + offs);
+	memcpy(pipv6addr, res->ai_addr, res->ai_addrlen);
+
+	freeaddrinfo(res);
+					
+	return 0;
+}
+#endif
+
+/*
+ *	Set a dynamic IP address.
+ */
+static int setipdy(struct line_cfg *lines, char *ptr, char *val, int offs, int port)
+{
+	int i = 0;
+	unsigned int n, m;
+	int dy = 0;
+	char *p;
+	int qtd = end - start;
+
+	if ((p = strchr(val, '+')) != NULL) {
+		dy = 1;
+		*p = 0;
+	}
+
+	if ((int)(n = inet_addr(val)) == -1 && strcmp(val, "255.255.255.255") != 0)
+			return -1;
+	if (lines != NULL) {
+		for(i = 0; i < qtd; i++) {
+			m = n;
+			if (dy) m = htonl(ntohl(m) + (i & 0xFF));
+			*(unsigned int *)((char *)&lines[i] + offs) = m;
+		}
+	}
+	if (port >= 0 && dy) n = htonl(ntohl(n) + i);
+	*(unsigned int *)(ptr + offs) = n;
+
+	return 0;
+}
+
+#ifdef IPv6enable
+static void increase_ip(struct sockaddr *pipaddr, unsigned int count)
+{
+	unsigned int m;
+	
+	if (pipaddr->sa_family == AF_INET6) {
+		m = ((struct sockaddr_in6 *)pipaddr)->sin6_addr.s6_addr32[3];
+		((struct sockaddr_in6 *)pipaddr)->sin6_addr.s6_addr32[3] = 
+				htonl(ntohl(m) + (count & 0xFF));
+	} else if (pipaddr->sa_family == AF_INET){
+		m = ((struct sockaddr_in *)pipaddr)->sin_addr.s_addr;
+		((struct sockaddr_in *)pipaddr)->sin_addr.s_addr = 
+				htonl(ntohl(m) + (count & 0xFF));
+	}
+}
+
+static int setipdy6(struct line_cfg *lines, char *ptr, char *val, int offs, int port)
+{
+	int i = 0;
+	int dy = 0;
+	char *p;
+	struct addrinfo hints, *res = NULL;
+	struct sockaddr_storage *pipv6addr;
+	int qtd = end - start; //start is 0; end is 0 (main_cfg) or MAXVLINES (line_cfg)
+
+	if ((p = strchr(val, '+')) != NULL) {
+		dy = 1;
+		*p = 0;
+	}
+
+	memset(&hints, 0, sizeof(hints));
+	hints.ai_family = PF_UNSPEC;
+	hints.ai_flags = AI_NUMERICHOST;
+		
+	i = getaddrinfo(val, NULL, &hints, &res);
+
+	if (i) {
+		syslog (LOG_ERR, "\nsetipdy6: ERROR = %s \n", gai_strerror(i));
+		//freeaddrinfo(res); not necessary?
+		return (-1);
+	}
+
+	if (lines != NULL) {
+		for(i = 0; i < qtd; i++) {
+			pipv6addr = (struct sockaddr_storage *)((char *)&lines[i] + offs);
+			memcpy(pipv6addr, res->ai_addr, res->ai_addrlen);
+			if (dy) {
+				increase_ip((struct sockaddr *)pipv6addr, (unsigned int)i);
+			}
+		}
+	}
+	pipv6addr = (struct sockaddr_storage *)(ptr + offs);
+	memcpy(pipv6addr, res->ai_addr, res->ai_addrlen);
+	if (port >= 0 && dy) {
+		increase_ip((struct sockaddr *)pipv6addr, (unsigned int)i);
+	}
+
+	freeaddrinfo(res);
+					
+	return 0;
+}
+#endif
+
+/* 
+ *	Put a realm structure in a linked list.
+ *
+ *	A few helper macros first...
+ */
+#define findend(s1) \
+	do {\
+		for (s = s1; *s && !isspace(*s); s++);\
+		    if (*s) *s = '\0'; else s = NULL;\
+		if (strlen(s1) == 0) goto realm_error;\
+	} while (0)
+
+#define ckshortline(s1) \
+	do {\
+		if (s) {\
+			*s = ' ';\
+			s1 = s + 1;\
+		} else goto realm_error;\
+	} while (0)
+
+#define addaddr(a1) \
+	do {\
+		if (strcmp(t, "\"\"") == 0) {\
+			r->a1 = 0;\
+			break;\
+		}\
+		if (sethost(NULL, (char *) r, t, offsetof(struct realm_def, a1)) < 0)\
+			goto realm_error;\
+	} while(0)
+
+static int setrealm(struct line_cfg *lines, char *ptr, char *val, int offs)
+{
+	struct realm_def **rl;
+	struct realm_def *r, *nr;
+	char *s = NULL, *t;
+	int i, rtn = -2;
+	int qtd = end - start;
+
+	if ((r = (struct realm_def *) shm_malloc(sizeof(struct realm_def), TYPE_SHM_REALM)) == NULL)
+		return -1;
+	
+	r->name = NULL;
+	findend(val);
+	switch (*(t = val)) {
+		case '>':
+			r->prefix = 0;
+			break;
+		case '<':
+			r->prefix = 1;
+			break;
+		default:
+			goto realm_error;
+	}
+	switch (*++t) {
+		case '-':
+			r->strip = 1;
+			break;
+		case '+':
+			r->strip = 0;
+			break;
+		default:
+			goto realm_error;
+	}
+	if (!*++t)
+		goto realm_error;
+	r->name = shm_strdup(t);
+
+	ckshortline(t);
+	findend(t);
+	addaddr(authhost1);
+	ckshortline(t);
+	findend(t);
+	addaddr(accthost1);
+
+	ckshortline(t);
+	findend(t);
+	addaddr(authhost2);
+
+	ckshortline(t);
+	findend(t);
+	addaddr(accthost2);
+
+	if (lines != NULL) {
+		for(i = 0; i < qtd; i++) {
+			rl = (struct realm_def **)((char *)&lines[i] + offs);
+			nr = (struct realm_def *) shm_malloc(sizeof(struct realm_def), TYPE_SHM_REALM);
+			if (!nr) {
+				rtn = -1;
+				goto realm_error;
+			}
+			*nr = *r;
+			if (r->name)
+				nr->name = shm_strdup(r->name);
+			if (*rl) nr->next = *rl;
+			*rl = nr;
+		}
+	}
+	rl = (struct realm_def **)((char *)ptr + offs);
+	if (*rl) r->next = *rl;
+	*rl = r;
+
+	return 0;
+
+realm_error:
+	if (r->name) shm_free_str(r->name);
+	shm_free_str((char *)r);
+	return -1;
+}
+
+
+/*
+ *	Set an integer, from a list of string values.
+ */
+static int setlist(struct line_cfg *lines, char *ptr, char *val, struct lst *lst, int offs)
+{
+	int n = 0, i;
+	char *s = val;
+	int qtd = end - start;
+
+	while(!(isspace(*s)) && *s) s++;
+	*s = 0;
+
+	for(i = 0; lst[i].name; i++) {
+		if (strcmp(val, lst[i].name) == 0) {
+			n = lst[i].value;
+			break;
+		}
+	}
+	if (lst[i].name == NULL) return -1;
+
+	if (lines != NULL) {
+		for(i = 0; i < qtd; i++)
+			*(int *)((char *)&lines[i] + offs) = n;
+	}
+#ifdef NISenable
+	// do nis conversion here
+    if (n == AUTH_LOCAL) {
+		n = conv_nistype();
+		if (n < 0) {
+			n = AUTH_LOCAL;	
+		}
+	}
+#endif
+	*(int *)(ptr + offs) = n;
+	
+
+	return 0;
+}
+
+/*
+ *	Parse one line from the configuration file.
+ */
+int parseline(	char *line,
+				struct main_cfg *main_conf,
+				struct line_cfg *all_conf,
+				struct line_cfg *line_conf)
+{
+	char *dup = strdup(line);
+	char *s = dup;
+	char *w, *a, *c;
+	char *ptr;
+	struct line_cfg *lines;
+	struct conf *cfg, *x;
+	int n = 0;
+
+	/*
+	 *	Remove the trailing newline.
+	 */
+	for(w = s; *w; w++)
+		;
+	while(--w >= s && *w == '\n')
+		*w = 0;
+
+	/*
+	 *	Get word (w), command (c) and argument (a).
+	 */
+	while(isspace(*s)) s++;
+	if (*(w = s) == 0) {
+		free(dup);
+		return(0);
+	}
+	while(*s && !isspace(*s)) s++;
+	if (*s) *s++ = 0;
+	while(isspace(*s)) s++;
+	a = s;
+	if ((c = strchr(w, '.')) == NULL || c[1] == 0) {
+parseline_error:
+		free(dup);
+		return -1;
+	}
+	*c++ = 0;
+
+	/*
+	 *	See what class of command this is.
+	 */
+	if (strcmp(w, "conf") == 0) {
+		ptr = (char *)main_conf;
+		lines = NULL;
+		cfg = main_cfg;
+		start = end = 0;
+	} else if (strcmp(w, "all") == 0) {
+		ptr = (char *)all_conf;
+		lines = &line_conf[0];
+		cfg = line_cfg;
+		start = 0;
+		end = MAXVLINES;
+		n = -1; 	// fixed problem with ipno
+	} else if (w[0] == 's') {
+		if (w[1] == '{') {
+			if ((s = strchr(w, '-')) == NULL) {
+				goto parseline_error;
+			}
+			*s++ = 0;
+			start = atoi(w + 2);
+			if (strchr(s, '}') == NULL) {
+				goto parseline_error;
+			}
+			end = atoi(s);
+		} else {
+			start = end = atoi(w + 1);
+		}
+		if (start > end || start < 1 || start > MAXVLINES || end > MAXVLINES) {
+			goto parseline_error;
+		}
+		n = start - 1;
+		ptr = (char *)&line_conf[n];
+		line_conf[n].this = n;
+#if defined(ONS) || defined(KVM)
+        line_conf[n].auxflg = 0;
+#endif
+		cfg = line_cfg;
+		if (start != end) {
+			lines = &line_conf[start];
+		} else {
+			lines = NULL;
+		}
+#if defined(ONS) || defined(KVM)
+    } else if (w[0] == 'a') {
+        if (w[1] == '{') {
+            if ((s = strchr(w, '-')) == NULL) {
+                goto parseline_error;
+            }
+            *s++ = 0;
+            start = atoi(w + 2);
+            if (strchr(s, '}') == NULL) {
+                goto parseline_error;
+            }
+            end = atoi(s);
+        } else {
+            start = end = atoi(w + 1);
+        }
+        if (start > end || start < 1 || start > MAXVLINES || end > MAXVLINES) {
+            goto parseline_error;
+        }
+        n = start - 1;
+        line_conf[n+AUX_OFFSET].this = n+AUX_OFFSET;
+        line_conf[n+AUX_OFFSET].auxflg = 1;
+        ptr = (char *)&line_conf[n+AUX_OFFSET];
+        cfg = line_cfg;
+        if (start != end) {
+            lines = &line_conf[start+AUX_OFFSET];
+        } else {
+            lines = NULL;
+        }
+#endif
+	} else  {
+		goto parseline_error;
+	}
+	/*
+	 *	Parse the line and fill in the right structure(s).
+	 */
+
+	for(x = cfg; x->name != NULL; x++) {
+		if (strcmp(c, x->name) != 0) continue;
+
+		if (x->check) {
+			if ((x->check)(a)) {
+				goto parseline_error;
+			}
+		}
+
+		if (main_conf->host_config && x->type != C_HCNF) {
+			goto exit_parse;
+		}
+
+		switch(x->type) {
+			case C_INDY:
+				n = setintdy(lines, ptr, a, x->offs);
+				break;
+			case C_HCNF:
+				n = sethcnf(a, main_conf);
+				break;
+			case C_CHR:
+				n = setchr(ptr, a, x->offs);
+				break;
+			case C_CHAR:
+				n = setchar(lines, ptr, a, x->offs);
+				break;
+			case C_INT:
+				n = setint(lines, ptr, a, x->offs);
+				break;
+			case C_LSTR:
+				n = setlstr(ptr, a, x->offs, 1);
+				break;
+			case C_STR:
+				n = setstr(lines, ptr, a, x->offs, 1, 1);
+				break;
+			case C_MSTR:
+				n = setstr(lines, ptr, a, x->offs, 1, 0);
+				break;
+			case C_CHAT:
+				n = setstr(lines, ptr, a, x->offs, 0, 0);
+				break;
+			case C_HOST:
+#ifdef IPv6enable
+				n = setipno6(lines, ptr, a, x->offs);
+#else
+				n = sethost(lines, ptr, a, x->offs);
+#endif
+				break;
+			case C_LIST:
+				n = setlist(lines, ptr, a, x->opts, x->offs);
+				break;
+			case C_IPNO:
+				n = setipno(lines, ptr, a, x->offs);
+				break;
+#ifdef IPv6enable
+			case C_IPNO6:
+				n = setipno6(lines, ptr, a, x->offs);
+				break;
+			case C_IPDY6:
+				n = setipdy6(lines, ptr, a, x->offs, n);
+				break;
+#endif
+			case C_IPDY:
+				n = setipdy(lines, ptr, a, x->offs, n);
+				break;
+			case C_REALM:
+				n = setrealm(lines, ptr, a, x->offs);
+ 			break;			
+			default:
+				n = -1;
+				break;
+		}
+		break;
+	}
+	if (x->name == NULL || n < 0) { 
+		goto parseline_error; 
+		}
+
+exit_parse:
+
+	free(dup);
+
+	return 0;
+}
+
+static void check_ttysn(struct line_cfg *pconf)
+{
+	int i, n, flag=0;
+
+	for(i=0; i < MAXVLINES; i++, pconf++) {
+		if (!pconf->tty) {
+			pconf->this = -4;
+			continue;
+		}
+		if (!(*pconf->tty)) {
+			shm_free_str(pconf->tty);
+			pconf->this = -4;
+			pconf->tty = 0;
+			continue;
+		}
+		#ifdef KVM	
+		if (memcmp(pconf->tty, "ttyA", 4)) {
+			pconf->virtual = 1;
+			continue;
+		}
+		#else
+		#ifdef ONS	
+		if (memcmp(pconf->tty, "ttyS", 4) &&
+			memcmp(pconf->tty, "ttyA", 4)) {
+			pconf->virtual = 1;
+			continue;
+		}
+		#else
+		if (memcmp(pconf->tty, "ttyS", 4)) {
+			pconf->virtual = 1;
+			continue;
+		}
+		#endif
+		#endif
+
+		if (pconf->this >= MAXLINES) {
+			syslog(LOG_ERR, "Device: %s should be used in the virtual terminals s1 to s%d", pconf->tty, MAXLINES);
+			shm_free_str(pconf->tty);
+			pconf->this = -4;
+			pconf->tty = 0;
+			continue;
+		}
+
+		n = atoi(pconf->tty+4);
+		if (n < 1 || 
+			(pconf->tty[3] == 'S' && n > cy_shm->max_devS) ||
+			(pconf->tty[3] == 'A' && n > cy_shm->max_devA)) {
+			if (!flag) {
+				flag = 1;
+				//XPRINTF("Valid Devices for this machine should be between ttyS1 and ttyS%d."
+						//"\r\nThe first invalid device found was: %s\r\n",
+						//cy_shm->max_dev, pconf->tty);
+			}
+			shm_free_str(pconf->tty);
+			pconf->this = -4;
+			pconf->tty = 0;
+			continue;
+		}
+
+		//[RK]May/10/06 - event notification
+		// set default value for alias
+		if ((pconf->alias == NULL) || (*pconf->alias == NULL)) {
+			char aux[20];
+#ifdef PMD
+			if (pconf->protocol == P_IPDU) {
+				sprintf(aux,"PDU%d",i+1);
+			} else 
+#endif
+			{
+				sprintf(aux,"Port%d",i+1);
+			}
+			pconf->alias = shm_strdup(aux); 
+		}
+
+		//[RK]Aug/04/03 - RTS legacy half duplex, [mp]Jul/2004: removed RS232_HALF from if()
+		if (pconf->media == RS232_HALF_CTS) {
+			if (pconf->flow == FLOW_HARD) {
+				pconf->flow = FLOW_NONE;
+			}
+		}
+
+		//[RK]Aug/25/03 - bug#746
+		if (pconf->multiple_sessions && (pconf->sniff_mode == 3)) {
+			pconf->sniff_mode = 0; // out
+		}
+
+		//[RK]June/03/04 - SSH/Telnet to IPDU
+#ifdef PMD
+		if (pconf->protocol == P_IPDU) {
+			if (pconf->pmsessions != PMSESS_NONE &&
+				pconf->authtype == AUTH_NONE) {
+				pconf->authtype = AUTH_LOCAL;
+			}
+			pconf->fast = 1;
+			continue; //[RK]Jul/28/04 
+		}	
+#endif
+
+#ifdef BIDIRECT
+		//[LMT] CyBTS Bug 4667
+		if(pconf->protocol == P_TELNET_BIDIRECT) {
+                    pconf->data_buffering = 0;
+                    pconf->syslog_buffering = 0;
+                    pconf->alarm = 0;
+#ifdef WINEMSenable
+                    pconf->xml_monitor = 0;
+#endif
+#ifdef PMD
+                    pconf->pmkey = 0;
+#endif
+#ifdef IPMI
+                    pconf->IPMIkey = 0;
+#endif
+                    pconf->sconfkey = 0;
+                    pconf->SSH_exitkey = 0; //mp: why is this line here?
+                    pconf->multiple_sessions = NO_MULTIPLE_SESSIONS;
+                    pconf->sniff_mode = 3;
+                    pconf->auto_answer_input = 0;
+                    pconf->auto_answer_output = 0;
+                    pconf->dcd = 0;
+                    pconf->fast = 1;
+		    continue;
+                }
+#endif
+			
+		//[RK]May/22/03 - Performance Improvement
+		if (((pconf->protocol == P_SOCKET_SERVER) ||
+		     (pconf->protocol == P_SOCKET_SSH) ||
+		     (pconf->protocol == P_SOCKET_SERVER_SSH) ||
+		     (pconf->protocol == P_SOCKET_SERVER_RAW)) && // CAS profile
+		    !pconf->data_buffering && 
+		    !pconf->syslog_buffering &&
+		    !pconf->alarm &&
+#ifdef WINEMSenable
+		    !pconf->xml_monitor &&
+#endif
+#ifdef PMD
+		    !pconf->pmkey &&
+#endif
+#ifdef IPMI
+		    !pconf->IPMIkey &&
+#endif
+		    !pconf->sconfkey &&
+		    (pconf->multiple_sessions == NO_MULTIPLE_SESSIONS) &&
+		    (pconf->sniff_mode == 3) && 
+		    //[RK]Jul/21/03
+		    !pconf->auto_answer_input &&
+		    !pconf->auto_answer_output &&
+		    //[RK]Aug/02/04 - SNMPTRAP for DCD
+		    !pconf->dcd) {
+			pconf->fast = 1;
+		} else {
+			pconf->fast = 0;
+		}
+                //[GY]2006/Apr/25
+                //alarm parameter check for redefinition
+#ifdef ALERTSenable
+                if( pconf->alarm > 1 && pconf->port_alert_strings == NULL ) {
+                   if( pconf->alarm == 2 )  //port alert -> deactivation
+                      pconf->alarm = 0;
+                   else
+                      pconf->alarm = 1;     //port alert and port alarm -> port alarm
+                }
+#endif
+	}
+}
+
+/*
+ *	Read the configuration file.
+ */
+int readcfg(struct main_cfg *main_conf,
+			struct line_cfg *all_conf,
+			struct line_cfg *line_conf)
+{
+	FILE *fp;
+	FILE *fp_inc;
+	char buf[2048];
+	int lineno = 0;
+	int line_inc;
+	char *s, *p;
+
+	if ((fp = fopen(CONFFILE, "r")) == NULL) {
+		syslog(LOG_ERR, "Could not open file %s", CONFFILE);
+		return -1;
+	}
+
+	*main_conf->include = 0;
+	main_conf->host_config = 0;
+	main_conf->authtype = AUTH_LOCAL;
+	main_conf->pppauthtype = AUTH_SAME_AS_UNIT;
+
+	p = buf;
+	while(fgets(p, sizeof(buf) - (p - buf), fp)) {
+		lineno++;
+		if (p[0] == '#' || p[0] == '\n') continue;
+		s = p + strlen(p);
+		if (s > p+1 && s[-1] == '\n' && s[-2] == '\\' && s[-3] !='^') {
+			p = s-2;
+			continue;
+		}
+
+		for (--s; (s > p) && (*s == '\r' || *s == '\n'); s--) {
+			*s = 0; // \r\n at the end of line
+		}
+
+		if (buf[0] == '\n' || buf[0] == 0) {
+			p = buf;
+			continue;
+		}
+		if (parseline(buf, main_conf, all_conf, line_conf) < 0) {
+			syslog(LOG_ERR, "%s: Syntax error line %d (1185) (%s)", CONFFILE, lineno, buf);
+		}
+		if (*main_conf->include) {
+			if ((fp_inc = fopen(main_conf->include, "r")) == NULL) {
+				syslog(LOG_ERR, "Could not open include file %s (%s)", main_conf->include, strerror(errno));
+				return -1;
+			}
+			p = buf;
+			line_inc = 0;
+			while(fgets(p, sizeof(buf) - (p - buf), fp_inc)) {
+				line_inc++;
+				if (p[0] == '#' || p[0] == '\n') continue;
+				s = p + strlen(p);
+				if (s > p && *--s == '\n' && *--s == '\\') {
+					p = s;
+					continue;
+				}
+
+				if (*s == '\r') *s = 0; // file with \r\n at the end of line ???
+
+				if (buf[0] == '\n' || buf[0] == 0) {
+					p = buf;
+					continue;
+				}
+				if (parseline(buf, main_conf, all_conf, line_conf) < 0) {
+					syslog(LOG_ERR, "%s: Syntax error line %d (1210) [%s]", main_conf->include, line_inc, buf);
+				}
+				p = buf;
+			}
+			*main_conf->include = 0;
+			fclose(fp_inc);
+		}
+		p = buf;
+	}
+	check_ttysn(line_conf);
+	fclose(fp);
+	return 0;
+}
+
+/*
+ *	Initialize the configuration stuff with defaults.
+ */
+
+void initcfg(struct main_cfg *main_conf,
+			 struct line_cfg *all_conf,
+			 struct line_cfg *line_conf)
+{
+	int i;
+	struct hostent *h;
+	char buf[256];
+	char def_timeout [] = "3";
+	char def_radnullpass [] = "1";
+	char login_str [] = "login: ";
+	char tmp_fmt [] = "%t:%p.%3.%4";
+//	char def_pmadmpasswd [] = "pm8";
+	char def_sh[] = "/bin/sh";
+	
+	start = 0;
+	end   = MAXVLINES;
+
+	(void)gethostname(buf, sizeof(buf));
+	main_conf->hostname = shm_strdup(buf);
+	if (( h = gethostbyname(buf)) != NULL) {
+		main_conf->host_ipno = *(unsigned int *)h->h_addr_list[0];
+	} else {
+		main_conf->host_ipno = 0;
+	}
+	main_conf->ipno = 0;
+	main_conf->eth_ip = 0;
+
+#ifdef IPv6enable
+	main_conf->enableIPv4 = 1;
+	main_conf->enableIPv6 = 0;
+	main_conf->IPv6method = IPv6_STATELESS_ONLY;
+	main_conf->dhcpv6_opts = DHCPv6_NONE;
+	main_conf->eth_prefix6 = 64;
+	main_conf->prefix6 = 64;
+	memset(&main_conf->eth_ip6, 0, sizeof(main_conf->eth_ip6));
+	memset(&main_conf->ipno6, 0, sizeof(main_conf->ipno6));
+#endif
+
+	main_conf->rlogin = shm_strdup("/bin/rlogin-radius");
+	main_conf->pppd = shm_strdup( "/bin/pppd");
+	main_conf->telnet = shm_strdup( "/bin/telnet");
+	main_conf->ssh = shm_strdup( "/bin/ssh");
+
+	setstr (line_conf, (char *)all_conf, login_str,
+		OFFSET_LINE(prompt), 1, 0);
+	setint (line_conf, (char *)all_conf, def_radnullpass,
+		OFFSET_LINE(radnullpass));
+	setint (line_conf, (char *)all_conf, def_timeout,
+		OFFSET_LINE(timeout));
+	setstr (line_conf, (char *)all_conf, tmp_fmt,
+		OFFSET_LINE(utmp_from), 1, 0);
+	setint (line_conf, (char *)all_conf, "1000",	//ModemStatePolling
+		OFFSET_LINE(poll_interval));
+	setint (line_conf, (char *)all_conf, "100",	
+		OFFSET_LINE(tx_interval));
+	setchar (line_conf, (char *)all_conf, "^z", //[RK]Oct/25/02 - BUG#43
+		OFFSET_LINE(escape_char));
+//	setstr (1, line_conf, (char *)all_conf, def_pmadmpasswd,
+//		OFFSET_LINE(pmadmpasswd));
+#ifdef BIDIRECT
+	setstr(line_conf, (char *)all_conf, def_sh, OFFSET_LINE(termsh), 1,0);
+	setint(line_conf, (char *)all_conf, "60", OFFSET_LINE(lgtimeout));
+#endif
+	setint(line_conf, (char *)all_conf, "0", OFFSET_LINE(conntype));
+
+	for(i=0; i < MAXVLINES; i++) {
+		line_conf[i].this = -1;
+		line_conf[i].protocol = P_UNKNOWN;
+#ifdef IPv6enable
+		line_conf[i].prefix6 = 128;
+#endif
+	}
+
+}
+
+#ifdef BONDING_FEATURE
+/***************************************************************************************************
+ parseintvalue - just parses a configline in the format parametername=value, reading only the value
+ part, changing it to integer and returning it
+
+ linefromfile - string in the format parametername = value (if there are spaces or not it wont
+ matter
+
+ returns the integer value that corresponds to the parameter, or -1 in case of error
+ **************************************************************************************************/
+static int parseintvalue(char *linefromfile)
+{
+        //used to scan the limits for the integer value into the string
+        char *p = linefromfile, *pf;
+
+        //loof for the first digit
+        while(((*p) > 0x39 || (*p) < 0x30) && (*p)) p++;
+        if(!*p) return -1; //end of line and no number found
+
+        pf = p; //ok, now look for the first non number to get the end of the value
+        while(((*pf) <= 0x39 && (*pf) >= 0x30) && (*pf)) pf++;
+        *pf = '\0'; //mark here as the final of the string
+
+        return atoi( p );
+}
+
+/***************************************************************************************************
+ read_bondcfg - read the file /etc/bonding.opts and parses the values for the parameters ENABLED,
+ MIIMONVALUE and UPDELAYVALUE. Commentaries (lines starting with #) are ignored, as well as spaces
+ or tabs. It doesnt matter also the order in which the parameters appear in the file.
+
+ bondcfg - pointer to the structure that keeps the bonding configuration: the fields bonding,
+ miimon and updelay will be modified by this function.
+
+ Returns 0 if success (what doesnt guarantee valid values in the fields of the structure) or -1
+ in case the bonding configuration file couldnt be read
+ **************************************************************************************************/
+int read_bondcfg(struct bonding_cfg *bondcfg, int first_time)
+{
+        FILE *fp;
+        char *p, lineread[100];
+	int compar;	/* used for comparing with the old value  */
+
+        if(!(fp = fopen (BONDING_FILE,"r")))
+		return -1;
+
+        /* find the line with the "ENABLED" parameter */
+        while(! feof(fp)) {
+                fgets(lineread, 100, fp);
+                p = index(lineread, '#');
+                if(p) *p = '\0'; /* nulify commentaries */
+
+		/* read the value for ENABLED parameter */
+		if((p = strstr(lineread, "ENABLED"))) {
+			/* saves old value for comparision */
+			compar = bondcfg->bonding;
+			/* there must be a YES "after" the ENABLED parameter name */
+			bondcfg->bonding = strstr(p, "YES") ? BD_BONDING_ENABLED : 0;
+
+			/* marks the configuration as changed if it is the case */
+			/* [GY]2006/Mar/03  BUG#6602 */
+			if(!first_time && compar != bondcfg->bonding)
+				bondcfg->bonding |= BD_BONDING_ENA_CHANGED;
+
+		} else if((p = strstr(lineread, "MIIMONVALUE"))) {
+			compar = bondcfg->miimon;
+			bondcfg->miimon = parseintvalue(lineread);
+			/* [GY]2006/Mar/03  BUG#6602 */
+			if(!first_time && compar != bondcfg->miimon)
+				bondcfg->bonding |= BD_BONDING_OPTS_CHANGED;
+
+		} else if((p = strstr(lineread, "UPDELAYVALUE"))) {
+			compar = bondcfg->updelay;
+			bondcfg->updelay = parseintvalue(lineread);
+			/* [GY]2006/Mar/03  BUG#6602 */
+			if(!first_time && compar != bondcfg->updelay)
+				bondcfg->bonding |= BD_BONDING_OPTS_CHANGED;
+		}
+	}
+
+        return 0;
+}
+#endif
+
+#ifdef NISenable
+static int parse_linenis(unsigned char *buf, unsigned char **word,
+					unsigned char **argument)
+{
+    unsigned char *p, *s, *w, *a, *c;
+    p = buf;
+
+    if ((p[0] == '#') || p[0] == '\n') return 0;
+    s = p + strlen(p);
+    if (buf[0] == '\n' || buf[0] == 0)
+    {
+        return 0;
+    }
+    s = buf;
+    while (isspace(*s)) s++;
+  w = s;
+  while (*s && !isspace(*s)) s++;
+  if (*w==0) return 0;
+  if (*s) *s++=0;
+  a = s;
+    while(*s && !isspace(*s)) s++;
+  if ((c = strchr(w,':')) != NULL)
+        *c=0;
+  *word=w;
+  *argument=a;
+  return 1;
+}
+
+static int conv_nistype()
+{
+    FILE *fp;
+  	unsigned char *a, *buf, *s, *t, *w;
+	struct stat st;
+  int type=0;
+
+	if (stat(NSSWITCH_FILE, &st) == 0) {
+		buf = (unsigned char *)malloc(st.st_size+1);
+		if (!buf) {
+			return (-1);
+		}
+		fp = fopen(NSSWITCH_FILE, "r");
+		if (!fp) {
+			free(buf);
+			return (-1);
+		}
+		fread(buf, 1, st.st_size+1, fp);
+		*(buf+st.st_size)=0;
+		fclose(fp);
+	} else {
+		return (-1);
+	}
+    t = s = buf;
+
+    while (*s)
+  {
+    while (*s && *s!='\n') s++;
+    if (*s) *s++=0;
+
+    //Parse and get word, argument
+    switch (parse_linenis(t, &w, &a))
+    {
+      case 1:
+                if (!strcmp(w, "passwd"))
+                {
+                    if ((type = determine_nis(a)) != -1)
+                    {
+                        return (type);
+                    }
+                }
+                t = s;
+        break;
+
+      default:
+        t = s;
+        break;
+        } // end of switch
+    }
+
+    free(buf);
+    return (-1);
+}
+static int determine_nis(unsigned char *s)
+{
+    unsigned char *word;
+    int type = -1;
+    int i=0;
+
+    while (*s)
+    {
+        i++;
+      while (isspace(*s)) s++;
+    word=s;
+    while (*s && !isspace(*s)) s++;
+    if (*s) *s++=0;
+        switch (i)
+        {
+            case 1:
+                if (!strcmp(word, "files"))
+                {
+                    type = AUTH_LOCAL;
+                    break;
+                }
+                if (!strcmp(word, "nis")) {
+                    type = AUTH_NIS;
+                }
+                break;
+            case 2:
+                if (!strcmp(word, "nis"))
+                {
+                    if (type == AUTH_LOCAL)
+                    {
+                        type = AUTH_LOCAL_NIS;
+                    }
+                    break;
+                }
+                if (!strcmp(word, "files"))
+                {
+                    if (type == AUTH_NIS)
+                    {
+                        type = AUTH_NIS_LOCAL;
+                    }
+                    break;
+                }
+                if (!strcmp(word,"[")) {
+                    if (type == AUTH_NIS){
+                        type = AUTH_NIS_DOWN_LOCAL;
+                    }
+                }
+                break;
+        } //end of switch
+    }
+    return(type);
+}
+#endif
+

@@ -1,0 +1,59 @@
+#
+#  Makefile for Cyclades projects.
+#
+#  It will handle dependences betwenn packages and build them.
+#  These packages are not changed by Cyclades
+#
+
+include $(OPENSOURCE_DIR)/$(TOOLS)/MakeChecks
+
+$(call check_vars,SOURCES BUILD DIST WORK_DIR TOOLS)
+
+# Set the build directory based on the project and target.
+BUILD_DIR := $(WORK_DIR)/$(BUILD)
+DIST_DIR := $(WORK_DIR)/$(DIST)
+
+include $(WORK_DIR)/packages_def
+
+.PHONY: all
+
+all: $(BLD_PKGS)
+
+define DEP_template
+ifdef DEP_$(1)
+$(1): $$(DEP_$(1))
+endif
+endef
+
+$(foreach pack,$(BLD_PKGS),$(eval $(call DEP_template,$(pack))))
+
+define RULE_FILE
+$(shell \
+if [ -f $(OPENSOURCE_DIR)/$(RULES)/$(1) ] ; then \
+echo "$(OPENSOURCE_DIR)/$(RULES)/$(1)"; \
+exit 0; \
+fi ; \
+RF=$$(echo $(1) | cut -d \~ -f 1); \
+if [ -f $(OPENSOURCE_DIR)/$(RULES)/$$RF ] ; then \
+echo "$(OPENSOURCE_DIR)/$(RULES)/$$RF"; \
+exit 0; \
+fi ;\
+)
+endef
+
+$(BLD_PKGS): check_util force
+	@[ -d $(BUILD_DIR)/$@ ] || install -m u=wrxs,g=rxsw,o=rx -d $(BUILD_DIR)/$@
+	$(call EXEC_ACTION,bld_$@,\
+	$(MAKE) -j1 -C $(BUILD_DIR)/$@ \
+			-f $(OPENSOURCE_DIR)/$(TOOLS)/MakePacket \
+			MAKE_PKT=$(call RULE_FILE,$@) \
+			DIST_DIR=$(DIST_DIR) \
+			my_prefix=$(DIST_DIR)/$@)
+
+check_util: force
+	@$(call CHECK_UTIL,ccache)
+
+$(MAKEFILE_LIST): ;
+
+force: ;
+

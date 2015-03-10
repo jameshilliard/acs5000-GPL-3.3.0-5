@@ -1,0 +1,16 @@
+portslave (2000-12-25) unstable; urgency=low
+
+  * Fixed the version code.
+
+ -- Russell Coker <russell@coker.com.au>  Mon, 25 Dec 2000 06:14:16 +1100
+
+portslave (2000-12-24) unstable; urgency=low
+
+  * Initial Release.
+
+ -- Russell Coker <russell@coker.com.au>  Sun, 24 Dec 2000 09:57:47 +1100
+
+Local variables:
+mode: debian-changelog
+add-log-mailing-address "russell@coker.com.au"
+End:

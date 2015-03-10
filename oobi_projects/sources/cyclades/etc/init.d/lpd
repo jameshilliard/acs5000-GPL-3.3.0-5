@@ -1,0 +1,4 @@
+#!/bin/sh
+# Start LPD at boottime
+echo "Starting LPD ...";
+/usr/sbin/lpd

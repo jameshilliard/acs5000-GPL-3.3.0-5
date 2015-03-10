@@ -1,0 +1,238 @@
+<html>
+<body>
+<pre>
+<h1>Build Log</h1>
+<h3>
+--------------------Configuration: DmfLib - Win32 Debug--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "H:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSPB5CA.tmp" with contents
+[
+/nologo /MLd /W3 /Gm /GX /ZI /Od /I "..\expat\xmlparse" /I "..\webs" /I "..\AlFrame" /D "_DEBUG" /D "_LIB" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "qHierarchicalAccess" /D "qDmf" /D "WIN" /D "WEBS" /D "UEMF" /D "DIGEST_ACCESS_SUPPORT" /D "USER_MANAGEMENT_SUPPORT" /D "qRichErrorPage" /D "qDebug" /D "B_STATS" /Fp"Debug/DmfLib.pch" /YX /Fo"Debug/" /Fd"Debug/" /FD /GZ /c 
+"D:\ArtLogic\Development\Cyclades\Dmf2.1.2-CD\Dmf2.1.2\AlFrame\Access.c"
+"D:\ArtLogic\Development\Cyclades\Dmf2.1.2-CD\Dmf2.1.2\AlFrame\Cookie.c"
+"D:\ArtLogic\Development\Cyclades\Dmf2.1.2-CD\Dmf2.1.2\AlFrame\Dmf.c"
+"D:\ArtLogic\Development\Cyclades\Dmf2.1.2-CD\Dmf2.1.2\AlFrame\EjFuncs.c"
+"D:\ArtLogic\Development\Cyclades\Dmf2.1.2-CD\Dmf2.1.2\AlFrame\Error.c"
+"D:\ArtLogic\Development\Cyclades\Dmf2.1.2-CD\Dmf2.1.2\AlFrame\Forms.c"
+"D:\ArtLogic\Development\Cyclades\Dmf2.1.2-CD\Dmf2.1.2\AlFrame\GetFuncs.c"
+"D:\ArtLogic\Development\Cyclades\Dmf2.1.2-CD\Dmf2.1.2\AlFrame\GetSet.c"
+"D:\ArtLogic\Development\Cyclades\Dmf2.1.2-CD\Dmf2.1.2\AlFrame\Localize.c"
+"D:\ArtLogic\Development\Cyclades\Dmf2.1.2-CD\Dmf2.1.2\AlFrame\Locals.c"
+"D:\ArtLogic\Development\Cyclades\Dmf2.1.2-CD\Dmf2.1.2\AlFrame\Parse.c"
+"D:\ArtLogic\Development\Cyclades\Dmf2.1.2-CD\Dmf2.1.2\AlFrame\RpcUtil.c"
+"D:\ArtLogic\Development\Cyclades\Dmf2.1.2-CD\Dmf2.1.2\AlFrame\Session.c"
+"D:\ArtLogic\Development\Cyclades\Dmf2.1.2-CD\Dmf2.1.2\AlFrame\SetFuncs.c"
+"D:\ArtLogic\Development\Cyclades\Dmf2.1.2-CD\Dmf2.1.2\AlFrame\Soap.c"
+"D:\ArtLogic\Development\Cyclades\Dmf2.1.2-CD\Dmf2.1.2\AlFrame\StringBuf.c"
+"D:\ArtLogic\Development\Cyclades\Dmf2.1.2-CD\Dmf2.1.2\AlFrame\XmlRpc.c"
+"D:\ArtLogic\Development\Cyclades\Dmf2.1.2-CD\Dmf2.1.2\AlFrame\XmlRpcFuncs.c"
+]
+Creating command line "cl.exe @H:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSPB5CA.tmp" 
+Creating temporary file "H:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSPB5CB.tmp" with contents
+[
+/nologo /out:"DebugLib\DmfLib.lib" 
+".\Debug\Access.obj"
+".\Debug\Cookie.obj"
+".\Debug\Dmf.obj"
+".\Debug\EjFuncs.obj"
+".\Debug\Error.obj"
+".\Debug\Forms.obj"
+".\Debug\GetFuncs.obj"
+".\Debug\GetSet.obj"
+".\Debug\Localize.obj"
+".\Debug\Locals.obj"
+".\Debug\Parse.obj"
+".\Debug\RpcUtil.obj"
+".\Debug\Session.obj"
+".\Debug\SetFuncs.obj"
+".\Debug\Soap.obj"
+".\Debug\StringBuf.obj"
+".\Debug\XmlRpc.obj"
+".\Debug\XmlRpcFuncs.obj"
+]
+Creating command line "link.exe -lib @H:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSPB5CB.tmp"
+<h3>Output Window</h3>
+Compiling...
+Access.c
+Cookie.c
+Dmf.c
+EjFuncs.c
+Error.c
+Forms.c
+GetFuncs.c
+GetSet.c
+Localize.c
+Locals.c
+Parse.c
+RpcUtil.c
+Session.c
+SetFuncs.c
+Soap.c
+StringBuf.c
+XmlRpc.c
+XmlRpcFuncs.c
+Creating library...
+<h3>
+--------------------Configuration: expat - Win32 Debug--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "H:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSPB5CC.tmp" with contents
+[
+/nologo /MLd /W3 /Gm /GX /ZI /Od /I "..\expat\xmlparse" /I "..\expat\xmltok" /D "_DEBUG" /D XML_BYTE_ORDER=12 /D "WIN32" /D "_MBCS" /D "_LIB" /Fp"Debug/expat.pch" /YX /Fo"Debug/" /Fd"Debug/" /FD /GZ /c 
+"D:\ArtLogic\Development\Cyclades\Dmf2.1.2-CD\Dmf2.1.2\expat\xmlparse\xmlparse.c"
+"D:\ArtLogic\Development\Cyclades\Dmf2.1.2-CD\Dmf2.1.2\expat\xmltok\xmlrole.c"
+"D:\ArtLogic\Development\Cyclades\Dmf2.1.2-CD\Dmf2.1.2\expat\xmltok\xmltok.c"
+]
+Creating command line "cl.exe @H:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSPB5CC.tmp" 
+Creating command line "link.exe -lib /nologo /out:"DebugLib\expat.lib"  ".\Debug\xmlparse.obj" ".\Debug\xmlrole.obj" ".\Debug\xmltok.obj" "
+<h3>Output Window</h3>
+Compiling...
+xmlparse.c
+xmlrole.c
+xmltok.c
+Creating library...
+<h3>
+--------------------Configuration: GoAhead - Win32 Debug--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "H:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSPB5CD.tmp" with contents
+[
+/nologo /MLd /W3 /Gm /GX /ZI /Od /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "qHierarchicalAccess" /D "qDmf" /D "WIN" /D "WEBS" /D "UEMF" /D "DIGEST_ACCESS_SUPPORT" /D "USER_MANAGEMENT_SUPPORT" /D "qRichErrorPage" /D "qDebug" /D "_LIB" /D "B_STATS" /Fp"Debug/GoAhead.pch" /YX /Fo"Debug/" /Fd"Debug/" /FD /GZ /c 
+"D:\ArtLogic\Development\Cyclades\Dmf2.1.2-CD\Dmf2.1.2\webs\asp.c"
+"D:\ArtLogic\Development\Cyclades\Dmf2.1.2-CD\Dmf2.1.2\webs\balloc.c"
+"D:\ArtLogic\Development\Cyclades\Dmf2.1.2-CD\Dmf2.1.2\webs\base64.c"
+"D:\ArtLogic\Development\Cyclades\Dmf2.1.2-CD\Dmf2.1.2\webs\cgi.c"
+"D:\ArtLogic\Development\Cyclades\Dmf2.1.2-CD\Dmf2.1.2\webs\default.c"
+"D:\ArtLogic\Development\Cyclades\Dmf2.1.2-CD\Dmf2.1.2\webs\ejlex.c"
+"D:\ArtLogic\Development\Cyclades\Dmf2.1.2-CD\Dmf2.1.2\webs\ejparse.c"
+"D:\ArtLogic\Development\Cyclades\Dmf2.1.2-CD\Dmf2.1.2\webs\emfdb.c"
+"D:\ArtLogic\Development\Cyclades\Dmf2.1.2-CD\Dmf2.1.2\webs\form.c"
+"D:\ArtLogic\Development\Cyclades\Dmf2.1.2-CD\Dmf2.1.2\webs\h.c"
+"D:\ArtLogic\Development\Cyclades\Dmf2.1.2-CD\Dmf2.1.2\webs\handler.c"
+"D:\ArtLogic\Development\Cyclades\Dmf2.1.2-CD\Dmf2.1.2\webs\md5c.c"
+"D:\ArtLogic\Development\Cyclades\Dmf2.1.2-CD\Dmf2.1.2\webs\mime.c"
+"D:\ArtLogic\Development\Cyclades\Dmf2.1.2-CD\Dmf2.1.2\webs\misc.c"
+"D:\ArtLogic\Development\Cyclades\Dmf2.1.2-CD\Dmf2.1.2\webs\page.c"
+"D:\ArtLogic\Development\Cyclades\Dmf2.1.2-CD\Dmf2.1.2\webs\ringq.c"
+"D:\ArtLogic\Development\Cyclades\Dmf2.1.2-CD\Dmf2.1.2\webs\rom.c"
+"D:\ArtLogic\Development\Cyclades\Dmf2.1.2-CD\Dmf2.1.2\webs\security.c"
+"D:\ArtLogic\Development\Cyclades\Dmf2.1.2-CD\Dmf2.1.2\webs\sock.c"
+"D:\ArtLogic\Development\Cyclades\Dmf2.1.2-CD\Dmf2.1.2\webs\sockGen.c"
+"D:\ArtLogic\Development\Cyclades\Dmf2.1.2-CD\Dmf2.1.2\webs\sym.c"
+"D:\ArtLogic\Development\Cyclades\Dmf2.1.2-CD\Dmf2.1.2\webs\uemf.c"
+"D:\ArtLogic\Development\Cyclades\Dmf2.1.2-CD\Dmf2.1.2\webs\um.c"
+"D:\ArtLogic\Development\Cyclades\Dmf2.1.2-CD\Dmf2.1.2\webs\url.c"
+"D:\ArtLogic\Development\Cyclades\Dmf2.1.2-CD\Dmf2.1.2\webs\value.c"
+"D:\ArtLogic\Development\Cyclades\Dmf2.1.2-CD\Dmf2.1.2\webs\webrom.c"
+"D:\ArtLogic\Development\Cyclades\Dmf2.1.2-CD\Dmf2.1.2\webs\webs.c"
+"D:\ArtLogic\Development\Cyclades\Dmf2.1.2-CD\Dmf2.1.2\webs\websda.c"
+"D:\ArtLogic\Development\Cyclades\Dmf2.1.2-CD\Dmf2.1.2\webs\websuemf.c"
+]
+Creating command line "cl.exe @H:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSPB5CD.tmp" 
+Creating temporary file "H:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSPB5CE.tmp" with contents
+[
+/nologo /out:"DebugLib\GoAhead.lib" 
+".\Debug\asp.obj"
+".\Debug\balloc.obj"
+".\Debug\base64.obj"
+".\Debug\cgi.obj"
+".\Debug\default.obj"
+".\Debug\ejlex.obj"
+".\Debug\ejparse.obj"
+".\Debug\emfdb.obj"
+".\Debug\form.obj"
+".\Debug\h.obj"
+".\Debug\handler.obj"
+".\Debug\md5c.obj"
+".\Debug\mime.obj"
+".\Debug\misc.obj"
+".\Debug\page.obj"
+".\Debug\ringq.obj"
+".\Debug\rom.obj"
+".\Debug\security.obj"
+".\Debug\sock.obj"
+".\Debug\sockGen.obj"
+".\Debug\sym.obj"
+".\Debug\uemf.obj"
+".\Debug\um.obj"
+".\Debug\url.obj"
+".\Debug\value.obj"
+".\Debug\webrom.obj"
+".\Debug\webs.obj"
+".\Debug\websda.obj"
+".\Debug\websuemf.obj"
+]
+Creating command line "link.exe -lib @H:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSPB5CE.tmp"
+<h3>Output Window</h3>
+Compiling...
+asp.c
+balloc.c
+base64.c
+cgi.c
+default.c
+ejlex.c
+ejparse.c
+emfdb.c
+form.c
+h.c
+handler.c
+md5c.c
+mime.c
+misc.c
+page.c
+ringq.c
+rom.c
+security.c
+sock.c
+sockGen.c
+sym.c
+uemf.c
+um.c
+url.c
+value.c
+webrom.c
+webs.c
+websda.c
+websuemf.c
+Creating library...
+<h3>
+--------------------Configuration: Dmf - Win32 Debug--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating command line "rc.exe /l 0x409 /fo"Debug/Dmf.res" /d "_DEBUG" "D:\ArtLogic\Development\Cyclades\Dmf2.1.2-CD\Dmf2.1.2\WINDOWS\Dmf.rc"" 
+Creating temporary file "H:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSPB5CF.tmp" with contents
+[
+/nologo /MLd /W3 /Gm /GX /ZI /Od /I "..\webs" /I "..\AlFrame" /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "qHierarchicalAccess" /D "qDmf" /D "WIN" /D "WEBS" /D "UEMF" /D "DIGEST_ACCESS_SUPPORT" /D "USER_MANAGEMENT_SUPPORT" /D "qRichErrorPage" /D "qDebug" /D "B_STATS" /Fp"Debug/Dmf.pch" /YX /Fo"Debug/" /Fd"Debug/" /FD /GZ /c 
+"D:\ArtLogic\Development\Cyclades\Dmf2.1.2-CD\Dmf2.1.2\WINDOWS\main.c"
+"D:\ArtLogic\Development\Cyclades\Dmf2.1.2-CD\Dmf2.1.2\Test\Param.c"
+"D:\ArtLogic\Development\Cyclades\Dmf2.1.2-CD\Dmf2.1.2\Test\UserFunc.c"
+]
+Creating command line "cl.exe @H:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSPB5CF.tmp" 
+Creating temporary file "H:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSPB5D0.tmp" with contents
+[
+kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib expat.lib dmflib.lib goahead.lib wsock32.lib /nologo /subsystem:windows /incremental:yes /pdb:"Dmf.pdb" /debug /machine:I386 /out:"Dmf.exe" /pdbtype:sept /libpath:"DebugLib" 
+".\Debug\main.obj"
+".\Debug\Param.obj"
+".\Debug\UserFunc.obj"
+".\Debug\Dmf.res"
+".\DebugLib\DmfLib.lib"
+".\DebugLib\expat.lib"
+".\DebugLib\GoAhead.lib"
+]
+Creating command line "link.exe @H:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSPB5D0.tmp"
+<h3>Output Window</h3>
+Compiling resources...
+Compiling...
+main.c
+Param.c
+UserFunc.c
+Linking...
+
+
+
+<h3>Results</h3>
+Dmf.exe - 0 error(s), 0 warning(s)
+</pre>
+</body>
+</html>

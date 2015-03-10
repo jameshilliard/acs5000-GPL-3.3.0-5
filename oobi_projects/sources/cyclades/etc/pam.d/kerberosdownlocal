@@ -1,0 +1,19 @@
+#
+#
+# The PAM configuration file for the `kerberosdownlocal' service
+# If Kerberos server is down, uses the local service
+#
+auth  requisite  pam_securetty.so
+auth	\
+   [ success=1 new_authtok_reqd=1 authinfo_unavail=ignore default=die ] \
+   				pam_krb5.so no_ccache
+auth  required	pam_redirect.so service=s_local
+auth  optional	pam_auth_srv.so force
+account \
+   [ success=done new_authtok_reqd=done authinfo_unavail=ignore default=die ] \
+   					pam_krb5.so no_ccache 
+account  required	pam_unix2.so
+session \
+   [ success=done new_authtok_reqd=done session_err=ignore authinfo_unavail=ignore default=die ] \
+   					pam_krb5.so no_ccache
+session  required	pam_unix2.so

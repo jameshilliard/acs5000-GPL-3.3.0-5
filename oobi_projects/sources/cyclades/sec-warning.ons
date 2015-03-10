@@ -1,0 +1,28 @@
+                        Important - Security Advisory
+                       -------------------------------
+ This device provides access to connected devices. It is critically  important 
+ for  you  to  understand  that security risks exist  until  you  perform  the 
+ essential precautions described below.
+ 
+ From the factory, this device is configured as follows:
+     - The root and admin user accounts have a single password.
+     - The admin user has access to all serial and KVM ports.
+     - DHCP, Telnet, SSHv1, SSHv2, HTTP and HTTPS are all enabled.
+ 
+ Perform the following strongly-recommended actions:
+ 1. Change  the  root and admin users' passwords as soon as you  are  able  to 
+    access this device.
+ 2. Do not leave the equipment idle without selecting a security profile  with 
+    the appropriate level of security for your site.
+ 3. Select  a  security profile based on your  site's  information  protection 
+    policies. Security profiles enable and disable different sets of  services 
+    and other features according to three pre-set security levels:  "secured," 
+    "moderate,"  and "open." In addition, an administrator can  configure  and 
+    select a "custom" security profile.
+ 4. Enable serial and KVM ports and configure user access to these ports using
+    the Web Manager, CLI or OSD.
+ 
+ Refer  to  the product documentation for details about selecting  a  security 
+ profile and configuring access to serial and KVM ports.
+ 
+ 

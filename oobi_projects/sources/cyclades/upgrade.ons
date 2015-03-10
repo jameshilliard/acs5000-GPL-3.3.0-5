@@ -1,0 +1,70 @@
+===============================================================================
+                       UPGRADE to Version 1.1.0 
+===============================================================================
+
+REMARKS
+=======
+      . For more information about new features, please read the up-to-date
+        Release Notes.
+
+      . For those who are new to Linux/Unix, we recommend reading appendix A
+        in the Cyclades OnSite User's Guide.
+
+NOTE: Cyclades strongly recommends that the user has read the latest User's
+Guide available in Cyclades' ftp site before using this new firmware.
+
+
+UPGRADING OVERVIEW
+==================
+
+The OnSite packages may be updated from one version to another. So, if the user
+has a OnSite running an earlier version, special care should be taken regarding
+configuration.
+
+Usually the Firmware Upgrade process started from the web interface should be 
+enough to update the configuration as well. If this process fails it will 
+prompt a warning advising how to proceed.  
+
+After running the new version, the user can choose to start the configuration 
+from scratch by simply doing:
+
+    restoreconf factory_default
+    reboot
+
+or, the user must perform all steps from all "Upgrading from <version> actions"
+with version numbers equal to or greater than the original version of his 
+OnSite.
+
+In case the option is for upgrading from an earlier version keeping the current
+configuration (not start from scratch), please really do ALL upgrade actions
+listed for ALL versions equal and newer then the current one.
+
+To run a new configuration the user must execute the following command:
+
+    daemon.sh 
+
+To save a new configuration into flash the user must execute
+the following command:
+
+    saveconf
+
+Double check that all files which have been changed have their names in the
+file /etc/config_files.
+
+If any of the files /etc/inittab, /etc/rc.sysinit, or any user's shell script
+executed by /etc/rc.sysinit were changed, the OnSite must be rebooted for them 
+to take effect.
+
+Remember that OnSite has its file system in flash, then running saveconf 
+just backup the current configuration files. To restore a previous saved
+configuration, please run 'restoreconf' right after a reboot and then run 
+'daemon.sh' to restart processes.  
+
+Upgrading from 1.0.0 Actions
+============================
+
+- the /etc/config_files was changed
+  . some files was included (/etc/online_help, /etc/onlineHelp/*, ...)
+  . include your changes in the /etc/config_files.save and copy it to
+    /etc/config_files and save in CF.
+

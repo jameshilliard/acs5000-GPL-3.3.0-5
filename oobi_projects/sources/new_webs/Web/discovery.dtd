@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="utf-8"?> 
+
+<!-- The root level tag defining the entire document.
+     The version number attribute is required to be 1.0.
+     The minor version number will be updated when attributes are added to 
+     existing elements, or when new optional elements are added to this spec.  
+     The implementation will be required to ignore elements/attributes that 
+     it does not support.  When the relationship between existing elements 
+     changes, or when new required elements are added, then the Major version
+     number will be updated, which may require a new revision of AVWorks.
+ -->
+
+<!ELEMENT discovery (appliance)>
+<!ATTLIST discovery
+          version      CDATA  "1.0"
+>
+
+
+<!--
+  defaultName A string permanently assigned to the associated element.  This name
+              may be overridden by the user on either the client software or 
+              the appliance (or both),
+  supportedActions
+              A comma separated list of action tags defining the actions 
+              supported by the appliance.
+-->
+<!ELEMENT appliance (name, type, vendor, macAddress?, ipAddress?, ipSubnet?, 
+                     ipGateway?, adapter*, action*,  
+                     customparm1*, customparm2*, customparm3* )>
+<!ATTLIST appliance  
+          defaultName CDATA #REQUIRED
+          supportedActions CDATA #REQUIRED
+>
+
+
+<!--
+  online     whether or not the connection is online: ie, is there something to
+             connect to.  This also controls if/when the server is retained or
+             included during a resync operation
+-->
+
+<!ELEMENT adapter (name, type, port, switch*, server*)>
+<!ATTLIST adapter 
+          online     (yes|no)  "yes"
+>
+
+<!ELEMENT switch (name, desc?, type, port?, server*, customparm1*, customparm2*, customparm3* )>
+<!ATTLIST switch 
+          defaultName CDATA     #REQUIRED
+          visible     (yes|no)  "yes"
+          online      (yes|no)  "yes"
+>
+
+
+<!--
+  visible    whether or not the server is to be included in AVWorks Explorer's 
+             unit list.  CLI connections (for example) are not included 
+  online     whether or not the connection is online: ie, is there something to
+             connect to.  This also controls if/when the server is retained or
+             included during a resync operation
+  supportedActions
+              A comma separated list of action tags defining the actions
+              supported by the server.
+-->
+
+<!ELEMENT server (name, desc?, port?, channel?, connectiontype*, customparm1*, customparm2*, customparm3* )>
+<!ATTLIST server
+          defaultName CDATA     #REQUIRED
+          supportedActions CDATA #REQUIRED
+          visible     (yes|no)  "yes"
+          online      (yes|no)  "yes"
+>
+
+<!-- Name of the appliance, server, switch, or adapter as displayed on the UI -->
+<!ELEMENT name (#PCDATA)>
+
+
+<!-- Vendor Product Description.  
+    * For an appliance, if this value does not exist in the client 
+      database, a new product will be added to the products table 
+
+    * For a switch, as with an appliance, if the value is the number of users X number of ports (eg, 1x8)
+
+    * For an adapter, the value is the connector type (eg, PS2,USB,USB2,Sun,...)
+ -->
+<!ELEMENT type (#PCDATA)>
+
+<!-- User-friendly description of a switch or server.
+-->
+<!ELEMENT desc (#PCDATA)>
+
+<!-- OEM whose markings are on the appliance.  Used by  client to 
+    determine if it is allowed to manage the appliance.
+-->
+
+<!ELEMENT vendor (#PCDATA)>
+
+<!-- hardware address assigned to the network interface -->
+<!ELEMENT macAddress (#PCDATA)>
+
+
+<!-- Network configuration of an appliance, if it has already been configrued-->
+<!ELEMENT ipAddress (#PCDATA)>
+<!ELEMENT ipSubnet  (#PCDATA)>
+<!ELEMENT ipGateway (#PCDATA)>
+
+
+<!-- Physical/Logical connection point between this element and the device to 
+     which it is connected (ie, KVM Port into which an adapter is plugged).  
+     Upstream naming convention: Port #, channel, etc.  Channel can be used
+     instead of Port to make naming clearer for some situations.  Example where
+     tiered switches may have a port at one level and a channel at the second level.
+
+     Must be positive integer
+-->
+<!ELEMENT port (#PCDATA)>
+<!ELEMENT channel (#PCDATA)>
+
+
+<!-- type of connection between the appliance and the server.  
+     One of video|serial|cli|power 
+-->
+
+<!ELEMENT connectiontype (#PCDATA)>
+<!ATTLIST connectiontype xml:lang NMTOKEN #IMPLIED> 
+
+
+<!-- Custom parameters that can be specified as elements and transmitted back as
+     items in the action
+ -->
+<!ELEMENT customparm1 (#PCDATA)>
+<!ELEMENT customparm2 (#PCDATA)>
+<!ELEMENT customparm3 (#PCDATA)>
+
+<!--
+  id         Unique Number assigned to the action in this document
+  tag        unique tag within the unit for this action, such as manage, video, etc.
+             Note: one tag is reserved for scan, which is a multiunit operation for
+                   appliances that support AVSP video sessions.
+                   
+                   Another tag for weblogin is reserved for the appliance to allow
+                   aggregator to perfrom a single login by using this action to 
+                   get back a websession id to be used later.
+                   the URL could look like 
+                       https://xxx:443/agg/login?username=&password=&websessionid=
+                   we would parse for the value speced by websessionid in the
+                   arguements 
+                        
+  text       Localized text label for action item 
+  tooltip    Localized tooltip text for action item
+  url        URL of the web interface handler for the action
+  icon       URL of the graphic for the action item
+  unitType   is action supported for the appliance or for an attached server
+  default    is this action the default action for a unit.  Only one action item 
+             may be set as the default action.  The default action is invoked by
+             AVWorks Explorer when the user presses enter while the unit table 
+             has focus
+  menu       is this action included in the unit's popup menu
+  button     is this action included in explorer's toolbar
+
+  the 'url' and 'icon' attributes are the locations of the service and it's
+  associated icon, respectively.  They may be either absolute or relative
+  URL's.  If they are relative, then the base to which they releate is
+  https://ipaddress:443/ where 'ipaddress' is the address of the appliance
+-->
+
+<!ELEMENT action (text*, tooltip*, argument*)>
+<!ATTLIST action
+          id           ID      #IMPLIED
+          tag          CDATA   #REQUIRED
+          url          CDATA   #REQUIRED
+          icon         CDATA   #REQUIRED   
+          unitType     (appliance|server) #REQUIRED
+          default      (yes|no) "no"
+          menu         (yes|no) "yes"
+          button       (yes|no) "yes" 
+          protocol     (http|https) "https"
+          operation    (browser|javaws|httppost|httpget) "browser"
+>
+
+<!ELEMENT text    (#PCDATA)>
+<!ATTLIST text xml:lang NMTOKEN #IMPLIED> 
+
+<!ELEMENT tooltip (#PCDATA)>
+<!ATTLIST tooltip xml:lang NMTOKEN #IMPLIED>
+
+
+<!-- This mechanism provides a way for Explorer to substitute command line 
+     arguments in the URL of an action.  All arguments will be URL encoded, and 
+     appended to the end of the URL of the action using standard http GET or
+     post syntax.
+     syntax: ie, 
+
+     https://ipaddress:443/path/to/service?name1=value1&name2=value2&...
+
+     Custom parm 1, 2, 3 are custom parameters that are passed in the XML and sent
+     to the appliance without modification.  They are parsed, stored in the DB and
+     sent back when asked for.
+-->
+
+<!ELEMENT argument (PCDATA*)>
+<!ATTLIST argument
+          name         NMTOKEN #REQUIRED
+          value        ( id | name | type | vendor |
+                         macAddress | ipAddress | ipSubnet | ipGateway |
+                         port | connectionname | connectionpath | adapterid | channel |
+                         username | password | websessionid | language |
+                         customparm1 | customparm2 | customparm3 ) 
+                               #REQUIRED
+
+>

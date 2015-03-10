@@ -1,0 +1,368 @@
+#!/bin/bash -x
+#
+# $1 - dhcp info filename ["/etc/dhcpc/dhcpcd-<device>.info"]
+#
+# $2 - event: up, down, new.
+#
+# $3 - dhcp mode: 0 - DHCP client daemon called without option -x
+#                 N - DHCP client daemon called with option -x N
+#
+# Notes: 
+#     1) DHCP client daemon should be activated with option -x if the
+#        parameter conf.dhcp_client is configured as 2
+#
+#     2) When the server cannot be contacted the script is invoked with
+#        $1 = '?', so we don't know what interface we are dealing with.
+#
+#     3) Currently the save file has a fixed name because the client does
+#        not inform the interface when server is down. This may be fixed
+#        in the future by providing a different script for each interface
+#        or changing the client.
+#
+
+exec >/tmp/hd.txt 2>&1
+
+self="${0##*/}"
+
+dhcp_event="$2"
+dhcp_mode="${3:-0}"
+
+# File names:
+fn_resolv="/etc/resolv.conf"
+fn_resolv_new="/etc/resolv.conf.new"
+fn_info_eth0="/etc/dhcpc/dhcpcd-eth0.info"
+fn_info_bond0="/etc/dhcpc/dhcpcd-bond0.info"
+fn_save="/etc/dhcpcd-eth0.save"
+fn_gateway="/etc/network/def_route"
+fn_lock="/etc/dhcp_lock"
+
+FILES=""
+
+# Default values:
+interface=""
+fn_info=""
+
+export PATH=/bin:/usr/bin:/sbin:/usr/sbin:/usr/local/bin
+
+# Program names:
+#Q='echo'
+Q=''
+RM='rm'
+MV='mv'
+CP='cp'
+TR='tr'
+PS='ps'
+CUT='cut'
+CMP='cmp'
+WARN='true'		# Or true/false to enable/disable warning log.
+VERB='false'		# Or true/false to enable/disable verbose log.
+ECHO='echo'
+GREP='grep'
+KILL='kill'
+SLEEP='sleep'
+IFCONFIG='ifconfig'
+LOGGER='logger'
+LSMOD='lsmod'
+NETCFG_ROUTE='netcfg-route'
+UPDATEFILES='updatefiles'
+SIGNAL_RAS='signal_ras'
+
+#
+# Show a message through syslog:
+#
+function warn ()
+{
+	$LOGGER -p daemon.crit "$self: $*"
+	return 0
+}
+
+#
+# Show a message through syslog:
+#
+function verb ()
+{
+	$LOGGER -p daemon.crit "$self: $*"
+	return 0
+}
+
+#
+# Perform clean-up and exit
+#
+function do_exit()
+{
+  Mtype="$(set_nports 18)"
+
+  if [ "$Mtype" = '0' -a -n "$FILES" ] ; then
+    # Save the latest DHCP information to flash. That information could be
+    # used when the server is unavailable.
+    $VERB && verb "Saving DHCP information into flash."
+    $UPDATEFILES "$FILES" &>/dev/null
+  fi
+}
+
+#
+# Notify cy_ras about changes in IP address.
+#
+function notify_ras ()
+{
+	# Make sure updconf is not running before signaling:
+	local raspid="$($PS -e | $GREP updconf | $GREP -v grep | $CUT -b -6)"
+	if [ -n "$raspid" ]; then
+		while $KILL -0 $raspid 2>/dev/null; do
+			$VERB && verb "waiting updconf to finish."
+			$SLEEP 1
+		done
+	fi
+	$Q $SIGNAL_RAS "$1" &
+	return 0
+}
+
+#
+# Get the interface name from the filename given by $1. If no filename is
+# provided it checks if determines the name of the interface by checking the
+# kernel modules currently loaded.
+#
+function get_interface ()
+{
+	local fname="$1"
+	if [ -z "$fname" ]; then
+		# No file name given:
+		if $LSMOD | $GREP -q "\<bond0\>"; then
+			interface="bond0"
+			fn_info="$fn_info_bond0"
+			return 0
+		else
+			# Use defaults:
+			interface="eth0"
+			fn_info="$fn_info_eth0"
+			return 0
+		fi
+	fi
+
+	# Determine interface from filename:
+	interface="${fname##*-}"
+	interface="${interface%.info}"
+
+	if [ "$interface" = 'eth0' ]; then
+		interface="eth0"
+		fn_info="$fn_info_eth0"
+
+	elif [ "$interface" = 'bond0' ]; then
+		interface="bond0"
+		fn_info="$fn_info_bond0"
+	else
+		# Currently only eth0 and bond0 are supported.
+		$WARN && warn "Interface not supported: ${interface}"
+		exit 1
+	fi
+	return 0
+}
+
+#
+# Load some variables from the file named $1. The variables are exported to
+# the current shell with a possible prefix selected by $2.
+#
+function load_vars ()
+{
+	local fname="$1"
+	local pref="$2"
+	local fn_tmp1="/tmp/vars_dhcp.$$"
+
+	[ -z "$fname" ] && return 1
+
+	# Run in a sub-shell so as to not pollute our environment:
+	(source "$fname" 2>/dev/null;
+		$ECHO "${pref}DHCPSID='${DHCPSID}'"
+		$ECHO "${pref}DHCPSIADDR='${DHCPSIADDR}'"
+		$ECHO "${pref}BOOT_FILE='${BOOT_FILE}'"
+		$ECHO "${pref}IPADDR='${IPADDR}'"
+		$ECHO "${pref}BROADCAST='${BROADCAST}'"
+		$ECHO "${pref}NETMASK='${NETMASK}'"
+		$ECHO "${pref}DOMAIN='${DOMAIN}'"
+		$ECHO "${pref}GATEWAY='${GATEWAY}'"
+		$ECHO "${pref}DNS='${DNS}'") > "$fn_tmp1"
+
+	source "$fn_tmp1"; $RM "$fn_tmp1"
+	return 0
+}
+
+function tftp_update_config()
+{
+  [ -z "${NEW_BOOT_FILE}" ] && return 0
+
+  if [ -n "${NEW_DHCPSIADDR}" ] ; then
+    tftp_server=${NEW_DHCPSIADDR}
+  else
+    tftp_server=${NEW_DHCPSID}
+  fi
+
+  [ -z "${tftp_server}" ] && return 0
+
+  #
+  # check security profile here (to be done)
+  #
+
+  #
+  # Upload the configuration file
+  #
+  backup_dir=/etc/backup
+  tmp_dir=/tmp
+  tmp_file=${tmp_dir}/${NEW_BOOT_FILE}
+  cnf_file=${backup_dir}/${NEW_BOOT_FILE}
+
+  rm -f ${tmp_file}
+
+  tftp -g -l ${tmp_file} -r ${NEW_BOOT_FILE} ${tftp_server} 2>/dev/null
+
+  if [ ! -f ${tmp_file} ]; then
+    echo $0: Failed to load file ${NEW_BOOT_FILE} from ${tftp_server}
+    return
+  fi
+
+  [ -d ${backup_dir} ] || mkdir -p ${backup_dir}
+
+  #
+  # if same file as in backup_dir exits.
+  #
+  if cmp ${tmp_file} ${cnf_file} 2>/dev/null ; then
+    rm -f ${tmp_file}
+    return
+  fi
+
+  FILES="${FILES} ${cnf_file}"
+  mv ${tmp_file} ${cnf_file}
+
+  [ grep -q ${cnf_file}  /etc/config_files 2>/dev/null ] || echo ${cnf_file} >> /etc/config_files
+
+  export LOGNAME="root"
+
+  dsviewKillAdmin -b
+
+  zcat ${cnf_file} 2> /dev/null | tar -pv etc/config_files >/dev/null 2>&1
+
+  if [ $? -eq 0 ]; then
+    echo $0: executing restore configuration...
+    restoreconf local ${cnf_file}
+    runconf
+    echo $0: restore configuration done
+  else
+    echo $0: Applying CLI configuration ${NEW_BOOT_FILE}
+    CLI -f ${cnf_file}
+    echo $0: Applying CLI configuration done.
+  fi
+}
+
+# ----------------------------------------------------------------------------
+# Handling of 'down' event (problems to contact DHCP server):
+#
+if [ "$dhcp_event" = 'down' ]; then
+	if [ "$dhcp_mode" -ne 2 ]; then
+		$VERB && verb "No response from server: giving up."
+		exit 0
+	fi
+	if [ ! -f "$fn_save" ]; then
+		$WARN && warn "No DHCP save file: giving up."
+		exit 0
+	fi
+
+	$VERB && verb "No response from server: restoring saved parameters."
+
+	# Determine interface: eth0 or bond0, update info file name.
+	get_interface
+
+	# Load variables, prefix their names with "SAVED_"
+	load_vars "$fn_save" "SAVED_"
+
+	[ -z "$SAVED_IPADDR" ] && { $WARN && warn "Invalid '$fn_save'."; exit 1; }
+
+	params="$interface $SAVED_IPADDR"
+
+	[ -n "$SAVED_NETMASK" ]   && params="$params netmask $SAVED_NETMASK"
+	[ -n "$SAVED_BROADCAST" ] && params="$params broadcast $SAVED_BROADCAST"
+
+	$Q $IFCONFIG $params
+
+	# Build resolv.conf:
+	{
+		for ns in $($ECHO "$SAVED_DNS" | $TR ',' ' '); do
+			$ECHO "nameserver $ns"
+		done
+		if [ -n "$SAVED_DOMAIN" ]; then
+			$ECHO "search $SAVED_DOMAIN"
+		fi
+	} > "$fn_resolv_new"
+
+	# Overwrite it:
+	$Q $MV -f "$fn_resolv_new" "$fn_resolv"
+
+	# Possibly update default route:
+	if [ -n "$SAVED_GATEWAY" ]; then
+		$ECHO "/sbin/route add default gw $SAVED_GATEWAY" > "$fn_gateway"
+	else
+		$RM -f "$fn_gateway"
+	fi
+	$NETCFG_ROUTE start
+
+	# For KVM (compatibility):
+	[ -x /usr/bin/forward.sh ] && /usr/bin/forward.sh
+
+	# Overwrite the info file so RAS knows what address we are using.
+	$Q $CP -f "$fn_save" "$fn_info"
+
+	# Tell RAS:
+	notify_ras usr1
+
+	exit 0
+fi
+
+# ----------------------------------------------------------------------------
+# Handling of 'up' and 'new' events:
+#
+
+[ "$dhcp_mode" -eq 0 ] && exit 0
+
+#
+# DHCP Mode 1 or 2
+#
+
+# Determine interface: eth0 or bond0, update info file name.
+get_interface "$1"
+
+# Load variables from the info and from the saved info file:
+load_vars "$fn_info" "NEW_"
+load_vars "$fn_save" "OLD_"
+
+[ -z "$NEW_IPADDR" ] && { $WARN && warn "Invalid '$fn_info'."; exit 1; }
+
+$VERB && verb "Got address '$NEW_IPADDR' from DHCP server."
+
+# Possibly update default route:
+if [ -n "$NEW_GATEWAY" ]; then
+	$ECHO "/sbin/route add default gw $NEW_GATEWAY" > "$fn_gateway"
+else
+	$RM -f "$fn_gateway"
+fi
+$NETCFG_ROUTE start
+
+# Tell RAS:
+notify_ras usr1
+
+#
+# get gonfiguration from tftp server
+#
+tftp_update_config
+
+[ "$dhcp_mode" -eq 1 ] && do_exit 0
+
+#
+# DHCP Mode 2
+#
+if $CMP -s "$fn_info" "$fn_save" 2>/dev/null; then
+	# No change in contents: no need to save.
+	do_exit 0
+fi
+
+$Q $CP -f "$fn_info" "$fn_save"
+FILES="${FILES} $fn_save"
+do_exit 0
+

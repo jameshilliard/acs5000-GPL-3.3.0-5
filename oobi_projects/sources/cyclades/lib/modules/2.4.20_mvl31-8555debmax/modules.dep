@@ -1,0 +1,93 @@
+/lib/modules/2.4.20_mvl31-8555debmax/kernel/drivers/char/pcmcia/serial_cs.o:	/lib/modules/2.4.20_mvl31-8555debmax/kernel/drivers/pcmcia/pcmcia_core.o \
+	/lib/modules/2.4.20_mvl31-8555debmax/kernel/drivers/pcmcia/ds.o
+
+/lib/modules/2.4.20_mvl31-8555debmax/kernel/drivers/ide/ide-cs.o:	/lib/modules/2.4.20_mvl31-8555debmax/kernel/drivers/ide/ide-mod.o \
+	/lib/modules/2.4.20_mvl31-8555debmax/kernel/drivers/pcmcia/pcmcia_core.o \
+	/lib/modules/2.4.20_mvl31-8555debmax/kernel/drivers/pcmcia/ds.o
+
+/lib/modules/2.4.20_mvl31-8555debmax/kernel/drivers/ide/ide-disk.o:	/lib/modules/2.4.20_mvl31-8555debmax/kernel/drivers/ide/ide-mod.o
+
+/lib/modules/2.4.20_mvl31-8555debmax/kernel/drivers/ide/ide-mod.o:
+
+/lib/modules/2.4.20_mvl31-8555debmax/kernel/drivers/ide/ide-probe-mod.o:	/lib/modules/2.4.20_mvl31-8555debmax/kernel/drivers/ide/ide-mod.o
+
+/lib/modules/2.4.20_mvl31-8555debmax/kernel/drivers/isdn/divert/dss1_divert.o:	/lib/modules/2.4.20_mvl31-8555debmax/kernel/drivers/isdn/isdn.o
+
+/lib/modules/2.4.20_mvl31-8555debmax/kernel/drivers/isdn/hisax/avma1_cs.o:	/lib/modules/2.4.20_mvl31-8555debmax/kernel/drivers/pcmcia/pcmcia_core.o \
+	/lib/modules/2.4.20_mvl31-8555debmax/kernel/drivers/pcmcia/ds.o \
+	/lib/modules/2.4.20_mvl31-8555debmax/kernel/drivers/isdn/hisax/hisax.o
+
+/lib/modules/2.4.20_mvl31-8555debmax/kernel/drivers/isdn/hisax/hisax.o:	/lib/modules/2.4.20_mvl31-8555debmax/kernel/drivers/isdn/isdn.o
+
+/lib/modules/2.4.20_mvl31-8555debmax/kernel/drivers/isdn/hisax/sedlbauer_cs.o:	/lib/modules/2.4.20_mvl31-8555debmax/kernel/drivers/isdn/hisax/hisax.o \
+	/lib/modules/2.4.20_mvl31-8555debmax/kernel/drivers/pcmcia/pcmcia_core.o \
+	/lib/modules/2.4.20_mvl31-8555debmax/kernel/drivers/pcmcia/ds.o
+
+/lib/modules/2.4.20_mvl31-8555debmax/kernel/drivers/isdn/isdn.o:	/lib/modules/2.4.20_mvl31-8555debmax/kernel/drivers/net/slhc.o
+
+/lib/modules/2.4.20_mvl31-8555debmax/kernel/drivers/isdn/isdn_bsdcomp.o:	/lib/modules/2.4.20_mvl31-8555debmax/kernel/drivers/isdn/isdn.o
+
+/lib/modules/2.4.20_mvl31-8555debmax/kernel/drivers/isdn/isdnloop/isdnloop.o:	/lib/modules/2.4.20_mvl31-8555debmax/kernel/drivers/isdn/isdn.o
+
+/lib/modules/2.4.20_mvl31-8555debmax/kernel/drivers/net/8390.o:
+
+/lib/modules/2.4.20_mvl31-8555debmax/kernel/drivers/net/pcmcia/3c589_cs.o:	/lib/modules/2.4.20_mvl31-8555debmax/kernel/drivers/pcmcia/pcmcia_core.o \
+	/lib/modules/2.4.20_mvl31-8555debmax/kernel/drivers/pcmcia/ds.o
+
+/lib/modules/2.4.20_mvl31-8555debmax/kernel/drivers/net/pcmcia/axnet_cs.o:	/lib/modules/2.4.20_mvl31-8555debmax/kernel/drivers/pcmcia/pcmcia_core.o \
+	/lib/modules/2.4.20_mvl31-8555debmax/kernel/drivers/pcmcia/ds.o
+
+/lib/modules/2.4.20_mvl31-8555debmax/kernel/drivers/net/pcmcia/pcnet_cs.o:	/lib/modules/2.4.20_mvl31-8555debmax/kernel/drivers/net/8390.o \
+	/lib/modules/2.4.20_mvl31-8555debmax/kernel/drivers/pcmcia/pcmcia_core.o \
+	/lib/modules/2.4.20_mvl31-8555debmax/kernel/drivers/pcmcia/ds.o
+
+/lib/modules/2.4.20_mvl31-8555debmax/kernel/drivers/net/pcmcia/xirc2ps_cs.o:	/lib/modules/2.4.20_mvl31-8555debmax/kernel/drivers/pcmcia/pcmcia_core.o \
+	/lib/modules/2.4.20_mvl31-8555debmax/kernel/drivers/pcmcia/ds.o
+
+/lib/modules/2.4.20_mvl31-8555debmax/kernel/drivers/net/ppp_async.o:	/lib/modules/2.4.20_mvl31-8555debmax/kernel/drivers/net/ppp_generic.o
+
+/lib/modules/2.4.20_mvl31-8555debmax/kernel/drivers/net/ppp_generic.o:	/lib/modules/2.4.20_mvl31-8555debmax/kernel/drivers/net/slhc.o
+
+/lib/modules/2.4.20_mvl31-8555debmax/kernel/drivers/net/ppp_synctty.o:	/lib/modules/2.4.20_mvl31-8555debmax/kernel/drivers/net/ppp_generic.o
+
+/lib/modules/2.4.20_mvl31-8555debmax/kernel/drivers/net/slhc.o:
+
+/lib/modules/2.4.20_mvl31-8555debmax/kernel/drivers/net/slip.o:	/lib/modules/2.4.20_mvl31-8555debmax/kernel/drivers/net/slhc.o
+
+/lib/modules/2.4.20_mvl31-8555debmax/kernel/drivers/net/wireless/hermes.o:
+
+/lib/modules/2.4.20_mvl31-8555debmax/kernel/drivers/net/wireless/orinoco.o:	/lib/modules/2.4.20_mvl31-8555debmax/kernel/drivers/net/wireless/hermes.o
+
+/lib/modules/2.4.20_mvl31-8555debmax/kernel/drivers/net/wireless/orinoco_cs.o:	/lib/modules/2.4.20_mvl31-8555debmax/kernel/drivers/net/wireless/orinoco.o \
+	/lib/modules/2.4.20_mvl31-8555debmax/kernel/drivers/pcmcia/pcmcia_core.o \
+	/lib/modules/2.4.20_mvl31-8555debmax/kernel/drivers/pcmcia/ds.o \
+	/lib/modules/2.4.20_mvl31-8555debmax/kernel/drivers/net/wireless/hermes.o
+
+/lib/modules/2.4.20_mvl31-8555debmax/kernel/drivers/pcmcia/ds.o:	/lib/modules/2.4.20_mvl31-8555debmax/kernel/drivers/pcmcia/pcmcia_core.o
+
+/lib/modules/2.4.20_mvl31-8555debmax/kernel/drivers/pcmcia/m8xx_pcmcia.o:	/lib/modules/2.4.20_mvl31-8555debmax/kernel/drivers/pcmcia/pcmcia_core.o
+
+/lib/modules/2.4.20_mvl31-8555debmax/kernel/drivers/pcmcia/pcmcia_core.o:
+
+/lib/modules/2.4.20_mvl31-8555debmax/kernel/fs/ext3/ext3.o:	/lib/modules/2.4.20_mvl31-8555debmax/kernel/fs/jbd/jbd.o
+
+/lib/modules/2.4.20_mvl31-8555debmax/kernel/fs/fat/fat.o:
+
+/lib/modules/2.4.20_mvl31-8555debmax/kernel/fs/jbd/jbd.o:
+
+/lib/modules/2.4.20_mvl31-8555debmax/kernel/fs/msdos/msdos.o:	/lib/modules/2.4.20_mvl31-8555debmax/kernel/fs/fat/fat.o
+
+/lib/modules/2.4.20_mvl31-8555debmax/kernel/fs/nls/nls_cp437.o:
+
+/lib/modules/2.4.20_mvl31-8555debmax/kernel/fs/nls/nls_cp850.o:
+
+/lib/modules/2.4.20_mvl31-8555debmax/kernel/fs/nls/nls_cp852.o:
+
+/lib/modules/2.4.20_mvl31-8555debmax/kernel/fs/nls/nls_iso8859-1.o:
+
+/lib/modules/2.4.20_mvl31-8555debmax/kernel/fs/nls/nls_iso8859-15.o:
+
+/lib/modules/2.4.20_mvl31-8555debmax/kernel/fs/nls/nls_iso8859-2.o:
+
+/lib/modules/2.4.20_mvl31-8555debmax/kernel/fs/vfat/vfat.o:	/lib/modules/2.4.20_mvl31-8555debmax/kernel/fs/fat/fat.o
+

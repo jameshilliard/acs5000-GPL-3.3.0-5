@@ -1,0 +1,96 @@
+#
+#  Makefile for cyclades projects.
+#
+
+#
+# Addtional compiler and/or link options may be defined here
+#
+LDFLAGS += -L$(BUILD_DIR)/$(ras)/src -lrad -L$(my_prefix)/lib -lpam -lpam_misc -L$(BUILTIN_DIST)/$(openssl)/lib -lssl -lcrypto
+
+ifeq ($(IPMIenable),yes)
+LDFLAGS += -lrasipmi
+endif
+
+CPPFLAGS:=-DPAM_STRERROR_NEEDS_TWO_ARGS -DUSE_PAM -I$(BUILD_DIR)/$(ras) -I$(my_prefix)/usr/include
+CFLAGS += -I$(BUILD_DIR)/$(ras) -I$(BUILD_DIR)/$(ras)/src
+
+CROSS_LD:=$(CROSS_CC)
+
+#
+# Command line parameters for configure must be defined here
+#
+CONFIGURE_PARMS := \
+	CROSS_COMPILE=$(CROSS_PREFIX) \
+	--host=$(HOST) \
+	--build=i386 \
+	--sbindir=/bin \
+	--sysconfdir=/etc/ssh \
+	--with-ssl-dir=$(BUILTIN_DIST)/$(openssl) \
+	--with-zlib=$(BUILTIN_DIST)/$(zlib) \
+	--disable-strip \
+	--with-pam \
+	--with-tcp-wrappers=no \
+	--disable-utmpx --disable-wtmpx \
+	--disable-lastlog \
+	--build=i386 \
+	--with-cflags="$(CFLAGS)" \
+	--with-ldflags="$(LDFLAGS)" \
+	--with-cppflags="$(CPPFLAGS)" \
+	--with-random=/dev/urandom \
+	--prefix=
+
+ifdef kerberos
+	CONFIGURE_PARMS+=--with-kerberos5=$(BUILTIN_DIST)/$(kerberos)/usr/local
+endif
+
+CONFIG_ENV:=\
+	PATH=$(CROSS_PATH) \
+	HOST_CC=cc \
+	$(CROSS_ENV_TOOLS)
+
+MAKE_ENV:=\
+	PATH=$(CROSS_PATH)
+
+MAKE_PARMS:=\
+	CROSS_COMPILE=$(CROSS_PREFIX) \
+	DESTDIR=$(my_prefix)
+
+#
+#  more ac_variables for configure may be defined here
+#
+CROSS_ENV_AC +=  bash_cv_have_mbstate_t=yes \
+	ac_cv_have_control_in_msghdr=yes \
+	ac_cv_have_accrights_in_msghdr=no
+
+$(PRE_CFG_COOKIE): $(SRC_COOKIE)
+	rm -f sshd_config ssh_config
+ifeq ($(TARGET_PRODUCT),ts1h)
+	cp sshd_config.ts1h sshd_config
+	cp ssh_config.ts1h ssh_config
+else
+ifdef kerberos
+	cp sshd_config.krb5 sshd_config
+	cp ssh_config.krb5 ssh_config
+else
+	cp sshd_config.nokrb5 sshd_config
+	cp ssh_config.nokrb5 ssh_config
+endif
+endif
+	date > $@
+
+$(CFG_COOKIE): $(PRE_CFG_COOKIE) 
+	-rm -f config.cache config.h configure
+	autoheader
+	/usr/bin/autoconf
+	case "$(TARGET_PRODUCT)" in \
+		apc) VENDOR=$(TARGET_PRODUCT); DSVIEW=avworks ;; \
+		*) VENDOR=avocent; DSVIEW=dsview ;; \
+	esac; \
+	VENDOR=$${VENDOR} DSVIEW=$${DSVIEW} \
+	$(CONFIG_ENV) $(CROSS_ENV_AC) \
+	./configure $(CONFIGURE_PARMS)
+	date > $@
+
+$(BLD_COOKIE):
+	$(MAKE_ENV) $(MAKE) $(MAKE_PARMS) all install-nokeys
+

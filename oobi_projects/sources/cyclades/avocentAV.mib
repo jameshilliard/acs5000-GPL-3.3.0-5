@@ -1,0 +1,1749 @@
+-- Avocent Vendor AutoView Family MIB OID Tree
+-- Release 1.0.0 26/04/2007
+
+AVOCENT-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+   enterprises
+      FROM SNMPv2-SMI ;
+
+avocent		OBJECT IDENTIFIER ::= { enterprises 10418 }
+autoview	OBJECT IDENTIFIER ::= { avocent 15 }
+avProducts	OBJECT IDENTIFIER ::= { autoview 1 }
+
+avCS4001	OBJECT IDENTIFIER ::= { avProducts 1 }
+avCS4004	OBJECT IDENTIFIER ::= { avProducts 2 }
+avCS4008	OBJECT IDENTIFIER ::= { avProducts 3 }
+avCS4016	OBJECT IDENTIFIER ::= { avProducts 4 }
+
+END
+
+-- AutoView Family MIB management
+
+AVOCENT-AUTOVIEW-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+	autoview
+		FROM AVOCENT-MIB
+	MODULE-IDENTITY
+		FROM SNMPv2-SMI;
+
+avManagement MODULE-IDENTITY
+	LAST-UPDATED	"200704260000Z"
+	ORGANIZATION	"Avocent Corporation"
+	CONTACT-INFO	"postal: Avocent Corporation
+			3541 Gateway Boulevard
+			Fremont, CA 94538, USA
+			e-mail: Technical Support
+			techsupport@avocent.com"
+	DESCRIPTION	"This file defines the Avocent MIB extensions to 
+		AutoView Family products"
+	REVISION	"200704260000Z"
+	DESCRIPTION	"First Draft"
+::= { autoview 2 }
+
+-- Current Avocent AutoView Family core mib table entries:
+--	avSystem			OBJECT-IDENTITY  ::= { avManagement 1 }
+--	avConfiguration		OBJECT-IDENTITY  ::= { avManagement 2 }
+--	avInformation		OBJECT-IDENTITY  ::= { avManagement 3 }
+--	avAdministration	OBJECT-IDENTITY  ::= { avManagement 4 }
+--	avPowerManagement	OBJECT-IDENTITY  ::= { avManagement 5 }
+
+END
+
+AVOCENT-AUTOVIEW-SYS-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+	avManagement
+		FROM AVOCENT-AUTOVIEW-MIB
+	OBJECT-TYPE, MODULE-IDENTITY, OBJECT-IDENTITY, Integer32
+		FROM SNMPv2-SMI
+	DisplayString
+		FROM SNMPv2-TC;
+
+avSystem MODULE-IDENTITY
+	LAST-UPDATED	"200704260000Z"
+	ORGANIZATION	"Avocent Corporation"
+	CONTACT-INFO	"postal: Avocent Corporation
+			3541 Gateway Boulevard
+			Fremont, CA 94538, USA
+			e-mail: Technical Support
+			techsupport@avocent.com"
+	DESCRIPTION	"This module defines AutoView Family System Information objects"
+	REVISION	"200704260000Z"
+	DESCRIPTION	"First Draft"
+::= { avManagement 1 }
+
+avPname OBJECT-TYPE
+	SYNTAX DisplayString
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION "The product's name - AVCS40xx (xx - the number of the serial ports)"
+::= { avSystem 1 }
+
+avVersion OBJECT-TYPE
+	SYNTAX DisplayString
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION "The firmware's version"
+::= {avSystem 2}
+
+avPower OBJECT-IDENTITY
+	STATUS current
+	DESCRIPTION "It gives information about Power Supply"
+::= { avSystem 3 }
+
+avPwNum OBJECT-TYPE
+	SYNTAX Integer32
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION "Number of the power supplies"
+::= { avPower 1 }
+
+avPw1 OBJECT-TYPE
+	SYNTAX INTEGER {
+		noinstalled(0),
+		powerON(1),
+		powerOFF(2)
+	}
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION "State of the first power supply"
+::= { avPower 2 }
+
+avPw2 OBJECT-TYPE
+	SYNTAX INTEGER {
+		noinstalled(0),
+		powerON(1),
+		powerOFF(2)
+	}
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION "State of the second power supply"
+::= { avPower 3 }
+
+avPcmcia OBJECT-IDENTITY
+	STATUS current
+	DESCRIPTION "PCMCIA card information"
+::= {avSystem 4}
+
+avNPcmcia OBJECT-TYPE
+	SYNTAX Integer32
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION "Number of the cards PCMCIA available"
+::= { avPcmcia 1 }
+
+avCardIdentTable OBJECT-TYPE
+	SYNTAX SEQUENCE OF AvCardIdentEntry
+	MAX-ACCESS not-accessible
+	STATUS current
+	DESCRIPTION "Card identification"
+::= { avPcmcia 2 }
+
+avCardIdentEntry OBJECT-TYPE
+	SYNTAX AvCardIdentEntry
+	MAX-ACCESS not-accessible
+	STATUS current
+	DESCRIPTION "One particular association between PCMCIA socket and card identification"
+	INDEX { avCardIdentIndex }
+::= { avCardIdentTable 1 }
+
+AvCardIdentEntry ::= SEQUENCE {
+	avCardIdentIndex Integer32,
+	avCardIdentProd DisplayString,
+	avCardIdentMan DisplayString ,
+	avCardIdentFunc DisplayString,
+	avCardIdentPCI DisplayString
+}
+
+avCardIdentIndex OBJECT-TYPE
+	SYNTAX Integer32(0..2)
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION "number to identifier the socket Card"
+::= { avCardIdentEntry 1 }
+
+avCardIdentProd OBJECT-TYPE
+	SYNTAX DisplayString
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION "Product identification strings"
+::= { avCardIdentEntry 2 }
+
+avCardIdentMan OBJECT-TYPE
+	SYNTAX DisplayString
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION "Manufacturer ID codes"
+::= { avCardIdentEntry 3 }
+
+avCardIdentFunc OBJECT-TYPE
+	SYNTAX DisplayString
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION "Function ID code"
+::= { avCardIdentEntry 4 }
+
+avCardIdentPCI OBJECT-TYPE
+	SYNTAX DisplayString
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION "PCI ID"
+::= { avCardIdentEntry 5 }
+
+avCardConfTable OBJECT-TYPE
+	SYNTAX SEQUENCE OF AvCardConfEntry
+	MAX-ACCESS not-accessible
+	STATUS current
+	DESCRIPTION "This table has the socket configuration "
+::= { avPcmcia 3 }
+
+avCardConfEntry OBJECT-TYPE
+	SYNTAX AvCardConfEntry
+	MAX-ACCESS not-accessible
+	STATUS current
+	DESCRIPTION "One particular association between PCMCIA socket and its configuration"
+	INDEX { avCardConfIndex }
+::= { avCardConfTable 1 }
+
+AvCardConfEntry ::= SEQUENCE {
+	avCardConfIndex Integer32,
+	avCardConfPower DisplayString,
+	avCardConfType DisplayString ,
+	avCardConfInter DisplayString,
+	avCardConfFunc DisplayString,
+	avCardConfCardv DisplayString,
+	avCardConfPort1 DisplayString,
+	avCardConfPort2 DisplayString
+}
+
+avCardConfIndex OBJECT-TYPE
+	SYNTAX Integer32(0..2)
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION "number to identifier the socket PCMCIA"
+::= { avCardConfEntry 1 }
+
+avCardConfPower OBJECT-TYPE
+	SYNTAX DisplayString
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION "Power Settings"
+::= { avCardConfEntry 2 }
+
+avCardConfType OBJECT-TYPE
+	SYNTAX DisplayString
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION "Interface Type"
+::= { avCardConfEntry 3 }
+
+avCardConfInter OBJECT-TYPE
+	SYNTAX DisplayString
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION "Interrupt number"
+::= { avCardConfEntry 4 }
+
+avCardConfFunc OBJECT-TYPE
+	SYNTAX DisplayString
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION "function"
+::= { avCardConfEntry 5 }
+
+avCardConfCardv OBJECT-TYPE
+	SYNTAX DisplayString
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION "Card values"
+::= { avCardConfEntry 6 }
+
+avCardConfPort1 OBJECT-TYPE
+	SYNTAX DisplayString
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION "I/O Port 1"
+::= { avCardConfEntry 7 }
+
+avCardConfPort2 OBJECT-TYPE
+	SYNTAX DisplayString
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION "I/O Port 2"
+::= { avCardConfEntry 8 }
+
+avCardStatusTable OBJECT-TYPE
+	SYNTAX SEQUENCE OF AvCardStatusEntry
+	MAX-ACCESS not-accessible
+	STATUS current
+	DESCRIPTION "This table has the current socket status flags "
+::= { avPcmcia 4 }
+
+avCardStatusEntry OBJECT-TYPE
+	SYNTAX AvCardStatusEntry
+	MAX-ACCESS not-accessible
+	STATUS current
+	DESCRIPTION "One particular association between PCMCIA socket and its status"
+	INDEX { avCardStatusIndex }
+::= { avCardStatusTable 1 }
+
+AvCardStatusEntry ::= SEQUENCE {
+	avCardStatusIndex Integer32,
+	avCardStatusCard DisplayString,
+	avCardStatusFunc DisplayString
+}
+
+avCardStatusIndex OBJECT-TYPE
+	SYNTAX Integer32(0..2)
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION "number to identifier the socket PCMCIA"
+::= { avCardStatusEntry 1 }
+
+avCardStatusCard OBJECT-TYPE
+	SYNTAX DisplayString
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION "Current Card State"
+::= { avCardStatusEntry 2 }
+
+avCardStatusFunc OBJECT-TYPE
+	SYNTAX DisplayString
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION "Current Function"
+::= { avCardStatusEntry 3 }
+
+avFlashSize OBJECT-TYPE
+	SYNTAX Integer32
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION "Total amount of flash memory in Mbytes"
+::= {avSystem 5}
+
+avRAMSize OBJECT-TYPE
+	SYNTAX Integer32
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION "Total amount of RAM in Mbytes"
+::= {avSystem 6}
+
+avCPUfreq OBJECT-TYPE
+	SYNTAX Integer32
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION "CPU clock in MHz"
+::= {avSystem 7}
+
+avDevId OBJECT-TYPE
+	SYNTAX DisplayString
+	MAX-ACCESS read-only
+	STATUS current
+	DESCRIPTION "The product's identifier"
+::= { avSystem 8 }
+
+END
+
+AVOCENT-AUTOVIEW-CONF-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+	avManagement
+			FROM AVOCENT-AUTOVIEW-MIB
+	InterfaceIndexOrZero
+			FROM IF-MIB
+	MODULE-IDENTITY, OBJECT-TYPE, OBJECT-IDENTITY,
+	IpAddress, Integer32
+			FROM SNMPv2-SMI
+	DisplayString
+			FROM SNMPv2-TC;
+
+avConfiguration    MODULE-IDENTITY
+	LAST-UPDATED	"200704260000Z"
+	ORGANIZATION	"Avocent Corporation"
+	CONTACT-INFO	"postal: Avocent Corporation
+			3541 Gateway Boulevard
+			Fremont, CA 94538, USA
+			e-mail: Technical Support
+			techsupport@avocent.com"
+	DESCRIPTION	"This module defines AutoView Family Configuration objects"
+	REVISION	"200704260000Z"
+	DESCRIPTION	"First Draft"
+::= { avManagement 2 }
+
+-- Current Avocent AutoView Family Configuration core mib table entries :
+--	avHostName			OBJECT-TYPE	::= { avConfiguration 1 }
+--	avConsoleBanner		OBJECT-TYPE	::= { avConfiguration 2 }
+--	avMotd				OBJECT-TYPE	::= { avConfiguration 3 }
+--	avEthItf			OBJECT-IDENTITY	::= { avConfiguration 4 }
+--	avNameService		OBJECT-IDENTITY	::= { avConfiguration 5 }  
+--	avSerialPortConf	OBJECT-IDENTITY	::= { avConfiguration 6 }
+
+avHostName	OBJECT-TYPE
+	SYNTAX		DisplayString (SIZE (1..40))
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"The Host Name "
+::= { avConfiguration 1 }                              
+
+avConsoleBanner	OBJECT-TYPE
+	SYNTAX		DisplayString (SIZE (1..255))
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"The console banner "
+::= { avConfiguration 2 }                              
+
+avMotd	OBJECT-TYPE
+	SYNTAX		DisplayString (SIZE (0..255))
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"The motd message "
+::= { avConfiguration 3 }                              
+
+avEthItf	OBJECT-IDENTITY
+	STATUS     	current
+	DESCRIPTION "The configuration of the Ethernet Interface"   
+::= { avConfiguration 4 }
+
+avEthDhcpc	OBJECT-TYPE
+	SYNTAX	INTEGER	{
+			inactive(0),	-- DHCP is inactive
+			active(1),	-- DHCP is active
+			restore(2)	-- DHCP is active and AVCS saves the last parameters 
+					-- assigned by the server
+			}
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"The AVCS can request all of its ethernet parameters 
+				 to a DHCP server"
+::= { avEthItf 1 }
+
+avEthIPaddr	OBJECT-TYPE
+	SYNTAX		IpAddress
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"This is the IP address of the Ethernet Interface"
+::= { avEthItf 2 }
+
+avEthIPmask		OBJECT-TYPE
+	SYNTAX		IpAddress
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"The mask fot the Ethernet network"
+::= { avEthItf 3 }
+
+avEthMTU		OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"The Maximum Transmission Unit size, wich determines 
+			 whether or not packets should be broken up"
+::= { avEthItf 4 }
+
+avEthIPaddr2	OBJECT-TYPE
+	SYNTAX		IpAddress
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"The Ethernet secondary IP address"
+::= { avEthItf 5 }
+
+avEthIPmask2	OBJECT-TYPE
+	SYNTAX		IpAddress
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"The Ethernet secondary IP mask"
+::= { avEthItf 6 }
+
+avNameService	OBJECT-IDENTITY
+	STATUS		current
+	DESCRIPTION	"The Name Service configuration"
+::= { avConfiguration 5 }  
+
+avResolverOrder	OBJECT-TYPE
+	SYNTAX		DisplayString (SIZE (0..15))
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"It specifies how host lookups are to be performed.
+			 Valid values : empty, 'hosts', 'bind', 'hosts, bind', 
+			 'bind, hosts' "
+::= { avNameService 1 }
+                   
+avMultipleIP	OBJECT-TYPE
+	SYNTAX		DisplayString (SIZE (0..3))
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Valid values are ON or OFF. If set to ON, the resolve 
+			 library will return all valid addresses for a host 
+			 that appears in the /etc/hosts file, instead of only 
+			 the first.  "
+::= { avNameService 2 }
+
+avDNSserv		OBJECT-IDENTITY
+	STATUS		current
+	DESCRIPTION	"The DNS server configuration"
+::= { avNameService 3 }
+
+avDNSpriserv	OBJECT-TYPE
+	SYNTAX		IpAddress
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Internet Address (in dot notation) of primary name 
+			 server that the resolver should query."
+::= { avDNSserv 1 }
+ 
+avDNSsecserv	OBJECT-TYPE
+	SYNTAX		IpAddress
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Internet Address (in dot notation) of secondary name 
+			 server that the resolver should query."
+::= { avDNSserv 2 }
+
+avDNSdomain		OBJECT-TYPE
+	SYNTAX		DisplayString (SIZE (1..40))
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Local domain name ."
+::= { avDNSserv 3 }
+
+avSerialPortConf	OBJECT-IDENTITY
+	STATUS		current
+	DESCRIPTION	"The PortSlave configuration - pslave.conf file. 
+			 It configures the all serial ports."
+::= { avConfiguration 6 }  
+
+avSerialGlobal		OBJECT-IDENTITY
+	STATUS		current
+	DESCRIPTION	"These parameters have the prefix conf. in 
+			 the pslave.conf file"
+::= { avSerialPortConf 1 }
+
+avSerialInclude	OBJECT-TYPE
+	SYNTAX		DisplayString (SIZE (0..40))
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"File used in centralized management."
+::= { avSerialGlobal 1 }
+
+avSerialNFS		OBJECT-TYPE
+	SYNTAX		DisplayString (SIZE (0..50))
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Remote Network File System where data buffering will be 
+			 written instead of the default directory '/var/run/DB'."
+::= { avSerialGlobal 2 }
+
+avSerialLockDir		OBJECT-TYPE
+	SYNTAX		DisplayString (SIZE (0..50))
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"The lock directory for the AVCS."
+::= { avSerialGlobal 3 }
+
+avSerialRlogin		OBJECT-TYPE
+	SYNTAX		DisplayString (SIZE (0..50))
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Location of the rlogin binary that accepts the -i flag."
+::= { avSerialGlobal 4 }
+
+avSerialPppd	OBJECT-TYPE
+	SYNTAX		DisplayString (SIZE (0..50))
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Location of the pppd binary."
+::= { avSerialGlobal 5 }
+
+avSerialTelnet	OBJECT-TYPE
+	SYNTAX		DisplayString (SIZE (0..50))
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION "Location of the telnet application"
+::= { avSerialGlobal 6 }
+
+avSerialSsh		OBJECT-TYPE
+	SYNTAX		DisplayString (SIZE (0..50))
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Location of the ssh application"
+::= { avSerialGlobal 7 }
+
+avSerialLocalLogins	OBJECT-TYPE
+	SYNTAX		INTEGER {
+				off(0),           
+				on(1)   -- possible to login to the AVCS directly by placing a !
+			}
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION 	"This parameter is only necessary when authentication is 
+			 being performed for a port.
+			 This is useful if the Radius authentication server is down."
+::= { avSerialGlobal 8 }
+
+avSerialFacility	OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"This value (0-7) is the Local facility sent to the syslog daemon."
+::= { avSerialGlobal 9 }
+
+avSerialDBFacility	OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"This value (0-7) is the Local facility sent to the syslog 
+			 daemon with the data when ."
+::= { avSerialGlobal 10 }
+
+avSerialGroupTable	OBJECT-TYPE
+	SYNTAX		SEQUENCE OF AvGroupEntry
+	MAX-ACCESS	not-accessible
+	STATUS		current
+	DESCRIPTION	"This associates group name and its users"
+::= { avSerialGlobal 11 }
+
+avgroupEntry	OBJECT-TYPE
+	SYNTAX		AvGroupEntry
+	MAX-ACCESS	not-accessible
+	STATUS		current
+	DESCRIPTION	"One particular association between group name and its users"
+	INDEX		{ avGroupIndex }
+::= { avSerialGroupTable 1 }
+
+AvGroupEntry ::= SEQUENCE  {
+	avGroupIndex	InterfaceIndexOrZero,
+	avGroupName	DisplayString,
+	avGroupUsers	DisplayString
+}
+
+avGroupIndex	OBJECT-TYPE
+	SYNTAX		InterfaceIndexOrZero	
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"number to identifier the group"
+::= { avgroupEntry  1 }                              
+
+avGroupName	OBJECT-TYPE
+	SYNTAX		DisplayString (SIZE (0..20))
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"The Group Name "
+::= { avgroupEntry  2 }                              
+
+avGroupUsers	OBJECT-TYPE
+	SYNTAX		DisplayString (SIZE (0..80))
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"The users names "
+::= { avgroupEntry  3 }                              
+
+avSerialSpec	OBJECT-IDENTITY
+	STATUS		current
+	DESCRIPTION	"These parameters have the prefix all. or sxx. in the pslave.conf file"
+::= { avSerialPortConf 2 }
+
+avSerialPortTable	OBJECT-TYPE
+	SYNTAX		SEQUENCE OF AvSPortEntry
+	MAX-ACCESS	not-accessible
+	STATUS		current
+	DESCRIPTION 	"This is the specific configuration to serial port"
+::= { avSerialSpec 1 }
+
+avsportEntry	OBJECT-TYPE
+	SYNTAX		AvSPortEntry
+	MAX-ACCESS	not-accessible
+	STATUS		current
+	DESCRIPTION	"One particular serial port configuration"
+	INDEX		{ avSPortNumber }
+::= { avSerialPortTable 1 }
+
+AvSPortEntry ::= SEQUENCE  {
+	avSPortNumber		InterfaceIndexOrZero,	-- 0 == all.  X == ttyX sX.
+	avSPortTty		DisplayString,		-- associate device
+	avSPortName		DisplayString,		-- alias name
+	avSPortSpeed		INTEGER,		-- physical port configuration
+	avSPortDataSize		Integer32,
+	avSPortStopBits		Integer32,
+	avSPortParity		DisplayString,
+	avSPortFlowCtrl		DisplayString,
+	avSPortDTRdelay		Integer32,
+	avSPortDCDCtrl		INTEGER,
+	avSPortLogUtmp		INTEGER,		-- log into UTMP
+	avSPortLogWtmp		INTEGER,		-- log into WTMP
+	avSPortLogform		DisplayString,
+	avSPortAuthtype		DisplayString,		-- authentication type
+	avSPortAuthSrv1		IpAddress,	-- IP address of the primary authentication server
+	avSPortAccSrv1		IpAddress,	-- IP address of the primarty accounting server
+	avSPortAuthTmo		Integer32,	-- time out per authentication query
+	avSPortAuthRetr		Integer32,	-- authentication number of retries
+	avSPortAuthSrv2		IpAddress,	-- IP address of the secondary authentication server
+	avSPortAccSrv2		IpAddress,	-- IP address of the secondary accounting server
+	avSPortAuthSecret	DisplayString,	-- secret used in authentication
+	avSPortAuthRadP		INTEGER,	-- accept RADIUS' user without password
+	avSPortAuthAcc		DisplayString,	-- access restrition on Users
+	avSPortProtocol		DisplayString,	-- Profile
+	avSPortRemoteIP		DisplayString,	-- remote IP address
+	avSPortSocketPort	DisplayString,	-- number of socket port
+	avSPortRemHost		IpAddress,	-- IP address of the remote Host
+	avSPortBanner		DisplayString,	-- Banner
+	avSPortPrompt		DisplayString,	-- Login prompt
+	avSPortTermType		DisplayString,	-- terminal type
+	avSPortAutomUsr		DisplayString,	-- automatic user
+	avSPortNetMask		IpAddress,	-- net mask
+	avSPortPppMtu		Integer32,
+	avSPortPppMru		Integer32,
+	avSPortPppOptions	DisplayString,
+	avSPortPppFoption	DisplayString,
+	avSPortModemChat	DisplayString,	-- initchat send to modem
+	avSPortSttyCmd		DisplayString,
+	avSPortSockTx		Integer32,	-- socket transmission interval
+	avSPortSockPoll		Integer32,	-- socket polling interval
+	avSPortSockIdle		Integer32,	-- socket idle timeout
+	avSPortDBsize		Integer32,	-- maximum size of the data buffering file
+	avSPortDBtime		INTEGER,	-- data buffering with/without timestamp
+	avSPortDBmode		DisplayString,	-- data bufferinf mode circ or line
+	avSPortDBsyslog		Integer32,	-- size of the data send to syslog
+	avSPortDBmenu		INTEGER,	-- menu of the data buffering
+	avSPortDBalarm		INTEGER,	-- use alarm generating feature
+	avSPortSSHbreak		DisplayString,	-- break sequence (SSH)
+	avSPortSniffSess	DisplayString,	-- sniff session type
+	avSPortSniffAdm		DisplayString,	-- admin users to sniff
+	avSPortSniffEsc		DisplayString,	-- escape char to sniff session
+	avSPortSniffMsess	DisplayString,	-- multiple session
+	avSPortTelnetMode	INTEGER,	-- telnet client mode
+	avSPortSysBufSess	INTEGER,	-- syslog buffering at all times
+	avSPortLFSuppress	INTEGER,	-- LF suppression in socket_server session
+	avSPortAutoInput	DisplayString,  -- Input string to auto answer 
+	avSPortAutoOutput	DisplayString,  -- Output string to auto answer
+	avSPortPmType 		DisplayString,  -- Power Management IPDU type
+	avSPortPmUsers	 	DisplayString,  -- Power Management IPDU users
+	avSPortPmOutlet 	DisplayString,  -- Power Management Outlets
+	avSPortPmKey 		DisplayString,  -- Power Management Hotkey
+	avSPortPmNOutlets 	Integer32, 	-- Power Management IPDU number of outlets 
+	avSPortBreakInterval 	Integer32 	-- Break interval (in ms) 
+}
+
+avSPortNumber	OBJECT-TYPE
+	SYNTAX		InterfaceIndexOrZero	
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"number to identifier the serial port. Value 0 is ALL."
+::= { avsportEntry 1 }
+
+avSPortTty		OBJECT-TYPE
+	SYNTAX		DisplayString (SIZE (0..25))
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"The device name for the serial port."
+::= { avsportEntry 2 }
+
+avSPortName		OBJECT-TYPE
+	SYNTAX		DisplayString (SIZE (0..40))
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Alias name given to the server connected to the serial port."
+::= { avsportEntry 3 }
+
+avSPortSpeed	OBJECT-TYPE
+	SYNTAX		INTEGER {
+				s50bps(50), s75bps(75), s110bps(110), s134bps(134), 
+				s150bps(150), s200bps(200), s300bps(300), s600bps(600), 
+				s1200bps(1200), s1800bps(1800),
+				s2400bps(2400), s4800bps(4800), 
+				s9600bps(9600), s14400bps(14400), 
+				s19200bps(19200), s28800bps(28800), 
+				s38400bps(38400), s57600bps(57600), 
+				s115200bps(115200), s230400bps(230400), 
+				s460800bps(460800)
+			}	
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"The speed for serial port."
+::= { avsportEntry 4 }
+
+avSPortDataSize	OBJECT-TYPE
+	SYNTAX		Integer32 (4..8)
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"The data size for serial port."
+::= { avsportEntry 5 }
+
+avSPortStopBits	OBJECT-TYPE
+	SYNTAX		Integer32 (1..2)
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"The number of stop bits for serial port."
+::= { avsportEntry 6 }
+
+avSPortParity	OBJECT-TYPE
+	SYNTAX		DisplayString (SIZE (0..5))
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"The parity for serial port."
+::= { avsportEntry 7 }
+
+avSPortFlowCtrl	OBJECT-TYPE
+	SYNTAX		DisplayString (SIZE (0..5))
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"The flow control for serial port."
+::= { avsportEntry 8 }
+
+avSPortDTRdelay	OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"This specifies how long (in miliseconds) a DTR signal
+				 will be turned off before it is turned on again."
+::= { avsportEntry 9 }
+
+avSPortDCDCtrl	OBJECT-TYPE
+	SYNTAX		INTEGER {
+				notctrl(0),  
+				control(1)	   
+			}
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"DCD signal controls the connection request." 
+::= { avsportEntry 10 }
+
+avSPortLogUtmp	OBJECT-TYPE
+	SYNTAX		INTEGER {
+				inactive(0),  
+				active(1)	   
+			}
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"AVCS update the login records in /var/run/utmp file." 
+::= { avsportEntry 11 }
+
+avSPortLogWtmp	OBJECT-TYPE
+	SYNTAX		INTEGER {
+				inactive(0),  
+				active(1)	   
+			}
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"AVCS update the login records in /var/run/wtmp file." 
+::= { avsportEntry 12 }
+
+avSPortLogform	OBJECT-TYPE
+	SYNTAX		DisplayString (SIZE (0..40))
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"This is the format to write login record." 
+::= { avsportEntry 13 }
+
+avSPortAuthtype		OBJECT-TYPE
+	SYNTAX		DisplayString (SIZE (0..25))
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Authentication type : ." 
+::= { avsportEntry 14 }
+
+avSPortAuthSrv1	OBJECT-TYPE
+	SYNTAX		IpAddress
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"IP address of the primary authentication server." 
+::= { avsportEntry 15 }
+
+avSPortAccSrv1	OBJECT-TYPE
+	SYNTAX		IpAddress
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"IP address of the primary accounting server." 
+::= { avsportEntry 16 }
+
+avSPortAuthTmo	OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"This is the timeout (in seconds) for authentication 
+			query to be answered." 
+::= { avsportEntry 17 }
+
+avSPortAuthRetr	OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"This defines the number of times each server is tried 
+			before another is contacted." 
+::= { avsportEntry 18 }
+
+avSPortAuthSrv2	OBJECT-TYPE
+	SYNTAX		IpAddress
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"IP address of the secondary authentication server." 
+::= { avsportEntry 19 }
+
+avSPortAccSrv2	OBJECT-TYPE
+	SYNTAX		IpAddress
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"IP address of the secondary accounting server." 
+::= { avsportEntry 20 }
+
+avSPortAuthSecret	OBJECT-TYPE
+	SYNTAX		DisplayString (SIZE (0..40))
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"This is the shared secret with authentciation servers." 
+::= { avsportEntry 21 }
+
+avSPortAuthRadP	OBJECT-TYPE
+	SYNTAX		INTEGER {
+				inactive(0),  
+				active(1)	   
+			}
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"To accept Radius' user without password." 
+::= { avsportEntry 22 }
+
+avSPortAuthAcc	OBJECT-TYPE
+	SYNTAX		DisplayString (SIZE (0..40))
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"access restrition on Users." 
+::= { avsportEntry 23 }
+
+avSPortProtocol	OBJECT-TYPE
+	SYNTAX		DisplayString (SIZE (0..40))
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Defines the port serial's protocol." 
+::= { avsportEntry 24 }
+
+avSPortRemoteIP	OBJECT-TYPE
+	SYNTAX		DisplayString (SIZE (0..20))
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"This is the default IP address of the serial port." 
+::= { avsportEntry 25 }
+
+avSPortSocketPort	OBJECT-TYPE	
+	SYNTAX		DisplayString (SIZE (0..10))
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"This defines an alternative labeling system for the serial port." 
+::= { avsportEntry 26 }
+
+avSPortRemHost	OBJECT-TYPE
+	SYNTAX		IpAddress
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"The IP address of the host to which the serial port will connect." 
+::= { avsportEntry 27 }
+
+avSPortBanner	OBJECT-TYPE
+	SYNTAX		DisplayString (SIZE (0..250))
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"This defines the banner." 
+::= { avsportEntry 28 }
+
+avSPortPrompt	OBJECT-TYPE
+	SYNTAX		DisplayString (SIZE (0..250))
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"This defines the login prompt to the serial port." 
+::= { avsportEntry 29 }
+
+avSPortTermType	OBJECT-TYPE
+	SYNTAX		DisplayString (SIZE (0..20))
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"This defines the terminal type." 
+::= { avsportEntry 30 }
+
+avSPortAutomUsr	OBJECT-TYPE
+	SYNTAX		DisplayString (SIZE (0..40))
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"This defines the automatic user." 
+::= { avsportEntry 31 }
+
+avSPortNetMask	OBJECT-TYPE
+	SYNTAX		IpAddress
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"The network mask used in dial in connection." 
+::= { avsportEntry 32 }
+
+avSPortPppMtu	OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"The PPP MTU - dial in connection." 
+::= { avsportEntry 33 }
+
+avSPortPppMru	OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"The PPP MRU - dial in connection." 
+::= { avsportEntry 34 }
+
+avSPortPppOptions	OBJECT-TYPE
+	SYNTAX		DisplayString
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"The PPP options when AVCS autodetects the PPP session ." 
+::= { avsportEntry 35 }
+
+avSPortPppFoption	OBJECT-TYPE
+	SYNTAX		DisplayString
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"The PPP forced options when the user has already been authenticated." 
+::= { avsportEntry 36 }
+
+avSPortModemChat	OBJECT-TYPE
+	SYNTAX		DisplayString
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"The initchat send to modem connected." 
+::= { avsportEntry 37 }
+
+avSPortSttyCmd	OBJECT-TYPE
+	SYNTAX		DisplayString (SIZE (0..180))
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"the tty settings after socket connection is established." 
+::= { avsportEntry 38 }
+
+avSPortSockTx	OBJECT-TYPE	
+	SYNTAX		Integer32
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Defines the delay (in miliseconds) before transmission to
+			 the Ethernet of data received through a serial port ." 
+::= { avsportEntry 39 }
+
+avSPortSockPoll	OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Keep-alive timer (miliseconds) to the TCP connection ." 
+::= { avsportEntry 40 }
+
+avSPortSockIdle	OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"The idle timeout in seconds ." 
+::= { avsportEntry 41 }
+
+avSPortDBsize	OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Maximum size of the data buffering file." 
+::= { avsportEntry 42 }
+
+avSPortDBtime	OBJECT-TYPE
+	SYNTAX		INTEGER {
+				inactive(0),
+				active(1)
+			}
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Timestamp in data buffering." 
+::= { avsportEntry 43 }
+
+avSPortDBmode	OBJECT-TYPE
+	SYNTAX		DisplayString (SIZE (0..5))
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Data buffering mode : circ or line"
+::= { avsportEntry 44 }
+
+avSPortDBsyslog	OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"size of the data buffering send to syslog." 
+::= { avsportEntry 45 }
+
+avSPortDBmenu	OBJECT-TYPE
+	SYNTAX		INTEGER {
+				displayMenu(0),
+				inactive(1),
+				displayDB(2),
+				displayParc(3)
+			}
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Menu of the data buffering." 
+::= { avsportEntry 46 }
+
+avSPortDBalarm	OBJECT-TYPE
+	SYNTAX		INTEGER {
+				inactive(0),
+				active(1)
+			}
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Generating Alarms." 
+::= { avsportEntry 47 }
+
+avSPortSSHbreak	OBJECT-TYPE
+	SYNTAX		DisplayString (SIZE (0..16))
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Break sequence - ssh session"
+::= { avsportEntry 48 }
+
+avSPortSniffSess	OBJECT-TYPE
+	SYNTAX		DisplayString (SIZE (0..5))
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Sniff session type"
+::= { avsportEntry 49 }
+
+avSPortSniffAdm	OBJECT-TYPE
+	SYNTAX		DisplayString (SIZE (0..40))
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"List of admin users to sniff session"
+::= { avsportEntry 50 }
+
+avSPortSniffEsc	OBJECT-TYPE
+	SYNTAX		DisplayString (SIZE (0..6))
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Escape sequence used in sniff session"
+::= { avsportEntry 51 }
+
+avSPortSniffMsess	OBJECT-TYPE
+	SYNTAX		DisplayString (SIZE (0..20))
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Multiple sniff sessions"
+::= { avsportEntry 52 }
+
+avSPortTelnetMode	OBJECT-TYPE
+	SYNTAX		INTEGER {
+				text(0),
+				binary(1)
+			}
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Mode negotiated by client telnet with the server"
+::= { avsportEntry 53 }
+
+avSPortSysBufSess	OBJECT-TYPE
+	SYNTAX		INTEGER {
+				yes(0),
+				no(1)
+			}
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Syslog Buffering at all times"
+::= { avsportEntry 54 }
+
+avSPortLFSuppress	OBJECT-TYPE
+	SYNTAX		INTEGER {
+				inactive(0),
+				active(1)
+			}
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"LF suppression in socket_server session"
+::= { avsportEntry 55 }
+
+avSPortAutoInput	OBJECT-TYPE
+	SYNTAX		DisplayString (SIZE (0..40))
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"This string is used to auto answer. It's the input string"
+::= { avsportEntry 56 }
+
+avSPortAutoOutput	OBJECT-TYPE
+	SYNTAX		DisplayString (SIZE (0..40))
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"This string is used to auto answer. It's the output string"
+::= { avsportEntry 57 }
+
+avSPortPmType		OBJECT-TYPE
+	SYNTAX		DisplayString (SIZE (0..20))
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"IPDU type, when the port protocol is configured as IPDU"
+::= { avsportEntry 58 }
+
+avSPortPmUsers		OBJECT-TYPE
+	SYNTAX		DisplayString (SIZE (0..40))
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"List of users which can access the IPDU and their respective outlets"
+::= { avsportEntry 59 }
+
+avSPortPmOutlet		OBJECT-TYPE
+	SYNTAX		DisplayString (SIZE (0..40))
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"List of <IPDU port>.<outlet> pairs, where the server is connected"
+::= { avsportEntry 60 }
+
+avSPortPmKey		OBJECT-TYPE
+	SYNTAX		DisplayString (SIZE (0..8))
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Hotkey to grant access to the Power Management from a Telnet/SSH session"
+::= { avsportEntry 61 }
+
+avSPortPmNOutlets	OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Number of outlets of the IPDU"
+::= { avsportEntry 62 }
+
+avSPortBreakInterval	OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"The break interval in miliseconds." 
+::= { avsportEntry 63 }
+
+END
+
+AVOCENT-AUTOVIEW-INFO-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+	avManagement
+		FROM AVOCENT-AUTOVIEW-MIB
+	InterfaceIndex
+		FROM IF-MIB
+	MODULE-IDENTITY, OBJECT-TYPE, 
+	Counter32, Integer32
+			FROM SNMPv2-SMI
+	DisplayString
+		FROM SNMPv2-TC;
+
+avInformation	MODULE-IDENTITY
+	LAST-UPDATED	"200704260000Z"
+	ORGANIZATION	"Avocent Corporation"
+	CONTACT-INFO	"postal: Avocent Corporation
+			3541 Gateway Boulevard
+			Fremont, CA 94538, USA
+			e-mail: Technical Support
+			techsupport@avocent.com"
+	DESCRIPTION	"This module defines AutoView Family Information objects"
+	REVISION	"200704260000Z"
+	DESCRIPTION	"First Draft"
+::= { avManagement 3 }
+
+avInfoSerialTable	OBJECT-TYPE
+	SYNTAX		SEQUENCE OF AvISPortEntry
+	MAX-ACCESS	not-accessible
+	STATUS		current
+	DESCRIPTION	"This is the information of the specific serial port"
+::= { avInformation 1 }
+
+avisPortEntry	OBJECT-TYPE
+	SYNTAX		AvISPortEntry
+	MAX-ACCESS	not-accessible
+	STATUS		current
+	DESCRIPTION	"One particular serial port "
+	INDEX		{ avISPortNumber }
+::= { avInfoSerialTable 1 }
+
+AvISPortEntry ::= SEQUENCE  {
+	avISPortNumber	InterfaceIndex,      --  X == ttyX sX.
+	avISPortTty	DisplayString,         -- associate device
+	avISPortName	DisplayString,          -- alias name
+	avISPortSpeed	Integer32,
+	avISPortTxBytes	Counter32,          
+	avISPortRXBytes	Counter32,
+	avISPortErrFrame	Counter32,
+	avISPortErrParity	Counter32,
+	avISPortErrBreaks	Counter32,
+	avISPortErrOverrun	Counter32,
+	avISPortSigDTR		INTEGER,
+	avISPortSigCD		INTEGER,
+	avISPortSigDSR		INTEGER,
+	avISPortSigRTS		INTEGER,
+	avISPortSigCTS		INTEGER,
+	avISPortSigRI		INTEGER
+ }
+
+avISPortNumber	OBJECT-TYPE
+	SYNTAX		InterfaceIndex	
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"number to identifier the serial port."
+::= { avisPortEntry 1 }
+
+avISPortTty		OBJECT-TYPE
+	SYNTAX		DisplayString	
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"The device name for the serial port."
+::= { avisPortEntry 2 }
+
+avISPortName		OBJECT-TYPE
+	SYNTAX		DisplayString	
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"Alias name given to the server connected to the serial port."
+::= { avisPortEntry 3 }
+
+avISPortSpeed	OBJECT-TYPE
+	SYNTAX		Integer32 
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"The speed for serial port."
+::= { avisPortEntry 4 }
+
+avISPortTxBytes	OBJECT-TYPE        
+	SYNTAX		Counter32 
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"The number of transmited bytes by the serial port."
+::= { avisPortEntry 5 }
+
+avISPortRXBytes	OBJECT-TYPE
+	SYNTAX		Counter32 
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"The number of received bytes by the serial port."
+::= { avisPortEntry 6 }
+
+avISPortErrFrame	OBJECT-TYPE
+	SYNTAX		Counter32 
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"The number of frame error."
+::= { avisPortEntry 7 }
+
+avISPortErrParity	OBJECT-TYPE
+	SYNTAX		Counter32 
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"The number of parity error."
+::= { avisPortEntry 8 }
+
+avISPortErrBreaks	OBJECT-TYPE	
+	SYNTAX		Counter32 
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"The number of breaks error."
+::= { avisPortEntry 9 }
+
+avISPortErrOverrun	OBJECT-TYPE
+	SYNTAX		Counter32 
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"The number of overrun error."
+::= { avisPortEntry 10 }
+
+avISPortSigDTR	OBJECT-TYPE
+	SYNTAX		INTEGER {
+				down(0),
+				up(1)
+			}
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"The state of DTR signal."
+::= { avisPortEntry 11 }
+
+avISPortSigCD	OBJECT-TYPE
+	SYNTAX		INTEGER {
+				down(0),
+				up(1)
+			}
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"The state of DCD signal."
+::= { avisPortEntry 12 }
+
+avISPortSigDSR	OBJECT-TYPE
+	SYNTAX		INTEGER {
+				down(0),
+				up(1)
+			}
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"The state of DSR signal."
+::= { avisPortEntry 13 }
+
+avISPortSigRTS	OBJECT-TYPE
+	SYNTAX		INTEGER {
+				down(0),
+				up(1)
+			}
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"The state of RTS signal."
+::= { avisPortEntry 14 }
+
+avISPortSigCTS	OBJECT-TYPE
+	SYNTAX		INTEGER {
+				down(0),
+				up(1)
+			}
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"The state of CTS signal."
+::= { avisPortEntry 15 }
+
+avISPortSigRI	OBJECT-TYPE
+	SYNTAX		INTEGER {
+				down(0),
+				up(1)
+			}
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"The state of RI signal."
+::= { avisPortEntry 16 }
+
+END
+
+AVOCENT-AUTOVIEW-ADM-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+	avManagement
+		FROM AVOCENT-AUTOVIEW-MIB
+	OBJECT-TYPE, MODULE-IDENTITY
+		FROM SNMPv2-SMI;
+
+avAdministration	MODULE-IDENTITY
+	LAST-UPDATED	"200704260000Z"
+	ORGANIZATION	"Avocent Corporation"
+	CONTACT-INFO	"postal: Avocent Corporation
+			3541 Gateway Boulevard
+			Fremont, CA 94538, USA
+			e-mail: Technical Support
+			techsupport@avocent.com"
+	DESCRIPTION	"This module defines AutoView Family Administration objects"
+	REVISION	"200704260000Z"
+	DESCRIPTION	"First Draft"
+::= { avManagement 4 }
+
+avSave	OBJECT-TYPE
+	SYNTAX		INTEGER {
+				nosave(0),
+				save(1)
+			}
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Exec saveconf command"
+::= { avAdministration 1 }
+                               
+avSerialHUP	OBJECT-TYPE
+	SYNTAX		INTEGER {
+				norestartportslave(0),
+				restartportslave(1)
+			}
+	MAX-ACCESS    read-write
+	STATUS          current
+	DESCRIPTION     "Exec signal_ras hup command"
+::= { avAdministration 2 }
+
+END
+
+AVOCENT-AUTOVIEW-PM-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+	avManagement
+		FROM AVOCENT-AUTOVIEW-MIB
+	OBJECT-TYPE, MODULE-IDENTITY, Integer32
+		FROM SNMPv2-SMI
+	InterfaceIndex, InterfaceIndexOrZero
+		FROM IF-MIB
+	DisplayString
+		FROM SNMPv2-TC;
+
+avPowerManagement   MODULE-IDENTITY
+	LAST-UPDATED	"200704260000Z"
+	ORGANIZATION	"Avocent Corporation"
+	CONTACT-INFO	"postal: Avocent Corporation
+			3541 Gateway Boulevard
+			Fremont, CA 94538, USA
+			e-mail: Technical Support
+			techsupport@avocent.com"
+	DESCRIPTION	"This module defines AutoView Family PM Proxy objects"
+	REVISION	"200704260000Z"
+	DESCRIPTION	"First Draft"
+::= { avManagement 5 }
+
+avNumberOfPM		OBJECT-TYPE
+	SYNTAX		Integer32
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"The total number of PM's connected on the unit"
+::= { avPowerManagement 1 }
+ 
+avPMTable OBJECT-TYPE
+	SYNTAX		SEQUENCE OF AvPMEntry
+	MAX-ACCESS	not-accessible
+	STATUS		current
+	DESCRIPTION	"Allows to read information about each connected PM"
+::= { avPowerManagement 2 }
+
+avPMEntry	OBJECT-TYPE
+	SYNTAX		AvPMEntry
+	MAX-ACCESS	not-accessible
+	STATUS		current
+	DESCRIPTION	"Information about the connected PM"
+	INDEX		{ avPMSerialPortNumber }
+::= { avPMTable 1 }
+
+AvPMEntry ::= SEQUENCE  {
+	avPMSerialPortNumber	InterfaceIndex,     
+	avPMNumberOutlets Integer32,
+	avPMNumberUnits	Integer32,
+	avPMCurrent	DisplayString,
+	avPMVersion	DisplayString,
+	avPMTemperature	DisplayString,
+	avPMCommand	DisplayString
+}
+
+avPMSerialPortNumber	OBJECT-TYPE
+	SYNTAX		InterfaceIndex	
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"The number of the serial port when the PM is connected."
+::= { avPMEntry 1 }
+
+avPMNumberOutlets	OBJECT-TYPE
+	SYNTAX		Integer32	
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"Number of outlets."
+::= { avPMEntry 2 }
+
+avPMNumberUnits		OBJECT-TYPE
+	SYNTAX		Integer32	
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"Total number of PM unists that are accessed by this 
+			serial port."
+::= { avPMEntry 3 }
+
+avPMCurrent	OBJECT-TYPE
+	SYNTAX		DisplayString	
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"Current reading for the PM."
+::= { avPMEntry 4 }
+
+avPMVersion	OBJECT-TYPE
+	SYNTAX		DisplayString	
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"The software version of the PM."
+::= { avPMEntry 5 }
+
+avPMTemperature	OBJECT-TYPE
+	SYNTAX		DisplayString	
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"The PM temperature."
+::= { avPMEntry 6 }
+
+avPMCommand		OBJECT-TYPE
+	SYNTAX		DisplayString (SIZE (1..100))
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"A character string for the user to send commands to
+			PM. He can use it to does the save command.
+			Or to list the outlets that need to be turned off, 
+			or turned on , or avcled or locked or unlocked as a 
+			group. The command is the first word and is followed 
+			by a space and the outlet list (otulets commands). 
+			Valid commands are 'on', 'off', 'avcle', 'lock',
+			'unlock', 'save'."
+::= { avPMEntry 7 }
+
+avPMUnitTable	OBJECT-TYPE
+	SYNTAX		SEQUENCE OF AvPMUnitEntry
+	MAX-ACCESS	not-accessible
+	STATUS		current
+	DESCRIPTION	"Allow operations on specific PM unit connected"
+::= { avPowerManagement 3 }
+
+avPMUnitEntry	OBJECT-TYPE
+	SYNTAX		AvPMUnitEntry
+	MAX-ACCESS	not-accessible
+	STATUS		current
+	DESCRIPTION	"Allow operations on outlet"
+	INDEX		{ avPMSerialPortNumber, avPMUnitNumber }
+::= { avPMUnitTable 1 }
+
+AvPMUnitEntry ::= SEQUENCE  {
+	avPMUnitNumber		InterfaceIndex,     
+	avPMUnitVersion		DisplayString,
+	avPMUnitOutlets		Integer32,
+	avPMUnitFirstOutlet 	Integer32,
+	avPMUnitCurrent		Integer32,
+	avPMUnitMaxCurrent 	Integer32,
+	avPMUnitTemperature 	Integer32,
+	avPMUnitMaxTemperature 	Integer32
+}
+
+avPMUnitNumber	OBJECT-TYPE
+	SYNTAX		InterfaceIndex	
+	MAX-ACCESS	not-accessible
+	STATUS		current
+	DESCRIPTION	"The number of the PM unit in the daisy-chained mode."
+::= { avPMUnitEntry 1 }
+
+avPMUnitVersion	OBJECT-TYPE
+	SYNTAX		DisplayString	
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"The software version of this PM unit."
+::= { avPMUnitEntry 2 }
+
+avPMUnitOutlets	OBJECT-TYPE
+	SYNTAX		Integer32	
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"Number of outlets of this PM unit."
+::= { avPMUnitEntry 3 }
+
+avPMUnitFirstOutlet	OBJECT-TYPE
+	SYNTAX		Integer32	
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"Number of the first outlet of this PM unit."
+::= { avPMUnitEntry 4 }
+
+avPMUnitCurrent	OBJECT-TYPE
+	SYNTAX		Integer32	
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"Current of this PM unit in AMP.
+			The value of this object is the actual current in 
+                        AMP * 10. You need to translate the readed value
+                        (Ex. : value is 5, the current is 0.5 AMP.)" 
+::= { avPMUnitEntry 5 }
+
+avPMUnitMaxCurrent	OBJECT-TYPE
+	SYNTAX		Integer32	
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"Maximum current of this PM unit in AMP.
+			The value of this object is the maximum current in 
+                        AMP * 10. You need to translate the readed value
+                        (Ex. : value is 5, the maximum current is 0.5 AMP.)" 
+::= { avPMUnitEntry 6 }
+
+avPMUnitTemperature	OBJECT-TYPE
+	SYNTAX		Integer32	
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"Temperature of this PM unit in Celsius degrees.
+			The value of this object is the actual temperature in 
+                        degrees C * 10. You need to translate the readed value
+                        (Ex. : value is 240, the temperature is 24 Celsius.) 
+			If the temperature measurement is not installed this 
+			value will be 0.
+                        Valid values are 5 to 999 ( 0.5 to 99.9 Celsius)."
+::= { avPMUnitEntry 7 }
+
+avPMUnitMaxTemperature	OBJECT-TYPE
+	SYNTAX		Integer32	
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Maximum temperature value of this PM unit in Celsius 
+			degrees. The value of this object is the maximum 
+			temperature in degrees C * 10. You need to translate 
+			the readed value(Ex. : value is 240, the maximum
+			temperature is 24 Celsius). 
+			If the temperature measurement is not installed this 
+			value will be 0.
+                        Valid values are 5 to 999 ( 0.5 to 99.9 Celsius)."
+::= { avPMUnitEntry 8 }
+
+avOutletTable	OBJECT-TYPE
+	SYNTAX		SEQUENCE OF AvOutletEntry
+	MAX-ACCESS	not-accessible
+	STATUS		current
+	DESCRIPTION	"Allow operations on outlet"
+::= { avPowerManagement 4 }
+
+avOutletEntry	OBJECT-TYPE
+	SYNTAX		AvOutletEntry
+	MAX-ACCESS	not-accessible
+	STATUS		current
+	DESCRIPTION	"Allow operations on outlet"
+	INDEX		{ avPMSerialPortNumber, avOutletNumber }
+::= { avOutletTable 1 }
+
+AvOutletEntry ::= SEQUENCE  {
+	avOutletNumber	InterfaceIndexOrZero,     
+	avOutletName	DisplayString,
+	avOutletServer	DisplayString,
+	avOutletPower	INTEGER,
+	avOutletLock	INTEGER,
+	avOutletPUInterval Integer32
+}
+
+avOutletNumber	OBJECT-TYPE
+	SYNTAX		InterfaceIndexOrZero	
+	MAX-ACCESS	not-accessible
+	STATUS		current
+	DESCRIPTION	"The outlet number on the PM. Zero is ALL outlets."
+::= { avOutletEntry 1 }
+
+avOutletName OBJECT-TYPE
+	SYNTAX		DisplayString (SIZE(1 .. 8))	
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"The name given to a particular outlet Maximum size is 8 characters."
+::= { avOutletEntry 2 }
+
+avOutletServer OBJECT-TYPE
+	SYNTAX		DisplayString 	
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"Alias of the Server connected to this outlet ."
+::= { avOutletEntry 3 }
+
+avOutletPower	OBJECT-TYPE
+	SYNTAX	INTEGER {
+			off	(0),
+			on	(1),
+			avcle	(2),
+			unknow  (3)
+		}
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Getting this object will return the power state of
+			the outlet. Valid return states are UNKNOW, OFF and
+			ON. Setting this object will change the power state 
+			of the outlet."
+::= { avOutletEntry 4 }
+
+avOutletLock	OBJECT-TYPE
+	SYNTAX	INTEGER {
+			unlock	(0),
+			lock	(1),
+			unknow 	(2)
+		}
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"Getting this object will return the lock state of
+			the outlet. Setting this object will change the 
+			lock state of the outlet."
+::= { avOutletEntry 5 }
+
+avOutletPUInterval	OBJECT-TYPE
+	SYNTAX		Integer32	
+	MAX-ACCESS	read-write
+	STATUS		current
+	DESCRIPTION	"The power unit interval of this outlet in seconds.
+			The value of this object is the actual interval in 
+                        seconds * 10. You need to translate the readed value
+                        (Ex. : value is 5, the interval is 0.5 seconds.)" 
+::= { avOutletEntry 6 }
+
+END

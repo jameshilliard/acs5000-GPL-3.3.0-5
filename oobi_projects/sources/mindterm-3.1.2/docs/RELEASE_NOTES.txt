@@ -1,0 +1,70 @@
+                    Release notes for MindTerm 3.1
+
+* Can now print screen to printer
+  There are two new entries in the "File" menu which lets the user
+  print the current screen, or the entire scrollback buffer, to a
+  printer.
+
+* Added virtual keyboard
+  It is now possible to define a virtual keyboard in the configuration
+  file. This will be shown as a bunch of buttons at the bottom of the
+  MindTerm window. This is not intended to be able to replace the
+  entire keyboard but rather as a place to define special and shortcut
+  keys. The virtual keys can generate any number of characters each.
+
+* Added the ability to remap keys
+  It is now also possible to remap any of the keyboard keys to produce
+  any string. This has to be configured in teh configuration file.
+
+* Added 'resizable' terminal window option
+  This option, which defaults to true, controls if the user can resize
+  the terminal window.
+
+* Added support for host-based authentication
+  MindTerm can now use host-base public key authentication.
+
+* Can now disable keep-alive
+  It is now possible to disable the sending of keep-alive packets via
+  the settings dialog.
+
+* Fixed VT220 & VT320 key mappings
+  The function key mappings for VT220 and VT320 were wrong.
+
+* Added subsystem example
+  Added an example showing how to implement teh client part of a new
+  subsystem.
+
+* Fixed a number of lockup-bugs
+  MindTerm 3.1 fixes a number of bugs where the entire client could
+  lock up. It also introduces timeouts during the connection and
+  version handshake phases.
+
+* Improved detection of buggy SSH-servers
+  The code which detects various buggy SSH-servers has been improved.
+
+* Terminal window problems fixed
+  The terminal windows did not properly release all resources when
+  they were closed.
+
+* Terminal window now ignores null-bytes
+  Added an option 'ignore-null', default true, which causes the
+  terminal window to ignore received null-bytes.
+
+* Telnet protocol fixes
+  The telnet plugin had a number of problems with end-of-line
+  representations. This made it more or less impossible to talk to a
+  non-telnet server (like SMTP). Also added and 'crlf' option which
+  allows users to force the end-of-line behavior.
+
+* SCP problems fixed
+  There were problems with SCP when talking with sime Cisco devices
+  with "interesting" behavior.
+
+* Less agressive focus behavior
+  Do not request focus every time we are deiconified. This was changed
+  since some virtual window managers generated an deiconify event
+  whenever teh user switched to the workspace containing the window.
+
+* Fixed handling of --p option
+  A bug made the "save" and "load" arguments of the --p option
+  meaningless. They both acted just like "both".

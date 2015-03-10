@@ -1,0 +1,224 @@
+
+
+    Cistron RADIUS portslave  1.16  miquels@cistron.nl  12-Feb-1998
+
+
+0. IMPORTANT
+
+  * Portslave 1.16 and up is ment to be used with ppp-2.2.0f with special
+    patches. However since 2 command line options have been renamed in
+    the upcoming 2.3.x pppd wrt the 2.2.0f shipped with portslave, I have
+    decided to use the new names.
+
+       -ipx-protocol => noipx
+       -ccp-protocol => noccp.
+
+    Adjust your "server.cfg" accordingly or pppd will not run.
+  * The interface to pppd has changed. The radius library is now loaded
+    dynamically. You need to make sure that "uselib /path/to/libpsr.so"
+    is included in the options.
+  * You need the extra argument "login" on the autoppp command line.
+  * The formats of "autoppp" and "waitfor" have changed in "server.cfg"
+  * There is a new variable called "porttype" in "server.cfg"
+  * Hey, you're the type that actually reads the README file! While you're
+    at it, also read the BUGS and MAINTAINERS files.
+
+1. DISCLAIMER.
+
+  This is BETA software. It happens to work for us, but it might not
+  work for you. If it breaks you get to keep both pieces. There is no
+  warranty of any kind. YOU ARE ON YOUR OWN WITH THIS.
+
+2. INTRODUCTION.
+
+  This is the Cistron RADIUS portslave. We run this on our terminal
+  servers so that, from the outside, a Linux terminal server box looks
+  similar to a Livingston Portmaster (which we also use), or any other
+  terminal server that speaks RADIUS.
+
+  The system has been designed for use on a standalone terminal server.
+  We use the Comtrol Rocket ports (2x16 or 1x32) cards in our terminal
+  servers. We run Linux 2.0.29 on them.
+
+3. RADIUS
+
+  You will need at least one RADIUS server on one of your systems. These
+  are available from ftp.livingston.com (the original livingston radius-1.16)
+  and from ftp.merit.edu (the MERIT version). There are also a lot of
+  alternate servers and patches floating around.
+
+  One alternate simple but powerful RADIUS server is the Cistron server.
+  It works fine but the documentation is not completely done yet. You can
+  find it under the name "radiusd-cistron-1.5.4.2.tar.gz" in the same directory
+  as where this software came from.
+
+  You *need* a working RADIUS server first, and you have to understand
+  how it works before you can continue.
+
+  Note that if you want to offer shell-logins you need an updated dictionary
+  file with the "Shell-User" entry. Use "Login-Service = Shell-User" to
+  let a user use an account on the local machine. BTW, the official new
+  name for this is actually "Administrative-User".
+
+4. BUILDING THE SOFTWARE.
+
+  The software was built under Debian/Linux 1.3.1, with libc 5.4.33
+  and gcc-elf 2.7.2.1. It also compiles under Debian/Linux 2.0 (test
+  release aka "hamm") with GNU libc 2.0.6, but the GNU libc version
+  hasn't been tested (it should work though).
+
+  You need a modified pppd first. Read the file README.PPPD first.
+
+  Now, go into the src/ subdirectory. Edit "conf.h" to suit your
+  system. We have the software installed under /usr/local/portslave/.
+
+  Now go back to the main directory (cd ..). Type "make" to build
+  all pieces of the system.
+
+  If you get an error like "-dl not found", check that you have a symbolic
+  link in /usr/lib called "libdl.so" that links to /lib/libdl.so.x.x.x.
+  It should look like this:
+
+  lrwxrwxrwx   1 root    root   20 Oct  9 18:21 libdl.so -> /lib/libdl.so.1.9.6
+
+5. INSTALLING THE SOFTWARE.
+
+  If you use the default paths, you need to install the next files:
+
+  src/server.cfg		/usr/local/portslave/etc/server.cfg
+  src/portslave			/usr/local/portslave/bin/portslave
+  src/ctlportslave		/usr/local/portslave/bin/ctlportslave
+  src/radinit			/usr/local/portslave/bin/radinit
+  ppp-2.2.0f-radius/pppd/pppd	/usr/local/portslave/bin/pppd
+  rlogin-8.10/rlogin		/usr/local/portslave/bin/rlogin
+
+  You can use the provided "install.sh" script to do this for you.
+  ("make install" also works, it calls the "install.sh" script).
+
+6. CONFIGURATION
+
+  First you'll have to choose where to let the portslaves log their
+  messages. The portslaves can use both a local or a remote syslog
+  daemon. On that machine, do the following:
+
+  o add "local6      /var/log/local6.log" to /etc/syslog.conf
+  o change any lines that look like "*.debug" or "*.info" to
+    "*.debug;local6.none" to prevent sensitive info being logged to
+    maybe publically readable files.
+  o Create /var/log/local6.log and chmod 600 it so that it's safe.
+
+  o If you have a new syslog daemon, you might have to do some special
+    things to let it listen to requests from the net. syslogd-1.3 needs
+    the "-r" flag at startup, for example.
+
+  Now you'll have to edit /usr/local/portslave/etc/server.cfg". The
+  comments in that file are the only documentation at the moment ;)
+
+
+  The next thing is that you'll have to add a line in your /etc/inittab
+  for every dialin line that you have configured. These lines have to
+  look like this:
+
+  T0:23:respawn:/usr/local/portslave/bin/portslave 0
+  [...]
+  T31:23:respawn:/usr/local/portslave/bin/portslave 31
+
+  Note that the first field (the "id" field) can only have more than 2
+  characters if you have a recent sysvinit (>= 2.60) compiled with a
+  recent libc (>= 5.2.18). This doesn't matter; 2 characters is also fine
+  as long as the id fields are unique.
+
+
+  You'll have to add a call to "/usr/local/portslave/bin/radinit" in your
+  system startup scripts. If you run Debian, you can put the following
+  script in the file /etc/rc.boot/radinit :
+
+  #! /bin/sh
+  /usr/local/portslave/bin/radinit
+
+  This program updates the file /var/log/radsession.id that generates
+  unique session ID's. It has to be updated every boot according to the
+  RADIUS specifications.
+
+
+7. CTLPORTSLAVE, FINGERD
+
+   Ctlportslave gets installed setuid root, group daemon in the bin/
+   directory. It offers a very limited subset of the Portmaster interface.
+   It is intended to be used by the "pmmon" utility from Brad Owens,
+   <thrasher@squashduck.com>. Note that at the time of this writing, "pmmon"
+   does not utilize this new interface yet. If ctlportslave is called with
+   the string "finger" in its name (argv[0]) it will act as a fingerd daemon.
+   To install this on a portslave server:
+
+   7.1 CTLPORTSLAVE
+
+   Add the following to /etc/passwd and set the password for `!root'
+   using the "passwd \!root" command:
+
+   !root:x:999:1:Portslave Admin:/tmp:/usr/local/portslave/bin/ctlportslave
+
+   999 is a free UID, 1 is the GID of the daemon group on your machine.
+
+   7.2 FINGERD
+
+   Add this to /etc/inetd.conf. Comment out the existing fingerd entry
+   if needed:
+
+   finger stream tcp nowait nobody.daemon /usr/sbin/tcpd 
+                          /usr/local/portslave/bin/in.fingerd
+
+   (all on one line). Now send SIGHUP to the running inetd.
+   NOTE that fingerd runs as user nobody, group daemon.
+
+8. FILES IN /etc/ppp
+
+  Make sure there is no /etc/ppp/pap-secrets file. If it is present, PAP
+  authentication over RADIUS will not work: the PPP daemon will not look
+  any further then the pap-secrets file.
+
+  Also there must be 2 files "ip-up" and "ip-down" there, that are
+  executable. A file with a single first line "#! /bin/sh" will do.
+  Chmod those files to 755.
+
+  You also need an options file there. That file must preferably also
+  be empty (0 bytes).
+
+
+9. AND NOW...
+
+  Give an "init q" and the portslaves should start. You can see in the
+  logfile (/var/log/local6.log) what exactly is happening.
+
+  If you want to see much more debug output, set the "debug" entry in
+  the "server.cfg" config file to 1, and add the keyword "debug" to
+  both lines of ppp options (all.pppopt and all.autoppp). All debugging
+  output will still go to the "local6.log" file.
+
+10. MORE INFO.
+
+  You can try the the linux-isp mailing list, which on a lot of sites
+  used to be accessible as the newsgroup linux.admin.isp (not anymore).
+  For the mailing list, send a message with "help" in the body to
+  linuxisp-request@friendly.jeffnet.org. Several people on that list are
+  successfully using this software.
+
+  Erik Green <longshot@internet-connections.net> maintains the
+  home of portslave at http://portslave.mnic.net/
+
+  Tim Sailer has some info on http://www.buoy.com/isp/.
+
+  There is a linux-radius list run by miguel a.l. paraz <map@iphil.net>.
+  See http://www.iphil.net/~map/radius/ for details.
+
+  If you want to do some special routing for single static IP numbers
+  have a look at ripd, at the same place you found this software.
+
+  Read the MAINTAINER file to find out who is maintaining portslave.
+  I (Miquel van Smoorenburg) will not maintain this software after the
+  1.16 release.
+
+11. LICENSE.
+
+  See the file ``CopyRight''
+

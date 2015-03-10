@@ -1,0 +1,26 @@
+#
+# security.opts		Security Options
+#
+#	This file contains the definition of the current services profile
+#   and the ICMP reply state.
+#
+
+# allow ssh connection to serial ports
+# < enabled | disabled >
+ssh2sport    enabled
+
+# allow telnet connection to serial ports
+# < enabled | disabled >
+telnet2sport    enabled
+
+# allow raw TCP socket connection to serial ports
+# < enabled | disabled >
+raw2sport    enabled
+
+# requires Authentication to connect to serial port
+# < enabled | disabled >
+auth2sport    disabled
+
+# reply Network Layer ICMP messages
+# < enabled | disabled >
+icmp    enabled

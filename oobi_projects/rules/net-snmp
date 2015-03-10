@@ -1,0 +1,155 @@
+#
+#  Makefile for cyclades projects.
+#
+
+#
+# Addtional compiler and/or link options may be defined here
+#
+CFLAGS += -I$(CONFIG_TOOL_DIR)/include -DCYC -I$(BUILD_DIR)/$(ras) -I$(BUILD_DIR)/$(ras)/src -I$(BUILD_DIR)/$(pmclib)/include -I$(BUILD_DIR)/$(pmclib)/gsp-include
+CPPFLAGS :=
+LDFLAGS += -L$(BUILTIN_DIST)/$(openssl)/lib
+OPEN_SSL_DIR := $(BUILTIN_DIST)/$(openssl)
+
+ifeq ($(DEFTARG),OEM3)
+MIBS_DIR  := apccpsmgmt
+MIBS_MODS := $(MIBS_DIR)/apcdisc \
+	$(MIBS_DIR)/apcCPSSys  $(MIBS_DIR)/cycommon  $(MIBS_DIR)/apcCPSConf \
+	$(MIBS_DIR)/apcCPSInfo $(MIBS_DIR)/apcCPSAdm $(MIBS_DIR)/cySerialGroupTable \
+	$(MIBS_DIR)/cySerialPortTable
+else
+MIBS_DIR  := cyacsmgmt
+MIBS_MODS := \
+	$(MIBS_DIR)/cyACSSys $(MIBS_DIR)/cycommon $(MIBS_DIR)/cyACSConf \
+	$(MIBS_DIR)/cyACSInfo $(MIBS_DIR)/cyACSAdm $(MIBS_DIR)/cySerialGroupTable \
+	$(MIBS_DIR)/cySerialPortTable
+endif
+
+ifeq ($(PMDenable),yes)
+MIBS_MODS += $(MIBS_DIR)/cyPM
+endif
+
+ifeq ($(IPv6enable),yes)
+TRANSPORTS_IPV6 += UDPIPv6 TCPIPv6
+CFLAGS += -DIPv6enable
+LDFLAGS += -L$(BUILD_DIR)/$(ras)/src -lrad
+IPV6_MODULES = mibII/ipv6
+ENABLE_IPV6 = --enable-ipv6
+else
+TRANSPORTS_EXCLUDE_IPV6 += UDPIPv6 TCPIPv6
+endif
+
+#
+# Command line parameters for configure must be defined here
+#
+ifeq ($(DEFTARG),TSXK)
+	CONFIGURE_PARMS:=\
+		CROSS_COMPILE=$(CROSS_PREFIX)\
+		--prefix="/etc" \
+		--exec_prefix=$(my_prefix) \
+		--sysconfdir="/etc" \
+		--host=ppc-32-linux-gnu \
+		--target=ppc-32-linux-gnu \
+		--with-zlib=$ZLIB_DIR \
+		--with-cc="$(CROSS_CC)" \
+		--with-ar=$(CROSS_AR) \
+		--with-endianness="big" \
+		--with-openssl=$(OPEN_SSL_DIR) \
+		--with-transports="UDP TCP $(TRANSPORTS_IPV6)" \
+		--with-out-transports="Callback Unix IPX ALL5PVC $(TRANSPORTS_EXCLUDE_IPV6)" \
+		--with-persistent-directory="/var/net-snmp" \
+		--datadir="/etc" \
+		--with-default-snmp-version="2" \
+		--with-entreprise-oid=2925 \
+		--with-sys-contact="techsupport@avocent.com" \
+		--with-sys-location="Cyclades ACS" \
+		--with-logfile="/var/log/snmpd.log" \
+		--enable-shared $(ENABLE_IPV6) \
+		--disable-static \
+		--disable-manuals \
+		--disable-scripts \
+		--disable-mibs \
+		--disable-mib-loading \
+		--without-rpm \
+		--enable-mfd-rewrites \
+		--with-mib-modules="$(MIBS_MODS) ip-mib $(IPV6_MODULES)" \
+		--with-out-mib-modules="host agentx utilities notification notification/snmpNotifyTable notification-log-mib agent_mibs tunnel target disman disman/schedule disman/event-mib"
+else
+	CONFIGURE_PARMS:=\
+		CROSS_COMPILE=$(CROSS_PREFIX)\
+		--prefix="/etc" \
+		--exec_prefix=$(my_prefix) \
+		--sysconfdir="/etc" \
+		--host=ppc-32-linux-gnu \
+		--target=ppc-32-linux-gnu \
+		--with-zlib=$ZLIB_DIR \
+		--with-cc=$(CROSS_CC) \
+		--with-ar=$(CROSS_AR) \
+		--with-endianness="big" \
+		--with-openssl=$(OPEN_SSL_DIR) \
+		--with-transports="UDP TCP $(TRANSPORTS_IPV6)" \
+		--with-out-transports="$(TRANSPORTS_EXCLUDE_IPV6) IPX ALL5PVC" \
+		--with-persistent-directory="/var/net-snmp" \
+		--datadir="/etc" \
+		--with-default-snmp-version="2" \
+		--with-entreprise-oid=2925 \
+		--with-sys-contact="support@$(TARGET_PRODUCT).com" \
+		--with-sys-location="$(TARGET_PRODUCT) unit" \
+		--with-logfile="/var/log/snmpd.log" \
+		--enable-shared $(ENABLE_IPV6) \
+		--enable-static \
+		--disable-mibs \
+		--disable-mib-loading \
+		--with-mib-modules="mibII snmpv3mibs ucd_snmp $(MIBS_MODS) $(IPV6_MODULES)" \
+		--with-out-mib-modules="host agentx utilities notification agent_mibs tunnel target disman disman/schedule disman/event-mib"
+endif
+
+CONFIGURE_ENV :=\
+	CROSS_COMPILE=$(CROSS_PREFIX)\
+	$(CROSS_ENV_TOOLS) \
+	PATH=$(CROSS_PATH) \
+	CFLAGS="$(CFLAGS)" \
+	CPPFLAGS="$(CPPFLAGS)" \
+	LDFLAGS="$(LDFLAGS)" \
+	NM=$(NM) \
+	RANLIB=$(RANLIB) \
+	LN_S="$(shell which ln) -s" \
+	AS=$(AS) \
+	STRIP=$(CROSS_STRIP) \
+	INSTALL="$(shell which install) -s"
+
+MAKE_ENV:=\
+	PATH=$(CROSS_PATH)
+
+MAKE_PARMS:=\
+	CROSS_COMPILE=$(CROSS_PREFIX) \
+	LDFLAGS="$(LDFLAGS) -L$(BUILD_DIR)/$(pmclib) -lpmc"
+	STRIP=$(CROSS_STRIP)
+
+#
+#  more ac_variables for configure may be defined here
+#
+#CROSS_ENV_AC += ...
+
+############################################################################
+
+$(PRE_CFG_COOKIE): $(SRC_COOKIE)
+	if [ "$$(cat oem_config 2>/dev/null)" != "$(DEFTARG)" ]; then \
+		$(MAKE) -C $(BUILD_DIR)/$(net-snmp)/agent/mibgroup -f cyacsmgmt-Makefile DEFTARG=$(DEFTARG) ; \
+		rm -f ./config.cache ./configure ./stamp-h ; \
+	fi
+	echo -n "$(DEFTARG)" > oem_config
+	date > $@
+
+$(CFG_COOKIE): $(PRE_CFG_COOKIE)
+	if [ ! -f ./configure ]; then \
+		autoconf ; \
+	fi
+	$(CONFIGURE_ENV) \
+	$(CROSS_ENV_AC) \
+	./configure $(CONFIGURE_PARMS)
+	date > $@
+
+$(BLD_COOKIE): $(CFG_COOKIE)
+	$(MAKE_ENV) \
+	$(MAKE) $(MAKE_PARMS) all  installlibs installprogs 
+	rm -f $(my_prefix)/bin/net-snmp-config $(my_prefix)/lib/libnetsnmp*.a

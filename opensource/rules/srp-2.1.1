@@ -1,0 +1,55 @@
+#
+#  Makefile for cyclades projects.
+#
+
+#
+# Addtional compiler and/or link options may be defined here
+#
+#CFLAGS += ...
+#LDFLAGS += ...
+
+#
+# Command line parameters for configure must be defined here
+#
+CONFIGURE_PARMS := \
+	--prefix="$(my_prefix)" \
+	--host=ppc-32-linux-gnu \
+	--target=ppc-32-linux-gnu \
+	--with-openssl=$(DIST_DIR)/$(OPENSSL)
+
+CONFIG_ENV := \
+	CROSS_COMPILE=$(CROSS_COMPILE)\
+	PATH=$(CROSS_PATH) \
+	$(CROSS_ENV_TOOLS) \
+	CFLAGS="-O2 -I$(OPENSSL)/include" \
+	CPPFLAGS="" \
+	LDFLAGS="-L$(DIST_DIR)/$(OPENSSL)/lib"
+
+MAKE_ENV := \
+	PATH=$(CROSS_PATH)
+
+MAKE_PARMS := \
+	CROSS_COMPILE=$(CROSS_COMPILE)
+
+#
+#  more ac_variables for configure may be defined here
+#
+#CROSS_ENV_AC += ...
+
+$(CFG_COOKIE):
+	cd libsrp; \
+	-rm -f config.cache configure; \
+	autoconf;  \
+	$(CONFIG_ENV) $(CROSS_ENV_AC) ./configure $(CONFIGURE_PARMS)
+	date > $@
+
+$(BLD_COOKIE):
+	cd libsrp; \
+	$(MAKE_ENV) $(MAKE) libsrp.a $(MAKE_PARMS)
+	date > $@
+
+$(INST_COOKIE):
+	install -D libsrp/libsrp.a $(my_prefix)/libsrp/libsrp.a
+	install libsrp/*.h $(my_prefix)/libsrp/
+	date > $@
+

@@ -1,0 +1,207 @@
+#!/bin/sh
+
+cmd_hist=$(history 1)
+
+if [ -z "$(echo ${cmd_hist} | grep mk_env)" ] ; then
+  if [ -n "$(echo ${0} | grep mk_env)" ] ; then
+    echo
+    echo "Command must be executed this way: '. ${0} $*'"
+    echo
+    return > /dev/null 2>&1
+    exit
+  fi 
+  echo
+  echo "Command 'mk_env' must be executed with history enabled'"
+  echo
+  return > /dev/null 2>&1
+  exit
+fi
+
+my_dir=$(echo ${cmd_hist} | cut -d ' ' -f 3)
+dot=$(echo ${cmd_hist} | cut -d ' ' -f 2)
+
+if [ ! "${dot}" = "." ] ; then
+  echo
+  echo "Command must be executed this way: '. ${my_dir} $*'"
+  echo
+  return > /dev/null 2>&1
+  exit
+fi 
+
+unset -v dot cmd_hist
+
+curr_dir=$(pwd)
+my_dir=$(dirname ${my_dir})
+
+if [ "${my_dir}" = "." ] ; then
+  my_dir=".."
+else
+  my_dir=$(dirname ${my_dir})
+fi
+
+usage_rot ()
+{
+  if [ -n "$1" ] ; then
+    echo
+    echo $1
+  fi
+  echo
+  echo "USAGE: $0 -{s|u|-S <builtin-dir>} [-G] [-D <debug>] [-J <java-config>]"
+  echo
+  echo "  -S,-s: set and list the enviroment variables"
+  echo "  -u: unset the enviroment variables"
+  echo "  -G: GPL environment"
+  echo 
+  echo "  <debug>: 0 -> disable, 1 -> enable, default 0"
+  echo "  <Builtin-dir>: default '/opt/opensource'"
+  echo "  <java-config>: default 'java.conf' in <builtin-dir>"
+  echo 
+}
+
+do_exit ()
+{
+  unset -f do_exit usage_rot
+  unset -v JVD action SRC DBG SFX GPL
+  [ ! "${my_dir}" = "." ] && cd ${curr_dir}
+  unset -v my_dir curr_dir
+}
+
+do_list ()
+{
+  alias make xmake xquilt 2>/dev/null
+  echo
+  echo  "OPENSOURCE_DIR : [$OPENSOURCE_DIR]"
+  echo  "ROOT_PROJ      : [$ROOT_PROJ]"
+  echo  "PROJ_SFX       : [$PROJ_SFX]"
+  echo  "APPL_DEBUG     : [$APPL_DEBUG]"
+  echo  "JAVA_CONF      : [$OPENSOURCE_DIR/$TOOLS/$JAVA_CONF]"
+  echo
+}
+
+#
+# Java toolkit
+#
+JVD=java.conf
+RULES=rules
+TARBAL=tarbal
+PATCHES=patches
+action="0"
+OPTIND=1
+SRC=/opt/opensource
+DBG=${APPL_DEBUG:=0}
+SFX=${PROJ_SFX}
+GPL=0
+
+while getopts "ulsiS:D:J:c:p:PG" op ; do
+case $op in
+u|s|S)
+  if [ "$op" = "S" ] ; then
+    if [ "${OPTARG: -1 : 1}" = "/" ] ; then
+      SRC=${OPTARG:0:${#OPTARG}-1}
+    else
+      SRC=${OPTARG}
+    fi
+  fi
+  if [ "$action" == "0" ] ; then
+    action="$op"
+  else
+    usage_rot "Only one option of [u,s,S] must be used at a once."
+    do_exit
+    return 0
+  fi
+  ;;
+P)
+  SFX=
+  ;;
+p)
+  SFX=${OPTARG}
+  ;;
+J)
+  JVD=${OPTARG}
+  ;;
+G)
+  GPL=1
+  ;;
+D)
+  DBG=${OPTARG}
+  ;;
+?)
+  usage_rot
+  do_exit
+  return 0
+  ;;
+esac
+done
+  
+case $action in
+u)
+  unalias make 2>/dev/null
+  unalias xmake 2>/dev/null
+  unalias xquilt 2>/dev/null
+  PS1='[\u@\h \W]\$ '
+  unset -f do_list
+  unset -v OPENSOURCE_DIR APPL_DEBUG ROOT_PROJ JAVA_CONF \
+           TOOLS PATCHES TARBAL PROJ_SFX RULES
+  export -n OPENSOURCE_DIR APPL_DEBUG ROOT_PROJ JAVA_CONF \
+            TOOLS PATCHES TARBAL PROJ_SFX RULES
+  ;;
+s|S)
+  [ ! "${my_dir}" = "." ] && cd ${my_dir}
+  alias make=make-3.81
+  export TOOLS=tools
+  if [ -n "${SFX}" ] ; then
+    export PROJ_SFX=${SFX}
+  else
+    unset -v PROJ_SFX
+    export -n PROJ_SFX
+  fi
+  if [ ${GPL} -eq 0 ] ; then
+    export PS1='\[\033[01;32m\]\u@OOBI\[\033[01;34m\] \W \>\[\033[00m\] '
+    alias xmake='make-3.81 -f ${ROOT_PROJ}/${TOOLS}/Makefile'
+  else
+    export PS1='\[\033[01;32m\]\u@GPL\[\033[01;34m\] \W \>\[\033[00m\] '
+    alias xmake='GPL_ENV=yes make-3.81 -f ${ROOT_PROJ}/${TOOLS}/Makefile'
+  fi
+  alias xquilt='QUILT_PATCHES=${OPENSOURCE_DIR}/patches/$(basename $(pwd)) quilt'
+  if [ -d $SRC/${TOOLS} -a -d $SRC/${TARBAL} -a -d $SRC/${PATCHES} -a \
+       -f $SRC/${TOOLS}/Makefile -a -x $SRC/${TOOLS}/mk_env ] ; then
+    export OPENSOURCE_DIR=$SRC
+  else
+    echo
+    echo "ERROR: directory '$SRC' doesn't home a pre-built source tree."
+    echo
+    do_exit
+	return 0
+  fi
+  if [ -f $OPENSOURCE_DIR/$TOOLS/$JVD ] ; then
+    export JAVA_CONF=$JVD
+  else
+    echo
+    echo "ERROR: Invalid java configuration file '$JVD'."
+    echo
+    do_exit
+	return 0
+  fi
+  export TARBAL PATCHES RULES
+  export APPL_DEBUG=$DBG
+  if [ -d ${TOOLS} -a \
+       -f ${TOOLS}/Makefile -a -x ${TOOLS}/mk_env ] ; then
+    export ROOT_PROJ=$(pwd)
+  else
+    echo
+    echo "ERROR: current directory does not seem to home a good source tree,"
+    echo "       ROOT_PROJ not changed/set."
+    echo
+    do_exit
+    return 0
+  fi
+  do_list
+  echo "Execute 'do_list' to display all variables again"
+  echo
+  ;;
+?)
+  usage_rot
+  ;;
+esac
+do_exit
+

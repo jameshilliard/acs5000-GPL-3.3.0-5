@@ -1,0 +1,112 @@
+#
+#  Makefile for cyclades projects.
+#
+
+#
+# Addtional compiler and/or link options may be defined here
+#
+#CFLAGS += ...
+#LDFLAGS += ...
+
+#
+# Command line parameters for configure must be defined here
+#
+CONFIGURE_PARMS := \
+	--host=$(HOST) \
+	--enable-shared \
+	--with-ssl \
+	--prefix=$(my_prefix)
+
+CONFIG_ENV := \
+	CROSS_COMPILE=$(CROSS_COMPILE) \
+	PATH=$(CROSS_PATH) \
+	OPEN_SSL_DIR=$(DIST_DIR)/$(OPENSSL) \
+	$(CROSS_ENV_TOOLS) \
+	CFLAGS="$(CFLAGS)" \
+	LDFLAGS="$(LDFLAGS)"
+
+MAKE_ENV := \
+	CROSS_COMPILE=$(CROSS_COMPILE) \
+	PATH=$(CROSS_PATH)
+
+MAKE_PARMS :=
+
+LIBWWW_STATIC=libwww_all.a
+LIBWWW_SHARED=libwww_all.so
+
+AR:=$(CROSS_AR)
+RANLIB:=$(CROSS_RANLIB)
+CC:=$(CROSS_CC)
+
+W3C_LIBWWW_LIB_DIR=$(my_prefix)/lib
+
+LIBWWW_ARS=$(W3C_LIBWWW_LIB_DIR)/libmd5.a \
+	$(W3C_LIBWWW_LIB_DIR)/libpics.a \
+	$(W3C_LIBWWW_LIB_DIR)/libwwwapp.a \
+	$(W3C_LIBWWW_LIB_DIR)/libwwwcache.a \
+	$(W3C_LIBWWW_LIB_DIR)/libwwwcore.a \
+	$(W3C_LIBWWW_LIB_DIR)/libwwwdir.a \
+	$(W3C_LIBWWW_LIB_DIR)/libwwwfile.a \
+	$(W3C_LIBWWW_LIB_DIR)/libwwwftp.a \
+	$(W3C_LIBWWW_LIB_DIR)/libwwwgopher.a \
+	$(W3C_LIBWWW_LIB_DIR)/libwwwhtml.a \
+	$(W3C_LIBWWW_LIB_DIR)/libwwwhttp.a \
+	$(W3C_LIBWWW_LIB_DIR)/libwwwinit.a \
+	$(W3C_LIBWWW_LIB_DIR)/libwwwmime.a \
+	$(W3C_LIBWWW_LIB_DIR)/libwwwmux.a \
+	$(W3C_LIBWWW_LIB_DIR)/libwwwnews.a \
+	$(W3C_LIBWWW_LIB_DIR)/libwwwstream.a \
+	$(W3C_LIBWWW_LIB_DIR)/libwwwtelnet.a \
+	$(W3C_LIBWWW_LIB_DIR)/libwwwtrans.a \
+	$(W3C_LIBWWW_LIB_DIR)/libwwwutils.a \
+	$(W3C_LIBWWW_LIB_DIR)/libwwwxml.a \
+	$(W3C_LIBWWW_LIB_DIR)/libxmlparse.a \
+	$(W3C_LIBWWW_LIB_DIR)/libxmltok.a \
+	$(W3C_LIBWWW_LIB_DIR)/libwwwssl.a
+LIBWWW_SOS=$(LIBWWW_ARS:.a=.so)
+
+$(LIBWWW_STATIC): $(LIBWWW_ARS)
+	for archive in $(LIBWWW_ARS); do \
+		PATH=$(CROSS_PATH) \
+		$(AR) x $$archive; \
+	done
+	PATH=$(CROSS_PATH) \
+	$(AR) -rc $@ *.o
+	PATH=$(CROSS_PATH) \
+	$(RANLIB) $@
+	-rm -f *.o
+
+$(LIBWWW_SHARED): $(LIBWWW_ARS)
+	for archive in $(LIBWWW_ARS); do \
+		PATH=$(CROSS_PATH) \
+		$(AR) x $$archive; \
+	done
+	PATH=$(CROSS_PATH) \
+	CROSS_COMPILE=$(CROSS_COMPILE) \
+	$(CC) -shared -o $@ *.o
+	-rm -f *.o
+
+#
+#  more ac_variables for configure may be defined here
+#
+#CROSS_ENV_AC += ...
+
+$(CFG_COOKIE):
+	-rm -f config.cache
+	$(CONFIG_ENV) $(CROSS_ENV_AC) ./configure $(CONFIGURE_PARMS)
+	date > $@
+
+$(BLD_COOKIE):
+	$(MAKE_ENV) $(MAKE) $(MAKE_PARMS)
+	date > $@
+
+libwww-install:
+	$(MAKE_ENV) $(MAKE) install $(MAKE_PARMS)
+
+$(INST_COOKIE): libwww-install $(LIBWWW_STATIC) $(LIBWWW_SHARED)
+	cp $(LIBWWW_SHARED) $(W3C_LIBWWW_LIB_DIR)/$(LIBWWW_SHARED).0.0
+	if [ ! -h $(W3C_LIBWWW_LIB_DIR)/$(LIBWWW_SHARED) ]; then \
+		cd $(W3C_LIBWWW_LIB_DIR) ; ln -s $(LIBWWW_SHARED).0.0 $(LIBWWW_SHARED); \
+	fi
+	cp $(LIBWWW_STATIC) $(W3C_LIBWWW_LIB_DIR)
+	date > $@

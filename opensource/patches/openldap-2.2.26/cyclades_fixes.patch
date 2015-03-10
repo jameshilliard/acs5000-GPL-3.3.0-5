@@ -1,0 +1,35 @@
+--- openldap-2.2.26/libraries/liblunicode/Makefile.in	2005-01-20 09:01:03.000000000 -0800
++++ openldap-2.2.26-ok/libraries/liblunicode/Makefile.in	2005-07-14 13:47:28.000000000 -0700
+@@ -31,7 +31,7 @@
+ 
+ ucgendat: $(XLIBS) ucgendat.o
+ 	$(LTLINK) -o $@ ucgendat.o $(LIBS)
+-	./ucgendat $(srcdir)/UnicodeData.txt -x $(srcdir)/CompositionExclusions.txt
++#	./ucgendat $(srcdir)/UnicodeData.txt -x $(srcdir)/CompositionExclusions.txt
+ 
+ DATFILES = case.dat cmbcl.dat comp.dat ctype.dat decomp.dat num.dat kdecomp.dat
+ 
+--- openldap-2.2.26/build/top.mk	2005-01-20 09:00:55.000000000 -0800
++++ openldap-2.2.26-ok/build/top.mk	2005-07-14 13:49:42.000000000 -0700
+@@ -159,8 +159,7 @@
+ LDAP_LIBLUNICODE_A = $(LDAP_LIBDIR)/liblunicode/liblunicode.a
+ LDAP_LIBLUTIL_A = $(LDAP_LIBDIR)/liblutil/liblutil.a
+ 
+-LDAP_L = $(LDAP_LIBLUTIL_A) \
+-	$(LDAP_LIBLDAP_LA) $(LDAP_LIBLBER_LA)
++LDAP_L = $(LDAP_LIBLDAP_LA) $(LDAP_LIBLBER_LA) $(LDAP_LIBLUTIL_A)
+ SLURPD_L = $(LDAP_LIBLUTIL_A) \
+ 	$(LDAP_LIBLDAP_R_LA) $(LDAP_LIBLBER_LA)
+ SLAPD_L = $(LDAP_LIBLUNICODE_A) $(LDAP_LIBREWRITE_A) \
+--- openldap-2.2.26/libraries/librewrite/Makefile.in	2005-01-20 09:01:04.000000000 -0800
++++ openldap-2.2.26-ok/libraries/librewrite/Makefile.in	2005-07-14 13:50:48.418990093 -0700
+@@ -28,8 +28,7 @@
+ 
+ LIBRARY = librewrite.a
+ PROGRAMS	= rewrite
+-XLIBS = $(LIBRARY) $(LDAP_LIBLUTIL_A) \
+-	$(LDAP_LIBLDAP_R_LA) $(LDAP_LIBLBER_LA)
++XLIBS = $(LIBRARY) $(LDAP_LIBLDAP_R_LA) $(LDAP_LIBLBER_LA) $(LDAP_LIBLUTIL_A)
+ XXLIBS  = $(SECURITY_LIBS) $(LUTIL_LIBS)
+ XXXLIBS = $(LTHREAD_LIBS)
+ 

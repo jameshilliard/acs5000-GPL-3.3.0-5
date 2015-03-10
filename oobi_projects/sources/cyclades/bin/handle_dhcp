@@ -1,0 +1,221 @@
+#!/bin/sh
+# parameters:
+#
+# $1 - dhcp info filename ["/etc/dhcpc/dhcpcd-eth0.info"]
+# 
+# $2 - event: up, down, new, or rt (called from cy_ras).
+#
+# $3 - dhcp mode: 0 - DHCP client daemon called without option -x
+#                 N - DHCP client daemon called with option -x N
+#               
+#
+# PS. DHCP client daemon should be activated with option -x if the
+#     parameter conf.dhcp_client is configured as 2
+#
+
+SAVE=0
+FILES=
+boot_file=
+tftp_server=
+
+ST_ROUTES=/etc/network/st_routes
+FILE_INFO="$1"
+FILE_SAVE="/etc/dhcpcd-eth0.save"
+FILE_LOCK="/etc/dhcp_lock"
+
+IP_INFO=`grep ^IPADDR $FILE_INFO | cut -f 2 -d '='` 
+
+function do_exit()
+{
+  Mtype=`set_nports 18`
+
+  if [ "x$Mtype" = "x0" -a -n "${FILES}" ] ; then
+    # save the latest DHCP information. Depending on configuration
+    # of the parameter conf.dhcp_client in the file /etc/portslave/pslave.conf,
+    # this could be used if the DHCP Server becomes unavailable
+    /bin/updatefiles $FILES 2>&1 > /dev/null
+  fi
+
+  rm -f $FILE_LOCK
+}
+
+function get_lock()
+{
+  while [ $lock_var = 1 ] ; do
+    if [ -f $FILE_LOCK ] ; then
+      kill -0 `cat $FILE_LOCK`
+      if [ $? -eq 0 ]; then
+        break
+      fi
+      sleep 1
+    else
+      break
+    fi
+  done
+
+  echo $$ > $FILE_LOCK
+}
+
+function tftp_update_config()
+{
+  #
+  # check security profile here (to be done)
+  #
+
+  #
+  # Upload the configuration file
+  #
+  saveconf_dir=/mnt/hdUser/backup
+  backup_dir=/etc/backup
+  tmp_dir=/tmp
+  tmp_file=${tmp_dir}/${boot_file}
+  cnf_file=${backup_dir}/${boot_file}
+
+  rm -f ${tmp_file}
+
+  tftp -g -l ${tmp_file} -r ${boot_file} ${tftp_server} 2>/dev/null
+
+  if [ ! -f ${tmp_file} ]; then
+    echo $0: Failed to load file ${boot_file} from ${tftp_server}
+    return
+  fi
+
+  [ -d ${backup_dir} ] || mkdir -p ${backup_dir}
+
+  #
+  # if same file as in backup_dir exits.
+  #
+  if cmp ${tmp_file} ${cnf_file} 2>/dev/null ; then
+    rm -f ${tmp_file}
+    return
+  fi
+
+  FILES="${FILES} ${cnf_file}"
+  mv ${tmp_file} ${cnf_file}
+
+  export LOGNAME="root"
+
+  dsviewKillAdmin -b
+
+  [ grep -q ${cnf_file}  /etc/config_files 2>/dev/null ] || echo ${cnf_file} >> /etc/config_files
+
+  zcat ${cnf_file} 2> /dev/null | tar -pv etc/config_files >/dev/null 2>&1
+
+  if [ $? -eq 0 ]; then
+    echo $0: executing restore configuration...
+    restoreconf local ${cnf_file}
+    runconf
+    echo $0: restore configuration done
+  else
+    echo $0: Applying CLI configuration ${boot_file}
+    CLI -f ${cnf_file}
+    echo $0: Applying CLI configuration done.
+  fi
+}
+
+set_static_routes ()
+{
+  if [ -n "$2" ] ; then
+    GATEWAY=`grep ^GATEWAY $2 | cut -f 2 -d '='` 
+  fi
+  if [ -n "$GATEWAY" ] ; then
+	if [ "$1" = "yes" ] ; then
+      route add default gw $GATEWAY
+    fi
+    grep -v default $ST_ROUTES > /tmp/st_routes
+    /bin/sh /tmp/st_routes
+    rm -f /tmp/st_routes
+  else
+    /bin/sh $ST_ROUTES
+  fi
+}
+
+if [ "$2" = "down" ] ; then  
+  ifconfig eth0 down
+  ifconfig eth0 up
+  ifconfig eth0 0.0.0.0
+  if [ $3 -eq 2 ] ; then
+    # use the DHCP information saved before
+    if [ -f $FILE_SAVE ]; then
+      # check if IP save is in use by another device
+      IP_INFO=`grep ^IPADDR $FILE_SAVE | cut -f 2 -d '='` 
+      IP_BRO=`grep ^BROADCAST $FILE_SAVE | cut -f 2 -d '='` 
+      IP_MASK=`grep ^NETMASK $FILE_SAVE | cut -f 2 -d '='` 
+      ifconfig eth0 $IP_INFO netmask $IP_MASK broadcast $IP_BRO
+      echo -n "search " > /etc/resolv.conf
+      grep -i "^domain" $FILE_SAVE | cut -f 2 -d '=' | tr -d \"\' >> /etc/resolv.conf
+      tmp=`grep -i "^dns" $FILE_SAVE | cut -f 2 -d '=' | sed "s/,/ /g"`
+      for i in $tmp 
+      do
+        echo -n "nameserver " >> /etc/resolv.conf
+        echo $i >> /etc/resolv.conf
+      done
+      set_static_routes yes $FILE_SAVE
+      # this is for the KVM:
+      [ -x /usr/bin/forward.sh ] && /usr/bin/forward.sh
+      /bin/signal_ras usr1 &
+    fi
+  fi
+  exit
+fi
+
+if [ "$2" = "rt" ] ; then  
+  ifconfig eth0 down
+  ifconfig eth0 up
+  if [ $3 -eq 2 ] ; then
+    if [ -f $FILE_SAVE ]; then
+      set_static_routes yes $FILE_SAVE
+      exit
+    fi
+    if [ -f $FILE_INFO ]; then
+      set_static_routes yes $FILE_INFO
+      exit
+    fi
+  fi
+  set_static_routes yes
+  exit
+fi
+
+# UP or NEW 
+
+if [ $3 -eq 0 ] ; then
+  do_exit
+fi
+
+set_static_routes no $FILE_INFO
+/bin/signal_ras usr1 &
+
+boot_file=`grep ^BOOT_FILE $FILE_INFO | cut -f 2 -d '='` 
+
+if [ -n "${boot_file}" ] ; then
+  tftp_server=`grep ^DHCPSIADDR $FILE_INFO | cut -f 2 -d '='` 
+  if [ -z "${tftp_server}" ] ; then
+    tftp_server=`grep ^DHCPSID $FILE_INFO | cut -f 2 -d '='` 
+  fi
+  if [ -n "${tftp_server}" ] ; then
+    tftp_update_config
+  fi
+fi
+
+if [ $3 -eq 1 ] ; then
+  do_exit
+fi
+
+get_lock
+
+if [ ! -f $FILE_SAVE ] ; then
+  SAVE=1
+else
+  IP_SAVE=`grep ^IPADDR $FILE_SAVE | cut -f 2 -d '='` 
+  if [ "$IP_INFO" != "$IP_SAVE" ] ; then
+    SAVE=1
+  fi
+fi
+
+if [ $SAVE -eq 1 ] ; then
+  cp $FILE_INFO $FILE_SAVE
+  FILES="${FILES} $FILE_SAVE"
+fi
+
+do_exit
+

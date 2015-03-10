@@ -1,0 +1,10 @@
+--- openswan-2.4.9/programs/pluto/Makefile.orig	2007-10-24 17:14:10.000000000 -0200
++++ openswan-2.4.9/programs/pluto/Makefile	2007-10-24 17:14:33.000000000 -0200
+@@ -400,7 +400,6 @@ install: all
+ 	$(INSTALL) $(INSTBINFLAGS) $(BINNAMEPLUTO) $(BINNAMEWHACK) $(LIBEXECDIR)
+ 	#$(INSTALL) $(INSTSUIDFLAGS) $(BINNAMEWHACKINIT) $(LIBEXECDIR)
+ 	if $(USE_ADNS) ; then $(INSTALL) $(INSTBINFLAGS) $(BINNAMEADNS)  $(LIBEXECDIR) ; fi
+-	$(INSTALL) $(INSTMANFLAGS) ${srcdir}/pluto.8 $(PMANDIR)/ipsec_pluto.8
+ 
+ install_file_list:
+ 	@echo $(LIBEXECDIR)/$(BINNAMEPLUTO)

@@ -1,0 +1,39 @@
+diff -u jta25/de/mud/jta/Utils.java
+--- jta25.ori/de/mud/jta/Utils.java	1 Sep 2005 02:36:43 -0000	1.1.1.1
++++ jta25/de/mud/jta/Utils.java	14 Nov 2006 16:41:00 -0000
+@@ -188,28 +188,31 @@
+             String enMask;
+             short nChar;
+             char   enChar;
+-            int    numChars = 0, minLen;
++            int    numChars = 0, minLen,numMask=0;
+             String textString = "";
+ 
+             
+             if (def) {
+                key = "ioHrEw(L#yZfjsfSdfHfSgGjMjq;Ss;d)(*&^#@$avsig";
+             }
+-            minLen = Math.min(text.length(), key.length());
+-            
++            //minLen = Math.min(text.length(), key.length());
++            minLen = text.length();
+             enMask = key;
+ 
+ 				//System.out.println("Key: " + key);
+ 				//System.out.println("Text: " + text);
+             
+             while (numChars < minLen) { 
+-               nChar = (short)((short)text.charAt(numChars) ^ (short)enMask.charAt(numChars));
++               nChar = (short)((short)text.charAt(numChars) ^ (short)enMask.charAt(numMask));
+                //System.out.println("nChar: " + nChar);
+                enChar = (char)nChar;
+ 					//enChar = Character.forDigit(nChar, 10);
+                //System.out.println("enChar: [" + enChar + "]");
+                
+                textString += enChar;
++		if (++numMask == key.length()) {
++			numMask=0;
++		}
+                numChars++;
+            
+             }

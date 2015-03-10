@@ -1,0 +1,5 @@
+root:$1$FOlVg7.6$VeOZ.JDRmAF/G0SR9vNhx.:-14671:0:99999:7:::
+rpc:x:-14671:0:99999:7:::
+nobody:*:-14671:0:99999:7:::
+sshd:*:-14671:0:99999:7:::
+admin:$1$FOlVg7.6$VeOZ.JDRmAF/G0SR9vNhx.:-14671:0:99999:7:::

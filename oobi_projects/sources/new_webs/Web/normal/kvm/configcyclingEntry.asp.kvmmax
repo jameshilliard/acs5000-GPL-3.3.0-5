@@ -1,0 +1,63 @@
+<html>
+<head>
+	<title>Add a System to cycle through</title>
+
+<link rel="STYLESHEET" type="text/css" href="/stylesLayout.css">
+<script language="JavaScript" src="/scripts.js" type="text/javascript"></script>
+<script type="text/javascript">
+
+	var ReqNum = opener.document.configForm.elements[4].value;
+	
+	
+	function okAddSystemEntry()
+	{
+	    if (ReqNum != opener.document.configForm.elements[4].value) {
+		alert("The page which called this form is not available anymore. The changes will not be effective.");
+	    } else {
+		document.configForm.elements[5].value =	document.AddCycleSystem.name.value;
+		setQuerySSID(document.configForm);
+		document.configForm.submit();
+	    }
+	    self.close();
+	}
+
+	</script>
+</head>
+
+<body onload="passSessionID();" class="bodyMain">
+
+<form name="AddCycleSystem" method="POST" action=" ">
+  <table border="0" align="center" cellpadding="2" cellspacing="0">      
+  	<tr align="left" valign="middle"> 
+    		<td nowrap align="center" colspan="0">
+		<font class="tabsTextBig">System Name</font>
+		</td>
+  	</tr>  
+  	<tr align="left" valign="middle"> 
+    		<td nowrap align="center" height="40" valign="middle">
+		<input name="name" type="text" value="" size="30" class="formText">
+		</td>
+  	</tr>
+  </table>
+  <table align="center" cellspacing="15" cellpadding="0" border="0">
+    <tr>
+      	<td>
+	  <a href="javascript:okAddSystemEntry();"><img src="/Images/OK_button.gif" alt="" width="35" height="21" border="0"></a>
+      	</td>
+	<td>
+	  <a href="javascript:window.close();"><img src="/Images/cancelButton.gif" width="47" height="21" border="0" alt=""></a>
+	</td>
+    </tr>
+  </table>			       
+</form>
+
+<form name="configForm" method="POST" action="/goform/Dmf" target="<%write(getQueryVal("target", "main"));%>">
+	<input type="hidden" name="system.req.action" value="">
+   	<input type="hidden" name="system.req.sid" value="<%get("_sid_");%>">
+   	<input type="hidden" name="urlOk" value="/normal/kvm/configKVMcycling.asp">
+   	<input type="hidden" name="urlError" value="/normal/kvm/configKVMcycling.asp">
+   	<input type="hidden" name="request" value=<%write(getRequestNumber());%>>
+   	<input type="hidden" name="system.kvm.conf.AddSystem.name" value="">
+</form>
+</body>
+</html>

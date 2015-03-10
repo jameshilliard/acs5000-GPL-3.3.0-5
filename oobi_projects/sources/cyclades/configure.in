@@ -1,0 +1,8 @@
+AC_INIT(bin/ex_wdt_led.sh.in)
+AC_SUBST(ACS)
+AC_SUBST(TYPE)
+AC_SUBST(COMPANY)
+AC_SUBST_FILE(CYC_HEADER)
+AC_SUBST(DSVIEW)
+AC_SUBST(DSVIEW_CAP)
+AC_OUTPUT(bin/ex_wdt_led.sh bin/get_opcode bin/manageService.sh etc/pam_smb.conf bin/saveconf bin/adsap2_clear bin/adsap2_update etc/adsap2.conf)

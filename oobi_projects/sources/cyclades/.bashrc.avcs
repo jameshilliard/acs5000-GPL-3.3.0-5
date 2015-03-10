@@ -1,0 +1,21 @@
+# .bashrc
+
+#echo Exec "/.bashrc" Dir `pwd` 
+
+# Source global definitions
+if [ -f /etc/bashrc ]; then
+	. /etc/bashrc
+fi
+
+if [ "/dev/ttyS0" = "`tty`" ]; then
+  # display useful information to root user
+  if [ -f /readme ]; then
+    version="`set_nports 9`."
+    prod="`set_nports 6`-`set_nports 7`"
+    if ! head -n 1 /proc/$PPID/status | grep ftp > /dev/null ; then
+       echo
+       echo Welcome to $prod $version
+       more /readme
+    fi
+  fi
+fi

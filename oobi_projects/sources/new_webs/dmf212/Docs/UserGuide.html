@@ -1,0 +1,3988 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.2.8: http://docutils.sourceforge.net/" />
+<title>The Art &amp; Logic Device Management Framework</title>
+<link rel="stylesheet" href="default.css" type="text/css" />
+</head>
+<body>
+<div class="document" id="the-art-logic-device-management-framework">
+<h1 class="title">The Art &amp; Logic Device Management Framework</h1>
+<!-- (c) 2002 Art & Logic, Inc. All Rights Reserved. -->
+<!-- $Id: UserGuide.html,v 1.2 2006/01/10 23:51:52 erik Exp $ -->
+<p>V 2.1.1</p>
+<p>User Guide</p>
+<p>March, 2003</p>
+<p>© 2002 Art &amp; Logic, Inc. All Rights Reserved</p>
+<div class="contents topic" id="contents">
+<p class="topic-title"><a name="contents">Contents</a></p>
+<ul class="simple">
+<li><a class="reference" href="#web-programming-with-the-art-logic-device-management-framework" id="id130" name="id130">Web programming with the Art &amp; Logic Device Management Framework</a><ul>
+<li><a class="reference" href="#ejscript" id="id131" name="id131">ejScript</a></li>
+<li><a class="reference" href="#framework-error-codes" id="id132" name="id132">Framework error codes</a></li>
+<li><a class="reference" href="#magic-variables" id="id133" name="id133">Magic variables</a></li>
+<li><a class="reference" href="#error-code-reference" id="id134" name="id134">Error code reference</a></li>
+</ul>
+</li>
+<li><a class="reference" href="#parameters" id="id135" name="id135">Parameters</a><ul>
+<li><a class="reference" href="#iterating-through-indexed-parameters" id="id136" name="id136">Iterating through indexed parameters</a></li>
+</ul>
+</li>
+<li><a class="reference" href="#creating-html-forms" id="id137" name="id137">Creating HTML forms</a><ul>
+<li><a class="reference" href="#reserved-magic-form-fields" id="id138" name="id138">Reserved 'magic' form fields</a></li>
+</ul>
+</li>
+<li><a class="reference" href="#user-management-and-access-control" id="id139" name="id139">User management and access control</a><ul>
+<li><a class="reference" href="#users-groups-and-access-levels" id="id140" name="id140">Users, groups, and access levels</a></li>
+<li><a class="reference" href="#listing-all-users" id="id141" name="id141">Listing all users</a></li>
+<li><a class="reference" href="#getting-details-for-a-user" id="id142" name="id142">Getting details for a user</a></li>
+<li><a class="reference" href="#listing-all-groups" id="id143" name="id143">Listing all groups</a></li>
+<li><a class="reference" href="#getting-details-for-a-group" id="id144" name="id144">Getting details for a group</a></li>
+<li><a class="reference" href="#changing-user-details" id="id145" name="id145">Changing user details</a></li>
+<li><a class="reference" href="#changing-group-details" id="id146" name="id146">Changing group details</a></li>
+</ul>
+</li>
+<li><a class="reference" href="#rich-error-pages" id="id147" name="id147">Rich error pages</a><ul>
+<li><a class="reference" href="#page-names" id="id148" name="id148">Page names</a></li>
+<li><a class="reference" href="#error-parameters" id="id149" name="id149">Error parameters</a></li>
+</ul>
+</li>
+<li><a class="reference" href="#server-variables" id="id150" name="id150">Server variables</a><ul>
+<li><a class="reference" href="#using-server-variables" id="id151" name="id151">Using server variables</a></li>
+<li><a class="reference" href="#ephemeral-variables" id="id152" name="id152">'Ephemeral' variables</a></li>
+</ul>
+</li>
+<li><a class="reference" href="#asp-functions-in-the-framework" id="id153" name="id153">ASP Functions in the Framework</a><ul>
+<li><a class="reference" href="#the-ejscript-library" id="id154" name="id154">The ejScript Library</a><ul>
+<li><a class="reference" href="#formattime" id="id155" name="id155">formatTime()</a></li>
+<li><a class="reference" href="#get" id="id156" name="id156">get()</a></li>
+<li><a class="reference" href="#geterror" id="id157" name="id157">getError()</a></li>
+<li><a class="reference" href="#geterrorcount" id="id158" name="id158">getErrorCount()</a></li>
+<li><a class="reference" href="#geterrormessage" id="id159" name="id159">getErrorMessage()</a></li>
+<li><a class="reference" href="#getnextgroup" id="id160" name="id160">getNextGroup()</a></li>
+<li><a class="reference" href="#getgroupdetail" id="id161" name="id161">getGroupDetail()</a></li>
+<li><a class="reference" href="#getlabel" id="id162" name="id162">getLabel()</a></li>
+<li><a class="reference" href="#getlabelval" id="id163" name="id163">getLabelVal()</a></li>
+<li><a class="reference" href="#getlanguage" id="id164" name="id164">getLanguage()</a></li>
+<li><a class="reference" href="#getnextuser" id="id165" name="id165">getNextUser()</a></li>
+<li><a class="reference" href="#getqueryval" id="id166" name="id166">getQueryVal()</a></li>
+<li><a class="reference" href="#getrequestnumber" id="id167" name="id167">getRequestNumber()</a></li>
+<li><a class="reference" href="#gettime" id="id168" name="id168">getTime()</a></li>
+<li><a class="reference" href="#getuserdetail" id="id169" name="id169">getUserDetail()</a></li>
+<li><a class="reference" href="#getval" id="id170" name="id170">getVal()</a></li>
+<li><a class="reference" href="#max" id="id171" name="id171">max()</a></li>
+<li><a class="reference" href="#min" id="id172" name="id172">min()</a></li>
+<li><a class="reference" href="#set" id="id173" name="id173">set()</a></li>
+<li><a class="reference" href="#usercanaccess" id="id174" name="id174">userCanAccess()</a></li>
+<li><a class="reference" href="#username" id="id175" name="id175">userName()</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference" href="#using-xml-based-rpc-with-the-dmf" id="id176" name="id176">Using XML-based RPC with the DMF</a><ul>
+<li><a class="reference" href="#flash-xml-rpc-client" id="id177" name="id177">Flash XML-RPC client</a></li>
+<li><a class="reference" href="#flash-vs-java-applets" id="id178" name="id178">Flash vs. Java applets</a></li>
+<li><a class="reference" href="#actionscript-flash-class-for-xml-rpc" id="id179" name="id179">ActionScript (Flash) class for XML-RPC</a><ul>
+<li><a class="reference" href="#xmlrpc-properties" id="id180" name="id180">xmlrpc properties</a></li>
+<li><a class="reference" href="#xmlrpc-methods" id="id181" name="id181">xmlrpc methods</a></li>
+<li><a class="reference" href="#the-native-object" id="id182" name="id182">The native object</a></li>
+</ul>
+</li>
+<li><a class="reference" href="#using-the-xmlrpc-class" id="id183" name="id183">Using the xmlrpc class</a></li>
+</ul>
+</li>
+<li><a class="reference" href="#server-programming-with-the-art-logic-device-management-framework" id="id184" name="id184">Server programming with the Art &amp; Logic Device Management Framework</a><ul>
+<li><a class="reference" href="#useful-api-functions-in-the-device-management-framework" id="id185" name="id185">Useful API functions in the Device Management Framework</a><ul>
+<li><a class="reference" href="#memory-functions" id="id186" name="id186">Memory functions</a></li>
+<li><a class="reference" href="#string-handling-functions" id="id187" name="id187">String handling functions</a></li>
+</ul>
+</li>
+<li><a class="reference" href="#defining-device-parameters" id="id188" name="id188">Defining device parameters</a><ul>
+<li><a class="reference" href="#the-param-structure" id="id189" name="id189">The Param structure</a></li>
+</ul>
+</li>
+<li><a class="reference" href="#using-the-built-in-conversion-functions" id="id190" name="id190">Using the built-in conversion functions</a></li>
+<li><a class="reference" href="#writing-custom-conversion-functions" id="id191" name="id191">Writing custom conversion functions</a><ul>
+<li><a class="reference" href="#custom-getfunc" id="id192" name="id192">Custom GetFunc</a></li>
+<li><a class="reference" href="#custom-setfunc" id="id193" name="id193">Custom SetFunc()</a></li>
+</ul>
+</li>
+<li><a class="reference" href="#query-and-commit-functions" id="id194" name="id194">Query and Commit functions</a></li>
+<li><a class="reference" href="#using-query-functions-to-build-a-simulator" id="id195" name="id195">Using Query functions to build a simulator</a></li>
+<li><a class="reference" href="#the-userfunc-c-file" id="id196" name="id196">The UserFunc.c file</a><ul>
+<li><a class="reference" href="#initialization-functions" id="id197" name="id197">Initialization functions</a></li>
+<li><a class="reference" href="#shutdown-functions" id="id198" name="id198">Shutdown functions</a></li>
+</ul>
+</li>
+<li><a class="reference" href="#configuring-the-framework" id="id199" name="id199">Configuring the Framework</a><ul>
+<li><a class="reference" href="#device-management-framework-configuration" id="id200" name="id200">Device Management Framework configuration</a></li>
+<li><a class="reference" href="#trace-error-handlers" id="id201" name="id201">Trace / error handlers</a></li>
+<li><a class="reference" href="#compiler-configuration-macros" id="id202" name="id202">Compiler Configuration Macros</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference" href="#appendix-a-rpc-encodings" id="id203" name="id203">Appendix A: RPC Encodings</a><ul>
+<li><a class="reference" href="#xml-rpc-message-encodings" id="id204" name="id204">XML-RPC Message Encodings</a><ul>
+<li><a class="reference" href="#get-encodings" id="id205" name="id205"><tt class="literal"><span class="pre">get()</span></tt> Encodings</a></li>
+<li><a class="reference" href="#set-encoding" id="id206" name="id206"><tt class="literal"><span class="pre">set()</span></tt> encoding</a></li>
+<li><a class="reference" href="#getlabel-encoding" id="id207" name="id207"><tt class="literal"><span class="pre">getLabel()</span></tt> Encoding</a></li>
+<li><a class="reference" href="#geterrors-encoding" id="id208" name="id208"><tt class="literal"><span class="pre">getErrors()</span></tt> Encoding</a></li>
+</ul>
+</li>
+<li><a class="reference" href="#soap-message-encodings" id="id209" name="id209">SOAP Message Encodings</a><ul>
+<li><a class="reference" href="#id112" id="id210" name="id210"><tt class="literal"><span class="pre">get()</span></tt> Encodings</a></li>
+<li><a class="reference" href="#id121" id="id211" name="id211"><tt class="literal"><span class="pre">set()</span></tt> Encoding</a></li>
+<li><a class="reference" href="#id124" id="id212" name="id212"><tt class="literal"><span class="pre">getLabel()</span></tt> Encoding</a></li>
+<li><a class="reference" href="#id127" id="id213" name="id213"><tt class="literal"><span class="pre">getErrors()</span></tt> Encoding</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference" href="#appendix-b-using-rommable-web-files" id="id214" name="id214">Appendix B: Using ROMmable web files</a><ul>
+<li><a class="reference" href="#overview" id="id215" name="id215">Overview</a></li>
+<li><a class="reference" href="#building-the-web-compiler" id="id216" name="id216">Building the &quot;Web Compiler&quot;</a></li>
+<li><a class="reference" href="#creating-the-list-of-web-files" id="id217" name="id217">Creating the list of web files</a></li>
+<li><a class="reference" href="#running-the-web-compiler" id="id218" name="id218">Running the Web Compiler</a></li>
+<li><a class="reference" href="#rebuilding-the-server" id="id219" name="id219">Rebuilding the Server</a></li>
+</ul>
+</li>
+<li><a class="reference" href="#copyright-information" id="id220" name="id220">Copyright Information</a></li>
+</ul>
+</div>
+<!-- (c) 2002 Art & Logic, Inc. All Rights Reserved. -->
+<!-- $Id: UserGuide.html,v 1.2 2006/01/10 23:51:52 erik Exp $ -->
+<div class="section" id="web-programming-with-the-art-logic-device-management-framework">
+<h1><a class="toc-backref" href="#id130" name="web-programming-with-the-art-logic-device-management-framework">Web programming with the Art &amp; Logic Device Management Framework</a></h1>
+<p>The Art &amp; Logic Device Management Framework (DMF) is a complete solution for
+adding remote device management capabilities to embedded devices. The DMF
+provides a centralized, consistent mechanism for retrieving and updating
+parameter values from your device, and then permits you to expose those
+parameter values over a web interface, XML-RPC, or SOAP. When a ubiquitous
+thin client is important, the DMF can be used to develop very rich, dynamic
+web interfaces that make use of the almost complete availability of web
+browsers. When it's important to be able to control your device using a
+standalone application, either of the XML-based Remote Procedure Call
+protocols (XML-RPC and SOAP) supported by the DMF may be used. The modular
+design of the DMF allows you to select which of the protocols are supported,
+so you can tailor the memory footprint occupied by the DMF server on your
+device.</p>
+<p>The DMF also provides facilities to perform on-the-fly language localization,
+support easy and rich configuration and customization options for users and
+OEMs, a rich security model, and a library of client-side JavaScript code
+originally developed for use in Art &amp; Logic's custom web-based device
+management projects.</p>
+<p>The Device Management Framework is designed to maintain a clean separation
+between presentation code and server code, so web programmers never need
+to encounter C code, and device programmers working in C never have
+to encounter HTML/ASP code. This design has been heavily influenced
+by many years of successfully completing web-based device management
+projects around this philosophy.  Compare it to the common CGI model
+of web development, where HTML code is emitted through printf()
+statements in C or Perl code. Suddenly changes to user interface code
+require the involvement of both a web designer and a C programmer,
+and a recompilation.</p>
+<p>Instead, with the DMF, the server programmer writes just enough code
+to make device parameters available through the well-defined get/set
+interface, and the web designer uses the tools that they are already
+comfortable with to create HTML, additionally using DMF's embedded
+JavaScript (ejScript) for UI code that is executed on the server and
+client-side JavaScript for a richer interface.</p>
+<p>Without writing any additional server-side code, device parameters are
+also available to applications besides web browsers using the XML-RPC
+protocol. As part of the DMF, Art &amp; Logic provides an ActionScript
+library that uses XML-RPC to connect interfaces using Macromedia's
+'Flash' technology to devices running DMF.</p>
+<div class="section" id="ejscript">
+<h2><a class="toc-backref" href="#id131" name="ejscript">ejScript</a></h2>
+<p>The key to successful use of the DMF is the embedded JavaScript
+implementation that's built in. Syntactically similar to JavaScript,
+but with a reduced feature set, ejScript provides just enough power to
+generate rich pages without requiring too much power from the device's
+CPU.</p>
+<p>The following features are present in ejScript:</p>
+<ul class="simple">
+<li>Integer arithmetic (+, -, *, /, &lt;, &lt;=, &gt;, &gt;=, ++, --, &lt;&lt;, &gt;&gt;)</li>
+<li>String operations (concatenation (+), comparison (&lt;, &lt;=, ==, !=, &gt;, &gt;=))</li>
+<li>if/else testing</li>
+<li>for() loops</li>
+<li>var declares a variable</li>
+<li>equality testing (==, !=)</li>
+<li>logical operators (&amp;&amp;, ||, !)</li>
+<li>octal literals (\101 = 65 decimal)</li>
+<li>hex literals (\x41 = 65 decimal)</li>
+<li>unicode hex literals (\u0401 = 65 decimal)</li>
+<li>C-style comments (/* comments until closing */)</li>
+<li>C++-style comments (// comments until end of line)</li>
+<li>continue long lines of code with a backslash</li>
+<li>parentheses to group expressions</li>
+</ul>
+<p>Features that are obviously missing from ejScript:</p>
+<ul class="simple">
+<li>ability to define functions in ejScript (new ejScript functions may be created in C)</li>
+<li>string manipulation functions (substrings, searching, etc.)</li>
+<li>regular expressions</li>
+<li>arrays</li>
+<li>objects</li>
+<li>while loops</li>
+<li>switch statements</li>
+</ul>
+<p>Like JavaScript (or any of the languages derived from C), the ejScript
+language is case sensitive and free-form, with statements terminated with
+a semicolon and grouped together with curly braces. ASP code is separated
+from HTML or Javascript code by enclosing it in <tt class="literal"><span class="pre">&lt;%</span> <span class="pre">%&gt;</span></tt> delimiters.</p>
+<p>When a user requests an URL from the DMF that ends with the extension
+<tt class="literal"><span class="pre">'.ASP'</span></tt>, the server scans that file for ejScript code, which must be
+enclosed inside matching <tt class="literal"><span class="pre">&lt;%</span> <span class="pre">%&gt;</span></tt> delimiters. Any text found inside the
+ASP delimiters is sent to the ejScript interpreter and executed. If the
+interpreter encounters syntax errors, an error message will be displayed
+in the user's browser.</p>
+<p>Simple ejScript example:</p>
+<pre class="literal-block">
+&lt;%
+   // a simple for() loop that executes 5 times, then exits.
+   for (i = 0; i &lt; 5; i++)
+   {
+      // write output to the user's browser
+      // Note that we do integer arithmetic inside the parentheses, but
+      // when the interpreter attempts to add the resulting integer value
+      // to a string, it converts the integer value into a string, then
+      // concatenates the resulting strings before sending text to the
+      // browser.
+      write(&quot;Hello! Loop #&quot; + (i + 1) + &quot;&lt;br&gt;\n&quot;);
+   }   
+%&gt;
+</pre>
+<p>...which would create the following HTML:</p>
+<pre class="literal-block">
+Hello! Loop #1&lt;br&gt;
+Hello! Loop #2&lt;br&gt;
+Hello! Loop #3&lt;br&gt;
+Hello! Loop #4&lt;br&gt;
+Hello! Loop #5&lt;br&gt;
+</pre>
+<p>Microsoft's ASP implementation allows web programmers to drop in and
+out of ASP code at will, to simplify the output of literal HTML, like:</p>
+<pre class="literal-block">
+&lt;% for (i = 0; i &lt; 5; i++)
+{
+%&gt;
+&lt;p&gt; This is item # &lt;% write(i); %&gt; &lt;/p&gt;
+&lt;%
+}
+%&gt;
+</pre>
+<p>The above code is not valid ejScript code. Instead, you would need to code it as:</p>
+<pre class="literal-block">
+&lt;%
+   for (i = 0; i &lt; 5; i++)
+   {
+      write(&quot;&lt;p&gt; This is item # &quot; + i + &quot;&lt;/p&gt;&quot;);
+   }
+%&gt;
+</pre>
+</div>
+<div class="section" id="framework-error-codes">
+<h2><a class="toc-backref" href="#id132" name="framework-error-codes">Framework error codes</a></h2>
+<p>It's unlikely that every operation performed by the DMF will execute
+successfully. Any call to a framework function may succeed, or the call
+may result in one of the error codes defined by the framework.</p>
+<p>For example, calling a function without providing a value for each
+required argument will result in an &quot;ArgumentCount&quot; error (a complete
+list of framework errors is provided below).</p>
+<pre class="literal-block">
+&lt;%
+   // getVal requires a parameter name -- after executing this, badValue
+   // will not be set to a valid value, and the error code will be set to 
+   // &quot;ArgumentCount&quot;.  
+   badValue = getVal();
+
+   // getVal also requires a valid parameter name. After executing the following 
+   // line of code, badValue2 will not be set to a valid value, and
+   // the error code will be set to &quot;ParameterName&quot;.
+   badValue2 = getVal(&quot;imaginaryParameter&quot;);
+
+   // the ideal case -- we call getVal() with a real parameter name and the call 
+   // succeeds. After this line of code is executed, goodValue will be
+   // set to the correct value, and the error code will be set to &quot;Success&quot;.
+   // assumes that 'realParameter' is a valid parameter name on this
+   // system.  
+   goodValue = getVal(&quot;realParameter&quot;);
+%&gt;
+</pre>
+</div>
+<div class="section" id="magic-variables">
+<h2><a class="toc-backref" href="#id133" name="magic-variables">Magic variables</a></h2>
+<p>The DMF maintains two ejScript variables that are &quot;magically&quot; updated
+after every call made to a DMF ASP function. To avoid the possibility
+of clashing variable names, these variables are named with both leading
+and trailing double-underscores.</p>
+<dl>
+<dt><tt class="literal"><span class="pre">__error__</span></tt></dt>
+<dd><p class="first">After each call to a framework function, this ejScript variable is
+set to the string representation of the error code resulting from the
+call. If you would prefer to access the integer code of the current
+error, use the framework function getError().</p>
+<p>Note that the integer codes are not guaranteed to stay constant as
+the framework evolves, but the string names are so guaranteed.</p>
+<!-- The DMF function debugInfo() displays the list of error codes, including
+integer values, string values, and the message format used for full
+error message display. -->
+</dd>
+<dt><tt class="literal"><span class="pre">__success__</span></tt>  </dt>
+<dd><p class="first">After each call to a framework function, this ejScript variable is set
+to &quot;1&quot; if the new error code is &quot;Success&quot; and &quot;0&quot; if it is anything
+else. Its value is guaranteed to be the same as evaluating the code</p>
+<p class="last"><tt class="literal"><span class="pre">&lt;%</span> <span class="pre">(&quot;Success&quot;</span> <span class="pre">==</span> <span class="pre">__error__)</span> <span class="pre">%&gt;</span></tt>.</p>
+</dd>
+</dl>
+</div>
+<div class="section" id="error-code-reference">
+<h2><a class="toc-backref" href="#id134" name="error-code-reference">Error code reference</a></h2>
+<table class="table" frame="border" rules="all">
+<colgroup>
+<col width="12%" />
+<col width="88%" />
+</colgroup>
+<tbody valign="top">
+<tr><td>Code</td>
+<td>Meaning</td>
+</tr>
+<tr><td>&quot;AccessLevel&quot;</td>
+<td>the current user does not have a high enough access level.</td>
+</tr>
+<tr><td>&quot;ArgumentCount&quot;</td>
+<td>the function was called with not enough (or too many) arguments.</td>
+</tr>
+<tr><td>&quot;ArgumentError&quot;</td>
+<td>one of the function arguments was of the wrong data type.</td>
+</tr>
+<tr><td>&quot;DataLowerRange&quot;</td>
+<td>the <tt class="literal"><span class="pre">set()</span></tt> call tried to set a parameter to a value below its lower limit.</td>
+</tr>
+<tr><td>&quot;DataUpperRange&quot;</td>
+<td>the <tt class="literal"><span class="pre">set()</span></tt> call tried to set a parameter to a value above its upper limit.</td>
+</tr>
+<tr><td>&quot;Error&quot;</td>
+<td>the function call resulted in a non-specific error.</td>
+</tr>
+<tr><td>&quot;FunctionName&quot;</td>
+<td>there is no such function known to the framework.</td>
+</tr>
+<tr><td>&quot;GroupAccess&quot;</td>
+<td>error when modifying a group's access method.</td>
+</tr>
+<tr><td>&quot;GroupAdd&quot;</td>
+<td>error when adding a new user group.</td>
+</tr>
+<tr><td>&quot;GroupDelete&quot;</td>
+<td>error when deleting a user group.</td>
+</tr>
+<tr><td>&quot;GroupDoesNotExist&quot;</td>
+<td>error when attempting to query or modify a user group that does not exist.</td>
+</tr>
+<tr><td>&quot;GroupEnable&quot;</td>
+<td>error when enabling/disabling a group.</td>
+</tr>
+<tr><td>&quot;GroupExists&quot;</td>
+<td>error when attempting to create a user group that already exists.</td>
+</tr>
+<tr><td>&quot;GroupLevel&quot;</td>
+<td>error when modifying a group's access level.</td>
+</tr>
+<tr><td>&quot;GroupName&quot;</td>
+<td>error when requesting details for a group that does not exist.</td>
+</tr>
+<tr><td>&quot;GroupPrivilege&quot;</td>
+<td>error when modifying a group's privilege.</td>
+</tr>
+<tr><td>&quot;GroupProtection&quot;</td>
+<td>error when modifying a group's protection bit.</td>
+</tr>
+<tr><td>&quot;IndexMissing&quot;</td>
+<td>the parameter requested may only be retrieved by using an index.</td>
+</tr>
+<tr><td>&quot;IndexRange&quot;</td>
+<td>the specified index value is either above or below the valid range of indexes.</td>
+</tr>
+<tr><td>&quot;InternalError&quot;</td>
+<td>the framework has detected an internal error. Please report these to Art &amp; Logic.</td>
+</tr>
+<tr><td>&quot;NotIndexed&quot;</td>
+<td>the requested parameter is not indexed.</td>
+</tr>
+<tr><td>&quot;OldData&quot;</td>
+<td>a form was submitted based on data that may have changed since the form page was served.</td>
+</tr>
+<tr><td>&quot;ParameterMissing&quot;</td>
+<td>a required parameter was not provided.</td>
+</tr>
+<tr><td>&quot;ParameterName&quot;</td>
+<td>the function attempted to access a parameter that does not exist.</td>
+</tr>
+<tr><td>&quot;ReadOnly&quot;</td>
+<td>the function attempted to modify a parameter that may only be read.</td>
+</tr>
+<tr><td>&quot;RpcErrors&quot;</td>
+<td>the last XML-RPC call resulted in multiple errors.  Call the XML-RPC function <tt class="literal"><span class="pre">getErrors()</span></tt> to retrieve them all (as an XML-RPC array).</td>
+</tr>
+<tr><td>&quot;Success&quot;</td>
+<td>the function call succeeded.</td>
+</tr>
+<tr><td>&quot;UserAdd&quot;</td>
+<td>error when attempting to add a new user account.</td>
+</tr>
+<tr><td>&quot;UserDelete&quot;</td>
+<td>error when attempting to delete a user account.</td>
+</tr>
+<tr><td>&quot;UserDisable&quot;</td>
+<td>error when disabling a user account.</td>
+</tr>
+<tr><td>&quot;UserDoesNotExist&quot;</td>
+<td>when attempting to obtain details on a user account that does not exist.</td>
+</tr>
+<tr><td>&quot;UserEnable&quot;</td>
+<td>error when enabling a user account.</td>
+</tr>
+<tr><td>&quot;UserExists&quot;</td>
+<td>when attempting to add a user account that already exists.</td>
+</tr>
+<tr><td>&quot;UserGroup&quot;</td>
+<td>error when attempting to change a user's group membership.</td>
+</tr>
+<tr><td>&quot;UserName&quot;</td>
+<td>there is no user logged in.</td>
+</tr>
+<tr><td>&quot;UserPassword&quot;</td>
+<td>error when attempting to set a user password.</td>
+</tr>
+<tr><td>&quot;ValueMissing&quot;</td>
+<td>a value was required, but not provided.</td>
+</tr>
+<tr><td>&quot;WriteOnly&quot;</td>
+<td>the function attempted to retrieve a parameter that may only be written to.</td>
+</tr>
+<tr><td>&quot;XmlParse&quot;</td>
+<td>the XML parser is reporting a parse error.</td>
+</tr>
+</tbody>
+</table>
+<!-- (c) 2002 Art & Logic, Inc. All Rights Reserved. -->
+<!-- $Id: UserGuide.html,v 1.2 2006/01/10 23:51:52 erik Exp $ -->
+</div>
+</div>
+<div class="section" id="parameters">
+<h1><a class="toc-backref" href="#id135" name="parameters">Parameters</a></h1>
+<p>Key to the programming model used in the DMF is that all access to
+your device is performed through named parameters. Almost all of the
+server-side programming that is required to use the DMF involves writing
+enough code to associate a parameter name with simple functions to
+read and write that parameter from/to your device. Once that's done,
+parameters may be accessed through ASP code, HTML forms, XML-RPC, or SOAP
+without any additional work. As new methods and protocols are supported by
+the framework, no additional work will be needed to expose the parameters
+to those methods or protocols.</p>
+<p>Simple devices with a few parameters may be best served by a simple,
+flat parameter space. However, the DMF supports complex, hierarchical
+parameter spaces as well. The benefit of this is that devices often group
+parameter sets internally, and by building this into our framework, we
+have the opportunity to read and write structures as a unit, avoiding
+potentially costly inter-process function calls.</p>
+<p>When creating the server-side code, the server engineer may designate a
+single &quot;query function&quot; and a &quot;commit function&quot; that are responsible for
+multiple parameters. When ejScript code attempts to retrieve a parameter,
+it first looks to see if that structure has already been updated since
+the current page was served. If it has not, the query function for
+the structure is called, updating all its values at once. Then, any
+further calls to obtain values from that structure on the current page
+are retrieved from a locally cached copy of the structure.</p>
+<p>Similarly, when multiple values are being written to the device through
+a form submission, a two-step procedure is followed. First, the generic
+form handler calls the set function registered for each parameter being
+set by the form. If all of those operations finished without error,
+the framework will call any registered commit functions associated with
+those parameters to write the new values back to the device.</p>
+<div class="section" id="iterating-through-indexed-parameters">
+<h2><a class="toc-backref" href="#id136" name="iterating-through-indexed-parameters">Iterating through indexed parameters</a></h2>
+<p>The framework provides two primary idioms for looping through a parameter
+that is indexed. If you know in advance the number of indexed items,
+you can use that knowledge to directly control a for() loop:</p>
+<pre class="literal-block">
+&lt;%
+   count = getVal(&quot;myDevice.address.count&quot;);
+   for (i = 0; i &lt; count; i++)
+   {
+      write(&quot;Address #&quot; + (i + 1) + &quot;: &quot;);
+      get(&quot;myDevice.address&quot;, i);
+      write(&quot;&lt;br&gt;\n&quot;);
+   }
+%&gt;
+</pre>
+<p>If the number of items may change dynamically, or there's no easy way to
+determine the number of items through the ASP interface, you can count
+on the fact that the framework will set the error code to &quot;IndexRange&quot;
+when you attempt to retrieve an item after the last indexed item. This
+will set the value of the magic <tt class="literal"><span class="pre">__success__</span></tt> variable to &quot;0&quot;:</p>
+<pre class="literal-block">
+&lt;%
+   // this will loop until the getVal() call inside the loop fails.
+   for (i = 0; __success__; i++)
+   {
+      value = getVal(&quot;myDevice.address&quot;, i);
+      if (__success__)
+      {
+         write(&quot;Address #&quot; + (i + 1) + &quot;: &quot; + value + &quot;&lt;br&gt;\n&quot;);
+      }
+   }
+%&gt;
+</pre>
+<p>It may also be useful to populate a client-side JavaScript Array object
+with data from an indexed parameter:</p>
+<pre class="literal-block">
+&lt;script&gt;
+&lt;!-- client-side JavaScript here...
+addressArray = new Array( &lt;%
+// server-side ejScript here...
+for (i = 0; __success__; i++)
+{
+   value = getVal(&quot;myDevice.address&quot;, i);
+   if (__success__)
+   {
+      if (i &gt; 0)
+         write(&quot;, &quot;);
+      write(&quot;\&quot;&quot; + value + &quot;\&quot;&quot;);
+   }
+}
+// end of ejScript
+%&gt;
+);
+
+// back in JavaScript -- do something clever in the browser with the
+// array that you now have...
+--&gt;
+&lt;/script&gt;
+</pre>
+<!-- (c) 2002 Art & Logic, Inc. All Rights Reserved. -->
+<!-- $Id: UserGuide.html,v 1.2 2006/01/10 23:51:52 erik Exp $ -->
+</div>
+</div>
+<div class="section" id="creating-html-forms">
+<h1><a class="toc-backref" href="#id137" name="creating-html-forms">Creating HTML forms</a></h1>
+<p>The DMF provides a generic form handler as a key part of its design. Once
+the engineer working on the server-side code has connected a set of
+parameters to the functions responsible for reading and writing them,
+the generic form handler will call the appropriate set function for
+each parameter on the form. If all of those set functions complete
+successfully, the commit function for each parameter is called, writing
+the updated values back to the device.</p>
+<p>The form may specify URLs to redirect the user's browser to after the
+form is submitted. Place a hidden control named <tt class="literal"><span class="pre">'urlOk'</span></tt> on your form to
+indicate the URL that should be served when the form was successfully
+submitted. To display errors that occurred in an unsuccessful submission,
+place a hidden control on the form named <tt class="literal"><span class="pre">'urlError'</span></tt> that specifies the
+page to serve.  Often, the error page is the form page, with a block of
+ejScript that is only executed when there are errors:</p>
+<pre class="literal-block">
+&lt;%
+   count = getErrorCount();
+   if (count &gt; 0)
+   {
+      write(&quot;There were errors:&lt;br&gt;\n&quot;);
+      for (i = 0; i &lt; count; i++)
+      {
+         write(getErrorMessage(i) + &quot;&lt;br&gt;\n&quot;);
+      }
+   }
+%&gt;
+</pre>
+<p>To create a form on a page, use the following line of HTML -- the generic
+form handler is invoked by using a form action of &quot;/goform/Dmf&quot;.</p>
+<pre class="literal-block">
+&lt;form method=&quot;POST&quot; action=&quot;/goform/Dmf&quot;&gt;
+</pre>
+<p>Place some edit controls on the form, tying them to the appropriate
+parameter name, and populating the controls with the current value for
+each parameter.</p>
+<pre class="literal-block">
+test.struct.char = &lt;input size=&quot;5&quot; name=&quot;test.struct.char&quot; 
+   value=&lt;% get(&quot;test.struct.char&quot;); %&gt;&gt;&lt;br/&gt;
+test.struct.short = &lt;input size=&quot;5&quot; name=&quot;test.struct.short&quot; 
+   value=&lt;% get(&quot;test.struct.short&quot;); %&gt;&gt;&lt;br/&gt;
+test.struct.long = &lt;input size=&quot;5&quot; name=&quot;test.struct.long&quot; 
+   value=&lt;% get(&quot;test.struct.long&quot;); %&gt;&gt;&lt;br/&gt;
+</pre>
+<p>Then we'll create an array of inputs, each tied to an indexed parameter.
+Note that the technique to reference an indexed parameter in a control
+name is to separate the parameter name and the index number with an
+underscore:</p>
+<pre class="literal-block">
+&lt;%
+   val = 0;
+   for (i = 0; __success__; i++)
+   {
+      val = getVal(&quot;test.struct.bytes&quot;, i);
+      if (__success__)
+      {
+         write(&quot;Array[&quot; + i + &quot;] : &quot;);
+         write(&quot;&lt;input size=\&quot;5\&quot; name=\&quot;test.struct.bytes_&quot; + i + &quot;\&quot;&quot;);
+         write(&quot; value=\&quot;&quot; + val + &quot;\&quot;&gt;&lt;br/&gt;\n&quot;);
+      }
+   }
+%&gt;
+</pre>
+<p>Finally, we'll add the hidden controls that tell the server what to do
+after processing the form. In this example, we go back to the page that
+brought us to this form when the submission succeeds, and re- serve the
+same page when there are errors processing the form. Then we place the
+button to submit the form, and place the <tt class="literal"><span class="pre">&lt;/form&gt;</span></tt> close tag.</p>
+<pre class="literal-block">
+&lt;input type=&quot;hidden&quot; name=&quot;urlOk&quot; value=&quot;test1.asp&quot;&gt;
+&lt;input type=&quot;hidden&quot; name=&quot;urlError&quot; value=&quot;test2.asp&quot;&gt;
+&lt;input type=&quot;submit&quot; name=&quot;Submit&quot; value=&quot;ok&quot;&gt;
+&lt;/form&gt;
+</pre>
+<div class="section" id="reserved-magic-form-fields">
+<h2><a class="toc-backref" href="#id138" name="reserved-magic-form-fields">Reserved 'magic' form fields</a></h2>
+<dl>
+<dt><tt class="literal"><span class="pre">urlOk</span></tt></dt>
+<dd>if present, the value of this hidden control will be used as a
+redirection URL when the form submission completes without error. If
+the form succeeds, but no urlOk is defined, the server will return
+code 204 (OK, no content).</dd>
+<dt><tt class="literal"><span class="pre">urlError</span></tt> </dt>
+<dd>if present, the value of this hidden control will be used as a
+redirection URL when errors are encountered when processing the
+form. If errors are encountered, but no urlError value is provided,
+the server will list the errors in an unadorned presentation.</dd>
+<dt><tt class="literal"><span class="pre">urlCancel</span></tt> </dt>
+<dd>reserved, not currently used.</dd>
+<dt><tt class="literal"><span class="pre">command</span></tt> </dt>
+<dd>the DMF supports a server-side facility to bypass the generic form
+handler and install custom behavior. The value of this hidden field
+must either be one of the pre-defined command handler names, or one
+written and installed by your server-side programmer.</dd>
+<dt><tt class="literal"><span class="pre">request</span></tt> </dt>
+<dd><p class="first">the DMF provides a simple mechanism to detect possible problems
+when multiple users are submitting forms at the same time. Create a
+hidden control on your form like:</p>
+<pre class="literal-block">
+&lt;input type=&quot;hidden&quot; name=&quot;request&quot; value=&quot;&lt;%getRequestNumber();%&gt;&quot;&gt; 
+</pre>
+<p class="last">If the server detects that there's a
+chance that the parameter values have changed since the form page you
+are submitting was served, the form handler will report an &quot;OldData&quot;
+error, and the form submission will fail.</p>
+</dd>
+</dl>
+<!-- (c) 2002 Art & Logic, Inc. All Rights Reserved. -->
+<!-- $Id: UserGuide.html,v 1.2 2006/01/10 23:51:52 erik Exp $ -->
+</div>
+</div>
+<div class="section" id="user-management-and-access-control">
+<h1><a class="toc-backref" href="#id139" name="user-management-and-access-control">User management and access control</a></h1>
+<div class="section" id="users-groups-and-access-levels">
+<h2><a class="toc-backref" href="#id140" name="users-groups-and-access-levels">Users, groups, and access levels</a></h2>
+<p>By default, anyone can connect to a device running the DMF and access any
+file along any path without restriction. Obviously, in most real world
+applications, this is not acceptable. Using the facilities in the DMF,
+you can create or modify user accounts, create or modify user groups, and
+associate user groups with individual URLs or directories.</p>
+<p>In addition, we have found that many embedded web projects require
+a hierarchical design, and so we have added this feature to the DMF.
+When hierarchical access control is enabled on the DMF, you may assign
+each named user group an integer access level. When a user requests an
+URL from the server, it checks to see if the access level of the user's
+group is greater than or equal to the access level required to retrieve
+the URL. If it is, the server returns the contents of that URL to the
+user. If not, the server returns a 403 error code (&quot;Prohibited user&quot;).</p>
+<p>One access control feature that is not exposed through an ASP function
+is assigning access limits to URLs or paths. The design assumption
+here is that this is a design-time decision that isn't likely to be
+user-adjustable.  Server-side programmers should set up the device with
+the DMF <tt class="literal"><span class="pre">umAddAccessLimit()</span></tt> API function in the project's <tt class="literal"><span class="pre">dmfUserPostInit()</span></tt>
+function. In most cases, user groups will be defined at design time,
+and also configured in the <tt class="literal"><span class="pre">dmfUserPostInit()</span></tt> function.</p>
+</div>
+<div class="section" id="listing-all-users">
+<h2><a class="toc-backref" href="#id141" name="listing-all-users">Listing all users</a></h2>
+<p>The DMF provides an ASP function <tt class="literal"><span class="pre">getNextUser()</span></tt> to
+retrieve user names from the access database.  Calling this function
+without an argument returns the first name in the user database. Call
+the function with its last return value to get the next user name. When
+the function returns an empty string, there are no more users in the
+table. (Also, <tt class="literal"><span class="pre">__error__</span></tt> will be set to &quot;IndexRange&quot;.)</p>
+<p>Example:</p>
+<pre class="literal-block">
+&lt;% 
+   // retrieve and display the names of all users known to this device.
+   name = getNextUser();
+   for (i = 1; name != &quot;&quot;; i++)
+   {
+      write(&quot;User #&quot; + i + &quot;: &quot; + name + &quot;&lt;br&gt;\n&quot;);
+      name = getNextUser(name);
+   }
+%&gt;
+</pre>
+</div>
+<div class="section" id="getting-details-for-a-user">
+<h2><a class="toc-backref" href="#id142" name="getting-details-for-a-user">Getting details for a user</a></h2>
+<p>The <tt class="literal"><span class="pre">getUserDetail()</span></tt> ASP function is provided to return additional
+information about a user. Each user in the system has a password, is a
+member of an access group, and may have their access disabled without
+having their user record deleted from the system.</p>
+<p>Additionally, this function may be used to test whether a specific user
+name is known to the system.</p>
+<p>The four 'detail' parameters that are supported are:</p>
+<ul class="simple">
+<li>&quot;password&quot;</li>
+<li>&quot;group&quot;</li>
+<li>&quot;enabled&quot;</li>
+<li>&quot;exists&quot;</li>
+</ul>
+<p>Example:</p>
+<pre class="literal-block">
+&lt;%
+   // test to see if this system has a user named &quot;Tex&quot;
+   if (1 == getUserDetail(&quot;Tex&quot;, &quot;exists&quot;))
+   {
+      write(&quot;&lt;p&gt;Sure -- I know Tex.&lt;/p&gt;\n&quot;);
+   }
+   
+
+   // more usefully, display a detail list of users...
+   for (name = getNextUser(); name != &quot;&quot;; name = getNextUser(name))
+   {
+      // You probably wouldn't want to display passwords in the clear like
+      // this on a real application...
+      pw = getUserDetail(name, &quot;password&quot;);
+      group = getUserDetail(name, &quot;group&quot;);
+      enabled = getUserDetail(name, &quot;enabled&quot;);
+      write(name + &quot; password = &quot; + pw + &quot; group = &quot; + group);
+      if (!enabled)
+      {
+         write(&quot; (disabled)&quot;);
+      }
+      write(&quot;&lt;br&gt;\n&quot;);
+   }
+%&gt;
+</pre>
+</div>
+<div class="section" id="listing-all-groups">
+<h2><a class="toc-backref" href="#id143" name="listing-all-groups">Listing all groups</a></h2>
+<p>The mechanism to retrieve group names from the server is similar to that
+used to get user names.</p>
+<pre class="literal-block">
+&lt;%
+   write(&quot;&lt;h2&gt;Group Names:&lt;/h2&gt;\n&quot;);
+   for (name = getNextGroup(); name != &quot;&quot;; name = getNextGroup(name))
+   {
+      write(name + &quot;&lt;br&gt;\n&quot;);
+   } 
+%&gt;
+</pre>
+</div>
+<div class="section" id="getting-details-for-a-group">
+<h2><a class="toc-backref" href="#id144" name="getting-details-for-a-group">Getting details for a group</a></h2>
+<p>The detail parameters that may be queried for each group are:</p>
+<dl>
+<dt>&quot;enabled&quot; </dt>
+<dd>In the same way that you can temporarily disable access for individual
+users, entire groups may have their access disabled.</dd>
+<dt>&quot;privilege&quot; </dt>
+<dd>the DMF documentation indicates that it's possible to assign each
+group a fairly complex set of privileges (read-only, read-write,
+and administrate). In practice, though, the only distinctions are
+whether the group has any access rights at all.</dd>
+<dt>&quot;exists&quot; </dt>
+<dd>tests whether the specified group exists in the group database.</dd>
+<dt>&quot;accessLevel&quot; </dt>
+<dd>the integer value (1..255) indicating the access level associated
+with this user group.  Users will be able to access any URL with an
+access level less than or equal to the access level of their group.</dd>
+</dl>
+</div>
+<div class="section" id="changing-user-details">
+<h2><a class="toc-backref" href="#id145" name="changing-user-details">Changing user details</a></h2>
+<p>To add, modify, or delete a user, create a form as outlined above. User
+management relies on the 'command' facility built into the form handler.
+The three commands that work with users are:</p>
+<ul class="simple">
+<li>ADDUSER</li>
+<li>MODIFYUSER</li>
+<li>DELETEUSER</li>
+</ul>
+<p>ADDUSER and MODIFYUSER both require that form inputs with the following names be defined:</p>
+<ul class="simple">
+<li>name</li>
+<li>password</li>
+<li>enabled (usually implemented as a checkbox)</li>
+<li>group (note that you must create a group before you can add users to it)</li>
+</ul>
+<p>DELETEUSER only requires an input called &quot;name&quot;.</p>
+<p>To add a new user:</p>
+<pre class="literal-block">
+&lt;form method=&quot;POST&quot; action=&quot;/goform/Dmf&quot;&gt;
+User name: &lt;input name=&quot;name&quot;&gt;&lt;br&gt;
+Password: &lt;input name=&quot;password&quot; type=&quot;password&quot;&gt;&lt;br&gt;
+Group: &lt;input name=&quot;group&quot;&gt;&lt;br&gt;
+Enabled: &lt;input name=&quot;enabled&quot; type=&quot;checkbox&quot; CHECKED&gt;
+&lt;input type=&quot;hidden&quot; name=&quot;command&quot; value=&quot;ADDUSER&quot;&gt;
+&lt;input type=&quot;hidden&quot; name=&quot;urlOk&quot; value=&quot;users.asp&quot;&gt;
+&lt;input type=&quot;hidden&quot; name=&quot;urlError&quot; value=&quot;addUser.asp&quot;&gt;
+&lt;input type=&quot;submit&quot; name=&quot;submit&quot; value=&quot;Ok&quot;&gt;
+&lt;/form&gt;
+</pre>
+</div>
+<div class="section" id="changing-group-details">
+<h2><a class="toc-backref" href="#id146" name="changing-group-details">Changing group details</a></h2>
+<p>The three commands that may be used to add, modify, or delete user groups are:</p>
+<ul class="simple">
+<li>ADDGROUP</li>
+<li>MODIFYGROUP</li>
+<li>DELETEGROUP</li>
+</ul>
+<p>ADDGROUP and MODIFYGROUP require form inputs with the following names:</p>
+<ul class="simple">
+<li>group</li>
+<li>accessMethod (must be one of the following choices: &quot;NONE&quot;, &quot;FULL&quot;, &quot;BASIC&quot;, DIGEST&quot;)</li>
+<li>enabled (usually implemented as a checkbox)</li>
+<li>protect (usually implemented as a checkbox)</li>
+<li>accessLevel (integer, 0..255)</li>
+</ul>
+<p>DELETEGROUP only requires an input named &quot;group&quot;.</p>
+<p>To add a group:</p>
+<pre class="literal-block">
+&lt;form method=&quot;POST&quot; action=&quot;/goform/Dmf&quot;&gt;
+Group name: &lt;input name=&quot;group&quot;&gt;&lt;br&gt;
+Access Level: &lt;input name=&quot;accessLevel&quot; value=&quot;1&quot;&gt;
+Enabled: &lt;input name=&quot;enabled&quot; type=&quot;checkbox&quot; CHECKED&gt;&lt;br&gt;
+Protected: &lt;input name=&quot;protect&quot; type=&quot;checkbox&quot; CHECKED&gt;&lt;br&gt;
+&lt;input type=&quot;hidden&quot; name=&quot;accessMethod&quot; value=&quot;FULL&quot;&gt;
+&lt;input type=&quot;hidden&quot; name=&quot;command&quot; value=&quot;ADDGROUP&quot;&gt;
+&lt;input type=&quot;hidden&quot; name=&quot;urlOk&quot; value=&quot;groups.asp&quot;&gt;
+&lt;input type=&quot;hidden&quot; name=&quot;urlError&quot; value=&quot;addGroup.asp&quot;&gt;
+&lt;input type=&quot;submit&quot; name=&quot;submit&quot; value=&quot;Ok&quot;&gt;
+&lt;/form&gt;
+</pre>
+<p>Note that unlike forms used to update DMF parameter values, forms working with
+the user management subsystem will not detect and report user collisions
+(i.e., multiple users submitting changes at more or less the same time) under
+the assumption that not only will this activity be infrequent, but that
+devices will only have a single administrative user authorized to change the
+user database. If these assumptions are not true for your device, custom code
+to handle collisions will be needed.</p>
+<!-- (c) 2002 Art & Logic, Inc. All Rights Reserved. -->
+<!-- $Id: UserGuide.html,v 1.2 2006/01/10 23:51:52 erik Exp $ -->
+</div>
+</div>
+<div class="section" id="rich-error-pages">
+<h1><a class="toc-backref" href="#id147" name="rich-error-pages">Rich error pages</a></h1>
+<p>When the DMF encounters an error while serving an URL (for instance, a
+404 error when the requested URL is not found) it defaults to a rather harsh
+error page with large black text on a white background. The DMF 'rich error
+pages' feature allows web designers to override this behavior so that error pages 
+can have the same look and feel as the rest of the interface.</p>
+<p>Using this feature, web designers may create custom error handling pages that
+make use of ejScript and ASP functions; these custom pages can be as visually 
+complex as desired. However, if any server errors are encountered while serving
+a rich error page, the DMF falls back to the default error output.</p>
+<div class="section" id="page-names">
+<h2><a class="toc-backref" href="#id148" name="page-names">Page names</a></h2>
+<p>When the DMF encounters an error, it first attempts to serve a rich error page 
+specifically made for that error. For example, when handling a 404 (Site or Page
+Not Found) error, the DMF will look for a file named <tt class="literal"><span class="pre">Error404.asp</span></tt> in the 
+server's top level directory. If an error-specific page is not found, the DMF
+will then attempt to serve a generic rich error page named <tt class="literal"><span class="pre">Error.asp</span></tt>. If that 
+page is not found, the built-in error display will be used.</p>
+</div>
+<div class="section" id="error-parameters">
+<h2><a class="toc-backref" href="#id149" name="error-parameters">Error parameters</a></h2>
+<p>When a rich error page is being served, the following 'ephemeral
+variables' will have valid values. These four parameters are unique within
+the framework in that they will only have valid values when processing
+a rich error page.</p>
+<dl>
+<dt><tt class="literal"><span class="pre">_errorCode_</span></tt> </dt>
+<dd>the number of the error that we are responding to.</dd>
+<dt><tt class="literal"><span class="pre">_errorText_</span></tt> </dt>
+<dd>the text that DMF associates with the current error code.</dd>
+<dt><tt class="literal"><span class="pre">_errorMessage_</span></tt> </dt>
+<dd>an additional (more specific) error message</dd>
+<dt><tt class="literal"><span class="pre">_errorUrl_</span></tt> </dt>
+<dd>the URL being accessed that triggered the error</dd>
+</dl>
+<p>A very simple rich error page might look like:</p>
+<pre class="literal-block">
+&lt;html&gt;
+&lt;head&gt;
+&lt;%language=javascript%&gt;
+&lt;title&gt;ERROR &lt;% get(&quot;_errorCode_&quot;); &gt;&lt;/title&gt;
+&lt;/head&gt;
+
+
+&lt;h1&gt;Generic Error&lt;/h1&gt;
+
+&lt;p&gt;
+   This page is served when the server encounters an otherwise 
+   unhandled error code.
+&lt;/p&gt;
+
+&lt;%   
+   now = getTime();
+   timeString = formatTime(now, &quot;%c&quot;);
+   write(&quot;Current time = &quot; + timeString + &quot;&lt;br /&gt;&quot;);
+   write(&quot;Error Code = &quot; + getVal(&quot;_errorCode_&quot;) + &quot;&lt;br /&gt;&quot;);
+   write(&quot;Error Text = &quot; + getVal(&quot;_errorText_&quot;) + &quot;&lt;br /&gt;&quot;);
+   write(&quot;Error Message = &quot; + getVal(&quot;_errorMessage_&quot;) + &quot;&lt;br /&gt;&quot;);
+   write(&quot;Error URL = &quot; + getVal(&quot;_errorUrl_&quot;) + &quot;&lt;br /&gt;&quot;);
+%&gt;
+
+&lt;/html&gt;
+</pre>
+<!-- (c) 2002 Art & Logic, Inc. All Rights Reserved. -->
+<!-- $Id: UserGuide.html,v 1.2 2006/01/10 23:51:52 erik Exp $ -->
+</div>
+</div>
+<div class="section" id="server-variables">
+<h1><a class="toc-backref" href="#id150" name="server-variables">Server variables</a></h1>
+<div class="section" id="using-server-variables">
+<h2><a class="toc-backref" href="#id151" name="using-server-variables">Using server variables</a></h2>
+<p>When developing interfaces using the DMF, it's frequently useful to be
+able to have values stored on the server that are not directly associated
+with the device being controlled. For instance, if you wanted to design
+your interface so that users could customize the color scheme for each
+device they own, server variables are a perfect solution.</p>
+<p>The DMF reserves the use of parameter names beginning with a single
+underscore for server variables.  No special support is required on
+the server-side to use server variables; they spring into existence
+when they are set (either by a form submission, or with the DMF set()
+function). Once created, they are available as regular parameters through
+the DMF get/getVal/set functions.</p>
+<p>When server variables are changed, they are automatically persisted to
+disk. If the <tt class="literal"><span class="pre">set()</span></tt> function is used to change a server variable, the
+file storing the variables is updated as part of processing the <tt class="literal"><span class="pre">set()</span></tt>
+function. If server variables are changed using a form, the file is
+written out after all changes have been made.</p>
+<p>Example: storing color names:</p>
+<pre class="literal-block">
+&lt;%
+   bgColor = getVal(&quot;_backgroundColor&quot;);
+   if (__error__ == &quot;ParameterName&quot;)
+   {
+      // this parameter hasn't been set yet -- create it and 
+      // store a default value
+      bgColor = &quot;banana&quot;;
+      set(&quot;_backgroundColor&quot;, bgColor);
+      // the server will automatically save this
+   }
+   fgColor = getVal(&quot;_foregroundColor&quot;);
+   if (__error__ == &quot;ParameterName&quot;)
+   {
+      // this parameter hasn't been set yet -- create it and 
+      // store a default value
+      fgColor = &quot;hot pink 1&quot;;
+      set(&quot;_foregroundColor&quot;, fgColor);
+      // the server will automatically save this
+   }
+   // do something here with the colors...
+%&gt;
+</pre>
+</div>
+<div class="section" id="ephemeral-variables">
+<h2><a class="toc-backref" href="#id152" name="ephemeral-variables">'Ephemeral' variables</a></h2>
+<p>It may also be useful to have server variables that do not persist if the
+server is shut down. These 'ephemeral' variables are created by placing a
+single underscore at both the beginning and end of a parameter name. The
+DMF uses these for the temporary storage of values needed by rich error
+pages, for example:</p>
+<pre class="literal-block">
+&lt;%
+   firstAccess = getVal(&quot;_firstAccessTime_&quot;);
+   if (__error__ == &quot;ParameterName&quot;)
+   {
+      // this is the first access. Set the time.
+      firstAccess = getTime();
+      set(&quot;_firstAccessTime_&quot;, firstAccess);
+   }
+   write(&quot;First access to the server at &quot;);
+   write(formatTime(firstAccess, &quot;%c&quot;) + &quot;&lt;br&gt;\n&quot;);
+%&gt;
+</pre>
+<!-- (c) 2002 Art & Logic, Inc. All Rights Reserved. -->
+<!-- $Id: UserGuide.html,v 1.2 2006/01/10 23:51:52 erik Exp $ -->
+</div>
+</div>
+<div class="section" id="asp-functions-in-the-framework">
+<h1><a class="toc-backref" href="#id153" name="asp-functions-in-the-framework">ASP Functions in the Framework</a></h1>
+<div class="section" id="the-ejscript-library">
+<h2><a class="toc-backref" href="#id154" name="the-ejscript-library">The ejScript Library</a></h2>
+<p>When programming web pages using the DMF, your main interaction with the DMF
+itself is through a relatively small set of ejScript functions that expose the
+underlying functionality of the framework.</p>
+<p>Several of the functions make use of optional parameters. In the descriptions
+below, optional parameters are indicated by enclosing them in square brackets:
+<tt class="literal"><span class="pre">sampleFunction(requiredParameter</span> <span class="pre">[,</span> <span class="pre">optional</span> <span class="pre">parameter])</span></tt>. This indicates
+that the function may be called as either:</p>
+<pre class="literal-block">
+returnValue = sampleFunction(&quot;parameter&quot;);
+</pre>
+<p>or:</p>
+<pre class="literal-block">
+returnValue = sampleFunction(&quot;parameter&quot;, &quot;optionalParameter&quot;);
+</pre>
+<p>depending on the desired effect. The documentation for each function indicates
+the ways that optional parameters change the behavior of the function.</p>
+<!-- .. include:: AspRef/debugInfo.txt -->
+<!-- (c) 2002 Art & Logic, Inc. All Rights Reserved. -->
+<!-- $Id: UserGuide.html,v 1.2 2006/01/10 23:51:52 erik Exp $ -->
+<div class="section" id="formattime">
+<h3><a class="toc-backref" href="#id155" name="formattime">formatTime()</a></h3>
+<p><tt class="literal"><span class="pre">formatTime(time,</span> <span class="pre">formatString)</span></tt></p>
+<div class="section" id="arguments">
+<h4><a name="arguments">Arguments:</a></h4>
+<dl>
+<dt><tt class="literal"><span class="pre">time</span></tt></dt>
+<dd>number of seconds since the epoch (midnight, 01 Jan 1970)</dd>
+<dt><tt class="literal"><span class="pre">formatString</span></tt></dt>
+<dd><p class="first">a combination of literal text and 2-character format specifiers to
+control the output format. Available format specifiers are:</p>
+<table class="table" frame="border" rules="all">
+<colgroup>
+<col width="18%" />
+<col width="82%" />
+</colgroup>
+<tbody valign="top">
+<tr><td>Format</td>
+<td>Meaning</td>
+</tr>
+<tr><td><tt class="literal"><span class="pre">%a</span></tt></td>
+<td>Abbreviated weekday name</td>
+</tr>
+<tr><td><tt class="literal"><span class="pre">%A</span></tt></td>
+<td>Full weekday name</td>
+</tr>
+<tr><td><tt class="literal"><span class="pre">%b</span></tt></td>
+<td>Abbreviated month name</td>
+</tr>
+<tr><td><tt class="literal"><span class="pre">%B</span></tt></td>
+<td>Full month name</td>
+</tr>
+<tr><td><tt class="literal"><span class="pre">%c</span></tt></td>
+<td>Date and time representation appropriate for locale</td>
+</tr>
+<tr><td><tt class="literal"><span class="pre">%d</span></tt></td>
+<td>Day of month as decimal number (01..31)</td>
+</tr>
+<tr><td><tt class="literal"><span class="pre">%H</span></tt></td>
+<td>Hour in 24-hour format (00..23)</td>
+</tr>
+<tr><td><tt class="literal"><span class="pre">%I</span></tt></td>
+<td>Hour in 12-hour format (01..12)</td>
+</tr>
+<tr><td><tt class="literal"><span class="pre">%j</span></tt></td>
+<td>Day of year as decimal number (001..366)</td>
+</tr>
+<tr><td><tt class="literal"><span class="pre">%m</span></tt></td>
+<td>Month as decimal number (01..12)</td>
+</tr>
+<tr><td><tt class="literal"><span class="pre">%M</span></tt></td>
+<td>Minute as decimal number (00..59)</td>
+</tr>
+<tr><td><tt class="literal"><span class="pre">%p</span></tt></td>
+<td>Current locale's A.M./P.M. indicator for 12-hour clock</td>
+</tr>
+<tr><td><tt class="literal"><span class="pre">%S</span></tt></td>
+<td>Second as decimal number (00..59)</td>
+</tr>
+<tr><td><tt class="literal"><span class="pre">%U</span></tt></td>
+<td>Week of year as decimal number, with Sunday as first day of week (00..53)</td>
+</tr>
+<tr><td><tt class="literal"><span class="pre">%w</span></tt></td>
+<td>Weekday as decimal number (0..6; Sunday is 0)</td>
+</tr>
+<tr><td><tt class="literal"><span class="pre">%W</span></tt></td>
+<td>Week of year as decimal number, with Monday as first day of week (00..53)</td>
+</tr>
+<tr><td><tt class="literal"><span class="pre">%x</span></tt></td>
+<td>Date representation for current locale</td>
+</tr>
+<tr><td><tt class="literal"><span class="pre">%X</span></tt></td>
+<td>Time representation for current locale</td>
+</tr>
+<tr><td><tt class="literal"><span class="pre">%y</span></tt></td>
+<td>Year without century, as decimal number (00..99)</td>
+</tr>
+<tr><td><tt class="literal"><span class="pre">%Y</span></tt></td>
+<td>Year with century, as decimal number</td>
+</tr>
+<tr><td><tt class="literal"><span class="pre">%z</span></tt>, <tt class="literal"><span class="pre">%Z</span></tt></td>
+<td>Time-zone name or abbreviation; no characters if time zone is unknown</td>
+</tr>
+<tr><td><tt class="literal"><span class="pre">%%</span></tt></td>
+<td>Percent sign</td>
+</tr>
+</tbody>
+</table>
+<p>As in the printf function, the # flag may prefix any formatting code.
+In that case, the meaning of the format code is changed as follows:</p>
+<dl>
+<dt>%#a, %#A, %#b, %#B, %#p, %#X, %#z, %#Z, %#%:  </dt>
+<dd>flag is ignored.</dd>
+<dt>%#c: </dt>
+<dd>Long date and time representation, appropriate for current locale. For example: 
+Tuesday, March 14, 1995, 12:41:29.</dd>
+<dt>%#x: </dt>
+<dd>Long date representation, appropriate to current locale. For example: Tuesday, March 14, 1995.</dd>
+</dl>
+<p class="last">%#d, %#H, %#I, %#j, %#m, %#M, %#S, %#U, %#w, %#W, %#y, %#Y</p>
+</dd>
+</dl>
+</div>
+<div class="section" id="purpose">
+<h4><a name="purpose">Purpose:</a></h4>
+<p>Provides flexible date/time output formatting.</p>
+</div>
+<div class="section" id="notes">
+<h4><a name="notes">Notes:</a></h4>
+<p>This function is implemented internally using the version of the C runtime
+library function <tt class="literal"><span class="pre">strftime()</span></tt>.  Consult the documentation of <tt class="literal"><span class="pre">strftime()</span></tt>
+on your platform to confirm the format specifiers listed above.</p>
+</div>
+<div class="section" id="example">
+<h4><a name="example">Example:</a></h4>
+<pre class="literal-block">
+&lt;%
+   // retrieve the local time in seconds since the epoch
+   now = getTime();
+   // convert the time to a string with today's date:
+   dateStr = formatTime(now, &quot;Today is %B %d, %Y &lt;br&gt;&quot;);
+   write(dateStr);
+
+   // convert the time value to the current time.
+   timeStr = formatTime(now, &quot;...and the current time is %I:%M:%S %p &lt;br&gt;&quot;);
+   write(timeStr);
+%&gt;
+</pre>
+</div>
+<div class="section" id="see-also">
+<h4><a name="see-also">See also:</a></h4>
+<p><a class="reference" href="#gettime">getTime()</a></p>
+<!-- (c) 2002 Art & Logic, Inc. All Rights Reserved. -->
+<!-- $Id: UserGuide.html,v 1.2 2006/01/10 23:51:52 erik Exp $ -->
+</div>
+</div>
+<div class="section" id="get">
+<h3><a class="toc-backref" href="#id156" name="get">get()</a></h3>
+<p><tt class="literal"><span class="pre">get(parameter[,</span> <span class="pre">index])</span></tt></p>
+<div class="section" id="id1">
+<h4><a name="id1">Arguments:</a></h4>
+<dl>
+<dt>parameter:</dt>
+<dd>the name of the parameter to retrieve from the device</dd>
+<dt>index: </dt>
+<dd>(optional) the desired index value</dd>
+</dl>
+</div>
+<div class="section" id="id2">
+<h4><a name="id2">Purpose:</a></h4>
+<p>Writes the value of the specified parameter directly to the user's
+browser. This function is the equivalent of 
+<tt class="literal"><span class="pre">&lt;%</span> <span class="pre">write(getVal(&quot;parameter&quot;));</span> <span class="pre">%&gt;</span></tt></p>
+</div>
+<div class="section" id="id3">
+<h4><a name="id3">Notes:</a></h4>
+<p>In the event of an error, the error message will be written to the user's
+browser in place of the parameter.  Common errors are likely to be:</p>
+<ul class="simple">
+<li>ParameterName</li>
+<li>IndexMissing</li>
+<li>NotIndexed</li>
+<li>IndexRange</li>
+</ul>
+<p>To prevent the display of error messages it may be preferable to use the
+<tt class="literal"><span class="pre">getVal()</span></tt> version of this function and test for error conditions before
+displaying a parameter's value.</p>
+</div>
+<div class="section" id="id4">
+<h4><a name="id4">Example:</a></h4>
+<pre class="literal-block">
+&lt;h1&gt;Simple get() example&lt;/h1&gt; 
+&lt;p&gt;The value of system.time is: &lt;%get(&quot;system.time&quot;);%&gt; &lt;/p&gt;
+</pre>
+</div>
+<div class="section" id="id5">
+<h4><a name="id5">See also:</a></h4>
+<p>getVal()_, set()_</p>
+<!-- (c) 2002 Art & Logic, Inc. All Rights Reserved. -->
+<!-- $Id: UserGuide.html,v 1.2 2006/01/10 23:51:52 erik Exp $ -->
+</div>
+</div>
+<div class="section" id="geterror">
+<h3><a class="toc-backref" href="#id157" name="geterror">getError()</a></h3>
+<p><tt class="literal"><span class="pre">getError()</span></tt></p>
+<div class="section" id="id6">
+<h4><a name="id6">Arguments:</a></h4>
+<p>(none)</p>
+</div>
+<div class="section" id="id7">
+<h4><a name="id7">Purpose:</a></h4>
+<p>Returns the error code resulting from the last framework function as an integer value.</p>
+</div>
+<div class="section" id="id8">
+<h4><a name="id8">Notes:</a></h4>
+</div>
+<div class="section" id="id9">
+<h4><a name="id9">Example:</a></h4>
+<pre class="literal-block">
+&lt;%
+   val = getVal(&quot;my.parameter.name&quot;);
+   if (0 == getError())
+   {
+      // 0 is the success code
+      write(&quot;my.parameter.name = &quot; + val + &quot;&lt;br&gt;\n&quot;);
+   }
+   else
+   {
+      write(&quot;Error code &quot; + val + &quot; getting my.parameter.name&lt;br&gt;\n&quot;);
+   }
+%&gt;
+</pre>
+</div>
+<div class="section" id="id10">
+<h4><a name="id10">See also:</a></h4>
+<p><a class="reference" href="#error-code-reference">Error Code Reference</a></p>
+<!-- (c) 2002 Art & Logic, Inc. All Rights Reserved. -->
+<!-- $Id: UserGuide.html,v 1.2 2006/01/10 23:51:52 erik Exp $ -->
+</div>
+</div>
+<div class="section" id="geterrorcount">
+<h3><a class="toc-backref" href="#id158" name="geterrorcount">getErrorCount()</a></h3>
+<p><tt class="literal"><span class="pre">getErrorCount()</span></tt></p>
+<div class="section" id="id11">
+<h4><a name="id11">Arguments:</a></h4>
+<p>(none)</p>
+</div>
+<div class="section" id="id12">
+<h4><a name="id12">Purpose:</a></h4>
+<p>Returns the number of errors resulting from the most recent form submission.</p>
+</div>
+<div class="section" id="id13">
+<h4><a name="id13">Notes:</a></h4>
+<p>Until per-session error tracking is implemented, there is one list of
+errors system-wide. There is a possibility that multiple users submitting
+forms at the same time will receive the wrong errors. This is known,
+and a fix is planned.</p>
+<p>Typically used to control a for() loop that retrieves and displays
+all pending error messages.</p>
+</div>
+<div class="section" id="id14">
+<h4><a name="id14">Example:</a></h4>
+<pre class="literal-block">
+&lt;p&gt; There are &lt;% write(getErrorCount()); %&gt; errors. &lt;/p&gt;
+</pre>
+</div>
+<div class="section" id="id15">
+<h4><a name="id15">See also:</a></h4>
+<p><a class="reference" href="#geterrormessage">getErrorMessage()</a></p>
+<!-- (c) 2002 Art & Logic, Inc. All Rights Reserved. -->
+<!-- $Id: UserGuide.html,v 1.2 2006/01/10 23:51:52 erik Exp $ -->
+</div>
+</div>
+<div class="section" id="geterrormessage">
+<h3><a class="toc-backref" href="#id159" name="geterrormessage">getErrorMessage()</a></h3>
+<p><tt class="literal"><span class="pre">getErrorMessage(index</span> <span class="pre">[,</span> <span class="pre">unFormatted])</span></tt></p>
+<div class="section" id="id16">
+<h4><a name="id16">Arguments:</a></h4>
+<dl>
+<dt>index: </dt>
+<dd>zero-based index into list of pending error messages.</dd>
+<dt>unFormatted: </dt>
+<dd>[optional] if this parameter is &quot;1&quot;, returns the error message in its internal raw format.</dd>
+</dl>
+</div>
+<div class="section" id="id17">
+<h4><a name="id17">Purpose:</a></h4>
+<p>Retrieves a single error message for display to the user.</p>
+</div>
+<div class="section" id="id18">
+<h4><a name="id18">Notes:</a></h4>
+<!-- The debugInfo() function will display the full list of error codes and the
+message formats used to report each one.  -->
+<p>To use different error message formatting,
+you may request unformatted error messages from this function. An
+unformatted error message is packaged as a set of key/value pairs,
+similar to the encoding used in an URL query string.</p>
+<p>The format that is used is:
+<tt class="literal"><span class="pre">&quot;code=%d&amp;error=%s&amp;parm1=%s&amp;parm2=%s&amp;parm3=%s&quot;</span></tt></p>
+<dl>
+<dt>where:</dt>
+<dd><p class="first">code = integer error code</p>
+<p>error = string representation of error code (as returned by the __error__ variable)</p>
+<p class="last">parm1, parm2, parm3 = parameters of the error. Not all error types use these error parameters.</p>
+</dd>
+</dl>
+</div>
+<div class="section" id="id19">
+<h4><a name="id19">Example:</a></h4>
+<pre class="literal-block">
+&lt;%
+   var index;
+   // alternatively, we could get the number of errors and use that
+   // to control the loop...
+   for (index = 0; __success__; index++)
+   {
+      message = getErrorMessage(index);
+      if (__success__)
+      {
+         write(&quot;Error #&quot; + (index + 1) + &quot;: &quot; + message + &quot;&lt;br&gt;&quot;);
+      }
+      else
+      {
+         // an __error__ of &quot;IndexRange&quot; is expected when we have run out
+         // of errors to report. Anything else is a real error that should
+         // be handled.
+         if (__error__ != &quot;IndexRange&quot;)
+         {
+            write (__error__ + &quot; error while retrieving error #&quot; + \
+             (index + 1));
+         }
+      }
+   }
+%&gt;
+</pre>
+</div>
+<div class="section" id="id20">
+<h4><a name="id20">See also:</a></h4>
+<p><a class="reference" href="#geterrorcount">getErrorCount()</a></p>
+<!-- (c) 2002 Art & Logic, Inc. All Rights Reserved. -->
+<!-- $Id: UserGuide.html,v 1.2 2006/01/10 23:51:52 erik Exp $ -->
+</div>
+</div>
+<div class="section" id="getnextgroup">
+<h3><a class="toc-backref" href="#id160" name="getnextgroup">getNextGroup()</a></h3>
+<p>getNextGroup``([groupName])``</p>
+<div class="section" id="id21">
+<h4><a name="id21">Arguments:</a></h4>
+<dl>
+<dt>groupName:</dt>
+<dd>(optional) If present, indicates the name of the last group returned by
+this function. If not present, the function will return the name of the
+first group in the group database.</dd>
+</dl>
+</div>
+<div class="section" id="id22">
+<h4><a name="id22">Purpose:</a></h4>
+<p>Used to iterate through the group database. Group names returned from this
+function may be used as parameters to the <tt class="literal"><span class="pre">getGroupDetail()</span></tt> ejScript
+function to retrieve detailed information about each access group on the
+device.</p>
+</div>
+<div class="section" id="id23">
+<h4><a name="id23">Notes:</a></h4>
+<p>This function uses a similar design to that used in the <tt class="literal"><span class="pre">getNextUser()</span></tt>
+function -- to retrieve the first group name, call this function without using
+a parameter. On subsequent calls, use the last group name returned by the
+function to obtain the next group name.</p>
+<p>When there are no more group names in the database, the value of the
+<tt class="literal"><span class="pre">__error__</span></tt> variable will be &quot;IndexRange&quot;, and the function will return
+an empty string.</p>
+<p>If the function is called using a parameter that is not a valid group
+name in the system, the value of <tt class="literal"><span class="pre">__error__</span></tt> will be &quot;UserGroup&quot;.</p>
+</div>
+<div class="section" id="id24">
+<h4><a name="id24">Example:</a></h4>
+<pre class="literal-block">
+&lt;%
+   for (group = getNextGroup(); __success__; group = getNextGroup(group))
+   {
+      write(&quot;Found group &quot; + group + &quot;!&lt;br/&gt;\n&quot;);
+   }
+%&gt;
+</pre>
+</div>
+<div class="section" id="id25">
+<h4><a name="id25">See also:</a></h4>
+<p><a class="reference" href="#getgroupdetail">getGroupDetail()</a></p>
+<!-- (c) 2002 Art & Logic, Inc. All Rights Reserved. -->
+<!-- $Id: UserGuide.html,v 1.2 2006/01/10 23:51:52 erik Exp $ -->
+</div>
+</div>
+<div class="section" id="getgroupdetail">
+<h3><a class="toc-backref" href="#id161" name="getgroupdetail">getGroupDetail()</a></h3>
+<p><tt class="literal"><span class="pre">getGroupDetail(groupName,</span> <span class="pre">field)</span></tt></p>
+<div class="section" id="id26">
+<h4><a name="id26">Arguments:</a></h4>
+<dl>
+<dt>groupName:</dt>
+<dd>Name of an access control group in the access database</dd>
+<dt>field:</dt>
+<dd><p class="first">Detail field to retrieve. Available fields are:
+accessMethod:</p>
+<blockquote>
+<ul class="simple">
+<li><tt class="literal"><span class="pre">NONE</span></tt> = This group may not access any resources on this server</li>
+<li><tt class="literal"><span class="pre">FULL</span></tt> = This group may access any resource on this server</li>
+<li><tt class="literal"><span class="pre">BASIC</span></tt> = Indicates that members of this group must authenticate using HTTP Basic authentication</li>
+<li><tt class="literal"><span class="pre">DIGEST</span></tt> = Indicates that members of this group must authenticate using HTTP Digest authentication</li>
+</ul>
+</blockquote>
+<dl class="last">
+<dt>enabled:</dt>
+<dd>set to <tt class="literal"><span class="pre">1</span></tt> if this group is enabled, <tt class="literal"><span class="pre">0</span></tt> if the group is disabled.
+Disabled groups may not access any resources on this server.</dd>
+<dt>privilege:</dt>
+<dd>GAWS programming documentation indicates that there are four levels of
+group priviliege (NONE, READ, WRITE and ADMIN) but examining the source
+shows that the only distinction actually implemented is between NONE and
+anything else. Groups with a privilege set to NONE may not access any
+resources on this server.</dd>
+<dt>exists:</dt>
+<dd>Returns <tt class="literal"><span class="pre">1</span></tt> if the specified group is present in the access control
+database, <tt class="literal"><span class="pre">0</span></tt> if it is not.</dd>
+<dt>accessLevel:</dt>
+<dd>Returns the integer access code (0..255) associated with this group.
+When the DMF is compiled with Hierarchical Access control enabled,
+resources may be protected such that they are assigned a minimum access
+level sufficient to retrieve the resource. Any user belonging to a group
+with that access level or higher will be granted access.</dd>
+</dl>
+</dd>
+</dl>
+</div>
+<div class="section" id="id27">
+<h4><a name="id27">Purpose:</a></h4>
+<p>Retrieves detailed information for an access control group.</p>
+</div>
+<div class="section" id="id28">
+<h4><a name="id28">Notes:</a></h4>
+<p>Should be used in combination with the <tt class="literal"><span class="pre">getNextUser()</span></tt> function.</p>
+</div>
+<div class="section" id="id29">
+<h4><a name="id29">Example:</a></h4>
+<pre class="literal-block">
+&lt;%
+   write(&quot;&lt;pre&gt;\n&quot;);
+   for (group = getNextGroup(); __success__; group = getNextGroup(group))
+   {
+      write(&quot;Group: &quot; + group + &quot;\n&quot;);
+      method = getGroupDetail(group, &quot;accessMethod&quot;);
+      enabled = getGroupDetail(group, &quot;enabled&quot;);
+      privilege = getGroupDetail(group, &quot;privilege&quot;);
+      level = getGroupDetail(group, &quot;accessLevel&quot;);
+      write(&quot;     Access method: &quot; + method + &quot;\n&quot;);
+      write(&quot;     Enabled: &quot; + enabled + &quot;\n&quot;);
+      write(&quot;     Privilege: &quot; + privilege + &quot;\n&quot;);
+      write(&quot;     Access Level: &quot; + level + &quot;\n\n&quot;);       
+   }
+%&gt;
+</pre>
+</div>
+<div class="section" id="id30">
+<h4><a name="id30">See also:</a></h4>
+<p><a class="reference" href="#getnextgroup">getNextGroup()</a></p>
+<!-- (c) 2002 Art & Logic, Inc. All Rights Reserved. -->
+<!-- $Id: UserGuide.html,v 1.2 2006/01/10 23:51:52 erik Exp $ -->
+</div>
+</div>
+<div class="section" id="getlabel">
+<h3><a class="toc-backref" href="#id162" name="getlabel">getLabel()</a></h3>
+<p><tt class="literal"><span class="pre">getLabel(key</span> <span class="pre">[,</span> <span class="pre">default])</span></tt></p>
+<div class="section" id="id31">
+<h4><a name="id31">Arguments:</a></h4>
+<dl>
+<dt>key</dt>
+<dd>string identifying a key in the localization database.</dd>
+<dt>default</dt>
+<dd>(optional) string to display when the <tt class="literal"><span class="pre">key</span></tt> is not found in the language
+database.</dd>
+</dl>
+</div>
+<div class="section" id="id32">
+<h4><a name="id32">Purpose:</a></h4>
+<p>The DMF includes mechanisms for simple on-the-fly text localization. At run
+time, EjScript code may call the <tt class="literal"><span class="pre">getLabel()</span></tt> function to retrieve the
+translated value associated with a given key string in the currently selected
+language.</p>
+</div>
+<div class="section" id="id33">
+<h4><a name="id33">Notes:</a></h4>
+<p>The <tt class="literal"><span class="pre">getLabel()</span></tt> function writes the resulting value directly into the
+user's browser. To capture the result into an ejScript variable and check for
+errors before writing the string to the browser, use the <tt class="literal"><span class="pre">getLabelVal()</span></tt>
+function instead.</p>
+</div>
+<div class="section" id="id34">
+<h4><a name="id34">Example:</a></h4>
+<pre class="literal-block">
+&lt;html&gt;
+&lt;head&gt;
+&lt;%language=javascript%&gt;
+&lt;title&gt;&lt;%getLabel(&quot;myTitle&quot;);%&gt;&lt;/title&gt;
+&lt;/head&gt;
+
+&lt;h1&gt;&lt;%getLabel(&quot;myHeadline&quot;);%&gt;&lt;/h1&gt;
+&lt;p&gt;&lt;%getLabel(&quot;nonexistentKey&quot;, &quot;Default Key!&quot;);%&gt;&lt;/p&gt;
+</pre>
+<p>which would emit HTML (assuming that the current language is English) like:</p>
+<pre class="literal-block">
+&lt;html&gt;
+&lt;head&gt;
+&lt;%language=javascript%&gt;
+&lt;title&gt;The Device Management Framework&lt;/title&gt;
+&lt;/head&gt;
+
+&lt;h1&gt;Part 1: Localization&lt;/h1&gt;
+&lt;p&gt;Default Key!&lt;/p&gt;
+</pre>
+</div>
+<div class="section" id="id35">
+<h4><a name="id35">See also:</a></h4>
+<p><a class="reference" href="#getlabelval">getLabelVal()</a>,</p>
+<p><a class="reference" href="#getlanguage">getLanguage()</a></p>
+<!-- (c) 2002 Art & Logic, Inc. All Rights Reserved. -->
+<!-- $Id: UserGuide.html,v 1.2 2006/01/10 23:51:52 erik Exp $ -->
+</div>
+</div>
+<div class="section" id="getlabelval">
+<h3><a class="toc-backref" href="#id163" name="getlabelval">getLabelVal()</a></h3>
+<p><tt class="literal"><span class="pre">getLabelVal(key</span> <span class="pre">[,</span> <span class="pre">default])</span></tt></p>
+<div class="section" id="id36">
+<h4><a name="id36">Arguments:</a></h4>
+<dl>
+<dt>key</dt>
+<dd>string identifying a key in the localization database.</dd>
+<dt>default</dt>
+<dd>(optional) string to display when the <tt class="literal"><span class="pre">key</span></tt> is not found in the language
+database.</dd>
+</dl>
+</div>
+<div class="section" id="id37">
+<h4><a name="id37">Purpose:</a></h4>
+<p>The DMF includes mechanisms for simple on-the-fly text localization. At run
+time, EjScript code may call the <tt class="literal"><span class="pre">getLabelVal()</span></tt> function to retrieve the
+translated value associated with a given key string in the currently selected
+language.</p>
+</div>
+<div class="section" id="id38">
+<h4><a name="id38">Notes:</a></h4>
+<p>The <tt class="literal"><span class="pre">getLabelVal()</span></tt> function retrieves the translated value associated with
+the requested key in the language database (or default replacement text is
+provided, and no match for the requested key is found in the language
+database) into an ejScript variable, and sets the value of <tt class="literal"><span class="pre">__error__</span></tt>. If
+the key was not found, <tt class="literal"><span class="pre">__error__</span></tt> will be set to &quot;ParameterName&quot;.</p>
+</div>
+<div class="section" id="id39">
+<h4><a name="id39">Example:</a></h4>
+<pre class="literal-block">
+&lt;html&gt;
+&lt;head&gt;
+&lt;%language=javascript%&gt;
+&lt;title&gt;&lt;% write(getLabelVal(&quot;myTitle&quot;));%&gt;&lt;/title&gt;
+&lt;/head&gt;
+
+&lt;h1&gt;&lt;% write(getLabelVal(&quot;myHeadline&quot;));%&gt;&lt;/h1&gt;
+&lt;p&gt;&lt;% write(getLabelVal(&quot;nonexistentKey&quot;, &quot;Default Key!&quot;));%&gt;&lt;/p&gt;
+</pre>
+<p>which would emit HTML (assuming that the current language is English) like:</p>
+<pre class="literal-block">
+&lt;html&gt;
+&lt;head&gt;
+&lt;%language=javascript%&gt;
+&lt;title&gt;The Device Management Framework&lt;/title&gt;
+&lt;/head&gt;
+
+&lt;h1&gt;Part 1: Localization&lt;/h1&gt;
+&lt;p&gt;Default Key!&lt;/p&gt;
+</pre>
+</div>
+<div class="section" id="id40">
+<h4><a name="id40">See also:</a></h4>
+<p><a class="reference" href="#getlabel">getLabel()</a>,</p>
+<p><a class="reference" href="#getlanguage">getLanguage()</a></p>
+<!-- (c) 2002 Art & Logic, Inc. All Rights Reserved. -->
+<!-- $Id: UserGuide.html,v 1.2 2006/01/10 23:51:52 erik Exp $ -->
+</div>
+</div>
+<div class="section" id="getlanguage">
+<h3><a class="toc-backref" href="#id164" name="getlanguage">getLanguage()</a></h3>
+<p><tt class="literal"><span class="pre">getLanguage([defaultLanguage</span> <span class="pre">[,</span> <span class="pre">suffix]])</span></tt></p>
+<div class="section" id="id41">
+<h4><a name="id41">Arguments:</a></h4>
+<dl>
+<dt>defaultLanguage</dt>
+<dd>(optional) If present, indicates the value of the default language.</dd>
+<dt>suffix</dt>
+<dd>(optional) If present, a suffix string to append to the language code
+before returning it.</dd>
+</dl>
+</div>
+<div class="section" id="id42">
+<h4><a name="id42">Purpose:</a></h4>
+<p>Returns the two letter code (as outlined in ISO 639 
+<a class="reference" href="http://ftp.ics.uci.edu/pub/ietf/http/related/iso639.txt">http://ftp.ics.uci.edu/pub/ietf/http/related/iso639.txt</a>) 
+of the currently selected language.</p>
+<p>If a value is provided for the <tt class="literal"><span class="pre">defaultLanguage</span></tt> parameter and the currently
+selected language is the same as the default language, the function will
+return an empty string.</p>
+<p>If a value is provided for the <tt class="literal"><span class="pre">suffix</span></tt> parameter, and the current language
+is not the default language, the function will append the provided suffix
+before returning the language code.</p>
+<p>This function is useful for referring to resources in language-specific
+directories or with language-specific names.</p>
+</div>
+<div class="section" id="id43">
+<h4><a name="id43">Notes:</a></h4>
+</div>
+<div class="section" id="id44">
+<h4><a name="id44">Example:</a></h4>
+<p>Assume that an interface has been built using GIF files to display
+text -- perhaps for nice-looking navigation links. For this example,
+all language-specific resources are kept in directories named for each
+supported language code directly under the web root directory like:</p>
+<ul class="simple">
+<li><tt class="literal"><span class="pre">/en</span></tt></li>
+<li><tt class="literal"><span class="pre">/es</span></tt></li>
+<li><tt class="literal"><span class="pre">/fr</span></tt></li>
+</ul>
+<pre class="literal-block">
+&lt;a href=&quot;page1.asp&quot;&gt;&lt;img src=&quot;/&lt;%write(getLanguage());%&gt;/image1.gif&quot;&gt;&lt;/a&gt;
+&lt;a href=&quot;page2.asp&quot;&gt;&lt;img src=&quot;/&lt;%write(getLanguage());%&gt;/image2.gif&quot;&gt;&lt;/a&gt;
+&lt;a href=&quot;page3.asp&quot;&gt;&lt;img src=&quot;/&lt;%write(getLanguage());%&gt;/image3.gif&quot;&gt;&lt;/a&gt;
+</pre>
+<p>...which would emit HTML like:</p>
+<pre class="literal-block">
+&lt;a href=&quot;page1.asp&quot;&gt;&lt;img src=&quot;/en/image1.gif&quot;&gt;&lt;/a&gt;
+&lt;a href=&quot;page2.asp&quot;&gt;&lt;img src=&quot;/en/image2.gif&quot;&gt;&lt;/a&gt;
+&lt;a href=&quot;page3.asp&quot;&gt;&lt;img src=&quot;/en/image3.gif&quot;&gt;&lt;/a&gt;
+</pre>
+<p>...when the current langauge is English.</p>
+</div>
+<div class="section" id="id45">
+<h4><a name="id45">See also:</a></h4>
+<p><a class="reference" href="#getlabel">getLabel()</a>,</p>
+<p><a class="reference" href="#getlabelval">getLabelVal()</a></p>
+<!-- (c) 2002 Art & Logic, Inc. All Rights Reserved. -->
+<!-- $Id: UserGuide.html,v 1.2 2006/01/10 23:51:52 erik Exp $ -->
+</div>
+</div>
+<div class="section" id="getnextuser">
+<h3><a class="toc-backref" href="#id165" name="getnextuser">getNextUser()</a></h3>
+<p><tt class="literal"><span class="pre">getNextUser([name])</span></tt></p>
+<div class="section" id="id46">
+<h4><a name="id46">Arguments:</a></h4>
+<dl>
+<dt><tt class="literal"><span class="pre">name</span></tt> </dt>
+<dd>(optional) the last name retrieved using this function. Pass an empty string
+in the first time the function is called to retrieve the first
+user name in the database of users.</dd>
+</dl>
+</div>
+<div class="section" id="id47">
+<h4><a name="id47">Purpose:</a></h4>
+<p>Retrieves the next user name from the database. Returns an empty
+string and sets <tt class="literal"><span class="pre">__error__</span></tt> to &quot;IndexRange&quot; when the last name has been retrieved.</p>
+</div>
+<div class="section" id="id48">
+<h4><a name="id48">Notes:</a></h4>
+</div>
+<div class="section" id="id49">
+<h4><a name="id49">Example:</a></h4>
+<pre class="literal-block">
+&lt;%
+   name = getNextUser(&quot;&quot;); 
+   var i; 
+   for(i = 1;name != &quot;&quot;; i++) 
+   {
+      write(&quot;User #&quot; + i + &quot;: &quot; + name + &quot;&lt;br&gt;&quot;); 
+      name = getNextUser(name);
+   }
+%&gt;
+</pre>
+</div>
+<div class="section" id="id50">
+<h4><a name="id50">See also:</a></h4>
+<p><a class="reference" href="#getuserdetail">getUserDetail()</a></p>
+<!-- (c) 2002 Art & Logic, Inc. All Rights Reserved. -->
+<!-- $Id: UserGuide.html,v 1.2 2006/01/10 23:51:52 erik Exp $ -->
+</div>
+</div>
+<div class="section" id="getqueryval">
+<h3><a class="toc-backref" href="#id166" name="getqueryval">getQueryVal()</a></h3>
+<p><tt class="literal"><span class="pre">getQueryVal(name,</span> <span class="pre">defaultValue)</span></tt>;</p>
+<div class="section" id="id51">
+<h4><a name="id51">Arguments:</a></h4>
+<dl>
+<dt>name</dt>
+<dd>the name of the query value that we want to retrieve</dd>
+<dt>defaultValue </dt>
+<dd>value to be returned if the requested query value is not present</dd>
+</dl>
+</div>
+<div class="section" id="id52">
+<h4><a name="id52">Purpose:</a></h4>
+<p>Allows web programmers to access query strings passed to the server when requesting an URL. 
+Notes:</p>
+</div>
+<div class="section" id="id53">
+<h4><a name="id53">Example:</a></h4>
+<pre class="literal-block">
+&lt;%
+   // for this example, we'll write code that displays 5 indexed items
+   // at a time, and provides links to the previous 5 and next five
+   // items (if appropriate)
+   count = 5;
+   start = getQueryVal(&quot;start&quot;, &quot;0&quot;);
+   end = start + count;
+
+   for (i = start; i &lt; end &amp;&amp; __success__ ; i++)
+   {
+      nextItem = getVal(&quot;parameter.name.here&quot;, i);
+      if (__success__)
+      {
+         write(&quot;Item #&quot; + (i + 1) + &quot;: &quot; + nextItem + &quot;&lt;br&gt;&quot;);
+      }
+   }
+   // if we're already past the first set of items, we can provide a
+   // 'previous' link. For both of the links below, we'll assume that
+   // the url of this page is '/thispage.asp'
+   if (start &gt;= count)
+   {
+      write(&quot;&lt;a href=\&quot;/thispage.asp?start=&quot; + (start - count) + &quot;\&quot;&gt;&quot;);
+      write(&quot;Previous &quot; + count + &quot; items&lt;br&gt;&quot;);
+      write(&quot;&lt;/a&gt;\n&quot;); 
+   }
+   getVal(&quot;parameter.name.here&quot;, end + 1);
+   // if the value of __error__ isn't 'IndexRange', we haven't run out
+   // of items to display yet. If it's &quot;Success&quot;, we can put up
+   // a link to the next set of items.
+   if (__error__ == &quot;Success&quot;)
+   {
+      write(&quot;&lt;a href=\&quot;thispage.asp?start=&quot; + (end + 1) + &quot;\&quot;&gt;&quot;);
+      write(&quot;Next &quot; + count + &quot; items&lt;br&gt;&quot;);
+      write(&quot;&lt;/a&gt;\n&quot;); 
+   }
+%&gt;
+</pre>
+</div>
+<div class="section" id="id54">
+<h4><a name="id54">See also:</a></h4>
+<p>(none)</p>
+<!-- (c) 2002 Art & Logic, Inc. All Rights Reserved. -->
+<!-- $Id: UserGuide.html,v 1.2 2006/01/10 23:51:52 erik Exp $ -->
+</div>
+</div>
+<div class="section" id="getrequestnumber">
+<h3><a class="toc-backref" href="#id167" name="getrequestnumber">getRequestNumber()</a></h3>
+<p><tt class="literal"><span class="pre">getRequestNumber()</span></tt></p>
+<div class="section" id="id55">
+<h4><a name="id55">Arguments:</a></h4>
+<p>(none)</p>
+</div>
+<div class="section" id="id56">
+<h4><a name="id56">Purpose:</a></h4>
+<p>Returns the integer request number of the most recent page request. This is
+used to detect 'collisions' when multiple users submit the same form at
+approximately the same time.</p>
+</div>
+<div class="section" id="id57">
+<h4><a name="id57">Notes:</a></h4>
+<p>The request number should be written into a hidden form control named
+'request'. If present on a form, the DMF will automatically use the request
+number to protect against user collisions.</p>
+</div>
+<div class="section" id="id58">
+<h4><a name="id58">Example:</a></h4>
+<pre class="literal-block">
+&lt;form METHOD=&quot;POST&quot; ACTION=&quot;/goform/Dmf&quot;&gt;
+
+char val = &lt;input size=&quot;5&quot; name=&quot;test.struct.char&quot; 
+ value=&lt;% get(&quot;test.struct.char&quot;); %&gt;&gt;&lt;br/&gt;
+short val = &lt;input size=&quot;5&quot; name=&quot;test.struct.short&quot; 
+ value=&lt;% get(&quot;test.struct.short&quot;); %&gt;&gt;&lt;br/&gt;
+long val = &lt;input size=&quot;5&quot; name=&quot;test.struct.long&quot; 
+ value=&lt;% get(&quot;test.struct.long&quot;); %&gt;&gt;&lt;br/&gt;
+
+
+&lt;input type=&quot;hidden&quot; name=&quot;request&quot; value=&lt;%write(getRequestNumber());%&gt;&gt;
+&lt;input type=hidden name=&quot;urlOk&quot; value=&quot;test1.asp&quot;&gt;
+&lt;input type=hidden name=&quot;urlError&quot; value=&quot;test2.asp&quot;&gt;
+&lt;input type=&quot;submit&quot; name=&quot;Submit&quot; value=&quot;ok&quot;&gt;
+&lt;/form&gt;
+</pre>
+</div>
+<div class="section" id="id59">
+<h4><a name="id59">See also:</a></h4>
+<p>(none)</p>
+<!-- (c) 2002 Art & Logic, Inc. All Rights Reserved. -->
+<!-- $Id: UserGuide.html,v 1.2 2006/01/10 23:51:52 erik Exp $ -->
+</div>
+</div>
+<div class="section" id="gettime">
+<h3><a class="toc-backref" href="#id168" name="gettime">getTime()</a></h3>
+<p><tt class="literal"><span class="pre">getTime([reference])</span></tt>;</p>
+<div class="section" id="id60">
+<h4><a name="id60">Arguments:</a></h4>
+<dl>
+<dt>reference: </dt>
+<dd>(optional) if set to 'UTC' or 'GMT' will return current GMT; otherwise returns local time.</dd>
+</dl>
+</div>
+<div class="section" id="id61">
+<h4><a name="id61">Purpose:</a></h4>
+<p>Returns number of seconds since the epoch (Midnight, 01 Jan 1970).</p>
+</div>
+<div class="section" id="id62">
+<h4><a name="id62">Notes:</a></h4>
+</div>
+<div class="section" id="id63">
+<h4><a name="id63">Example:</a></h4>
+<pre class="literal-block">
+&lt;%
+   // retrieve the local time in seconds since the epoch
+   now = getTime();
+   // convert the time to a string with today's date:
+   dateStr = formatTime(now, &quot;Today is %B %d, %Y &lt;br&gt;&quot;);
+   write(dateStr);
+
+   // convert the time value to the current time.
+   timeStr = formatTime(now, &quot;...and the current time is %I:%M:%S %p &lt;br&gt;&quot;);
+   write(timeStr);
+%&gt;
+</pre>
+</div>
+<div class="section" id="id64">
+<h4><a name="id64">See also:</a></h4>
+<p><a class="reference" href="#formattime">formatTime()</a></p>
+<!-- (c) 2002 Art & Logic, Inc. All Rights Reserved. -->
+<!-- $Id: UserGuide.html,v 1.2 2006/01/10 23:51:52 erik Exp $ -->
+</div>
+</div>
+<div class="section" id="getuserdetail">
+<h3><a class="toc-backref" href="#id169" name="getuserdetail">getUserDetail()</a></h3>
+<p><tt class="literal"><span class="pre">getUserDetail(name,</span> <span class="pre">field)</span></tt></p>
+<div class="section" id="id65">
+<h4><a name="id65">Arguments:</a></h4>
+<dl>
+<dt>name: </dt>
+<dd>User name to query</dd>
+<dt>field: </dt>
+<dd><p class="first">detail field to return. 
+The four 'detail' parameters that are supported are:</p>
+<ul class="last simple">
+<li>&quot;password&quot;</li>
+<li>&quot;group&quot;</li>
+<li>&quot;enabled&quot;</li>
+<li>&quot;exists&quot;</li>
+</ul>
+</dd>
+</dl>
+</div>
+<div class="section" id="id66">
+<h4><a name="id66">Purpose:</a></h4>
+<p>Returns information about a user's account on the server.</p>
+</div>
+<div class="section" id="id67">
+<h4><a name="id67">Notes:</a></h4>
+</div>
+<div class="section" id="id68">
+<h4><a name="id68">Example:</a></h4>
+<pre class="literal-block">
+&lt;%
+   for (name = getNextUser(); name != &quot;&quot;; name = getNextUser(name))
+   {
+      // You probably wouldn't want to display passwords in the clear like
+      // this on a real application...
+      pw = getUserDetail(name, &quot;password&quot;);
+      group = getUserDetail(name, &quot;group&quot;);
+      enabled = getUserDetail(name, &quot;enabled&quot;);
+      write(name + &quot; password = &quot; + pw + &quot; group = &quot; + group);
+      if (!enabled)
+      {
+         write(&quot; (disabled)&quot;);
+      }
+      write(&quot;&lt;br&gt;\n&quot;);
+   }
+%&gt;
+</pre>
+</div>
+<div class="section" id="id69">
+<h4><a name="id69">See also:</a></h4>
+<p><a class="reference" href="#getnextuser">getNextUser()</a></p>
+<!-- (c) 2002 Art & Logic, Inc. All Rights Reserved. -->
+<!-- $Id: UserGuide.html,v 1.2 2006/01/10 23:51:52 erik Exp $ -->
+</div>
+</div>
+<div class="section" id="getval">
+<h3><a class="toc-backref" href="#id170" name="getval">getVal()</a></h3>
+<p><tt class="literal"><span class="pre">getVal(parameter</span> <span class="pre">[,</span> <span class="pre">index])</span></tt></p>
+<div class="section" id="id70">
+<h4><a name="id70">Arguments:</a></h4>
+<dl>
+<dt>parameter: </dt>
+<dd>the name of the parameter to retrieve from the device</dd>
+<dt>index: </dt>
+<dd>(optional) the desired index value</dd>
+</dl>
+</div>
+<div class="section" id="id71">
+<h4><a name="id71">Purpose:</a></h4>
+<p>Returns the value of the requested parameter, but does not display
+it on the user's browser. Using <tt class="literal"><span class="pre">getVal()</span></tt> instead of <tt class="literal"><span class="pre">get()</span></tt> allows web
+programmers to detect errors and respond to them intelligently instead
+of displaying the resulting error messages directly.</p>
+</div>
+<div class="section" id="id72">
+<h4><a name="id72">Notes:</a></h4>
+</div>
+<div class="section" id="id73">
+<h4><a name="id73">Example:</a></h4>
+<pre class="literal-block">
+&lt;%
+   // display my.indexed.parameter[0] .. my.indexed.parameter[n] until 
+   // we go beyond the last available index, then leave the loop.  
+   for (i = 0; __success__; i++) 
+   {
+      value = getVal(&quot;my.indexed.parameter&quot;, i); 
+      if (__success__) 
+      {
+         write(value + &quot;&lt;br&gt;&quot;);
+      }
+   }
+%&gt;
+</pre>
+</div>
+<div class="section" id="id74">
+<h4><a name="id74">See also:</a></h4>
+<p><a class="reference" href="#get">get()</a>,</p>
+<p><a class="reference" href="#set">set()</a></p>
+<!-- (c) 2002 Art & Logic, Inc. All Rights Reserved. -->
+<!-- $Id: UserGuide.html,v 1.2 2006/01/10 23:51:52 erik Exp $ -->
+</div>
+</div>
+<div class="section" id="max">
+<h3><a class="toc-backref" href="#id171" name="max">max()</a></h3>
+<p><tt class="literal"><span class="pre">max(val1,</span> <span class="pre">val2)</span></tt>;</p>
+<div class="section" id="id75">
+<h4><a name="id75">Arguments:</a></h4>
+<dl>
+<dt>val1, val2: </dt>
+<dd>integer values</dd>
+</dl>
+</div>
+<div class="section" id="id76">
+<h4><a name="id76">Purpose:</a></h4>
+<p>Returns the larger of the two values.</p>
+</div>
+<div class="section" id="id77">
+<h4><a name="id77">Notes:</a></h4>
+</div>
+<div class="section" id="id78">
+<h4><a name="id78">Example:</a></h4>
+<pre class="literal-block">
+&lt;%
+   // find out how many records the user would like to view -- 
+   // if they haven't specified a count, default to 10.
+   request = getQueryVal(&quot;recordCount&quot;, 10);
+   // ...but make sure that we show at least 10.
+   actual = max(request, 10);
+   for (i = 0; i &lt; actual; i++)
+   {
+      // do something here to display a record...
+   }
+%&gt;
+</pre>
+</div>
+<div class="section" id="id79">
+<h4><a name="id79">See also:</a></h4>
+<p><a class="reference" href="#min">min()</a></p>
+<!-- (c) 2002 Art & Logic, Inc. All Rights Reserved. -->
+<!-- $Id: UserGuide.html,v 1.2 2006/01/10 23:51:52 erik Exp $ -->
+</div>
+</div>
+<div class="section" id="min">
+<h3><a class="toc-backref" href="#id172" name="min">min()</a></h3>
+<p>min(val1, val2);</p>
+<div class="section" id="id80">
+<h4><a name="id80">Arguments:</a></h4>
+<dl>
+<dt>val1, val2: </dt>
+<dd>integer values</dd>
+</dl>
+</div>
+<div class="section" id="id81">
+<h4><a name="id81">Purpose:</a></h4>
+<p>Returns the smaller of the two values.</p>
+</div>
+<div class="section" id="id82">
+<h4><a name="id82">Notes:</a></h4>
+</div>
+<div class="section" id="id83">
+<h4><a name="id83">Example:</a></h4>
+<pre class="literal-block">
+&lt;%
+   // find out how many records the user would like to view -- 
+   // if they haven't specified a count, default to 10.
+   request = getQueryVal(&quot;recordCount&quot;, 10);
+   // ...but make sure that we show no more than 10.
+   actual = min(request, 10);
+   for (i = 0; i &lt; actual; i++)
+   {
+      // do something here to display a record...
+   }
+%&gt; 
+</pre>
+</div>
+<div class="section" id="id84">
+<h4><a name="id84">See also:</a></h4>
+<p><a class="reference" href="#max">max()</a></p>
+<!-- (c) 2002 Art & Logic, Inc. All Rights Reserved. -->
+<!-- $Id: UserGuide.html,v 1.2 2006/01/10 23:51:52 erik Exp $ -->
+</div>
+</div>
+<div class="section" id="set">
+<h3><a class="toc-backref" href="#id173" name="set">set()</a></h3>
+<p><tt class="literal"><span class="pre">set(parameter,</span> <span class="pre">[</span> <span class="pre">index,</span> <span class="pre">]</span> <span class="pre">value)</span></tt></p>
+<div class="section" id="id85">
+<h4><a name="id85">Arguments:</a></h4>
+<dl>
+<dt>parameter: </dt>
+<dd>the name of the parameter to retrieve from the device</dd>
+<dt>index: </dt>
+<dd>(optional) the desired index value</dd>
+<dt>value: </dt>
+<dd>new value for the parameter.</dd>
+</dl>
+</div>
+<div class="section" id="id86">
+<h4><a name="id86">Purpose:</a></h4>
+<p>Ordinarily, new parameter values will be set using an HTML form that's
+processed by the framework.  However, there may be times where a parameter
+may meaningfully be set from ejScript code.</p>
+</div>
+<div class="section" id="id87">
+<h4><a name="id87">Notes:</a></h4>
+</div>
+<div class="section" id="id88">
+<h4><a name="id88">Example:</a></h4>
+<pre class="literal-block">
+&lt;%
+   if (0 == getVal(&quot;firstAccessTime&quot;))
+   {
+      // remember when the first time someone accessed this page on the server.
+      set(&quot;firstAccessTime&quot;, getTime());
+   }
+%&gt;
+</pre>
+</div>
+<div class="section" id="id89">
+<h4><a name="id89">See also:</a></h4>
+<p><a class="reference" href="#get">get()</a>,</p>
+<p><a class="reference" href="#getval">getVal()</a></p>
+<!-- (c) 2002 Art & Logic, Inc. All Rights Reserved. -->
+<!-- $Id: UserGuide.html,v 1.2 2006/01/10 23:51:52 erik Exp $ -->
+</div>
+</div>
+<div class="section" id="usercanaccess">
+<h3><a class="toc-backref" href="#id174" name="usercanaccess">userCanAccess()</a></h3>
+<p><tt class="literal"><span class="pre">userCanAccess(groupName)</span></tt></p>
+<div class="section" id="id90">
+<h4><a name="id90">Arguments:</a></h4>
+<dl>
+<dt>groupName: </dt>
+<dd>an access group</dd>
+</dl>
+</div>
+<div class="section" id="id91">
+<h4><a name="id91">Purpose:</a></h4>
+<p>Returns 1 if the current user has permission to access pages belonging
+to the specified access group. If the user does not have permission,
+or the group does not exist, returns 0.</p>
+<p>Useful to selectively show or hide page elements.</p>
+</div>
+<div class="section" id="id92">
+<h4><a name="id92">Notes:</a></h4>
+<p>This function will always return zero when called on an ASP page that
+is not under access control. This is a known limitation, and a fix
+is planned.</p>
+</div>
+<div class="section" id="id93">
+<h4><a name="id93">Example:</a></h4>
+<pre class="literal-block">
+&lt;%
+   if (userCanAccess(&quot;admin&quot;)) 
+   {
+      // if this user has admin access, show the link to the secret 
+      // admin page...  
+      write(&quot;&lt;a href=admin.asp&gt;Secret Administrator Page&lt;/a&gt;&quot;);
+   }
+%&gt;
+</pre>
+</div>
+<div class="section" id="id94">
+<h4><a name="id94">See also:</a></h4>
+<p>(none)</p>
+<!-- (c) 2002 Art & Logic, Inc. All Rights Reserved. -->
+<!-- $Id: UserGuide.html,v 1.2 2006/01/10 23:51:52 erik Exp $ -->
+</div>
+</div>
+<div class="section" id="username">
+<h3><a class="toc-backref" href="#id175" name="username">userName()</a></h3>
+<p><tt class="literal"><span class="pre">userName()</span></tt>;</p>
+<div class="section" id="id95">
+<h4><a name="id95">Arguments:</a></h4>
+</div>
+<div class="section" id="id96">
+<h4><a name="id96">Purpose:</a></h4>
+<p>Returns the name of the current user.</p>
+</div>
+<div class="section" id="id97">
+<h4><a name="id97">Notes:</a></h4>
+<p>This function will always return an empty string when called on an
+ASP page that is not under access control. This is a known limitation,
+and a fix is planned.</p>
+</div>
+<div class="section" id="id98">
+<h4><a name="id98">Example:</a></h4>
+<pre class="literal-block">
+&lt;%
+   write(&quot;Hello, &quot; + userName() + &quot;!&lt;br&gt;&quot;);
+%&gt;
+</pre>
+</div>
+<div class="section" id="id99">
+<h4><a name="id99">See also:</a></h4>
+<p>(none)</p>
+<!-- (c) 2002 Art & Logic, Inc. All Rights Reserved. -->
+<!-- $Id: UserGuide.html,v 1.2 2006/01/10 23:51:52 erik Exp $ -->
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="using-xml-based-rpc-with-the-dmf">
+<h1><a class="toc-backref" href="#id176" name="using-xml-based-rpc-with-the-dmf">Using XML-based RPC with the DMF</a></h1>
+<p>XML-RPC and SOAP are a set of specs and implementations that allow software
+running on disparate operating systems in different environments to make
+procedure calls over the Internet.</p>
+<p>Both use HTTP as the transport and XML as the message encoding. XML-RPC is
+designed to be as simple as possible, while allowing complex data structures to
+be transmitted, processed and returned. SOAP is a more complex protocol and has
+been selected as the protocol underlying Microsoft's <tt class="literal"><span class="pre">.NET</span></tt> initiative.</p>
+<p>The DMF implementation of either of these protocols may optionally be compiled into 
+the server; if present, any tool capable of connecting to an XML-RPC server
+may connect to the responder at <tt class="literal"><span class="pre">http://myDeviceAddress/goform/RPC2</span></tt> and
+issue method calls. SOAP calls may be made to <tt class="literal"><span class="pre">http://myDeviceAddress/goform/SOAP</span></tt>.</p>
+<p>For specifications and background, see:</p>
+<p>XML-RPC -- <a class="reference" href="http://www.xmlrpc.org">http://www.xmlrpc.org</a></p>
+<p>SOAP -- <a class="reference" href="http://www.soapware.org">http://www.soapware.org</a></p>
+<p>The goal when adding these protocols to the DMF was to provide a single,
+unified API that may be accessed over either protocol.  As of the 2.1
+release of the framework, there are four functions available in the DMF API:</p>
+<dl>
+<dt><tt class="literal"><span class="pre">value</span> <span class="pre">=</span> <span class="pre">get(key</span> <span class="pre">[,</span> <span class="pre">index]);</span></tt></dt>
+<dd><p class="first">retrieve a value (or values) from the server. If the device is using a
+hierarchical parameter tree and the 'key' identifies a parent node and
+not a leaf node, this function will return the entire subtree beneath
+that parent node.</p>
+<p class="last">If the operation completes successfully, the requested value(s)
+will be returned in the XML response.  Otherwise, the server will
+return the appropriate fault message. If the fault message indicates
+that there were multiple errors, the immediate next step should
+be to call the getErrors() function, which will return an array of
+outstanding errors.</p>
+</dd>
+<dt><tt class="literal"><span class="pre">result</span> <span class="pre">=</span> <span class="pre">set(key,</span> <span class="pre">[index,</span> <span class="pre">]</span> <span class="pre">value);</span></tt></dt>
+<dd><p class="first">Update a specified single parameter with a new value. The set()
+method does not support setting multiple parameters in a single call.</p>
+<p class="last">If the operation completes successfully, the server will return
+the text string 'Success'.  Otherwise, the server will return the
+appropriate fault message. If the fault message indicates that
+there were multiple errors, the immediate next step should be
+to call the getErrors() function, which will return an array of
+outstanding errors.</p>
+</dd>
+<dt><tt class="literal"><span class="pre">label</span> <span class="pre">=</span> <span class="pre">getLabel(key);</span></tt></dt>
+<dd><p class="first">retrieve a translated label for a 'key'. Note that label keys come from a
+different name space than parameter keys, as there's not always a 1:1
+correspondence. You can change the current language (assuming that the
+server is built with localization, and suitable language files are
+present) by calling set(&quot;_language&quot;, &quot;&lt;&lt;language code&gt;&gt;&quot;), where
+&lt;&lt;language code&gt;&gt; is the 2-character code for the desired language as
+listed in ISO 639 -- <a class="reference" href="http://ftp.ics.uci.edu/pub/ietf/http/related/iso639.txt">http://ftp.ics.uci.edu/pub/ietf/http/related/iso639.txt</a></p>
+<p class="last">If the operation completes successfully, the requested value(s)
+will be returned in the XML response.  Otherwise, the server will
+return the appropriate fault message. If the fault message indicates
+that there were multiple errors, the immediate next step should
+be to call the <tt class="literal"><span class="pre">getErrors()</span></tt> function, which will return an array of
+the errors that resulted from the last method call.</p>
+</dd>
+<dt><tt class="literal"><span class="pre">errorList</span> <span class="pre">=</span> <span class="pre">getErrors();</span></tt></dt>
+<dd>retrieve the list of outstanding errors on the server. Should be called
+whenever the server returns a fault code of &quot;RpcErrors&quot;. The server will
+encode an array of structures containing the text error codes and
+corresponding explanatory strings.</dd>
+</dl>
+<p>Some examples, using the xmlrpclib module provided with the Python programming
+language (<a class="reference" href="http://www.python.org">http://www.python.org</a>):</p>
+<pre class="literal-block">
+&gt;&gt;&gt; import pprint
+&gt;&gt;&gt; import xmlrpclib
+&gt;&gt;&gt; 
+&gt;&gt;&gt; theServer = xmlrpclib.Server(&quot;http://localhost:8080/goform/RPC2&quot;)
+&gt;&gt;&gt; charVal = theServer.get(&quot;test.struct.char&quot;)
+&gt;&gt;&gt; print charVal
+1
+&gt;&gt;&gt; indexedVal = theServer.get(&quot;test.struct.bytes&quot;, 2)
+&gt;&gt;&gt; print indexedVal
+4
+&gt;&gt;&gt; theStruct = theServer.get(&quot;test.struct&quot;)
+&gt;&gt;&gt; pprint.pprint(theStruct)
+{'bytes': [0,
+           2,
+           4,
+           6,
+           8],
+ 'char': 1,
+ 'double': 4.1231059999999999,
+ 'long': 3,
+ 'short': 2,
+ 'string1': '123456789ABCDEF',
+ 'string2': '06/25/02 11:26:54'}
+</pre>
+<div class="section" id="flash-xml-rpc-client">
+<h2><a class="toc-backref" href="#id177" name="flash-xml-rpc-client">Flash XML-RPC client</a></h2>
+<p>Art &amp; Logic's Device Management Framework is the first tool to make
+device-served Flash user interfaces available to embedded product
+developers.</p>
+<p>Flash is an ideal technology for embedded devices. Flash movies
+are vector-based, making them smaller and faster than implementations
+using other plug-ins. Independent surveys show that over 98% of all web
+users have Flash installed, making it the most popular internet client
+available. Plus, Flash works consistently across multiple platforms,
+browsers, and even PDA's.</p>
+<p>In general, there are two ways Flash is used in embedded devices:</p>
+<ul class="simple">
+<li>Handheld applications that use Flash-based user interfaces. A book on this topic can be found at <a class="reference" href="http://www.flashenabled.com/book/">http://www.flashenabled.com/book/</a></li>
+<li>Devices that serve out Flash-based user interfaces, to be displayed on any client machine, including desktop computers and PDA's. Typically these interfaces are made up of HTML and Flash.</li>
+</ul>
+<p>The Flash features in DMF can be used in either scenario. Using DMF,
+a Flash user interface (or portions of a user interface, combined with
+HTML) is served from the DMF-enabled device, and the user interface can
+be displayed on any browser.</p>
+<p>Some possible uses for Flash in an embedded web application:</p>
+<ul class="simple">
+<li>Monitoring visualizations, including any kinds of graphs and charts.</li>
+<li>3-D hardware views, showing LED's, cards, peripherals, and complex animation.</li>
+<li>Special controls, such as sliders, zooming, drag &amp; drop.</li>
+<li>Zooming. This is a popular feature for user interfaces displayed on PDA's.</li>
+<li>Audio and video, including access to the client microphone and camera.</li>
+<li>Complex navigation.</li>
+<li>Client-side logic. Any calculation in Flash can be used to control screen 
+elements and vector-based graphics.</li>
+<li>Network topology views, showing multiple devices with connections between them.</li>
+</ul>
+<p>A large selection of pre-built Flash components and scripts are available from 
+various sources on the web.</p>
+</div>
+<div class="section" id="flash-vs-java-applets">
+<h2><a class="toc-backref" href="#id178" name="flash-vs-java-applets">Flash vs. Java applets</a></h2>
+<p>For years, Art &amp; Logic's customers have used Java applets to create
+dynamic elements within their user interfaces.  While Java applets can still be used 
+with the DMF, in some cases Flash may be a better solution. A brief list of reasons 
+is below.</p>
+<p><strong>Performance</strong> Flash movies are vector-based, making them small
+and fast. In addition, they can be loaded incrementally, making it
+possible to display parts of the interface before the entire movie is
+loaded. Initialization time is negligible.</p>
+<p><strong>Platform compatibility</strong> Flash is the most popular internet client
+available. It is available for almost every browser running on almost every 
+platform. It is easy to download and install, and it comes pre-installed on 
+mainstream browsers. Unlike HTML and Java, it is consistent across different 
+platforms.</p>
+<p><strong>Development Ease</strong> Flash MX is a sophisticated development
+environment, capable of producing highly interactive and beautiful user
+interfaces. These interfaces can be created by designers, who unlike
+most programmers, understand how to create beautiful user interfaces.</p>
+<p><strong>Accessibility</strong> Flash MX includes many built-in accessibility
+features.</p>
+<p><strong>Memory Footprint</strong> Since Flash movies are vector-based, they require very
+little memory on a device. Flash MX compresses movies at build time,
+making them even smaller.</p>
+</div>
+<div class="section" id="actionscript-flash-class-for-xml-rpc">
+<h2><a class="toc-backref" href="#id179" name="actionscript-flash-class-for-xml-rpc">ActionScript (Flash) class for XML-RPC</a></h2>
+<p>Art &amp; Logic provides an XML-RPC ActionScript library that enables the
+construction of rich, dynamic interfaces using Macromedia's Flash
+technology by retrieving and setting parameter values using the DMF's
+XML-RPC support.</p>
+<p>The easiest way to learn to use Flash with DMF is to view the <tt class="literal"><span class="pre">.fla</span></tt> and
+<tt class="literal"><span class="pre">.as</span></tt> source files included in the DMF. These source files are sufficient
+for any programmer to get started with Flash and DMF. It should be noted
+that ActionScript (the scripting language inside Flash) is similar to
+C or JavaScript.  New ActionScript programmers will find that creating
+simple Flash user interfaces is easy. However, to create complex Flash
+user interfaces, experienced Flash programmers and multimedia designers
+should be assigned to the task.</p>
+<p>This guide assumes previous experience with Flash and ActionScript.</p>
+<p>If you are evaluating the product and don't have access to the source
+code, request to see the demo available from Art &amp; Logic.</p>
+<p>The xmlrpc class was designed to work with Flash MX and Flash Player
+6 and later. It may work with earlier versions, but it hasn't been
+tested on them. Flash MX/Player 6 is a major upgrade from Macromedia,
+providing a much more capable programming environment than previous
+versions of Flash. Therefore, we recommend making Flash Player 6
+(or higher) a requirement for DMF-based interfaces.</p>
+<p>The xmlrpc class documentation is below.</p>
+<div class="section" id="xmlrpc-properties">
+<h3><a class="toc-backref" href="#id180" name="xmlrpc-properties">xmlrpc properties</a></h3>
+<p>AUTO_FORMAT (defaults to true)</p>
+<blockquote>
+<p>When this property is set to true, a ready-to-use object will be passed
+to the callback function after parsing the response.</p>
+<p>If the property is set to false, a native XML-RPC object will be passed.</p>
+</blockquote>
+<p>NParameters</p>
+<blockquote>
+Returns the number of parameters that were returned in a reply to a method call.</blockquote>
+<p>callBack</p>
+<blockquote>
+This is a reference to a function that is called when loading is complete.</blockquote>
+</div>
+<div class="section" id="xmlrpc-methods">
+<h3><a class="toc-backref" href="#id181" name="xmlrpc-methods">xmlrpc methods</a></h3>
+<dl>
+<dt>xmlrpc(path_to_server) </dt>
+<dd><p class="first">The constructor function.</p>
+<dl class="last">
+<dt>path_to_server </dt>
+<dd><p class="first">(Required) The path to the server running the service. For example, 
+<tt class="literal"><span class="pre">&quot;http://dev.artlogic.com:8080/goform/RPC2&quot;</span></tt></p>
+<p>Example:</p>
+<pre class="last literal-block">
+rpc = new xmlrpc(&quot;http://dev.artlogic.com:8080/goform/RPC2&quot;);
+</pre>
+</dd>
+</dl>
+</dd>
+<dt>send(methodName, arOfParams)</dt>
+<dd><p class="first">This function must be called to send the method call, and wait for the reply.</p>
+<dl class="last">
+<dt>methodName </dt>
+<dd>(Required) The name of the method/function that is being called on the server.</dd>
+<dt>arOfParams </dt>
+<dd>(Optional) An Array of parameters(in Native Format) to be passed with the 
+method call.</dd>
+</dl>
+</dd>
+</dl>
+<p>Example:</p>
+<pre class="literal-block">
+// Both username and password are already in the Native Object Format
+rpc.send(&quot;admin.login&quot;,[username,password]); 
+</pre>
+<dl>
+<dt>setParameter(objToTransform, objType)  </dt>
+<dd><p class="first">This function will convert an ordinary scalar, array or object into the Native 
+Object Format.</p>
+<dl>
+<dt>objToTranform </dt>
+<dd>(Required) The value, array, or object to transform.</dd>
+<dt>objType </dt>
+<dd>(Optional) The data type can be passed (see The Native Object
+section for more information on data types).</dd>
+</dl>
+<p>Example:</p>
+<pre class="last literal-block">
+param1 = rpc.setParameter({name: Foo, nickname: Bar});
+param2 = rpc.setParameter(&quot;hello&quot;);
+rpc.send(&quot;testMethod&quot;,[param1,param2]);
+</pre>
+</dd>
+<dt>getParameters(objToTransform) </dt>
+<dd><p class="first">This function will convert a reply parameter to an ordinary
+ActionScript data type (scalar, array or object). Normally this
+function is used if AUTO_FORMAT is set to False.</p>
+<dl>
+<dt>objToTransform </dt>
+<dd>An array of Native Object Types.</dd>
+</dl>
+<p>Example:</p>
+<pre class="last literal-block">
+calledBack = function(errorCode,parameters)
+{
+   /*parameters is a Native Object Type*/
+   ordinary = rpc.getParameters(parameters);
+   /*ordinary is a regular array with values*/
+
+   /*If the only parameter being passed was a string, you could show like this*/
+   trace(parameters[0].values);
+   trace(ordinary[0]);
+}
+rpc = new xmlrpc(&quot;server.php&quot;);
+rpc.callBack = calledBack;
+rpc.send(&quot;methodFoo&quot;,[&quot;bar&quot;]);
+</pre>
+</dd>
+</dl>
+</div>
+<div class="section" id="the-native-object">
+<h3><a class="toc-backref" href="#id182" name="the-native-object">The native object</a></h3>
+<p>The Native Object is a formatted object containing a description of an
+XML-RPC value. An XML-RPC value can be one of the following data types:</p>
+<ul class="simple">
+<li>int (integer)</li>
+<li>double</li>
+<li>string</li>
+<li>boolean</li>
+<li>dateTime (ISO8601)</li>
+<li>base64</li>
+<li>array</li>
+<li>struct</li>
+</ul>
+<p>Note that the above data types are case-sensitive.</p>
+<p>The Native Object Format is: { dtype: dataType, values: value or an array of Native 
+Objects }</p>
+<p>The struct has one additional property - name.</p>
+<p>Example:</p>
+<pre class="literal-block">
+/*Simple string parameter*/
+str = {dtype: &quot;string&quot;, values: &quot;foobar&quot; };
+
+/*Other simple scalar value - an integer*/
+integer = {dtype: &quot;int&quot;, values: 456 };
+
+/*A complex data type - an array*/
+arr = {dtype: &quot;array&quot;, values: [str, integer]};
+
+/*Other complex data type - a struct*/
+struct = 
+{
+   dtype: &quot;struct&quot;, value 
+   [
+      {dtype: &quot;string&quot;, name: &quot;aString&quot;, values: &quot;foobar&quot;},
+      {dtype: &quot;int&quot;, name: &quot;anInteger&quot;, values: 456}
+   ]
+};
+</pre>
+</div>
+</div>
+<div class="section" id="using-the-xmlrpc-class">
+<h2><a class="toc-backref" href="#id183" name="using-the-xmlrpc-class">Using the xmlrpc class</a></h2>
+<p>Using the XML-RPC class is easy. First, create a class instance, gather
+the parameters you want to send, define a callback function, send the
+method call, and wait for the reply in the callback function.</p>
+<p>Example:</p>
+<pre class="literal-block">
+#include &quot;xml-rpc.as&quot;
+
+calledBack = function(errorCode,parameters)
+{
+   /*parameters is a Native Object Type*/
+   ordinary = rpc.getParameters(parameters);
+   /*ordinary is a regular array with values*/
+
+   /*If the only parameter being passed was a string, you could show like this*/
+   trace(parameters[0].values);
+   trace(ordinary[0]);
+}
+
+rpc = new xmlrpc(&quot;http://localhost:8080/goform/RPC2&quot;);
+params = rpc.setParameter([&quot;parameterName&quot;,&quot;1&quot;]);
+rpc.callBack = calledBack;
+rpc.send(&quot;get&quot;,[params]);
+</pre>
+<p>The callback function returns an error code, and additional parameters:</p>
+<table class="table" frame="border" rules="all">
+<colgroup>
+<col width="7%" />
+<col width="93%" />
+</colgroup>
+<tbody valign="top">
+<tr><td>Code</td>
+<td>Description and Additional Parameters</td>
+</tr>
+<tr><td><tt class="literal"><span class="pre">0</span></tt></td>
+<td>Successful reply. Returns an array of parameters that may be native objects,
+depending on AUTO_FORMAT.</td>
+</tr>
+<tr><td><tt class="literal"><span class="pre">-1</span></tt></td>
+<td>Fault reply. Returns an object with the fault code and description. For
+example, &quot;code: 2, str: some error&quot;.</td>
+</tr>
+<tr><td><tt class="literal"><span class="pre">-2</span></tt></td>
+<td>Invalid XML-RPC syntax. No additional parameters returned.</td>
+</tr>
+<tr><td><tt class="literal"><span class="pre">-3</span></tt></td>
+<td>XML parser error. Returns the XML parser error code.</td>
+</tr>
+<tr><td><tt class="literal"><span class="pre">-4</span></tt></td>
+<td>Error receiving reply. This usually means there is a connection error. No
+additional parameters returned.</td>
+</tr>
+</tbody>
+</table>
+<!-- (c) 2002 Art & Logic, Inc. All Rights Reserved. -->
+<!-- $Id: UserGuide.html,v 1.2 2006/01/10 23:51:52 erik Exp $ -->
+</div>
+</div>
+<div class="section" id="server-programming-with-the-art-logic-device-management-framework">
+<h1><a class="toc-backref" href="#id184" name="server-programming-with-the-art-logic-device-management-framework">Server programming with the Art &amp; Logic Device Management Framework</a></h1>
+<div class="section" id="useful-api-functions-in-the-device-management-framework">
+<h2><a class="toc-backref" href="#id185" name="useful-api-functions-in-the-device-management-framework">Useful API functions in the Device Management Framework</a></h2>
+<p>In general, when writing C code to link into the DMF, you may feel
+free to use any available C run-time library or OS API function, as well
+as the API functions provided as part of the DMF itself.</p>
+<p>We recommend using the following built-in utility functions, for reasons of speed, 
+safety, and/or portability.</p>
+<div class="section" id="memory-functions">
+<h3><a class="toc-backref" href="#id186" name="memory-functions">Memory functions</a></h3>
+<p>The DMF implements its own fast memory manager. It is optimized for the
+kinds of short-lived memory allocations that occur regularly in a web
+server. Additionally, it has optional logging capabilities that slow the
+web server down appreciably, but can provide great insight when tracking
+down memory leaks in the server.</p>
+<p>All these memory functions take as their first argument a type called
+B_ARGS_DEC, which is really a macro that involves two parameters.
+When using any of these functions, pass B_L as the first argument,
+and the compiler will automatically insert the correct parameters.</p>
+<dl>
+<dt><tt class="literal"><span class="pre">void*</span> <span class="pre">balloc(B_ARGS_DEC,</span> <span class="pre">int</span> <span class="pre">size);</span></tt></dt>
+<dd>Allocates a block of memory 'size' bytes long, and returns a pointer to
+the beginning of the buffer.</dd>
+<dt><tt class="literal"><span class="pre">void</span> <span class="pre">bfree(B_L,</span> <span class="pre">void*</span> <span class="pre">buf);</span></tt></dt>
+<dd>Frees a previously allocated block of memory. Note that passing a NULL
+pointer in as the value of 'buf' will crash the memory manager.</dd>
+<dt><tt class="literal"><span class="pre">void</span> <span class="pre">bfreeSafe(B_L,</span> <span class="pre">void*</span> <span class="pre">buf);</span></tt></dt>
+<dd>Frees a previously allocated block, but does not crash when 'buf' is a NULL 
+pointer.</dd>
+<dt><tt class="literal"><span class="pre">void*</span> <span class="pre">brealloc(B_L,</span> <span class="pre">void*</span> <span class="pre">mp,</span> <span class="pre">int</span> <span class="pre">newsize);</span></tt></dt>
+<dd>Reallocates an existing buffer, typically to make it larger.</dd>
+</dl>
+</div>
+<div class="section" id="string-handling-functions">
+<h3><a class="toc-backref" href="#id187" name="string-handling-functions">String handling functions</a></h3>
+<p>Throughout, the DMF uses the typedef char_t when dealing with text.
+This typedef correctly expands to either char or wchar_t as is appropriate
+on the current platform.</p>
+<p>Many of the ANSI C functions from &lt;string.h&gt; are available through macros
+that expand to the correct char or wchar_t version of the desired function
+to maintain portability -- look through the source code, especially uemf.h, for 
+references to gstrcpy(), gstrchr(), etc.</p>
+<p>Other useful string functions:</p>
+<dl>
+<dt><tt class="literal"><span class="pre">char_t*</span> <span class="pre">bstrdup(B_L,</span> <span class="pre">char_t*</span> <span class="pre">source);</span></tt></dt>
+<dd>Copies a string, returns a pointer to newly allocated memory
+that must be freed.</dd>
+<dt><tt class="literal"><span class="pre">int</span> <span class="pre">fmtAlloc(char_t**</span> <span class="pre">s,</span> <span class="pre">int</span> <span class="pre">bufSize,</span> <span class="pre">char_t*</span> <span class="pre">format,</span> <span class="pre">...);</span></tt></dt>
+<dd>Dynamic implementation of sprintf that allocates a properly-sized buffer
+for the resulting string. Does not support any of the floating point
+format specifiers.</dd>
+</dl>
+</div>
+</div>
+<div class="section" id="defining-device-parameters">
+<h2><a class="toc-backref" href="#id188" name="defining-device-parameters">Defining device parameters</a></h2>
+<p>Unless modifications or extensions to the DMF are required for some
+special purpose in your project, the main server-side tasks required
+to use the DMF on your project are: creating a table of parameters and
+writing functions to get values to and from your device.</p>
+<div class="section" id="the-param-structure">
+<h3><a class="toc-backref" href="#id189" name="the-param-structure">The Param structure</a></h3>
+<p>All parameters (except server variables) are registered with the system
+by defining them in terms of a &quot;Param&quot; structure (see 'Param.h', as
+minor details of this structure may be changed over time). Each project
+using the DMF creates a source file named Param.c that contains an array
+of Param structures defining all the parameters that are available. At
+startup time, the DMF processes this array and generates an in-memory
+representation of the parameter space that can be used to quickly map
+from the full parameter name to the Param structure with implementation
+details.</p>
+<p>If the project is using a hierarchical parameter space, the DMF sets
+internal links in the <tt class="literal"><span class="pre">Param</span></tt> structures so that each structure knows
+who its parent is, and we use this to implement a sort of inheritance
+that is used to determine which functions to call when retrieving values
+from or saving new values to the device--individual parameters can defer
+this behavior up the hierarchy until there is a Param structure that is
+configured for that action.</p>
+<dl>
+<dt>The fields in the <tt class="literal"><span class="pre">Param</span></tt> structure are:</dt>
+<dd><dl class="first">
+<dt><tt class="literal"><span class="pre">const</span> <span class="pre">char_t*</span> <span class="pre">const</span> <span class="pre">key;</span></tt></dt>
+<dd>parameter name as used in the ejScript. If the parameter space
+is hierarchical, this key should only be the final part of the
+parameter name. For example, if the full name of this parameter
+will be &quot;level1.level2.keyName&quot;, the value of 'key' for this
+parameter should be 'keyName'</dd>
+<dt><tt class="literal"><span class="pre">enum</span> <span class="pre">XmlRpcDataType</span> <span class="pre">dataType;</span></tt>  </dt>
+<dd><p class="first">enum indicating the type of this  value (see list of available
+types in &quot;ParamCodes.h&quot;. Used to demarcate hierarchy points
+(types kBeginSection and kEndSection), also used for XML-RPC/SOAP
+output.</p>
+<p>The type codes that are available are:</p>
+<table class="last table" frame="border" rules="all">
+<colgroup>
+<col width="24%" />
+<col width="76%" />
+</colgroup>
+<tbody valign="top">
+<tr><td>Type Code</td>
+<td>Data Type</td>
+</tr>
+<tr><td>kNoType</td>
+<td>no associated data type</td>
+</tr>
+<tr><td>kInteger</td>
+<td>32-bit integer</td>
+</tr>
+<tr><td>kBoolean</td>
+<td>simple boolean type</td>
+</tr>
+<tr><td>kString</td>
+<td>text string</td>
+</tr>
+<tr><td>kDouble,</td>
+<td>double-precision floating point</td>
+</tr>
+<tr><td>kDateTime</td>
+<td>timestamp (not currently supported)</td>
+</tr>
+<tr><td>kBase64,</td>
+<td>Base64-encoded data (not currently supported)</td>
+</tr>
+<tr><td>kBeginSection</td>
+<td>This key begins a new hierarchical section</td>
+</tr>
+<tr><td>kEndSection</td>
+<td>This key ends a hierarchical section</td>
+</tr>
+</tbody>
+</table>
+</dd>
+</dl>
+<p><tt class="literal"><span class="pre">int</span> <span class="pre">readAccess;</span></tt></p>
+<dl>
+<dt><tt class="literal"><span class="pre">int</span> <span class="pre">writeAccess;</span></tt></dt>
+<dd>integer code indicating the minimum access  level required to
+read or modify this parameter.   If the value is zero, then
+the parameter may be  accessed without limit. If it is '-1',
+it inherits  its access control from its parent.</dd>
+<dt><tt class="literal"><span class="pre">GetFunc</span> <span class="pre">getFunc;</span></tt> </dt>
+<dd>standard or custom function to convert this  parameter to its
+string representation. If NULL, this parameter is write only.</dd>
+<dt><tt class="literal"><span class="pre">SetFunc</span> <span class="pre">setFunc;</span></tt></dt>
+<dd>standard or custom function to convert this  parameter from
+string to its real  value.   If NULL, this parameter is read
+only.</dd>
+<dt><tt class="literal"><span class="pre">QueryFunc</span> <span class="pre">queryFunc;</span></tt></dt>
+<dd>(optional) called before each time a  getFunc() is called. This
+allows us to  only make a trip to the device once per  ASP page
+request -- we pass in the  current request number and the query
+function can do nothing if the request  number is equal to the
+last one it  handled. We install a custom URL  handler to track
+the request numbers.   if this is NULL, either we are using  a
+custom GetFunc that handles this  logic itself, or the data is
+not  volatile -- we can be certain that a  local copy of this
+parameter is what's  in the device (or there is no corresponding
+parameter in the device)</dd>
+<dt><tt class="literal"><span class="pre">int</span> <span class="pre">lastQuery;</span></tt></dt>
+<dd>stores the request cycle number of the last time this parameter
+was queried. Used to batch queries -- the query function should
+be written so that if the request currently being processed is
+equal to the last query processed, nothing happens, since we
+already have current data.</dd>
+<dt><tt class="literal"><span class="pre">CommitFunc</span> <span class="pre">commitFunc;</span></tt></dt>
+<dd>(optional) -- if present, called at the  end of the generic form
+handler.  This  lets us accumulate multiple parameter  sets into
+a single structure, then  commit the entire structure at once.
+if NULL, either there is no  corresponding parameter inside the
+device, or the SetFunc for this  parameter is responsible for
+persisting  the value.</dd>
+<dt><tt class="literal"><span class="pre">int</span> <span class="pre">lastCommit;</span></tt></dt>
+<dd>lastCommit -- stores the last request cycle that this parameter
+was committed on. If the current request cycle is equal to the
+last request cycle, the commit function should not do anything.</dd>
+<dt><tt class="literal"><span class="pre">void*</span> <span class="pre">dataStart;</span></tt>              </dt>
+<dd>if not NULL, the location of this  parameter in memory.</dd>
+<dt><tt class="literal"><span class="pre">unsigned</span> <span class="pre">int</span> <span class="pre">offset;</span></tt></dt>
+<dd>if != 0, the data is in an array, and  this indicates the offset 
+between  successive instances of this data type.</dd>
+<dt><tt class="literal"><span class="pre">const</span> <span class="pre">int*</span> <span class="pre">startIndex;</span></tt></dt>
+<dd>points to an integer containing the  first valid index number for 
+this  parameter, or NULL if not indexed.</dd>
+<dt><tt class="literal"><span class="pre">const</span> <span class="pre">int*</span> <span class="pre">endIndex;</span></tt>          </dt>
+<dd>points to an integer containing one  after the last valid index 
+number for  this parameter (so we can easily use a  simple '&lt;' test 
+to validate index ranges,  or NULL if the parameter is not indexed.</dd>
+</dl>
+<p><tt class="literal"><span class="pre">int</span> <span class="pre">lowerLimit;</span></tt></p>
+<dl class="last">
+<dt><tt class="literal"><span class="pre">int</span> <span class="pre">upperLimit;</span></tt>               </dt>
+<dd>if lowerLimit &lt; upperLimit, the built-in set  will perform a
+range check before doing  the set operation (where possible). On
+numeric values, used to indicate valid  values, on string values,
+indicates valid  string lengths.    If lowerLimit &gt;= upperLimit,
+we do not perform  any range checking.</dd>
+<dt><tt class="literal"><span class="pre">int</span> <span class="pre">parent;</span></tt></dt>
+<dd>if we are in a system that's arranging things  hierarchically,
+this is the index of our parent  parameter in the
+hierarchy. Should always be set to -1 at compile time.</dd>
+</dl>
+</dd>
+</dl>
+<p>Assuming that the following structure type exists:</p>
+<pre class="literal-block">
+#define kString1Len  32
+typedef struct testStructTAG
+{
+   char        charVal;
+   long int    longVal;
+   double      doubleVal;
+   char        string1[kString1Len + 1];
+
+} testStruct;
+
+testStruct gTestStruct;
+</pre>
+<p>The following is a parameter table that registers parameters named:
+* test.struct.char
+* test.struct.long
+* test.struct.double
+* test.struct.string</p>
+<p>...using the DMF-supplied get and set functions:</p>
+<pre class="literal-block">
+extern Param parameterList[] = 
+{
+   {
+      T(&quot;test&quot;),           /* key */
+      kBeginSection,       /* dataType */
+      0,                   /* read access -- defaults to no access
+                            * control
+                            */
+      0,                   /* write access -- defaults to no access
+                            * control
+                            */
+      NULL,                /* getFunc */
+      NULL,                /* setFunc */
+      NULL,                /* queryFunc */
+      NULL,                /* commitFunc */
+      NULL,                /* dataStart */
+      0,                   /* offset */
+      NULL,                /* startIndex */
+      NULL,                /* endIndex */
+      NULL,                /* validateFunc */
+      0,                   /* lowerLimit */
+      0,                   /* upperLimit */
+      -1                   /* parent -- keep this -1 */
+   },
+   {
+      T(&quot;struct&quot;),         /* key */
+      kBeginSection,       /* dataType */
+      -1,
+      -1,
+      NULL,                /* getFunc */
+      NULL,                /* setFunc */
+      StructQuery,         /* queryFunc -- in this example, all
+                            * parameters underneath 'struct' are queried
+                            * here,
+                            */
+      StructCommit,        /* commitFunc  -- the entire 'struct' is also
+                            * committed 
+                            */
+      &amp;gTestStruct,        /* dataStart */
+      0,                   /* offset */
+      NULL,                /* startIndex */
+      NULL,                /* endIndex */
+      NULL,                /* validateFunc */
+      0,                   /* lowerLimit */
+      0,                   /* upperLimit */
+      -1                  /* parent -- keep this -1 */
+   },
+   {
+      T(&quot;char&quot;),           /* key */
+      kInteger,            /* dataType */
+      -1,
+      -1,
+      dmfGetInt8,          /* getFunc */
+      dmfSetInt8,          /* setFunc */
+      NULL,                /* queryFunc -- use the function defined by
+                            * our parent 
+                            */
+      NULL,                /* commitFunc */
+      &amp;(gTestStruct.charVal),                /* dataStart */
+      0,                   /* offset */
+      NULL,                /* startIndex */
+      NULL,                /* endIndex */
+      NULL,                /* validateFunc */
+      0,                   /* lowerLimit */
+      0,                   /* upperLimit */
+      -1                   /* parent -- keep this -1 */
+   },
+   {
+      T(&quot;long&quot;),           /* key */
+      kInteger,            /* dataType */
+      -1,
+      -1,
+      dmfGetInt32,         /* getFunc */
+      dmfSetInt32,         /* setFunc */
+      NULL,                /* queryFunc */
+      NULL,                /* commitFunc */
+      &amp;(gTestStruct.longVal),                /* dataStart */
+      0,                   /* offset */
+      NULL,                /* startIndex */
+      NULL,                /* endIndex */
+      NULL,                /* validateFunc */
+      0,                   /* lowerLimit */
+      100,                 /* upperLimit */
+      -1                   /* parent -- keep this -1 */
+   },
+   {
+      T(&quot;double&quot;),         /* key */
+      kDouble,             /* dataType */
+      -1,
+      -1,
+      dmfGetDouble,        /* getFunc */
+      dmfSetDouble,        /* setFunc */
+      NULL,                /* queryFunc */
+      NULL,                /* commitFunc */
+      &amp;(gTestStruct.doubleVal),                /* dataStart */
+      0,                   /* offset */
+      NULL,                /* startIndex */
+      NULL,                /* endIndex */
+      NULL,                /* validateFunc */
+      0,                   /* lowerLimit */
+      0,                   /* upperLimit */
+      -1                  /* parent -- keep this -1 */
+   },
+   {
+      T(&quot;string&quot;),               /* key */
+      kString,             /* dataType */
+      -1,
+      -1,
+      dmfGetString,                /* getFunc */
+      dmfSetStringFixed,                /* setFunc */
+      NULL,                /* queryFunc */
+      NULL,                /* commitFunc */
+      &amp;(gTestStruct.string1),                /* dataStart */
+      0,                   /* offset */
+      NULL,                /* startIndex */
+      NULL,                /* endIndex */
+      NULL,                /* validateFunc */
+      0,                   /* lowerLimit */
+      kString1Len,                   /* upperLimit */
+      -1                  /* parent -- keep this -1 */
+   },
+   {
+      T(&quot;&quot;),               /* key */
+      kEndSection,             /* dataType */
+      -1,
+      -1,
+      NULL,                /* getFunc */
+      NULL,                /* setFunc */
+      NULL,                /* queryFunc */
+      NULL,                /* commitFunc */
+      NULL,                /* dataStart */
+      0,                   /* offset */
+      NULL,                /* startIndex */
+      NULL,                /* endIndex */
+      NULL,                /* validateFunc */
+      0,                   /* lowerLimit */
+      0,                   /* upperLimit */
+      -1                /* parent -- keep this -1 */
+   },
+   {
+      T(&quot;&quot;),               /* key */
+      kEndSection,             /* dataType */
+      -1,
+      -1,
+      NULL,                /* getFunc */
+      NULL,                /* setFunc */
+      NULL,                /* queryFunc */
+      NULL,                /* commitFunc */
+      NULL,                /* dataStart */
+      0,                   /* offset */
+      NULL,                /* startIndex */
+      NULL,                /* endIndex */
+      NULL,                /* validateFunc */
+      0,                   /* lowerLimit */
+      0,                   /* upperLimit */
+      -1                /* parent -- keep this -1 */
+   }
+};
+
+extern int parameterCount = sizeof(parameterList) / sizeof(parameterList[0]);
+</pre>
+</div>
+</div>
+<div class="section" id="using-the-built-in-conversion-functions">
+<h2><a class="toc-backref" href="#id190" name="using-the-built-in-conversion-functions">Using the built-in conversion functions</a></h2>
+<p>The DMF provides conversion functions for basic data types, as follows:</p>
+<table class="table" frame="border" rules="all">
+<colgroup>
+<col width="37%" />
+<col width="25%" />
+<col width="38%" />
+</colgroup>
+<tbody valign="top">
+<tr><td>type</td>
+<td>GetFunc</td>
+<td>SetFunc</td>
+</tr>
+<tr><td>signed char</td>
+<td>dmfGetInt8</td>
+<td>dmfSetInt8</td>
+</tr>
+<tr><td>signed short int</td>
+<td>dmfGetInt16</td>
+<td>dmfSetInt16</td>
+</tr>
+<tr><td>signed long int</td>
+<td>dmfGetInt32</td>
+<td>dmfSetInt32</td>
+</tr>
+<tr><td>unsigned char</td>
+<td>dmfGetUInt8</td>
+<td>dmfSetUInt8</td>
+</tr>
+<tr><td>unsigned short int</td>
+<td>dmfGetUInt16</td>
+<td>dmfSetUInt16</td>
+</tr>
+<tr><td>unsigned long int</td>
+<td>dmfGetUInt32</td>
+<td>dmfSetUInt32</td>
+</tr>
+<tr><td>float</td>
+<td>dmfGetFloat</td>
+<td>dmfSetFloat</td>
+</tr>
+<tr><td>double</td>
+<td>dmfGetDouble</td>
+<td>dmfSetFloat</td>
+</tr>
+<tr><td>string</td>
+<td>dmfGetString</td>
+<td>dmfSetStringFixed</td>
+</tr>
+</tbody>
+</table>
+<p>If the Param structure for a parameter defines upper and lower limit
+values, the provided SetFuncs will validate that new data is inside
+the defined range. The function <tt class="literal"><span class="pre">dmfSetStringFixed()</span></tt> requires that the
+Param's upperLimit field be set, since it uses that value to prevent
+overrunning memory.</p>
+</div>
+<div class="section" id="writing-custom-conversion-functions">
+<h2><a class="toc-backref" href="#id191" name="writing-custom-conversion-functions">Writing custom conversion functions</a></h2>
+<div class="section" id="custom-getfunc">
+<h3><a class="toc-backref" href="#id192" name="custom-getfunc">Custom GetFunc</a></h3>
+<p>All GetFuncs must use the following prototype:</p>
+<pre class="literal-block">
+int GetFunc(const char_t* key, const char_t* index, char_t** value, 
+ void* rawData, Param* param, int request);
+</pre>
+<p>Many GetFuncs will not use all of the parameters provided, but will use
+at the very least, the rawData pointer, which points to the beginning
+of the data that is to be converted into text, and the pointer-to-
+pointer-to char_t value, which is used to return the text representation
+of the value back to the framework.</p>
+<p>The other parameters are provided for the convenience of projects that
+may need to implement non- standard conversion functions. For instance,
+it may be useful to combine the behavior of a GetFunc and a QueryFunc,
+so the current request number is passed in to every GetFunc.</p>
+<p>The return value of the GetFunc is one of the 'kDmf' codes defined in
+ErrorCodes.h. If your function succeeds, return 'kDmfSuccess'.</p>
+<p>As an example, we'll write a custom GetFunc that's actually useful --
+converting a 32-bit integer into an IP address in common dotted-quad
+notation.</p>
+<pre class="literal-block">
+int GetIpAddress(const char_t* key, const char_t* index, char_t** value, 
+ void* rawData, struct ParamTAG* param, int request)
+{
+   int retval = kDmfError;
+   UInt32 address;
+   UInt8 octets[4];
+   if (NULL != rawData)
+   {
+      /*
+       * cast the rawData pointer back into an unsigned 32-bit int.
+       */
+      address = *((UInt32*)rawData);
+      /*
+       * pull out the individual bytes from the address
+       */
+      octets[0] = 0xFF &amp;&amp; (address &gt;&gt; 24);
+      octets[1] = 0xFF &amp;&amp; (address &gt;&gt; 16);
+      octets[2] = 0xFF &amp;&amp; (address &gt;&gt; 8);
+      octets[3] = 0xFF &amp;&amp; address;
+      /*
+       * convert the octet bytes into a string, allocating memory if
+       * needed.
+       */
+      fmtAlloc(value, 16, &quot;%d.%d.%d.%d&quot;, octets[0], octets[1],
+       octets[2], octets[3]);
+      retval = kDmfSuccess;
+   }
+   return retval;
+}
+</pre>
+</div>
+<div class="section" id="custom-setfunc">
+<h3><a class="toc-backref" href="#id193" name="custom-setfunc">Custom SetFunc()</a></h3>
+<p>All SetFuncs use must use this prototype:</p>
+<pre class="literal-block">
+int SetFunc(const char_t* key, const char_t* index, char_t* value, 
+ void* rawData, Param* param, int request);
+</pre>
+<p>Note that the only difference between the GetFunc and SetFunc prototypes
+is the amount of indirection applied to the value argument.</p>
+<p>SetFuncs do the opposite of GetFuncs--text input (value) from an HTML
+form is converted into the correct internal data type (rawData). If
+this conversion is successful, the function should return kDmfSuccess,
+otherwise it should return the appropriate error code from ErrorCodes.h.</p>
+<p>For an example, we'll implement the other half of the <tt class="literal"><span class="pre">GetIpAddress()</span></tt> function, 
+above.</p>
+<pre class="literal-block">
+int SetIpAddress(const char_t* key, const char_t* index, char_t* value, 
+ void* rawData, Param* param, int request)
+{
+   UInt32 newAddress = 0;
+   int addressByte[4];
+   int i = 0;
+
+   if (4 != sscanf(value, &quot;%d.%d.%d.%d&quot;, &amp;(addressByte[0]), 
+    &amp;(addressByte[1]), &amp;(addressByte[2]), &amp;(addressByte[3])))
+      return kDmfArgError;
+
+   for (i = 0; i &lt; 4; i++)
+   {
+      int byte = addressByte[i];
+      if (byte &lt; 0 || byte &gt; 0xFF)
+         return kDmfArgError;
+      newAddress = (newAddress &lt;&lt; 8) | ((UInt8) byte);
+   }
+
+   *((UInt32*) rawData) = newAddress;
+
+   return kDmfSuccess;
+}
+</pre>
+</div>
+</div>
+<div class="section" id="query-and-commit-functions">
+<h2><a class="toc-backref" href="#id194" name="query-and-commit-functions">Query and Commit functions</a></h2>
+<p>In most cases, projects using the DMF add a web-based interface to an
+existing product, or to a product that's well under development, and
+runs in one or more processes of its own under an RTOS or traditional
+desktop OS. Since the DMF server is running in its own process, there
+must be some mechanism for communicating parameter values between the
+device process and the server process. A future release of the DMF will
+include support for SNMP; devices which already support management via
+SNMP will be able to use this to transfer parameter values.</p>
+<p>All the operating systems capable of running the DMF provide some
+mechanism for inter-process communication, whether using memory-mapped
+files, message queues, semaphore-protected global variables, or sockets.
+The appropriate technique to use on your project is your decision,
+and is beyond the scope of this document.</p>
+<p>In any event, some method must be chosen to retrieve parameter values
+from the device process, and to notify the device process that a user has
+changed parameter values.  Since inter-process communication is typically
+a fairly slow operation, the usual approach taken is to define a data
+structure that contains values for a logical group of parameter values,
+and to transfer values across the process boundary as infrequently
+as possible.</p>
+<p>All Query functions (QueryFuncs) use the following prototype:</p>
+<pre class="literal-block">
+int QueryFunc(Param* param, int request);
+</pre>
+<p>The importance of the QueryFunc becomes apparent when you consider the
+pseudocode for getting a parameter (i.e., any time ASP code calls a <tt class="literal"><span class="pre">get()</span></tt>
+or <tt class="literal"><span class="pre">getVal()</span></tt> function):</p>
+<pre class="literal-block">
+pseudoGet(key, index, requestNum):
+   look for the key name 
+   if not found, return kDmfParameterName 
+   calculate the address of the parameter's data 
+   query the device to get the current data, storing it into the correct address
+   convert the data to text for display return kDmfSuccess
+</pre>
+<p>If an ASP page gets several parameter values (as is typical), each one
+will require a query to the device, but if any of those parameters are
+transferred using the same data structure, all but one of those queries
+are unnecessary. The DMF maintains a request counter that is incremented
+every time an ASP page is served. The framework automatically uses this
+request counter to ensure that any given query function will be called at most
+one time per page request.</p>
+<p>A typical QueryFunc will be implemented like this:</p>
+<pre class="literal-block">
+int EmptyQueryFunc(Param* param, int request)
+{
+
+   int retval = kDmfSuccess;
+   /*
+    * TODO:
+    * Add code here to retrieve current data from the device.
+    * set retval to the appropriate code from ErrorCodes.h -- 
+    * Returning any value other than kDmfSuccess from this function 
+    * will cause the get() or getVal() request we are servicing to 
+    * fail.
+    */
+   return retval;
+}
+</pre>
+<p>QueryFuncs are also one of the most important places to use the
+'inheritance' capability built into the parameter table. Rather than add
+a QueryFunc entry for each individual 'leaf' parameter in the table,
+there should be a single QueryFunc entry in the table for each data
+structure used to transfer parameters.  At runtime, the DMF will search
+up the parameter tree until it finds a QueryFunc to execute, or reaches
+the root of the tree without finding one.</p>
+<p>Once a user has used the web interface to change the value of a parameter,
+the framework will look through the parameter table for a Commit function
+(CommitFunc) that is registered to handle that parameter. Like the design
+of the QueryFunc, CommitFuncs take a request number as an argument,
+and should only be executed once per form submission.</p>
+<p>Note that the generic form handler in the DMF will only commit parameter
+values to the device if every parameter on the form was successfully
+set. Any errors encountered during form submission will prevent the form
+handler from committing any of the parameters to the device.</p>
+<p>All CommitFuncs use this prototype:</p>
+<pre class="literal-block">
+int CommitFunc(Param* param, int request);
+</pre>
+<p>Like QueryFuncs, they accept the current request number to prevent
+multiple calls while processing the same form, and are typically
+structured like QueryFuncs:</p>
+<pre class="literal-block">
+int EmptyCommitFunc(Param* param, int request) 
+{
+   int retval = kDmfSuccess;
+
+   /*
+    * TODO:
+    * Add code here to send current data to the device.
+    * set retval to the appropriate code from ErrorCodes.h -- 
+    * Returning any value other than kDmfSuccess from this function 
+    * will cause the get() or getVal() request we are servicing to 
+    * fail.
+    */
+
+   return retval;
+}
+</pre>
+</div>
+<div class="section" id="using-query-functions-to-build-a-simulator">
+<h2><a class="toc-backref" href="#id195" name="using-query-functions-to-build-a-simulator">Using Query functions to build a simulator</a></h2>
+<p>At Art &amp; Logic, a technique that has contributed to the successful
+completion of web-based device management projects is leveraging the
+built-in separation of content from presentation to allow development of
+the web interface using a simulator version of the project. Often, our web
+developers will work on the web interface on their preferred desktop OS
+(Win32, Mac OS X, or Linux, commonly) and run a simulated version of the
+project on that operating system. Meanwhile, the server-side programmer
+is implementing and testing the Query/Commit functions on the real
+hardware. As the project evolves, each of them can send updated source
+files to the other and intergrate the other's new work with a minimum
+of interruption.</p>
+</div>
+<div class="section" id="the-userfunc-c-file">
+<h2><a class="toc-backref" href="#id196" name="the-userfunc-c-file">The UserFunc.c file</a></h2>
+<p>Each project build with the DMF uses the 'UserFunc.c' file found in the
+project-specific directory to hook into the initialization and shutdown
+logic of the DMF. Four special functions are built into the framework,
+and are called automatically by the DMF:</p>
+<div class="section" id="initialization-functions">
+<h3><a class="toc-backref" href="#id197" name="initialization-functions">Initialization functions</a></h3>
+<p><tt class="literal"><span class="pre">void</span> <span class="pre">dmfUserPreInit(void);</span></tt></p>
+<blockquote>
+Called by the framework's initialization code as its very first
+action. None of the framework's infrastructure has been initialized yet,
+but all of the underlying DMF API or run-time library API functions may
+be called.</blockquote>
+<dl>
+<dt><tt class="literal"><span class="pre">void</span> <span class="pre">dmfUserPostInit(void);</span></tt></dt>
+<dd>Called as the last step in the DMF's initialization code. The framework
+is fully initialized, and any DMF functions may be used.  This is
+the appropriate point to add default users (using the dmfAddUser()
+function), configure access control groups (using the dmfAddGroup()
+function), and to establish file- and directory-level access control
+using the umAddAccessLimit() function.</dd>
+</dl>
+</div>
+<div class="section" id="shutdown-functions">
+<h3><a class="toc-backref" href="#id198" name="shutdown-functions">Shutdown functions</a></h3>
+<p>If your device has provisions for performing an orderly shutdown,
+the DMF will call the following two functions as it performs its own
+shutdown logic:</p>
+<dl>
+<dt><tt class="literal"><span class="pre">void</span> <span class="pre">dmfUserPreClose(void);</span></tt> </dt>
+<dd>Called by the framework's shutdown code as
+its first step. All of the API functions defined by the DMF are still
+available.</dd>
+<dt><tt class="literal"><span class="pre">void</span> <span class="pre">dmfUserPostClose(void);</span></tt> </dt>
+<dd>Called by the framework's shutdown code as its very last step. None of the DMF's</dd>
+<dt>functions are</dt>
+<dd>available.</dd>
+</dl>
+</div>
+</div>
+<div class="section" id="configuring-the-framework">
+<h2><a class="toc-backref" href="#id199" name="configuring-the-framework">Configuring the Framework</a></h2>
+<div class="section" id="device-management-framework-configuration">
+<h3><a class="toc-backref" href="#id200" name="device-management-framework-configuration">Device Management Framework configuration</a></h3>
+<p>The following DMF configuration changes may be made by editing the main.c
+file that's included as part of the DMF.</p>
+<dl>
+<dt>HTTP port </dt>
+<dd>Edit the initialization of the static int variable 'port'.</dd>
+<dt>Root web directory </dt>
+<dd>Edit the initialization of the static char_t* variable
+rootWeb.  This changes the name of the directory that will be searched
+to find all web files that can be served.</dd>
+<dt>Default page name</dt>
+<dd>In the function , change the file name passed into the function
+<tt class="literal"><span class="pre">websSetDefaultPage()</span></tt>. This sets the filename to search for when a user
+requests a directory and not a specific file. The DMF uses a value of
+'default.asp'.</dd>
+<dt>Home page name</dt>
+<dd>In the function <tt class="literal"><span class="pre">websHomePageHandler()</span></tt>, edit the filename passed to the
+function. The server will redirect the user's browser to the specified
+page whenever they make a request to the server without specifying any
+URL. The DMF uses a value of 'home.asp'.</dd>
+</dl>
+</div>
+<div class="section" id="trace-error-handlers">
+<h3><a class="toc-backref" href="#id201" name="trace-error-handlers">Trace / error handlers</a></h3>
+<p>You may add code to the functions <tt class="literal"><span class="pre">defaultTraceHandler()</span></tt> and
+<tt class="literal"><span class="pre">defaultErrorHandler()</span></tt> to have useful implementations.</p>
+</div>
+<div class="section" id="compiler-configuration-macros">
+<h3><a class="toc-backref" href="#id202" name="compiler-configuration-macros">Compiler Configuration Macros</a></h3>
+<p>Several compiler macros may be defined to change the behavior of the DMF.</p>
+<dl>
+<dt>qDmf</dt>
+<dd>This macro must be defined to use any of the DMF code.</dd>
+<dt>qHierarchicalAccess</dt>
+<dd>Defining this macro gives access to the extended access control model
+provided by the DMF.</dd>
+<dt>qXmlRpc</dt>
+<dd>If defined, this will add the code that enables support for the XML-RPC
+protocol. The implementation of XML-RPC provided with the server exposes
+get() and set() functionality for every parameter in the table found in
+Param.c. An API is also provided to write new XML-RPC methods that may
+be exposed through the server.</dd>
+<dt>qRichErrorPage</dt>
+<dd>If defined, the server will search for a custom error-handling page on
+any server error.</dd>
+</dl>
+<!-- (c) 2002 Art & Logic, Inc. All Rights Reserved. -->
+<!-- $Id: UserGuide.html,v 1.2 2006/01/10 23:51:52 erik Exp $ -->
+</div>
+</div>
+</div>
+<div class="section" id="appendix-a-rpc-encodings">
+<h1><a class="toc-backref" href="#id203" name="appendix-a-rpc-encodings">Appendix A: RPC Encodings</a></h1>
+<div class="section" id="xml-rpc-message-encodings">
+<h2><a class="toc-backref" href="#id204" name="xml-rpc-message-encodings">XML-RPC Message Encodings</a></h2>
+<div class="section" id="get-encodings">
+<h3><a class="toc-backref" href="#id205" name="get-encodings"><tt class="literal"><span class="pre">get()</span></tt> Encodings</a></h3>
+<p>Getting a single parameter value</p>
+<p><tt class="literal"><span class="pre">get(&quot;test.struct.char&quot;)</span></tt></p>
+<div class="section" id="client-request">
+<h4><a name="client-request">Client Request</a></h4>
+<pre class="literal-block">
+&lt;?xml version=&quot;1.0&quot; ?&gt; 
+  &lt;methodCall&gt;
+     &lt;methodName&gt;get&lt;/methodName&gt; 
+      &lt;params&gt;
+         &lt;param&gt;
+            &lt;value&gt;&lt;string&gt;test.struct.char&lt;/string&gt;&lt;/value&gt;
+         &lt;/param&gt;
+     &lt;/params&gt;
+ &lt;/methodCall&gt;
+</pre>
+</div>
+<div class="section" id="server-response">
+<h4><a name="server-response">Server Response</a></h4>
+<pre class="literal-block">
+&lt;?xml version=&quot;1.0&quot; ?&gt; 
+  &lt;methodResponse&gt;
+     &lt;params&gt;
+        &lt;param&gt;
+           &lt;value&gt;&lt;int&gt;1&lt;/int&gt; &lt;/value&gt;
+        &lt;/param&gt;
+     &lt;/params&gt;
+  &lt;/methodResponse&gt;
+</pre>
+<p><tt class="literal"><span class="pre">get(&quot;test.struct.bytes&quot;,</span> <span class="pre">4)</span></tt></p>
+</div>
+<div class="section" id="id100">
+<h4><a name="id100">Client request</a></h4>
+<pre class="literal-block">
+&lt;?xml version=&quot;1.0&quot; ?&gt; 
+  &lt;methodCall&gt;
+     &lt;methodName&gt;get&lt;/methodName&gt; 
+     &lt;params&gt;
+        &lt;param&gt;
+           &lt;value&gt; &lt;string&gt;test.struct.bytes&lt;/string&gt; &lt;/value&gt;
+        &lt;/param&gt;
+        &lt;param&gt;
+           &lt;value&gt; &lt;int&gt;4&lt;/int&gt; &lt;/value&gt;
+        &lt;/param&gt;
+     &lt;/params&gt;
+  &lt;/methodCall&gt;
+</pre>
+</div>
+<div class="section" id="id101">
+<h4><a name="id101">Server response</a></h4>
+<pre class="literal-block">
+&lt;?xml version=&quot;1.0&quot; ?&gt; 
+  &lt;methodResponse&gt;
+     &lt;params&gt;
+        &lt;param&gt;
+           &lt;value&gt; &lt;int&gt;8&lt;/int&gt; &lt;/value&gt;
+        &lt;/param&gt;
+     &lt;/params&gt;
+  &lt;/methodResponse&gt;
+</pre>
+<p>Returning a structure:</p>
+<p><tt class="literal"><span class="pre">get(&quot;test.random&quot;)</span></tt></p>
+</div>
+<div class="section" id="id102">
+<h4><a name="id102">Client request</a></h4>
+<pre class="literal-block">
+&lt;?xml version=&quot;1.0&quot; ?&gt; 
+  &lt;methodCall&gt;
+     &lt;methodName&gt;get&lt;/methodName&gt; 
+        &lt;params&gt;
+           &lt;param&gt;
+              &lt;value&gt; &lt;string&gt;test.random&lt;/string&gt; &lt;/value&gt;
+           &lt;/param&gt;
+        &lt;/params&gt;
+  &lt;/methodCall&gt;
+</pre>
+</div>
+<div class="section" id="id103">
+<h4><a name="id103">Server response</a></h4>
+<pre class="literal-block">
+&lt;?xml version=&quot;1.0&quot; ?&gt; 
+  &lt;methodResponse&gt;
+     &lt;params&gt;
+        &lt;param&gt;
+           &lt;value&gt;
+              &lt;struct&gt;
+                 &lt;member&gt;
+                    &lt;name&gt;val&lt;/name&gt; 
+                    &lt;value&gt; &lt;int&gt;19914&lt;/int&gt; &lt;/value&gt;
+                 &lt;/member&gt;
+                 &lt;member&gt;
+                    &lt;name&gt;count&lt;/name&gt; 
+                    &lt;value&gt; &lt;int&gt;2&lt;/int&gt; &lt;/value&gt;
+                 &lt;/member&gt;
+              &lt;/struct&gt;
+           &lt;/value&gt;
+        &lt;/param&gt;
+     &lt;/params&gt;
+  &lt;/methodResponse&gt;
+</pre>
+<p>Error response (requesting nonexistent parameter)</p>
+<p><tt class="literal"><span class="pre">get(&quot;non.existent.parameter&quot;)</span></tt></p>
+</div>
+<div class="section" id="id104">
+<h4><a name="id104">Client request</a></h4>
+<pre class="literal-block">
+&lt;?xml version=&quot;1.0&quot; ?&gt; 
+  &lt;methodCall&gt;
+     &lt;methodName&gt;get&lt;/methodName&gt; 
+     &lt;params&gt;
+        &lt;param&gt;
+           &lt;value&gt; &lt;string&gt;non.existent.parameter&lt;/string&gt; &lt;/value&gt;
+        &lt;/param&gt;
+     &lt;/params&gt;
+  &lt;/methodCall&gt;
+</pre>
+</div>
+<div class="section" id="id105">
+<h4><a name="id105">Server response</a></h4>
+<pre class="literal-block">
+&lt;?xml version=&quot;1.0&quot; ?&gt; 
+  &lt;methodResponse&gt;
+     &lt;fault&gt;
+        &lt;value&gt;
+           &lt;struct&gt;
+              &lt;member&gt;
+                 &lt;name&gt;faultCode&lt;/name&gt; 
+                 &lt;value&gt; &lt;string&gt;ParameterName&lt;/string&gt; &lt;/value&gt;
+              &lt;/member&gt;
+              &lt;member&gt;
+                 &lt;name&gt;faultString&lt;/name&gt; 
+                 &lt;value&gt;
+                    &lt;string&gt;
+                       `non.existent.parameter': The specified parameter does not exist 
+                    &lt;/string&gt; 
+                 &lt;/value&gt;
+              &lt;/member&gt;
+           &lt;/struct&gt;
+        &lt;/value&gt;
+     &lt;/fault&gt;
+  &lt;/methodResponse&gt;
+</pre>
+</div>
+</div>
+<div class="section" id="set-encoding">
+<h3><a class="toc-backref" href="#id206" name="set-encoding"><tt class="literal"><span class="pre">set()</span></tt> encoding</a></h3>
+<p>Setting a single parameter value</p>
+<p><tt class="literal"><span class="pre">set(&quot;test.struct.char&quot;,</span> <span class="pre">42)</span></tt></p>
+<div class="section" id="id106">
+<h4><a name="id106">Client request</a></h4>
+<pre class="literal-block">
+&lt;?xml version=&quot;1.0&quot; ?&gt; 
+  &lt;methodCall&gt;
+     &lt;methodName&gt;set&lt;/methodName&gt; 
+     &lt;params&gt;
+        &lt;param&gt;
+           &lt;value&gt; &lt;string&gt;test.struct.char&lt;/string&gt; &lt;/value&gt;
+        &lt;/param&gt;
+        &lt;param&gt;
+           &lt;value&gt; &lt;int&gt;42&lt;/int&gt; &lt;/value&gt;
+        &lt;/param&gt;
+     &lt;/params&gt;
+  &lt;/methodCall&gt;
+</pre>
+</div>
+<div class="section" id="id107">
+<h4><a name="id107">Server response</a></h4>
+<pre class="literal-block">
+&lt;?xml version=&quot;1.0&quot; ?&gt; 
+  &lt;methodResponse&gt;
+     &lt;params&gt;
+        &lt;param&gt;
+           &lt;value&gt; &lt;string&gt;Success&lt;/string&gt; &lt;/value&gt;
+        &lt;/param&gt;
+     &lt;/params&gt;
+  &lt;/methodResponse&gt;
+</pre>
+</div>
+</div>
+<div class="section" id="getlabel-encoding">
+<h3><a class="toc-backref" href="#id207" name="getlabel-encoding"><tt class="literal"><span class="pre">getLabel()</span></tt> Encoding</a></h3>
+<p><tt class="literal"><span class="pre">getLabel(&quot;large&quot;)</span></tt></p>
+<div class="section" id="id108">
+<h4><a name="id108">Client request</a></h4>
+<pre class="literal-block">
+&lt;?xml version=&quot;1.0&quot; ?&gt; 
+  &lt;methodCall&gt;
+     &lt;methodName&gt;getLabel&lt;/methodName&gt; 
+     &lt;params&gt;
+        &lt;param&gt;
+           &lt;value&gt; &lt;string&gt;large&lt;/string&gt; &lt;/value&gt;
+        &lt;/param&gt;
+     &lt;/params&gt;
+     &lt;/methodCall&gt;
+</pre>
+</div>
+<div class="section" id="id109">
+<h4><a name="id109">Server response</a></h4>
+<pre class="literal-block">
+&lt;?xml version=&quot;1.0&quot; ?&gt; 
+  &lt;methodResponse&gt;
+     &lt;params&gt;
+        &lt;param&gt;
+           &lt;value&gt; &lt;string&gt;grande&lt;/string&gt; &lt;/value&gt;
+        &lt;/param&gt;
+     &lt;/params&gt;
+  &lt;/methodResponse&gt;
+</pre>
+</div>
+</div>
+<div class="section" id="geterrors-encoding">
+<h3><a class="toc-backref" href="#id208" name="geterrors-encoding"><tt class="literal"><span class="pre">getErrors()</span></tt> Encoding</a></h3>
+<p><tt class="literal"><span class="pre">getErrors()</span></tt></p>
+<div class="section" id="id110">
+<h4><a name="id110">Client request</a></h4>
+<pre class="literal-block">
+&lt;?xml version=&quot;1.0&quot; ?&gt; 
+  &lt;methodCall&gt;
+     &lt;methodName&gt;getErrors&lt;/methodName&gt; 
+     &lt;params /&gt; 
+  &lt;/methodCall&gt;
+</pre>
+</div>
+<div class="section" id="id111">
+<h4><a name="id111">Server response</a></h4>
+<pre class="literal-block">
+&lt;?xml version=&quot;1.0&quot; ?&gt; 
+  &lt;methodResponse&gt;
+     &lt;params&gt;
+        &lt;param&gt;
+           &lt;value&gt;
+              &lt;array&gt;
+                 &lt;data&gt;
+                    &lt;value&gt;
+                       &lt;struct&gt;
+                          &lt;member&gt;
+                             &lt;name&gt;errorCode&lt;/name&gt; 
+                             &lt;value&gt; &lt;string&gt;GroupExists&lt;/string&gt; &lt;/value&gt;
+                          &lt;/member&gt;
+                          &lt;member&gt;
+                             &lt;name&gt;errorString&lt;/name&gt; 
+                             &lt;value&gt; 
+                                &lt;string&gt;`admin': Group already exists&lt;/string&gt; 
+                             &lt;/value&gt;
+                          &lt;/member&gt;
+                       &lt;/struct&gt;
+                    &lt;/value&gt;
+                 &lt;value&gt;
+                    &lt;struct&gt;
+                       &lt;member&gt;
+                          &lt;name&gt;errorCode&lt;/name&gt; 
+                          &lt;value&gt; &lt;string&gt;GroupExists&lt;/string&gt; &lt;/value&gt;
+                       &lt;/member&gt;
+                       &lt;member&gt;
+                          &lt;name&gt;errorString&lt;/name&gt; 
+                          &lt;value&gt; 
+                             &lt;string&gt;`users': Group already exists&lt;/string&gt; 
+                          &lt;/value&gt;
+                       &lt;/member&gt;
+                    &lt;/struct&gt;
+                 &lt;/value&gt;
+                 &lt;value&gt;
+                    &lt;struct&gt;
+                       &lt;member&gt;
+                          &lt;name&gt;errorCode&lt;/name&gt; 
+                          &lt;value&gt; &lt;string&gt;UserExists&lt;/string&gt; &lt;/value&gt;
+                       &lt;/member&gt;
+                       &lt;member&gt;
+                          &lt;name&gt;errorString&lt;/name&gt; 
+                          &lt;value&gt; 
+                             &lt;string&gt;`adminUser': User already exists&lt;/string&gt; 
+                          &lt;/value&gt;
+                       &lt;/member&gt;
+                    &lt;/struct&gt;
+                 &lt;/value&gt;
+              &lt;/data&gt;
+           &lt;/array&gt;
+        &lt;/value&gt;
+     &lt;/param&gt;
+  &lt;/params&gt;
+&lt;/methodResponse&gt;
+</pre>
+</div>
+</div>
+</div>
+<div class="section" id="soap-message-encodings">
+<h2><a class="toc-backref" href="#id209" name="soap-message-encodings">SOAP Message Encodings</a></h2>
+<div class="section" id="id112">
+<h3><a class="toc-backref" href="#id210" name="id112"><tt class="literal"><span class="pre">get()</span></tt> Encodings</a></h3>
+<p><tt class="literal"><span class="pre">get(&quot;test.struct.char&quot;)</span></tt></p>
+<div class="section" id="id113">
+<h4><a name="id113">Client request</a></h4>
+<pre class="literal-block">
+&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF8&quot; standalone=&quot;no&quot; ?&gt; 
+&lt;SOAP-ENV:Envelope xmlns:SOAPSDK1=&quot;http://www.w3.org/2001/XMLSchema&quot; 
+xmlns:SOAPSDK2=&quot;http://www.w3.org/2001/XMLSchema-instance&quot; 
+xmlns:SOAPSDK3=&quot;http://schemas.xmlsoap.org/soap/encoding/&quot; 
+xmlns:SOAP-ENV=&quot;http://schemas.xmlsoap.org/soap/envelope/&quot;&gt;
+  &lt;SOAP-ENV:Body&gt;
+     &lt;d:get xmlns:d=&quot;http://www.artlogic.com/dmf/&quot;&gt;
+        &lt;key&gt;test.struct.char&lt;/key&gt; 
+     &lt;/d:get&gt;
+  &lt;/SOAPENV:Body&gt;
+&lt;/SOAPENV:Envelope&gt;
+</pre>
+</div>
+<div class="section" id="id114">
+<h4><a name="id114">Server response</a></h4>
+<pre class="literal-block">
+&lt;SOAP-ENV:Envelope xmlns:SOAP-ENV=&quot;http://schemas.xmlsoap.org/soap/envelope/&quot; 
+SOAP-ENV:encodingStyle=&quot;http://schemas.xmlsoap.org/soap/encoding/&quot; 
+xmlns:SOAP-ENC=&quot;http://schemas.xmlsoap.org/soap/encoding/&quot; 
+xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;&gt;
+  &lt;SOAP-ENV:Body&gt;
+     &lt;d:getResponse xmlns:d=&quot;http://www.artlogic.com/dmf/&quot;&gt;
+        &lt;Result xsi:type=&quot;xsd:int&quot;&gt;1&lt;/Result&gt; 
+     &lt;/d:getResponse&gt;
+  &lt;/SOAPENV:Body&gt;
+&lt;/SOAPENV:Envelope&gt;
+</pre>
+<p><tt class="literal"><span class="pre">get(&quot;test.struct.bytes&quot;,</span> <span class="pre">index=4)</span></tt></p>
+</div>
+<div class="section" id="id115">
+<h4><a name="id115">Client request</a></h4>
+<pre class="literal-block">
+&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF8&quot; standalone=&quot;no&quot; ?&gt; 
+&lt;SOAP-ENV:Envelope xmlns:SOAPSDK1=&quot;http://www.w3.org/2001/XMLSchema&quot; 
+xmlns:SOAPSDK2=&quot;http://www.w3.org/2001/XMLSchema-instance&quot; 
+xmlns:SOAPSDK3=&quot;http://schemas.xmlsoap.org/soap/encoding/&quot; 
+xmlns:SOAP-ENV=&quot;http://schemas.xmlsoap.org/soap/envelope/&quot;&gt;
+  &lt;SOAP-ENV:Body&gt;
+     &lt;d:get xmlns:d=&quot;http://www.artlogic.com/dmf/&quot;&gt;
+        &lt;key&gt;test.struct.bytes&lt;/key&gt; 
+        &lt;index&gt;4&lt;/index&gt; 
+     &lt;/d:get&gt;
+  &lt;/SOAPENV:Body&gt;
+&lt;/SOAPENV:Envelope&gt;
+</pre>
+</div>
+<div class="section" id="id116">
+<h4><a name="id116">Server response</a></h4>
+<pre class="literal-block">
+&lt;SOAP-ENV:Envelope xmlns:SOAP-ENV=&quot;http://schemas.xmlsoap.org/soap/envelope/&quot; 
+SOAP-ENV:encodingStyle=&quot;http://schemas.xmlsoap.org/soap/encoding/&quot; 
+xmlns:SOAP-ENC=&quot;http://schemas.xmlsoap.org/soap/encoding/&quot; 
+xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;&gt;
+  &lt;SOAP-ENV:Body&gt;
+     &lt;d:getResponse xmlns:d=&quot;http://www.artlogic.com/dmf/&quot;&gt;
+        &lt;Result xsi:type=&quot;xsd:int&quot;&gt;8&lt;/Result&gt; 
+     &lt;/d:getResponse&gt;
+  &lt;/SOAPENV:Body&gt;
+&lt;/SOAPENV:Envelope&gt;
+</pre>
+<p>Returning a structure:</p>
+<p><tt class="literal"><span class="pre">get(&quot;test.random&quot;)</span></tt></p>
+</div>
+<div class="section" id="id117">
+<h4><a name="id117">Client request</a></h4>
+<pre class="literal-block">
+&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF8&quot; standalone=&quot;no&quot; ?&gt; 
+&lt;SOAP-ENV:Envelope xmlns:SOAPSDK1=&quot;http://www.w3.org/2001/XMLSchema&quot; 
+xmlns:SOAPSDK2=&quot;http://www.w3.org/2001/XMLSchema-instance&quot; 
+xmlns:SOAPSDK3=&quot;http://schemas.xmlsoap.org/soap/encoding/&quot; 
+xmlns:SOAP-ENV=&quot;http://schemas.xmlsoap.org/soap/envelope/&quot;&gt;
+  &lt;SOAP-ENV:Body&gt;
+     &lt;d:get xmlns:d=&quot;http://www.artlogic.com/dmf/&quot;&gt;
+        &lt;key&gt;test.random&lt;/key&gt; 
+     &lt;/d:get&gt;
+  &lt;/SOAPENV:Body&gt;
+&lt;/SOAPENV:Envelope&gt;
+</pre>
+</div>
+<div class="section" id="id118">
+<h4><a name="id118">Server response</a></h4>
+<pre class="literal-block">
+&lt;SOAP-ENV:Envelope xmlns:SOAP-ENV=&quot;http://schemas.xmlsoap.org/soap/envelope/&quot; 
+SOAP-ENV:encodingStyle=&quot;http://schemas.xmlsoap.org/soap/encoding/&quot; 
+xmlns:SOAP-ENC=&quot;http://schemas.xmlsoap.org/soap/encoding/&quot; 
+xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;&gt;
+  &lt;SOAP-ENV:Body&gt;
+     &lt;d:getResponse xmlns:d=&quot;http://www.artlogic.com/dmf/&quot;&gt;
+        &lt;Result&gt;
+           &lt;random&gt;
+              &lt;val xsi:type=&quot;xsd:int&quot;&gt;3976&lt;/val&gt; 
+              &lt;count xsi:type=&quot;xsd:int&quot;&gt;1&lt;/count&gt; 
+           &lt;/random&gt;
+        &lt;/Result&gt;
+     &lt;/d:getResponse&gt;
+  &lt;/SOAPENV:Body&gt;
+&lt;/SOAPENV:Envelope&gt;
+</pre>
+<p>Error response (requesting nonexistent parameter):</p>
+<p><tt class="literal"><span class="pre">get(&quot;non.existent.parameter&quot;)</span></tt></p>
+</div>
+<div class="section" id="id119">
+<h4><a name="id119">Client request</a></h4>
+<pre class="literal-block">
+&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF8&quot; standalone=&quot;no&quot; ?&gt; 
+&lt;SOAP-ENV:Envelope xmlns:SOAPSDK1=&quot;http://www.w3.org/2001/XMLSchema&quot; 
+xmlns:SOAPSDK2=&quot;http://www.w3.org/2001/XMLSchema-instance&quot; 
+xmlns:SOAPSDK3=&quot;http://schemas.xmlsoap.org/soap/encoding/&quot; 
+xmlns:SOAP-ENV=&quot;http://schemas.xmlsoap.org/soap/envelope/&quot;&gt;
+  &lt;SOAP-ENV:Body&gt;
+     &lt;d:get xmlns:d=&quot;http://www.artlogic.com/dmf/&quot;&gt;
+        &lt;key&gt;non.existent.parameter&lt;/key&gt; 
+     &lt;/d:get&gt;
+  &lt;/SOAPENV:Body&gt;
+&lt;/SOAPENV:Envelope&gt;
+</pre>
+</div>
+<div class="section" id="id120">
+<h4><a name="id120">Server response</a></h4>
+<pre class="literal-block">
+&lt;SOAP-ENV:Envelope xmlns:SOAP-ENV=&quot;http://schemas.xmlsoap.org/soap/envelope/&quot; 
+SOAP-ENV:encodingStyle=&quot;http://schemas.xmlsoap.org/soap/encoding/&quot; 
+xmlns:SOAP-ENC=&quot;http://schemas.xmlsoap.org/soap/encoding/&quot; 
+xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;&gt;
+  &lt;SOAP-ENV:Body&gt;
+     &lt;SOAP-ENV:Fault&gt;
+        &lt;faultcode&gt;Client.ParameterName&lt;/faultcode&gt; 
+        &lt;faultstring&gt;
+           `non.existent.parameter': The specified parameter does not exist
+        &lt;/faultstring&gt; 
+     &lt;/SOAPENV:Fault&gt;
+  &lt;/SOAPENV:Body&gt;
+&lt;/SOAPENV:Envelope&gt;
+</pre>
+</div>
+</div>
+<div class="section" id="id121">
+<h3><a class="toc-backref" href="#id211" name="id121"><tt class="literal"><span class="pre">set()</span></tt> Encoding</a></h3>
+<p><tt class="literal"><span class="pre">set(&quot;test.struct.char&quot;,</span> <span class="pre">42)</span></tt></p>
+<div class="section" id="id122">
+<h4><a name="id122">Client request</a></h4>
+<pre class="literal-block">
+&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF8&quot; standalone=&quot;no&quot; ?&gt; 
+&lt;SOAP-ENV:Envelope xmlns:SOAPSDK1=&quot;http://www.w3.org/2001/XMLSchema&quot; 
+xmlns:SOAPSDK2=&quot;http://www.w3.org/2001/XMLSchema-instance&quot; 
+xmlns:SOAPSDK3=&quot;http://schemas.xmlsoap.org/soap/encoding/&quot; 
+xmlns:SOAP-ENV=&quot;http://schemas.xmlsoap.org/soap/envelope/&quot;&gt;
+  &lt;SOAP-ENV:Body&gt;
+     &lt;d:set xmlns:d=&quot;http://www.artlogic.com/dmf/&quot;&gt;
+        &lt;key&gt;test.struct.char&lt;/key&gt; 
+        &lt;value&gt;42&lt;/value&gt; 
+     &lt;/d:set&gt;
+  &lt;/SOAPENV:Body&gt;
+&lt;/SOAPENV:Envelope&gt;
+</pre>
+</div>
+<div class="section" id="id123">
+<h4><a name="id123">Server response</a></h4>
+<pre class="literal-block">
+&lt;SOAP-ENV:Envelope xmlns:SOAP-ENV=&quot;http://schemas.xmlsoap.org/soap/envelope/&quot; 
+SOAP-ENV:encodingStyle=&quot;http://schemas.xmlsoap.org/soap/encoding/&quot; 
+xmlns:SOAP-ENC=&quot;http://schemas.xmlsoap.org/soap/encoding/&quot; 
+xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;&gt;
+  &lt;SOAP-ENV:Body&gt;
+     &lt;d:setResponse xmlns:d=&quot;http://www.artlogic.com/dmf/&quot;&gt;
+        &lt;Result xsi:type=&quot;xsd:string&quot;&gt;Success&lt;/Result&gt; 
+     &lt;/d:setResponse&gt;
+  &lt;/SOAPENV:Body&gt;
+&lt;/SOAPENV:Envelope&gt;
+</pre>
+</div>
+</div>
+<div class="section" id="id124">
+<h3><a class="toc-backref" href="#id212" name="id124"><tt class="literal"><span class="pre">getLabel()</span></tt> Encoding</a></h3>
+<p><tt class="literal"><span class="pre">getLabel(&quot;large&quot;)</span></tt></p>
+<div class="section" id="id125">
+<h4><a name="id125">Client request</a></h4>
+<pre class="literal-block">
+&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;no&quot; ?&gt; 
+&lt;SOAP-ENV:Envelope xmlns:SOAPSDK1=&quot;http://www.w3.org/2001/XMLSchema&quot; 
+xmlns:SOAPSDK2=&quot;http://www.w3.org/2001/XMLSchema-instance&quot; 
+xmlns:SOAPSDK3=&quot;http://schemas.xmlsoap.org/soap/encoding/&quot; 
+xmlns:SOAP-ENV=&quot;http://schemas.xmlsoap.org/soap/envelope/&quot;&gt;
+  &lt;SOAP-ENV:Body&gt;
+     &lt;d:getLabel xmlns:d=&quot;http://www.artlogic.com/dmf/&quot;&gt;
+        &lt;key&gt;large&lt;/key&gt; 
+     &lt;/d:getLabel&gt;
+  &lt;/SOAP-ENV:Body&gt;
+&lt;/SOAP-ENV:Envelope&gt;
+</pre>
+</div>
+<div class="section" id="id126">
+<h4><a name="id126">Server response</a></h4>
+<pre class="literal-block">
+&lt;SOAP-ENV:Envelope xmlns:SOAP-ENV=&quot;http://schemas.xmlsoap.org/soap/envelope/&quot; 
+SOAP-ENV:encodingStyle=&quot;http://schemas.xmlsoap.org/soap/encoding/&quot; 
+xmlns:SOAP-ENC=&quot;http://schemas.xmlsoap.org/soap/encoding/&quot;
+xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;&gt;
+  &lt;SOAP-ENV:Body&gt;
+     &lt;d:getLabelResponse xmlns:d=&quot;http://www.artlogic.com/dmf/&quot;&gt;
+        &lt;Result xsi:type=&quot;xsd:string&quot;&gt;grande&lt;/Result&gt; 
+     &lt;/d:getLabelResponse&gt;
+  &lt;/SOAP-ENV:Body&gt;
+&lt;/SOAP-ENV:Envelope&gt;
+</pre>
+</div>
+</div>
+<div class="section" id="id127">
+<h3><a class="toc-backref" href="#id213" name="id127"><tt class="literal"><span class="pre">getErrors()</span></tt> Encoding</a></h3>
+<p><tt class="literal"><span class="pre">getErrors()</span></tt></p>
+<div class="section" id="id128">
+<h4><a name="id128">Client request</a></h4>
+<pre class="literal-block">
+&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF8&quot; standalone=&quot;no&quot; ?&gt; 
+&lt;SOAP-ENV:Envelope xmlns:SOAPSDK1=&quot;http://www.w3.org/2001/XMLSchema&quot; 
+xmlns:SOAPSDK2=&quot;http://www.w3.org/2001/XMLSchema-instance&quot; 
+xmlns:SOAPSDK3=&quot;http://schemas.xmlsoap.org/soap/encoding/&quot; 
+xmlns:SOAP-ENV=&quot;http://schemas.xmlsoap.org/soap/envelope/&quot;&gt;
+  &lt;SOAP-ENV:Body&gt;
+     &lt;d:getErrors xmlns:d=&quot;http://www.artlogic.com/dmf/&quot; /&gt; 
+  &lt;/SOAPENV:Body&gt;
+&lt;/SOAPENV:Envelope&gt;
+</pre>
+</div>
+<div class="section" id="id129">
+<h4><a name="id129">Server response</a></h4>
+<pre class="literal-block">
+&lt;SOAP-ENV:Envelope xmlns:SOAP-ENV=&quot;http://schemas.xmlsoap.org/soap/envelope/&quot; 
+SOAP-ENV:encodingStyle=&quot;http://schemas.xmlsoap.org/soap/encoding/&quot; 
+xmlns:SOAP-ENC=&quot;http://schemas.xmlsoap.org/soap/encoding/&quot; 
+xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;&gt;
+  &lt;SOAP-ENV:Body&gt;
+     &lt;d:getErrorsResponse xmlns:d=&quot;http://www.artlogic.com/dmf/&quot;&gt;
+        &lt;Result&gt;
+           &lt;errors SOAP-ENC:arrayType=&quot;xsd:ur-type[3]&quot; xsi:type=&quot;SOAP-ENC:Array&quot;&gt;
+              &lt;Item&gt;
+                 &lt;errorCode xsi:type=&quot;xsd:string&quot;&gt;GroupExists&lt;/errorCode&gt; 
+                 &lt;errorString xsi:type=&quot;xsd:string&quot;&gt;
+                    `admin': Group already exists&lt;/errorString&gt; 
+              &lt;/Item&gt;
+              &lt;Item&gt;
+                 &lt;errorCode xsi:type=&quot;xsd:string&quot;&gt;GroupExists&lt;/errorCode&gt; 
+                 &lt;errorString xsi:type=&quot;xsd:string&quot;&gt;
+                    `users': Group already exists&lt;/errorString&gt; 
+              &lt;/Item&gt;
+              &lt;Item&gt;
+                 &lt;errorCode xsi:type=&quot;xsd:string&quot;&gt;UserExists&lt;/errorCode&gt; 
+                 &lt;errorString xsi:type=&quot;xsd:string&quot;&gt;
+                    `adminUser': User already exists&lt;/errorString&gt; 
+              &lt;/Item&gt;
+           &lt;/errors&gt;
+        &lt;/Result&gt;
+     &lt;/d:getErrorsResponse&gt;
+  &lt;/SOAPENV:Body&gt;
+&lt;/SOAPENV:Envelope&gt;
+</pre>
+<!-- (c) 2002 Art & Logic, Inc. All Rights Reserved. -->
+<!-- $Id: UserGuide.html,v 1.2 2006/01/10 23:51:52 erik Exp $ -->
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="appendix-b-using-rommable-web-files">
+<h1><a class="toc-backref" href="#id214" name="appendix-b-using-rommable-web-files">Appendix B: Using ROMmable web files</a></h1>
+<div class="section" id="overview">
+<h2><a class="toc-backref" href="#id215" name="overview">Overview</a></h2>
+<p>It's common that embeded systems will be deployed without a file system. For
+projects in this situation, the DMF includes a 'Web Compiler' to convert all
+of the web files (<tt class="literal"><span class="pre">*.asp</span></tt> files, image files, external JavaScript files,
+Flash movie files, etc.) into a form that allows them to be compiled and
+linked into the server executable and accessed from there.</p>
+</div>
+<div class="section" id="building-the-web-compiler">
+<h2><a class="toc-backref" href="#id216" name="building-the-web-compiler">Building the &quot;Web Compiler&quot;</a></h2>
+<p>The Web Compiler is a simple command-line application that reads in a list of
+files (of any format, text or binary) and creates a source-file representation
+of them that may be compiled into the server executable. For example, a web
+file that begins like:</p>
+<pre class="literal-block">
+&lt;html&gt;
+&lt;head&gt;
+&lt;%language=javascript%&gt;
+&lt;title&gt;DMF Tutorial - System Information&lt;/title&gt;
+&lt;/head&gt;
+
+&lt;h1&gt;System Information&lt;/h1&gt;
+</pre>
+<p>would be converted into the following:</p>
+<pre class="literal-block">
+static unsigned char page_0[] = {
+     60,104,116,109,108, 62, 13, 10, 60,104,101, 97,100, 62, 13, 10,
+     60, 37,108, 97,110,103,117, 97,103,101, 61,106, 97,118, 97,115,
+     99,114,105,112,116, 37, 62, 13, 10, 60,116,105,116,108,101, 62,
+     68, 77, 70, 32, 84,117,116,111,114,105, 97,108, 32, 45, 32, 83,
+    121,115,116,101,109, 32, 73,110,102,111,114,109, 97,116,105,111,
+    110, 60, 47,116,105,116,108,101, 62, 13, 10, 60, 47,104,101, 97,
+
+    &lt;&lt;etc.&gt;&gt;
+</pre>
+<p>suitable for compilation.</p>
+<p>On Windows, we include a project file for Visual C++ 6
+(<tt class="literal"><span class="pre">\WINDOWS\webcomp.dsw</span></tt>, <tt class="literal"><span class="pre">\WINDOWS\webcomp.dsp</span></tt>) that may be used to
+create the <tt class="literal"><span class="pre">webcomp.exe</span></tt> application. On Linux and other similar operating
+systems, the file <tt class="literal"><span class="pre">webs/webcomp.c</span></tt> may be compiled and linked directly from
+the command line.</p>
+</div>
+<div class="section" id="creating-the-list-of-web-files">
+<h2><a class="toc-backref" href="#id217" name="creating-the-list-of-web-files">Creating the list of web files</a></h2>
+<p>The web compiler consumes a text file containing the pathname of every file
+that you would like included in the DMF server; the easiest way to generate
+this file is by redirecting the output of another program that walks your
+directory tree.</p>
+<p>For instance, from a Windows command prompt, change to the parent directory
+containing all your web files, and then issue to command line:</p>
+<pre class="literal-block">
+dir /b /s /a-d &gt; webfiles.txt
+</pre>
+<p>to create a new file named <tt class="literal"><span class="pre">webfiles.txt</span></tt> that contains the full pathname of
+every file in the current directory and all child directories (but excluding
+the names of the child directories themselves), like:</p>
+<pre class="literal-block">
+C:\Dmf\Tutorial\Web\ch12\error.asp
+C:\Dmf\Tutorial\Web\ch12\error400.asp
+C:\Dmf\Tutorial\Web\ch12\error404.asp
+C:\Dmf\Tutorial\Web\ch12\home.asp
+C:\Dmf\Tutorial\Web\ch12\admin\Config.asp
+C:\Dmf\Tutorial\Web\ch12\admin\EditUser.asp
+C:\Dmf\Tutorial\Web\ch12\admin\UserList.asp
+C:\Dmf\Tutorial\Web\ch12\tech\ConfigValues.asp
+C:\Dmf\Tutorial\Web\ch12\user\SystemInfo.asp
+C:\Dmf\Tutorial\Web\ch12\user\Values.asp
+C:\Dmf\Tutorial\Web\ch12\user\home.asp
+</pre>
+<p>On Linux, a command line like:</p>
+<pre class="literal-block">
+find . -type f &gt; webfiles.txt
+</pre>
+<p>to create a similar file:</p>
+<pre class="literal-block">
+./Dmf/Tutorial/Web/ch12/error.asp
+./Dmf/Tutorial/Web/ch12/error400.asp
+./Dmf/Tutorial/Web/ch12/error404.asp
+./Dmf/Tutorial/Web/ch12/home.asp
+./Dmf/Tutorial/Web/ch12/admin/Config.asp
+./Dmf/Tutorial/Web/ch12/admin/EditUser.asp
+./Dmf/Tutorial/Web/ch12/admin/UserList.asp
+./Dmf/Tutorial/Web/ch12/tech/ConfigValues.asp
+./Dmf/Tutorial/Web/ch12/user/SystemInfo.asp
+./Dmf/Tutorial/Web/ch12/user/Values.asp
+./Dmf/Tutorial/Web/ch12/user/home.asp
+</pre>
+</div>
+<div class="section" id="running-the-web-compiler">
+<h2><a class="toc-backref" href="#id218" name="running-the-web-compiler">Running the Web Compiler</a></h2>
+<p>The web compiler program takes two arguments:</p>
+<dl>
+<dt>prefix</dt>
+<dd>Path prefix found in the file listing web files that should be removed when
+converting the files into source format. In the above example, we want to
+remove the <tt class="literal"><span class="pre">C:\Dmf\Tutorial\Web\ch12</span></tt> portion of each of the pathnames,
+so that the file <tt class="literal"><span class="pre">error.asp</span></tt> and its siblings appear at the root
+directory of the web server.</dd>
+<dt>filelist</dt>
+<dd>Text file containing pathnames of files to convert.</dd>
+</dl>
+<p>When run, the web compiler will convert the files specified in the
+<tt class="literal"><span class="pre">filelist</span></tt> file and print the resulting source code to its standard output.
+This output may be redirected to another file. The preferred practice is to
+redirect this output so that it overwrites the file <tt class="literal"><span class="pre">webs/webrom.c</span></tt> that is
+already included in the DMF project or Makefile.</p>
+<p>For example, on Windows, use the command line:</p>
+<pre class="literal-block">
+webcomp c:\Dmf\Tutorial\Web\ch12 webfiles.txt &gt; C:\Dmf\webs\webrom.c
+</pre>
+</div>
+<div class="section" id="rebuilding-the-server">
+<h2><a class="toc-backref" href="#id219" name="rebuilding-the-server">Rebuilding the Server</a></h2>
+<p>Before rebuilding the server to include the web files, you must enable the
+ROMmable file support. To do this, edit the file <tt class="literal"><span class="pre">webs/wsIntern.h</span></tt> so that
+the line:</p>
+<pre class="literal-block">
+*     #define WEBS_PAGE_ROM 1
+</pre>
+<p>Is not commented out. Rebuild your DMF project and test it to verify that it
+is able to serve the compiled pages. Two common problems when first using this
+feature are:</p>
+<ul class="simple">
+<li>Failure to enable ROM file support</li>
+<li>Creating the file <tt class="literal"><span class="pre">webrom.c</span></tt> in the wrong location, causing the compiler
+to use the supplied (empty) <tt class="literal"><span class="pre">webrom.c</span></tt> file.</li>
+</ul>
+</div>
+</div>
+<div class="section" id="copyright-information">
+<h1><a class="toc-backref" href="#id220" name="copyright-information">Copyright Information</a></h1>
+<p>The Art &amp; Logic Device Management Framework and accompanying documentation
+Copyright (c) 2000-2002 Art &amp; Logic, Inc. All Rights Reserved.</p>
+<p>&quot;expat&quot; XML Parser Toolkit Copyright (c) 1998, 1999, 2000 Thai Open 
+Source Software Center Ltd.</p>
+<p>GoAhead WebServer Copyright (c) GoAhead Software Inc., 1995-2000. 
+All Rights Reserved.</p>
+<p>XML-RPC Flash ActionScript library created by Pedro 
+Ornelas &lt;<a class="reference" href="mailto:killer&#64;netmadeira.com">mailto:killer&#64;netmadeira.com</a>&gt;</p>
+<!-- This is the last line in the file! -->
+</div>
+</div>
+</body>
+</html>

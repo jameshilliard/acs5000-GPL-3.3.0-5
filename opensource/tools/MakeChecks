@@ -1,0 +1,60 @@
+#
+# Checks the makefile version undefined variables
+#
+NULL:=
+SPACE:=$(NULL) $(NULL)
+DOT:=.
+STR_VER=$(subst $(DOT),$(SPACE),$(MAKE_VERSION))
+VER1:=$(word 1, $(STR_VER))
+VER2:=$(word 2, $(STR_VER))
+
+define text_ver
+
+
+make version is '$(MAKE_VERSION)' and version '3.81' or newer is required.
+
+You should issue a command: 'make -f MakeUtils' inside the
+<builtin-source-tree>/tools directory and
+execute the shell script '. ./tools/mk_env -s'.
+
+endef
+
+ifeq ($(shell if [ $(VER1) -lt 3 -o $(VER1) -eq 3 -a $(VER2) -lt 81 ] ; then echo 1; else echo 0; fi), 1)
+$(warning $(text_ver))
+$(error "Invalid make version...")
+endif
+
+define CHECK_UTIL
+	@$(MAKE) -f $(OPENSOURCE_DIR)/$(TOOLS)/MakeUtils \
+		--no-print-directory chk_$(1)
+endef
+
+#
+# Checks for required variables (VAR_TO_BE_CHECKED must have their names)
+#
+
+define check_vars
+$(foreach var,$(1), \
+$(if $(filter undefined,$(origin $(var))),\
+$(error Variable '$(var)' must be defined.)))
+endef
+
+ifdef NO_REDIRECT
+define EXEC_ACTION
+	$(2)
+endef
+else
+define EXEC_ACTION
+	@( \
+	echo "Target $(1) started" ; \
+	$(2) >> $(WORK_DIR)/$(LOGS)/$(1) 2>&1; \
+	RESULT=$$? ; \
+	if [ $$RESULT != 0 ] ; then \
+		echo "Target $(1) failed " ; \
+		exit $$RESULT; \
+	else \
+		echo "Target $(1) succeeded" ; \
+	fi )
+endef
+endif
+

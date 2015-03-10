@@ -1,0 +1,67 @@
+#!/bin/sh
+
+TOOLS=$(dirname $0)
+
+. ${TOOLS}/shell_utils
+
+#
+# Start
+#
+
+check_vars TARGET_DIR MVL_FILES MVL_TARGET_DIR
+
+check_dirs $ROOT_PROJ $TARGET_DIR
+
+check_files $ROOT_PROJ/$MVL_FILES
+
+copy_dir()
+{
+  cd ${1} || exit -1
+  for f in *
+  do
+    if [ -d ${f} ] ; then
+      #echo "Exec copy_dir ${1}/${f} ${2}/${f}"
+      copy_dir ${1}/${f} ${2}/${f} ${3}
+    else
+      if [ -L ${f} ] ; then
+        cp -af ${f} ${2}/${f}
+      else
+        #echo "Exec install -D ${f} ${2}/${f}"
+        install -D ${f} ${2}/${f}
+        if [ -z "${3}" ]; then
+          ${STRIP} ${TARGET_DIR}/${file}
+        fi
+      fi
+    fi
+  done
+  cd -
+}
+
+while read file nostrip  
+do
+  if [ -z "$file" ] ; then
+    break
+  fi
+  if [ -e $MVL_TARGET_DIR/$file ] ; then
+    if [ -d $MVL_TARGET_DIR/$file ] ; then
+      copy_dir $MVL_TARGET_DIR/$file/ ${TARGET_DIR}/$file $nostrip
+    else
+      targetfile=`echo $file | sed -e "s/2.4.20_mvl31-cllf/2.6.11"/g`
+      if [ -L ${MVL_TARGET_DIR}/$file ]; then
+        cp -af ${MVL_TARGET_DIR}/$file ${TARGET_DIR}/$targetfile
+      else
+        install -D $MVL_TARGET_DIR/$file ${TARGET_DIR}/$targetfile || exit -1
+        if [ -z "${nostrip}" ]; then
+          ${STRIP} ${TARGET_DIR}/$targetfile
+        fi
+      fi
+    fi
+  else
+    echo "WARNING: file '$MVL_TARGET_DIR/$file' does not exist."
+  fi
+done << -EOF
+$(< $ROOT_PROJ/$MVL_FILES)
+-EOF
+
+exit 0
+

@@ -1,0 +1,441 @@
+#####################
+# Cli 
+#####################
+[INFO] cli <<<
+	- Thanks for using the CLI -
+
+This interface allows you to easily modify configurations to customize
+and define the functionality of your unit. 
+
+Some basic and useful keys are:
+ up/down arrow - navigates up/down in the command history
+ tab (once/twice) - shows the next possible option(s) 
+
+Other hints:
+ Put quotes around strings that contain spaces.
+
+Please refer to the  Reference  Guide  for  other  special  keys   and
+additional information on how to use this interface.
+
+Press TAB to see the list of available options. 
+
+>>>
+
+#####################
+# cli - Initial level
+#####################
+[INFO] administration <<<
+	- Administration Mode -
+In this mode, you can save or retrieve the unit's configurations, list
+or kill sessions, and/or upgrade the unit's firmware.
+
+Press TAB to see the list of available options. 
+
+>>>
+
+[INFO] applications <<<
+	- Applications Mode -
+In this mode, you can connect to a port, manage power strips, or  view
+data buffer files.
+
+Press TAB to see the list of available options. 
+
+>>>
+
+[INFO] shell <<<
+	- Shell -
+This command gives you access to the shell from the CLI. To return  to
+the CLI, just type 'exit' or 'logout' from the shell.
+
+>>>
+
+[INFO] version <<<
+	- Version -
+This command shows you the current CLI version.
+
+>>>
+
+#####################
+# Administration
+#####################
+[INFO] administration.sessions <<<
+	- Sessions Mode -
+In this mode, you can either connect to or kill a session.
+
+Press TAB to see the list of available options. 
+
+>>>
+
+[INFO] administration.backupconfig <<<
+	- Backup Configuration Mode -
+In this mode, you can save or retrieve unit configurations to or  from
+a remote machine, respectively. 
+
+Press TAB to see the list of available options. 
+
+>>>
+
+[INFO] administration.upgradefw <<<
+	- Upgrade Firmware Mode -
+In this mode, you can upgrade the current unit's firmware.
+
+Press TAB to see the list of available options. 
+
+>>>
+
+#####################
+# Applications
+#####################
+[INFO] applications.pm <<<
+	- Power Management -
+This application allows you to manage power  outlets  on  the  Avocent
+Cyclades  Power  Management   (PM)   family   of   Intelligent   Power
+Distribution Units (IPDU). You can power remote machines on  and  off,
+cycle the machines, check status, or lock the power  outlets  so  that
+they remain in a permanent on or off state.
+
+>>>
+
+[INFO] applications.connect <<<
+	- Connect -
+This application allows you to connect to a console port.
+
+>>>
+
+[INFO] applications.view <<<
+	- View -
+This application allows you to view a console's data buffer file.
+
+Press TAB to see the list of available options. 
+
+>>>
+
+#####################
+# Config 
+#####################
+[INFO] config <<<
+	- Configuration Mode -
+In this mode, you can configure various parameters  to  customize  and
+define the functionality of your unit. 
+
+Press TAB to see the list of available options. 
+
+>>>
+
+#####################
+# Config | Administration
+#####################
+[INFO] config.administration <<<
+	- Administration Mode -
+In this mode, you can perform administrative tasks on your  unit.  For
+instance, you can set up email or pager notifications that alerts  you
+whenever a critical error occurs in your unit, or you can set the time
+and date of your system.
+
+Press TAB to see the list of available options. 
+
+>>>
+
+[INFO] config.administration.notifications <<<
+	- Notification Configurations -
+Within this feature, you can set up your unit  so  that  it  can  send
+notifications by e-mail, pager or SNMP trap in the occurrence  of  any
+system warnings and or alarms. 
+
+Press TAB to see the list of available options. 
+
+>>>
+
+[INFO] config.administration.date/time <<<
+	- Date Time Configurations -
+Within this feature, you can manually set the time and  date  in  your
+unit. 
+
+Press TAB to see the list of available options. 
+
+>>>
+
+[INFO] config.administration.ntp <<<
+	- Network Time Protocol -
+Network  Time  Protocol  (NTP)  is  an  internet  protocol   used   to
+synchronize the clock of your unit to some reference over a network. 
+
+Press TAB to see the list of available options. 
+
+>>>
+
+[INFO] config.administration.bootconfig <<<
+	- Boot Configuration Mode -
+In this mode, you can modify boot  configuration  parameters  of  your
+unit.
+
+Press TAB to see the list of available options. 
+
+>>>
+
+#####################
+# Config | Applications
+#####################
+[INFO] config.applications <<<
+	- Applications Mode -
+In this mode, you can customize a Terminal Server profile menu. 
+
+Press TAB to see the list of available options. 
+
+>>>
+
+[INFO] config.applications.terminalmenu <<<
+	- Terminal Menu Shell -
+This application allows you to customize the menu presented  to  users
+when they connect to the unit from a dumb terminal. 
+The menu can be set up to allow users to connect to different servers;
+thereby, making it quick and easy for users to connect  to  the  those
+servers on the LAN. 
+
+Press TAB to see the list of available options. 
+
+>>>
+
+#####################
+# Config | discardchanges
+#####################
+[INFO] config.discardchanges <<<
+	- Discard Changes -
+This command allows you to cancel configurations made so far. 
+
+>>>
+
+#####################
+# Config | Network
+#####################
+[INFO] config.network <<<
+	- Network Mode -
+In this mode, you can configure various  parameters  relating  to  the
+network of your unit. 
+
+Press TAB to see the list of available options. 
+
+>>>
+
+[INFO] config.network.hostsettings <<<
+	- Host Configurations -
+Within this feature, you can configure generic network parameters such
+as the server's hostname, IP address, or DNS servers.
+
+Press TAB to see the list of available options. 
+
+>>>
+
+[INFO] config.network.syslog <<<
+	- Syslog Configurations -
+Within this feature, you can configure one or more syslog servers that
+will receive syslog messages that are generated by the unit. The  unit
+can be configured to generate syslog messages when  users  connect  to
+ports, when there are login failures, and  or  any  other  information
+that can be used for audit and control purposes.
+
+Press TAB to see the list of available options. 
+
+>>>
+
+[INFO] config.network.vpn <<<
+	- VPN Configurations -
+Virtual Private Network (VPN) allows a secure connection  between  two
+networks. Within this feature, you can set up  VPN  connections  or  a
+"tunnels" between systems or the unit's devices. This allows  multiple
+sites to communicate with the unit securely over an  insecure  network
+by encrypting the communication between the sites and the unit. 
+
+Press TAB to see the list of available options. 
+
+>>>
+
+[INFO] config.network.snmp <<<
+	- SNMP Configurations -
+Simple Network Management Protocol (SNMP) is a set  of  protocols  for
+managing complex networks. Within  this  feature,  you  can  configure
+parameters that define how the SNMP  applications  operate.  The  unit
+supports SNMPv1, v2 and v3.
+
+Press TAB to see the list of available options. 
+
+>>>
+
+[INFO] config.network.hosttable <<<
+	- Host Table Configurations -
+Within this feature, you can associate IP addresses with hostnames.
+
+Press TAB to see the list of available options. 
+
+>>>
+
+[INFO] config.network.stroutes <<<
+	- Static Routes Configurations -
+Within this feature, you can configure static  routes.  Static  routes
+are a very quick and effective way to route data from  one  subnet  to
+different subnets.
+
+Press TAB to see the list of available options. 
+
+>>>
+
+#####################
+# Config | Physical Ports
+#####################
+[INFO] config.physicalports <<<
+	- Physical Ports Mode -
+In  this  mode,  you  can  make  configurations   that   defines   the
+functionality of the unit. These configurations affect the ports  that
+physically exists on the unit. 
+
+Press TAB to see the list of available options. 
+
+>>>
+
+[INFO] config.physicalports.enable <<<
+	- Enable -
+This command allows you to either enable or disable the port.
+
+Press TAB to see the list of available options. 
+
+>>>
+
+[INFO] config.physicalports.general <<<
+	- General Port Configurations -
+Within this feature, you can configure basic port parameters  such  as
+the connection protocol, or define the serial communication settings.
+
+Press TAB to see the list of available options. 
+
+>>>
+
+[INFO] config.physicalports.access <<<
+	- Access Port Configurations -
+Within this feature, you can configure  parameters  that  defines  the
+method of gaining access to the servers that are either  connected  to
+the serial ports of your unit or over the network. For  instance,  you
+can configure specific users or groups to authorize or  restrict  them
+from accessing a port, or  you  can  define  the  port  authentication
+method. 
+
+Press TAB to see the list of available options. 
+
+>>>
+
+[INFO] config.physicalports.databuffering <<<
+	- Data Buffering Port Configurations -
+Within this feature, you can configure  parameters  relating  to  data
+buffering. For instance, you can set up the amount of data  you  would
+like to buffer, or whether you want to  buffer  the  data  locally  or
+remotely. For local buffering, you can  also  utitlize  the  syslog-ng
+service to better filter and manage your data. 
+
+Press TAB to see the list of available options. 
+
+>>>
+
+[INFO] config.physicalports.multiuser <<<
+	- Multi User Port Configurations -
+Within this feature, you can configure parameters relating to  session
+sniffing. For instance, you can choose the type of sniff  session  and
+or how the data from the sniff session is to be displayed. 
+
+Press TAB to see the list of available options. 
+
+>>>
+
+[INFO] config.physicalports.powermanagement <<<
+	- Power Management Port Configurations -
+Within this feature, you can  configure  parameters  relating  to  the
+management of the Cyclades PM or the power strips. For  instance,  you
+can set up the association between the servers' power supply  and  the
+outlets in which they are plugged into, or you configure the users who
+have access to certain outlets.
+
+You can configure  parameters  relating  to  the  management  of  IPMI
+device.
+
+Press TAB to see the list of available options. 
+
+>>>
+
+[INFO] config.physicalports.other <<<
+	- Other Port Configurations -
+Within this feature, you can configure other parameters for the serial
+ports. For instance, you can set up the terminal line settings (STTY),
+the login banner, or the idle timeout.
+
+Press TAB to see the list of available options. 
+
+>>>
+
+#####################
+# Config | IPMI
+#####################
+[INFO] config.ipmi <<<
+	- IPMI Device Configurations -
+Within this feature, you can configure IPMI devices.
+
+Press TAB to see the list of available options. 
+
+>>>
+
+#####################
+# Config | Restore config
+#####################
+[INFO] config.restorefromflash <<<
+	- Restore from Flash Mode -
+In this mode, you can restore your configurations with the  previously
+saved one from flash.
+
+>>>
+
+#####################
+# Config | Activate config
+#####################
+[INFO] config.runconfig <<<
+	- Run Configuration Mode -
+In this mode, you can activate the configurations made to your unit. 
+
+>>>
+
+#####################
+# Config | Save to Flash
+#####################
+[INFO] config.savetoflash <<<
+	- Save to Flash Mode -
+In this mode, you can activate and save  your  configurations  to  the
+flash. 
+
+>>>
+
+#####################
+# Config | Security
+#####################
+[INFO] config.security <<<
+	- Security Mode -
+In this mode, you can configure  system  users,  or  groups  for  port
+access restrictions. You can also use the loadkey command to  get  the
+user's public key via scp.
+
+Press TAB to see the list of available options. 
+
+>>>
+
+#####################
+# Config | Virtual Ports
+#####################
+[INFO] config.virtualports <<<
+	- Virtual Ports Mode -
+A Cyclades console server can be used as a "master"  to  manage  other
+Cyclades console servers (slaves). This  idea  is  called  clustering,
+and it allows the stringing of several console  servers  so  that  one
+"master" console server can  be  used  to  access  all  those  console
+servers on the LAN as though they were physically attached. All  ports
+of the slave units appear as if they were part  of  the  master  unit;
+thus, coining the term "virtual" ports. In this mode, you  can  define
+and configure the slaves.
+
+Press TAB to see the list of available options. 
+
+>>>

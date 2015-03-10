@@ -1,0 +1,57 @@
+# sudoers file.
+#
+# This file MUST be edited with the 'visudo' command as root.
+#
+# See the sudoers man page for the details on how to write a sudoers file.
+#
+
+# User alias specification
+
+# Runas alias specification
+
+# Host alias specification
+
+# Cmnd alias specification
+Cmnd_Alias     SH_CMDS = /bin/cp,\
+                         /bin/chown,\
+                         /bin/egrep,\
+                         /bin/grep,\
+                         /bin/cat,\
+                         /bin/tar,\
+                         /bin/kill,\
+                         /bin/mkdir,\
+                         /bin/mv,\
+                         /bin/rm,\
+                         /bin/sed,\
+                         /bin/touch,\
+                         /sbin/reboot,\
+                         /usr/bin/killall,\
+                         /usr/bin/w,\
+                         /bin/w_cas,\
+                         /bin/sess_mngt,\
+                         /sbin/route,\
+                         /bin/what
+
+Cmnd_Alias     CONF_FILES = /bin/vi /etc/network/st_routes,\
+                            /bin/vi /etc/portslave/pslave.conf,\
+                            /bin/vi /etc/resolv.conf
+
+Cmnd_Alias     APPLICATIONS = /bin/pmCommand,\
+                              /bin/pmSummary, \
+                              /bin/saveconf,\
+                              /bin/restoreconf,\
+                              /bin/runconf,\
+                              /bin/daemon.sh,\
+                              /bin/manageService.sh,\
+			      /bin/dsviewKillAdmin, \
+			      /bin/pmfwupgrade, \
+			      /bin/adsap2_clear, \
+			      /bin/upgrade_power.sh, \
+                              /bin/signal_ras
+
+# User privilege specification
+# root can run any command on any host as any user.
+root    ALL = (ALL) ALL
+
+# admin user group command specification.
+%admin      ALL = NOPASSWD: SH_CMDS, CONF_FILES, APPLICATIONS

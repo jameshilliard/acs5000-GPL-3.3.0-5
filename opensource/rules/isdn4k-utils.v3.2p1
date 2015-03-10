@@ -1,0 +1,59 @@
+#
+#  Makefile for cyclades projects.
+#
+
+#
+# Addtional compiler and/or link options may be defined here
+#
+#CFLAGS += ...
+#LDFLAGS += ...
+
+MAKE+=-e
+
+#
+# Command line parameters for configure must be defined here
+#
+CONFIGURE_PARMS := \
+	--host=$(HOST) \
+	--prefix=$(my_prefix)
+
+CONFIG_ENV := \
+	PATH=$(CROSS_PATH) \
+	HOST_CC=cc \
+	$(CROSS_ENV_TOOLS) \
+	DESTDIR=$(my_prefix) \
+	MAKE="$(MAKE)"
+
+MAKE_ENV = \
+	PATH=$(CROSS_PATH) \
+	MAKE="$(MAKE)"
+
+MAKE_PARMS := \
+	INSTALL_PROGRAM="install -c -m 0750" \
+	INSTALL_MAN="install -c -m 0644" \
+	INSTALL_DIR="install -c -m 0755 -d" \
+	INSTALL_SBIN="install -c -m 0700" \
+	INSTALL_BIN="install -c -m 0755" \
+	INSTALL_DATA="install -c -m 0644" \
+	COPTS=-I$(WORK_DIR)/include \
+	DESTDIR=$(my_prefix)
+
+#
+#  more ac_variables for configure may be defined here
+#
+#CROSS_ENV_AC +=  ...
+
+$(CFG_COOKIE):
+	ln -sf .config.rpm .config
+	$(CONFIG_ENV) $(MAKE) subconfig CONFIGURE_PARMS="$(CONFIGURE_PARMS)" 
+	date > $@
+
+$(BLD_COOKIE):
+	date > $@
+
+$(INST_COOKIE):
+	$(MAKE_ENV) $(MAKE) -C lib $(MAKE_PARMS)
+	$(MAKE_ENV) $(MAKE) -C isdnctrl install $(MAKE_PARMS)
+	$(MAKE_ENV) $(MAKE) -C ipppd install $(MAKE_PARMS)
+	date > $@
+

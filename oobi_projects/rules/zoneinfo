@@ -1,0 +1,46 @@
+#
+#  Makefile for cyclades projects.
+#
+
+#
+# Addtional compiler and/or link options may be defined here
+#
+#CFLAGS += ...
+#LDFLAGS += ...
+
+#
+# Command line parameters for configure must be defined here
+#
+#CONFIGURE_PARMS := ...
+
+#CONFIGURE_ENV := ...
+
+#MAKE_ENV := ...
+
+#MAKE_PARMS := ...
+
+#
+#  more ac_variables for configure may be defined here
+#
+#CROSS_ENV_AC += ...
+
+############################################################################
+
+$(CFG_COOKIE):
+	date > $@
+
+$(BLD_COOKIE): $(CFG_COOKIE)
+	( \
+		cd $(CROSS_TARGET)/usr/share ; \
+		tar -czf $(my_prefix)/usr/share/zoneinfo.gz \
+			--exclude GMT+0 \
+			--exclude GMT-0 \
+			--exclude GMT0 \
+			--exclude Greenwich \
+			--exclude UCT \
+			--exclude UTC \
+			--exclude Universal \
+			--exclude Zulu \
+			zoneinfo/Etc ; \
+	)
+

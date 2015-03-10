@@ -1,0 +1,39 @@
+#!/bin/sh
+
+#Read adsap2.sh to get ENABLE status
+. /etc/daemon.d/adsap2.sh
+
+#Remove installed @DSVIEW@ and appliance certificates and restart adsap2 daemon
+rm -f /etc/CA/adsap2/@DSVIEW@_cert
+rm -f /etc/CA/adsap2/appliance_cert
+rm -f /etc/CA/adsap2/appliance_key*
+
+mv /etc/config_files /etc/config_files.tmp
+grep -v "/etc/CA/adsap2/*" /etc/config_files.tmp > /etc/config_files
+cp /etc/CA/global_appliance_key.txt /etc/CA/ssh_appliance_key
+
+mv /etc/adsap2.conf /tmp/adsap2.conf
+awk '$1 == "authserver" {next};\
+     $1 == "state" {print "state trust-all"; next}; {print $0};' \
+  /tmp/adsap2.conf > /etc/adsap2.conf
+
+daemon.sh stop ADSAP2
+cp /etc/CA/global_appliance_key.txt /etc/CA/ssh_appliance_key
+chmod 600 /etc/CA/ssh_appliance_key
+
+/bin/saveconf 1> /dev/null 2>&1
+
+if [ "x$ENABLE" = "xYES" ]; then
+   daemon.sh restart ADSAP2
+fi
+
+#Read logpipe.sh to get ENABLE status
+. /etc/daemon.d/logpipe.sh
+
+daemon.sh stop LOGPIPE
+if [ "x$ENABLE" = "xYES" ]; then
+   daemon.sh restart LOGPIPE
+fi
+
+daemon.sh restart SSH
+

@@ -1,0 +1,224 @@
+#!/bin/sh 
+
+TOOLS=$(dirname $0)
+
+. ${TOOLS}/shell_utils
+
+#
+# Start
+#
+
+check_vars ROOT_PROJ VERSION_FILE TARGET_DIR TARG RD_SIZE RD_NINODES RD_IMAGE KERNEL_IMAGE
+
+if [ ${TARG} = "kvm" -o ${TARG} = "kvmapc" ] ; then
+  check_vars SQUASH_DIR
+fi
+
+RD_IMAGE_DIR=$(dirname $RD_IMAGE)
+
+check_dirs $ROOT_PROJ $TARGET_DIR $RD_IMAGE_DIR
+
+if [ ${TARG} = "kvmnetv2" -o ${TARG} = "ons" -o ${TARG} = "kvmmax" ] ; then
+  check_files $VERSION_FILE $KERNEL_IMAGE
+else
+  check_files $VERSION_FILE
+fi
+
+if [ -n "$RENAME_FILES" ] ; then
+
+  check_files $ROOT_PROJ/$RENAME_FILES
+
+  while read cmd old_fname new_fname
+  do
+    if [ -f $TARGET_DIR/$old_fname ] ; then
+      [ "$cmd" = "mv" ] && ( mv $TARGET_DIR/$old_fname $TARGET_DIR/$new_fname ||exit -1)
+      [ "$cmd" = "rm" ] && rm -f $TARGET_DIR/$old_fname
+    fi
+  done << --EOF
+  $(< $ROOT_PROJ/$RENAME_FILES)
+--EOF
+fi
+
+# Which and where temporary fs should be mounted
+
+#
+# Critical region
+#
+
+FILE_LOCK=/tmp/lock_loopdev
+
+while [ -f ${FILE_LOCK} ] ; do
+  kill -0 $(cat ${FILE_LOCK})
+  if [ $? -eq 0 ]; then
+    echo "Warning: waiting build [" $(cat ${FILE_LOCK}) "] to select loop device!"
+    sleep 1
+  else
+    break
+  fi
+done
+echo $$ > ${FILE_LOCK}
+
+TMPFILE0=/tmp/byld
+
+for (( i=0; i < 10; i++ )) ; do
+  if [ -f $TMPFILE0$i ] ; then continue; fi
+  MNTDIR=/tmp/byld_mnt$i;
+  TMPFILE=/tmp/byld$i;
+  break;
+done
+
+echo "MNTDIR=$MNTDIR"
+echo "TMPFILE=$TMPFILE"
+mkdir $MNTDIR || exit -1
+
+rm -rf ${FILE_LOCK}
+
+echo 
+echo "---------------------------------------------------"
+echo "Creating ramdisk image to $TARG ..."
+echo "---------------------------------------------------"
+
+echo "Make a file of $RD_SIZE Kbytes"
+dd if=/dev/zero of=$TMPFILE bs=1k count=$RD_SIZE || exit -1
+
+echo "Make ext2 fs on file and mount it as a loop device"
+/sbin/mke2fs -F -m 0 -N $RD_NINODES $TMPFILE > /dev/null
+if [ "$?" != "0" ] ; then
+	echo "ERROR $? MAKING EXT2 FS!"
+	exit -2
+fi
+mount -t ext2 -o loop $TMPFILE $MNTDIR
+if [ "$?" != "0" ] ; then
+	echo "ERROR $? MOUNTING FILE!"
+	exit -3
+fi
+
+pushd $TARGET_DIR
+echo -n "Copying ramdisk contents to file device... "
+cp -a . $MNTDIR || exit -1
+echo "done."
+rm -rf $MNTDIR/usr/man
+rm -rf $MNTDIR/man
+rm -rf $MNTDIR/usr/include
+popd
+
+pushd $MNTDIR
+chown -R root:root .
+if [ -f bin/tinylogin ] ; then 
+	chmod +s bin/tinylogin
+fi
+
+if [ -f bin/busybox ] ; then 
+	chmod +s bin/busybox
+fi
+if [ -z ${ADMUSER} ]; then
+	ADMUSER=admin
+fi
+
+grp_sys=$(grep '^sys:' etc/group | cut -d : -s -f 3)
+: ${grp_sys:=3}
+chown root:$grp_sys var/empty
+chmod -R 666 dev/console
+grp_adm=$(grep "^${ADMUSER}:" etc/group | cut -d : -s -f 3)
+: ${grp_adm:=504}
+usr_adm=$(grep "^${ADMUSER}:" etc/passwd | cut -d : -s -f 3)
+: ${usr_adm:=504}
+chown $usr_adm:$grp_adm home/${ADMUSER}
+
+chown root:$grp_adm bin/pmCommand
+
+popd
+
+echo "Ramdisk block usage"
+df -k | grep Filesystem
+df -k | grep "$TMPFILE"
+echo
+echo "Ramdisk inode usage"
+df -i | grep Filesystem
+df -i | grep "$TMPFILE"
+echo
+
+if [ -n "`echo $TARG | grep kvm`" ]; then
+	if [ -n "`echo $TARG | grep kvmnetv2`" ]; then
+		LINE=kvmnetv2
+	elif [ -n "`echo $TARG | grep kvmmax`" ]; then
+		LINE=kvmmax
+	elif [ -n "`echo $TARG | grep kvmapc`" ]; then
+		LINE=kvmapc
+	else
+		LINE=kvm
+	fi
+else
+	LINE=$TARG
+fi
+
+case  ${LINE} in
+  kvm|kvmapc)
+	echo "Create rw image"
+	pushd $MNTDIR
+	mkdir -p new_web/normal/applications/appl/tmp || exit -1
+	ln -sf /new_web/normal/applications new_web/normal/access
+	ln -sf /etc/onlineHelp new_web/onlineHelp
+	mkdir usr/share/zoneinfo || exit -1
+	tar -cf imgfil.tar etc dev home root var || exit -1
+	rm -rf root/* 
+	popd
+	echo -n "Waiting until everything is written... "
+	sync
+	echo done.
+
+	echo "Create rd image: $RD_IMAGE"
+	${SQUASH_DIR}/mksquashfs $MNTDIR $RD_IMAGE -noappend -be   || exit -1
+
+	echo "Umount filesystem"
+	umount $MNTDIR
+    ;;
+
+  kvmnetv2|ons|kvmmax|jsw)
+	echo "Creating tar file rd image"
+	pushd $MNTDIR
+	mkdir -p new_web/normal/applications/appl/tmp || exit -1
+	ln -sf /new_web/normal/applications new_web/normal/access
+	ln -sf /etc/onlineHelp new_web/onlineHelp
+	mkdir kernel_image || exit -1
+	tar -czf var.gz var || exit -1
+    IMAGE_NAME=$(basename $KERNEL_IMAGE)
+	IMAGE_SFX=$(grep "@(#)" ${VERSION_FILE} | \
+		awk ' $3 ~ "CYCLADES_WHAT" { \
+  		print substr($5, 6) "-" \
+  		gensub("/", "_", "g", substr($6, 2 , 9)) }')
+	echo kernel_image/${IMAGE_NAME}.${IMAGE_SFX}
+	cp $KERNEL_IMAGE kernel_image/${IMAGE_NAME}.${IMAGE_SFX} || exit -1
+	popd
+	echo "Umount filesystem"
+	umount $MNTDIR
+	echo -n "Waiting until everthing is written... "
+	sync
+	echo done.
+
+	echo "Create gziped rd image: $RD_IMAGE"
+	dd if=$TMPFILE bs=1k | gzip -9 > $RD_IMAGE || exit -1
+    ;;
+
+  *)
+	pushd $MNTDIR
+	ln -sf /etc/onlineHelp new_web/onlineHelp
+	popd
+	sleep 3
+	echo "Umount filesystem"
+	umount $MNTDIR
+	echo -n "Waiting until everthing is written... "
+	sync
+	echo done.
+
+	echo "Create gziped rd image : $RD_IMAGE"
+	dd if=$TMPFILE bs=1k | gzip -9 > $RD_IMAGE || exit -1
+    ;;
+
+esac
+
+ls -la $RD_IMAGE
+rm -f $TMPFILE
+rm -rf $MNTDIR
+
+exit 0

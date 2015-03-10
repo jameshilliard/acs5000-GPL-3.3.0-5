@@ -1,0 +1,9 @@
+#
+# The PAM configuration file for the `nislocal' service
+#
+auth	requisite	pam_securetty.so
+auth	optional	pam_auth_srv.so
+auth    sufficient	pam_unix2.so
+auth    required	pam_redirect.so service=s_local
+account sufficient 	pam_unix2.so
+session sufficient 	pam_unix2.so

@@ -1,0 +1,230 @@
+#
+# pppd makefile for Linux
+# $Id: Makefile.linux,v 1.6 2008/10/29 18:44:02 edson Exp $
+#
+
+# Default installation locations
+DESTDIR = @DESTDIR@
+BINDIR = $(DESTDIR)/sbin
+MANDIR = $(DESTDIR)/share/man/man8
+INCDIR = $(DESTDIR)/include
+
+TARGETS = pppd
+
+PPPDSRCS := main.c magic.c fsm.c lcp.c ipcp.c upap.c chap-new.c md5.c ccp.c \
+	   ecp.c ipxcp.c auth.c options.c sys-linux.c md4.c chap_ms.c \
+	   demand.c utils.c tty.c chap-md5.c
+
+HEADERS := ccp.h chap-new.h ecp.h fsm.h ipcp.h \
+	ipxcp.h lcp.h magic.h md5.h patchlevel.h pathnames.h pppd.h \
+	upap.h
+
+MANPAGES = pppd.8
+PPPDOBJS := main.o magic.o fsm.o lcp.o ipcp.o upap.o chap-new.o md5.o ccp.o \
+	   ecp.o auth.o options.o demand.o utils.o sys-linux.o ipxcp.o tty.o \
+	   chap-md5.o
+
+ifeq ($(findstring  EAPenable,$(COPTS)),EAPenable)
+PPPDSRCS += eap.c eap-tls.c
+HEADERS += eap.h eap-tls.h
+PPPDOBJS += eap.o eap-tls.o
+endif
+
+#
+# include dependencies if present
+ifeq (.depend,$(wildcard .depend))
+include .depend
+endif
+
+# CC = gcc
+#
+COPTS = -O2 -pipe -Wall -g -I/usr/kerberos/include
+LIBS = -lssl -lcurl
+
+# Uncomment the next 2 lines to include support for Microsoft's
+# MS-CHAP authentication protocol.  Also, edit plugins/radius/Makefile.linux.
+CHAPMS=y
+USE_CRYPT=y
+# Don't use MSLANMAN unless you really know what you're doing.
+#MSLANMAN=y
+# Uncomment the next line to include support for MPPE.  CHAPMS (above) must
+# also be enabled.  Also, edit plugins/radius/Makefile.linux.
+MPPE=y
+
+# Uncomment the next line to include support for PPP packet filtering.
+# This requires that the libpcap library and headers be installed
+# and that the kernel driver support PPP packet filtering.
+FILTER=y
+
+# Uncomment the next line to enable multilink PPP (enabled by default)
+# Linux distributions: Please leave multilink ENABLED in your builds
+# of pppd!
+HAVE_MULTILINK=y
+
+# Uncomment the next line to enable the TDB database (enabled by default.)
+# If you enable multilink, then TDB is automatically enabled also.
+# Linux distributions: Please leave TDB ENABLED in your builds.
+USE_TDB=y
+
+HAS_SHADOW=y
+#USE_PAM=y
+#HAVE_INET6=y
+
+# Enable plugins
+PLUGIN=y
+
+# Enable Microsoft proprietary Callback Control Protocol
+#CBCP=y
+
+# Enable EAP SRP-SHA1 authentication (requires libsrp)
+#USE_SRP=y
+
+MAXOCTETS=y
+
+INCLUDE_DIRS= -I../include
+
+COMPILE_FLAGS= -DHAVE_PATHS_H -DIPX_CHANGE -DHAVE_MMAP
+
+CFLAGS= $(COPTS) $(COMPILE_FLAGS) $(INCLUDE_DIRS)
+
+ifeq ($(CHAPMS),y)
+CFLAGS   += -DCHAPMS=1
+NEEDDES=y
+PPPDOBJS += md4.o chap_ms.o
+HEADERS	+= md4.h chap_ms.h
+ifeq ($(MSLANMAN),y)
+CFLAGS   += -DMSLANMAN=1
+endif
+ifeq ($(MPPE),y)
+CFLAGS   += -DMPPE=1
+endif
+endif
+
+# EAP SRP-SHA1
+ifeq ($(USE_SRP),y)
+CFLAGS	+= -DUSE_SRP -DOPENSSL
+LIBS	+= -lsrp -lcrypto
+TARGETS	+= srp-entry
+EXTRAINSTALL = $(INSTALL) -s -c -m 555 srp-entry $(BINDIR)/srp-entry
+MANPAGES += srp-entry.8
+EXTRACLEAN += srp-entry.o
+NEEDDES=y
+else
+# OpenSSL has an integrated version of SHA-1, and its implementation
+# is incompatible with this local SHA-1 implementation.  We must use
+# one or the other, not both.
+PPPDSRCS += sha1.c
+HEADERS += sha1.h
+PPPDOBJS += sha1.o
+endif
+
+ifeq ($(HAS_SHADOW),y)
+CFLAGS   += -DHAS_SHADOW
+#LIBS     += -lshadow $(LIBS)
+endif
+
+ifneq ($(wildcard /usr/include/crypt.h),)
+CFLAGS   += -DHAVE_CRYPT_H=1
+endif
+ifneq ($(wildcard /usr/lib/libcrypt.*),)
+LIBS	+= -lcrypt
+endif
+
+ifeq ($(NEEDDES),y)
+ifneq ($(USE_CRYPT),y)
+LIBS     += -ldes $(LIBS)
+else
+CFLAGS   += -DUSE_CRYPT=1
+endif
+PPPDOBJS += pppcrypt.o
+HEADERS += pppcrypt.h
+endif
+
+# For "Pluggable Authentication Modules", see ftp.redhat.com:/pub/pam/.
+ifeq ($(USE_PAM),y)
+CFLAGS   += -DUSE_PAM
+LIBS     += -lpam -ldl
+endif
+
+# Multi-linnk
+ifeq ($(HAVE_MULTILINK),y)
+	# Multilink implies the use of TDB
+	USE_TDB=y
+
+	CFLAGS += -DHAVE_MULTILINK
+	PPPDSRCS += multilink.c
+	PPPDOBJS += multilink.o
+endif
+
+# TDB
+ifeq ($(USE_TDB),y)
+	CFLAGS += -DUSE_TDB=1
+	PPPDSRCS += tdb.c spinlock.c
+	PPPDOBJS += tdb.o spinlock.o
+	HEADERS += tdb.h spinlock.h
+endif
+
+# Lock library binary for Linux is included in 'linux' subdirectory.
+ifeq ($(LOCKLIB),y)
+LIBS     += -llock
+CFLAGS   += -DLOCKLIB=1
+endif
+
+ifeq ($(PLUGIN),y)
+CFLAGS	+= -DPLUGIN
+LDFLAGS	+= -Wl,-E
+LIBS	+= -ldl
+endif
+
+ifeq ($(FILTER),y)
+ifneq ($(wildcard /usr/include/pcap-bpf.h),)
+LIBS    += -lpcap
+CFLAGS  += -DPPP_FILTER
+endif
+endif
+
+ifeq ($(HAVE_INET6),y)
+     PPPDSRCS += ipv6cp.c eui64.c
+     HEADERS  += ipv6cp.h eui64.h
+     PPPDOBJS += ipv6cp.o eui64.o
+     CFLAGS   += -DINET6=1
+endif
+
+ifeq ($(CBCP),y)
+     PPPDSRCS += cbcp.c
+     PPPDOBJS += cbcp.o
+     CFLAGS += -DCBCP_SUPPORT
+     HEADERS += cbcp.h
+endif
+
+ifeq ($(MAXOCTETS),y)
+     CFLAGS += -DMAXOCTETS
+endif
+
+INSTALL= install
+
+all: $(TARGETS)
+
+install: pppd
+	mkdir -p $(BINDIR) $(MANDIR)
+	$(EXTRAINSTALL)
+	$(INSTALL) -s -c -m 555 pppd $(BINDIR)/pppd
+	if chgrp pppusers $(BINDIR)/pppd 2>/dev/null; then \
+	  chmod o-rx,u+s $(BINDIR)/pppd; fi
+	$(INSTALL) -c -m 444 pppd.8 $(MANDIR)
+
+pppd: $(PPPDOBJS)
+	$(CC) $(CFLAGS) $(LDFLAGS) -o pppd $(PPPDOBJS) $(LIBS)
+
+srp-entry:	srp-entry.c
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ srp-entry.c $(LIBS)
+
+install-devel:
+	mkdir -p $(INCDIR)/pppd
+	$(INSTALL) -c -m 644 $(HEADERS) $(INCDIR)/pppd
+
+clean:
+	rm -f $(PPPDOBJS) $(EXTRACLEAN) $(TARGETS) *~ #* core
+
+depend:
+	$(CPP) -M $(CFLAGS) $(PPPDSRCS) >.depend

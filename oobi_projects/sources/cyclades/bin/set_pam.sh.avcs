@@ -1,0 +1,27 @@
+#!/bin/sh
+AUTH_FILE=/etc/portslave/pslave.conf
+PAMD=/etc/pam.d
+PAM_WEB=$PAMD/web
+PAM_LOGIN=$PAMD/login
+PAM_SSHD=$PAMD/sshd
+
+AUTHTYPE=$(grep "^conf.authtype" $AUTH_FILE | tail -n 1 | awk '{ print $2 }')
+
+if [ -z "$AUTHTYPE" -o "$AUTHTYPE" = "remote" ]; then
+  AUTHTYPE=local
+fi
+
+PAM_MODULE=$PAMD/$AUTHTYPE
+
+if [ ! -f $PAM_MODULE ]; then
+  echo "Error: can not find pam module '$PAM_MODULE'"
+  PAM_MODULE=$PAMD/local
+  echo "Trying module '$PAM_MODULE'"
+fi
+
+rm -f $PAM_WEB $PAM_LOGIN $PAM_SSHD
+
+ln -s $PAM_MODULE $PAM_WEB
+ln -s $PAM_MODULE $PAM_LOGIN
+ln -s $PAM_MODULE $PAM_SSHD
+

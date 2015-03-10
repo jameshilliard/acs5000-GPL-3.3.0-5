@@ -1,0 +1,61 @@
+#
+#  Makefile for cyclades projects.
+#
+
+#
+# Addtional compiler and/or link options may be defined here
+#
+#CFLAGS +=
+#LDFLAGS +=
+
+CROSS_AR += r
+
+MAKE+= -e
+
+#
+# Command line parameters for configure must be defined here
+#
+CONFIGURE_PARMS:=\
+	linux-ppc no-hw no-asm shared zlib-dynamic \
+	--openssldir=$(my_prefix)/ssl \
+	-I$(DIST_DIR)/$(ZLIB)/include -L$(DIST_DIR)/$(ZLIB)/lib -lz
+
+CONFIG_ENV:=
+
+MAKE_ENV:= \
+	CROSS_COMPILE=$(CROSS_COMPILE)\
+	PATH=$(CROSS_PATH) \
+	$(CROSS_ENV_TOOLS) \
+	MAKEDEPPROG="$(CROSS_CC)" \
+	MAKE="$(MAKE)"
+
+MAKE_PARMS_BUILD:=\
+	CROSS_COMPILE=$(CROSS_COMPILE)
+
+MAKE_PARMS_INST:=\
+	INSTALL_PREFIX=$(my_prefix) \
+	INSTALLTOP=/. \
+	MANDIR=/man
+
+#
+#  more ac_variables for configure may be defined here
+#
+#CROSS_ENV_AC += ...
+
+$(CFG_COOKIE):
+	-rm -f config.cache
+	-rm -f config.status
+	$(CONFIG_ENV) ./Configure $(CONFIGURE_PARMS)
+	$(MAKE_ENV) $(MAKE) depend
+	date > $@
+
+$(BLD_COOKIE):
+	$(MAKE_ENV) $(MAKE) INSTALLTOP=$(my_prefix) openssl.pc
+	$(MAKE_ENV) $(MAKE) all $(MAKE_PARMS_BUILD)
+	date > $@
+
+$(INST_COOKIE):
+	$(MAKE_ENV) $(MAKE) install $(MAKE_PARMS_INST)
+	date > $@
+
+

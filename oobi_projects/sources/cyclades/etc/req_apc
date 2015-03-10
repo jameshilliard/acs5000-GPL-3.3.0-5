@@ -1,0 +1,21 @@
+[ req ]
+default_bits            = 1024
+distinguished_name      = apc
+prompt                  = no
+x509_extensions         = x509v3
+
+[ apc ]
+C               = US
+ST              = RI
+L               = West Kingston
+O               = American Power Conversion
+OU              = R&D
+CN              = www.apc.com
+emailAddress    = support@apc.com
+
+[ x509v3 ]
+subjectKeyIdentifier    = hash
+authorityKeyIdentifier  = keyid:always,issuer:always
+basicConstraints        = CA:true
+nsComment               = "This is just a TEST certificate. Don't use it for real secure conections. Create your own certificate instead."
+nsCertType              = server, sslCA

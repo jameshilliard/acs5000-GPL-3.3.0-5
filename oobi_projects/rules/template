@@ -1,0 +1,61 @@
+#
+#  Makefile for cyclades projects.
+#
+
+#
+# Addtional compiler and/or link options may be defined here
+#
+#CFLAGS += ...
+#LDFLAGS += ...
+
+#
+# Command line parameters for configure must be defined here
+# Comment if you are not using configure
+#
+CONFIGURE_PARMS := \
+	--prefix=$(my_prefix) \
+	--host=$(HOST)
+
+CONFIG_ENV := \
+	PATH=$(CROSS_PATH) \
+	HOST_CC=cc \
+	$(CROSS_ENV_TOOLS) \
+	CFLAGS="$(CFLAGS)" \
+	LDFLAGS="$(LDFLAGS)"
+
+#
+# Command line parameters for make must be defined here
+# If you are using configure, remove the variables already
+# defined in CONFIG_ENV.
+#
+MAKE_ENV := \
+        PATH=$(CROSS_PATH) \
+        $(CROSS_ENV_TOOLS) \
+        CFLAGS="$(CFLAGS)" \
+        LDFLAGS="$(LDFLAGS)" \
+        DEFTARG=$(DEFTARG) \
+        TARG=$(TARGET_PRODUCT)
+
+MAKE_PARMS :=
+	TARGET_DIR=$(my_prefix)
+
+#
+#  more ac_variables for configure may be defined here
+#
+#CROSS_ENV_AC += ...
+
+#
+# Execute CONFIGURE
+# Comment the call to ./configure if you are not using configure.
+#
+$(CFG_COOKIE):
+	-rm -f config.cache
+	-rm -f config.status
+	$(CONFIG_ENV) $(CROSS_ENV_AC) ./configure $(CONFIGURE_PARMS)
+	date > $@
+
+#
+# Execute MAKE
+#
+$(BLD_COOKIE):
+	$(MAKE_ENV) $(MAKE) all $(MAKE_PARMS)

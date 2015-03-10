@@ -1,0 +1,31 @@
+--- isdn4k-utils.v3.1pre1/ipppd/options.c	2000-05-11 07:55:14.000000000 -0300
++++ isdn4k-utils.v3.1pre1/ipppd/options-patch.c	2006-04-12 17:57:31.648197152 -0300
+@@ -19,6 +19,9 @@
+ 
+ char options_rcsid[] = "$Id: ipppd-options.patch,v 1.1 2006/04/26 20:23:44 regina Exp $";
+ 
++typedef unsigned short u16;
++typedef unsigned char u8;
++
+ #include <stdio.h>
+ #include <errno.h>
+ #include <unistd.h>
+@@ -454,13 +457,13 @@
+ static char *usage_string = "\
+ ipppd version %s patch level %d%s\n\
+ Usage: %s [ options ], where options are:\n\
+-\t<device>	Communicate over the named device\n\
++\t<device>	Communicate over the named device\n"
+ #ifdef INCLUDE_OBSOLETE_FEATURES
+-\tcrtscts		Use hardware RTS/CTS flow control\n\
+-\t<speed>		Set the baud rate to <speed>\n\
+-\tmodem		Use modem control lines\n\
++"\tcrtscts		Use hardware RTS/CTS flow control\n"
++"\t<speed>		Set the baud rate to <speed>\n"
++"\tmodem		Use modem control lines\n"
+ #endif
+-\t<loc>:<rem>	Set the local and/or remote interface IP\n\
++"\t<loc>:<rem>	Set the local and/or remote interface IP\n\
+ \t\taddresses.  (you also may use the option 'useifip' to get IPs).\n\
+ \tasyncmap <n>	Set the desired async map to hex <n>\n\
+ \tauth		Require authentication from peer\n\

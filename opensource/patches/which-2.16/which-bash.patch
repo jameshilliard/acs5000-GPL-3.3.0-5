@@ -1,0 +1,32 @@
+diff -urN which-2.16.ori/bash.c which-2.16/bash.c
+--- which-2.16.ori/bash.c	2003-09-14 18:58:55.000000000 -0700
++++ which-2.16/bash.c	2005-12-16 16:49:53.738504464 -0800
+@@ -45,7 +45,7 @@
+  * - changed all occurences of 'gid_t' into 'GID_T'.
+  * - exported functions needed in which.c
+  */
+-static int group_member (GID_T gid);
++static int groupMember (GID_T gid);
+ static char* extract_colon_unit (char const* string, int *p_index);
+ 
+ /*===========================================================================
+@@ -200,8 +200,8 @@
+ 
+ /* From bash-2.05b / general.c / line 805 */
+ /* Return non-zero if GID is one that we have in our groups list. */
+-int
+-group_member (GID_T gid)
++static int
++groupMember (GID_T gid)
+ {
+ #if defined (HAVE_GETGROUPS)
+   register int i;
+@@ -290,7 +290,7 @@
+     return (X_BIT (u_mode_bits (finfo.st_mode))) ? (FS_EXISTS | FS_EXECABLE) : FS_EXISTS;
+ 
+   /* Otherwise, if we are in the owning group, the group permissions apply. */
+-  if (group_member (finfo.st_gid))
++  if (groupMember (finfo.st_gid))
+     return (X_BIT (g_mode_bits (finfo.st_mode))) ? (FS_EXISTS | FS_EXECABLE) : FS_EXISTS;
+ 
+   /* Otherwise, if we are in the other group, the other permissions apply. */

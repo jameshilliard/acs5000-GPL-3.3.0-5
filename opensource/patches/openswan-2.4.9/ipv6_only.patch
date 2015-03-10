@@ -1,0 +1,29 @@
+--- openswan-2.4.9/programs/_startklips/_startklips.in.orig	2007-12-10 16:33:25.000000000 -0200
++++ openswan-2.4.9/programs/_startklips/_startklips.in	2007-12-10 16:34:49.000000000 -0200
+@@ -121,16 +121,16 @@ klipsinterface() {
+ 			print "otheraddr=" other
+ 			print "mask=" $NF
+ 		}'`
+-	if test " $addr" = " "
+-	then
+-		echo "unable to determine address of \`$phys'"
+-		exit 1
+-	fi
+-	if test " $type" = " unknown"
+-	then
+-		echo "\`$phys' is of an unknown type"
+-		exit 1
+-	fi
++#	if test " $addr" = " "
++#	then
++#		echo "unable to determine address of \`$phys'"
++#		exit 1
++#	fi
++#	if test " $type" = " unknown"
++#	then
++#		echo "\`$phys' is of an unknown type"
++#		exit 1
++#	fi
+ 	if test " $omtu" != " "
+ 	then
+ 		mtu="mtu $omtu"

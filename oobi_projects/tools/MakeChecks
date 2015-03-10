@@ -1,0 +1,74 @@
+#
+# Checks the makefile version undefined variables
+#
+NULL:=
+SPACE:=$(NULL) $(NULL)
+DOT:=.
+STR_VER=$(subst $(DOT),$(SPACE),$(MAKE_VERSION))
+VER1:=$(word 1, $(STR_VER))
+VER2:=$(word 2, $(STR_VER))
+
+MAJOR_MK:=3
+MINOR_MK:=81
+
+define text_ver
+
+
+make version is '$(MAKE_VERSION)' and version '$(MAJOR_MK).$(MINOR_MK)' or newer is required.
+
+You should issue a command: 'make -f MakeUtils' inside the
+<builtin-source-tree>/tools directory and
+execute the shell script '. ./tools/mk_env -s'.
+
+endef
+
+ifeq ($(shell if [ $(VER1) -lt $(MAJOR_MK) -o $(VER1) -eq $(MAJOR_MK) -a $(VER2) -lt $(MINOR_MK) ] ; then echo 1; else echo 0; fi), 1)
+$(warning $(text_ver))
+$(error "Invalid make version...")
+endif
+
+define text_ccache
+
+
+The build system requires ccache to run faster. 
+
+You should issue a command: 'make -f MakeUtils' inside the
+<builtin-source-tree>/tools directory and
+execute the shell script '. ./tools/mk_env -s'.
+
+endef
+
+ifeq ($(shell if [ -x /usr/local/bin/ccache ] ; then echo 0; else echo 1; fi), 1)
+$(warning $(text_ccache))
+$(error "ccache was not found...")
+endif
+
+#
+# Checks for required variables (VAR_TO_BE_CHECKED must have their names)
+#
+
+define check_vars
+$(foreach var,$(1), \
+  $(if $(filter undefined,$(origin $(var))),\
+  $(error Variable '$(var)' must be defined.)))
+endef
+
+ifdef NO_REDIRECT
+define EXEC_ACTION
+	$(2)
+endef
+else
+define EXEC_ACTION
+	@( \
+	echo "Target $(1) started" ; \
+	$(2) >> $(WORK_DIR)/$(LOGS)/$(1) 2>&1; \
+	RESULT=$$? ; \
+	if [ $$RESULT != 0 ] ; then \
+		echo "Target $(1) failed " ; \
+		exit $$RESULT; \
+	else \
+		echo "Target $(1) succeeded" ; \
+	fi )
+endef
+endif
+

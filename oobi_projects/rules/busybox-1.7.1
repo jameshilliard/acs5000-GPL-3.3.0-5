@@ -1,0 +1,47 @@
+#
+#  Makefile for cyclades projects.
+#
+
+#
+# Addtional compiler and/or link options may be defined here
+#
+#CFLAGS += ...
+#LDFLAGS += ...
+
+#
+# Auxiliary variables
+#
+PAM_DIR="$(BUILD_DIR)/$(Linux-PAM)"
+RAS_DIR="$(BUILD_DIR)/$(ras)"
+
+#
+# Command line parameters for configure must be defined here
+#
+#CONFIGURE_PARMS := ...
+
+#CONFIGURE_ENV := ...
+
+MAKE_ENV:=\
+	PATH=$(CROSS_PATH)
+
+MAKE_PARMS:=\
+	CROSS_COMPILE=$(CROSS_PREFIX) \
+	CONFIG_PREFIX=$(my_prefix) \
+	PAM_DIR=$(PAM_DIR) \
+	RAS_DIR=$(RAS_DIR) \
+	EXTRA_CFLAGS="$(CFLAGS) -DCYCLADES -I$(CONFIG_TOOL_DIR)/include -I$(PAM_DIR)/libpam/include -I$(PAM_DIR)/libpam_misc/include -I$(PAM_DIR)/libpamc/include -I$(RAS_DIR)/src"
+
+#
+#  more ac_variables for configure may be defined here
+#
+#CROSS_ENV_AC += ...
+
+############################################################################
+
+$(CFG_COOKIE):
+	rm -f busybox.links
+	date > $@
+
+$(BLD_COOKIE): $(CFG_COOKIE)
+	$(MAKE_ENV) $(MAKE) $(MAKE_PARMS) V=1
+	$(MAKE_ENV) $(MAKE) $(MAKE_PARMS) V=1 install

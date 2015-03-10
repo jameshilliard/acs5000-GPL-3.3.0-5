@@ -1,0 +1,55 @@
+#
+#  Makefile for cyclades projects.
+#
+
+#
+# Addtional compiler and/or link options may be defined here
+#
+#CFLAGS += ...
+#LDFLAGS += ...
+
+#
+# Command line parameters for configure must be defined here
+#
+#	--disable-nls \
+#	--disable-lint \
+#	--posix \
+
+CONFIGURE_PARMS := \
+	--host=$(HOST)\
+	--build=i386\
+	--libexecdir="$(my_prefix)/usr/lib"\
+	--prefix=$(my_prefix)
+
+CONFIG_ENV := \
+	PATH=$(CROSS_PATH) \
+	HOST_CC=cc \
+	$(CROSS_ENV_TOOLS) \
+	CFLAGS="$(CFLAGS)" \
+	LDFLAGS="$(LDFLAGS)"
+
+MAKE_ENV := \
+	PATH=$(CROSS_PATH)
+
+MAKE_PARMS :=
+
+#CFLAGS="$(CFLAGS) -DDEBUG -DARRAYDEBUG -DGAWKDEBUG -DYYDEBUG" \
+#
+#  more ac_variables for configure may be defined here
+#
+CROSS_ENV_AC +=  ac_cv_func_getpgrp_void=yes
+
+$(CFG_COOKIE):
+	-rm -f config.cache
+	$(CONFIG_ENV) $(CROSS_ENV_AC) ./configure $(CONFIGURE_PARMS)
+	date > $@
+
+$(BLD_COOKIE):
+	$(MAKE_ENV) $(MAKE) all $(MAKE_PARMS)
+	$(MAKE_ENV) $(MAKE) dist $(MAKE_PARMS)
+	date > $@
+
+$(INST_COOKIE):
+	$(MAKE_ENV) $(MAKE) install $(MAKE_PARMS)
+	date > $@
+

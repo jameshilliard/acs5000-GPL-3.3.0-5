@@ -1,0 +1,98 @@
+#!/bin/sh
+
+TOOLS=$(dirname $0)
+
+. ${TOOLS}/shell_utils
+
+#
+# Start
+#
+
+check_vars TARGET_DIR MODULES_DIR KERNEL_VERSION
+
+check_dirs $TARGET_DIR
+
+cd $TARGET_DIR || exit -1
+
+if [ -z ${ADMUSER} ]; then
+    ADMUSER=admin
+fi
+
+if [ "x$PCMCIAenable" = "xyes" ] ; then
+	LOGMGETTY=var/log/mgetty
+	VARLIBPCMCIA=var/lib/pcmcia
+else
+	LOGMGETTY=
+	VARLIBPCMCIA=
+fi
+
+if [ "x$PMDenable" = "xyes" ] ; then
+	VARPMD=var/pmd
+else
+	VARPMD=
+fi
+
+if [ "x$NISenable" = "xyes" ] ; then
+	VARYP=var/yp
+else
+	VARYP=
+fi
+
+# create all directories
+for dir in bin dev opt home/$ADMUSER etc/dhcpc etc/portslave/filters \
+etc/network etc/security etc/ssh lib libexec mnt/DB_nfs mnt/ide \
+proc root tmp usr/local usr/share/terminfo var/empty $VARPMD var/home var/tmp \
+sbin lib/security \
+usr usr/sbin usr/bin usr/libexec usr/lib \
+usr/local/bin usr/local/sbin usr/local/lib \
+etc/network/if-pre-up.d etc/network/if-up.d \
+etc/network/if-down.d etc/network/if-post-down.d \
+etc/ppp webFiles $VARLOGMGETTY $VARLIBPCMCIA $VARYP \
+var/spool var/spool/lpd tftpboot \
+var/lock/subsys var/log var/db var/run/DB var/run/netreport var/state var/cron/tabs \
+etc/CA $MODULES_DIR \
+mnt/opie 
+do
+  install -m 755 -d $dir
+done
+
+chmod -R 755 var/empty
+chmod -R 755 var/home
+chmod -R 1777 tmp
+chmod -R 700 root
+chmod -R 755 home
+
+cd $TARGET_DIR/var/run || exit -1
+create_file utmp 664
+ln -sf /dev/null wtmp
+cd $TARGET_DIR/var/log || exit -1
+create_file lpd.log
+create_file faillog u=rw,g=r,o=r,+s
+
+if [ "x$KERNEL_VERSION" = "xk26" ] ; then
+  cd ${TARGET_DIR}/mnt || exit -1
+  install -m 755 -d "flash" 
+else
+  cd ${MVL_TARGET_DIR}/usr/share || exit -1
+  tar -czf ${TARGET_DIR}/usr/share/zoneinfo.gz -X ${ROOT_PROJ}/zoneinfo_exclude zoneinfo/Etc || exit -1
+fi
+
+if [ "x$NISenable" = "xyes" ] ; then
+cd $TARGET_DIR/var/yp || exit -1
+cat > nicknames << -EOF
+passwd          passwd.byname
+group           group.byname
+networks        networks.byadd
+hosts           hosts.byname
+protocols       protocols.bynumber
+services        services.byname
+aliases         mail.aliases
+ethers          ethers.byname
+-EOF
+fi
+
+# Add the empty file /etc/ssh/authorized_keys [EL]
+cd $TARGET_DIR/etc/ssh || exit -1
+create_file authorized_keys
+
+exit 0

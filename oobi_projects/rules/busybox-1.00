@@ -1,0 +1,46 @@
+#
+#  Makefile for cyclades projects.
+#
+
+#
+# Addtional compiler and/or link options may be defined here
+#
+#CFLAGS += ...
+#LDFLAGS += ...
+
+#
+# Command line parameters for configure must be defined here
+#
+#CONFIGURE_PARMS := ...
+
+#CONFIGURE_ENV := ...
+
+MAKE_ENV:=\
+	PATH=$(CROSS_PATH)
+
+MAKE_PARMS:=\
+	CROSS_COMPILE=$(CROSS_PREFIX) \
+	CROSS_PREFIX=$(CROSS_PREFIX) \
+	STRIPCMD=$(CROSS_STRIP) \
+	PREFIX=$(my_prefix) \
+	CC="$(CROSS_CC)" \
+	PLAT_CFLAGS="$(CFLAGS)" \
+	PAM_DIR=$(BUILD_DIR)/$(Linux-PAM) \
+	RAS_DIR=$(BUILD_DIR)/$(ras) \
+	CONFIG_TOOL_DIR=$(CONFIG_TOOL_DIR)
+
+#
+#  more ac_variables for configure may be defined here
+#
+#CROSS_ENV_AC += ...
+
+############################################################################
+
+$(CFG_COOKIE):
+	rm -f busybox.links
+	date > $@
+
+$(BLD_COOKIE): $(CFG_COOKIE)
+	$(MAKE_ENV) $(MAKE) $(MAKE_PARMS) 
+	$(MAKE_ENV) $(MAKE) $(MAKE_PARMS) install
+

@@ -1,0 +1,949 @@
+/* (c) 2003 Cyclades. All Rights Reserved. */
+/* $Id: webApi.h.ori,v 1.1.1.1 2005/09/01 02:36:38 edson Exp $ */
+
+#ifndef h_WebApi
+#define h_WebApi
+
+#include "AlTypes.h"
+#include "Bounds.h"
+#include "ResultCodes.h"
+
+/* Category List */
+/* ------------------------------------------------------------------------- */
+typedef enum
+{
+   kPortsSpec,       // Signals specific ports
+   kHostnameSetting, // Hostname
+   kIssueSetting,    // Issue
+   kHostTable,       // Hosts
+   kHostConf,        // Host.conf
+   kResolvConf,      // Resolv.conf
+	kStRoutes,					// St_Routes
+   kPasswd,          // Passwd
+   kGroup,           // Group
+
+   kPslave,          // Pslave.conf
+   kSyslogNg,        // Syslog-ng.conf
+
+	kPcmcia,
+	kIpSec,
+	kUpGrade,
+
+	kFirmWare,
+
+	kSnmpdSettings,
+	kSnmpTrap,
+	
+	kInetd,
+	kNtp,
+
+	kNis,
+
+	// Global:
+	kDevice, // R/O
+
+	// Terminal:
+	kPowerManagement,
+	kProcess,
+	kCycDateTime,
+	kBootManagement,
+
+	// Information (all R/O):
+	kInterfaceStats,
+	kIpStats,
+	kIcmpStats,
+
+
+	// UNIT SYSTEM INFO
+	kUnitInfo,
+	kRoutingTable,
+	kActiveSessions,
+
+   // Other:
+   //...
+
+   // etc.
+} CycCategory;
+
+
+/* Key List */
+/* ------------------------------------------------------------------------- */
+typedef enum
+{
+	kPortBundle,							// tUInt32 : kPortsSpec: /etc/portslave/pslave.conf
+	kHostName,					// tString : kHostName : /etc/hostname
+	kConsoleBanner,			// tString : kHostSettings : /etc/issue
+
+	kNumEntries,					// tUInt8  : kHostTable		: /etc/hosts
+	kHosts,							// tStruct : kHosttable
+
+	kNameServiceAccess,	// tStruct  : kHostConf : /etc/host.conf
+
+	kDnsService,				// tStruct  : kResolvConf : /etc/resolv.conf
+
+	kUsers,
+
+	kGroups,
+
+	kNumIpSec, 
+	kIpSecInfo,
+
+	kStRoutesInfo,
+
+	kBootConf,
+
+	kTs110,
+
+	// UPGRADE
+	kUpGradeInfo,
+
+	// DATE TIME
+	kMthDayYrHrMinSec, 	// tUInt32 : kDateTime : /temporary file
+
+   // NETWORK
+	kIpAddress,					// tIpAddress : kPslave
+	k2ndIpAddress,			// tIpAddress : kPslave 
+	kNetMask,						// tIpAddress : kPslave
+	k2ndNetMask,				// tIpAddress : kPslave
+	kCommonConfigFile,	// tString : kPslave
+	kDhcpClient,				// tCycDhcpState : kPslave
+	kMtu,
+	
+	// CAS PROFILE
+	kSocketPort,				// tUInt32 : kPslave 
+	kPortIpno,				// tUInt32 : kPslave 
+	kPortIpAddress,			// tIpAddress : kPslave 
+	kSttyCommand, 			// tString : kPslave 
+	kTransInterval,			// tUInt32 : kPslave 
+	kPollInterval,			// tUInt32 : kPslave 
+	kIdleTimeOut,				// tUInt32 : kPslave 
+	kLineFeedSuppress,	// tUInt32 : kPslave 
+	kInputStrAutoAns,		// tString : kPslave 
+	kOutputStrAutoAns,	// tString : kPslave 
+	kDtrOffTimeInterval,// tUInt32 : kPslave 
+
+	// TS PROFILE
+	kTsHost,						// tIpAddress : kPslave
+	kIssue,   					// tString : kPslave
+	kLoginPrompt,     	// tString : kPslave
+	kTerminalType,     	// tString : kPslave 
+	kDefaultUserName, 	// tString : kPslave
+	kTelnetClientMode,	// tCycTelnetClientMode : kPslave
+
+	// DATA BUFFERING
+	kDbMode, 							// tMode : kPslave
+	kDbFileSize,					// tUInt32 : kPslave
+	kNfsFilePath,				// tString : kPslave
+	kFacilityNum,				// tFacility : kPslave
+	kSyslogBuffSize,		// tUInt32 : kPslave
+	kShowMenu,					// !! Check type - tUInt32 : kPslave
+	kAlarm, 						// !! Check type - tUInt32 : kPslave
+
+	// SYS SERVER LOG
+	kConfFacilityNum,		// !! Check type - tFacility : kPslave
+	kSyslogServer,			// tString : kPslave
+	kTimeStamp,					// tUInt32 : kPslave
+	kSyslogBuffSess,				// tUInt32 : kPslave
+
+	// CLUSTERING-SLAVE
+	kSlaveIp,				// tIpAddress : kPslave 
+	kSlavePort,				// tIpAddress : kPslave 
+	kClusteringIp,
+	
+	kServerFarm,				// tString : kPslave
+
+	// MULTI USERS
+	kSniffMode, 				// !! Check value type - tCycSniffMode : kPslave
+	kAdminUsers,				// tString : kPslave
+	kPortUsers,				// tString : kPslave
+	kNumConfGroups,
+	kConfGroup,				// tString : kPslave
+	kEscapeChar,				// tString : kPslave
+	kMultiSniffSess,		// !! Check value type - : kPslave
+	
+	// SYSTEM PARAMETERS
+	kEmsTranslation,		// tString : kPslave
+	kEmsWebAccess,			// !! Check type. tUInt32 : kPslave
+	kEmsXmlMonitor,			// tUInt32 : kPslave
+	kModbusSmode,
+
+	// AUTHENTICATION
+	kAuth,							
+	kDomainName,
+	kAuthHost1,
+	kAuthHost2,
+	kAcctHost1,
+	kAcctHost2,
+	kSecret,
+	kRadTimeOut,
+	kRadRetries,
+	
+	// OTHER PORT SETTINGS
+	kTty,
+	kBaudRate,					// !! Check type - tUInt32 : kPslave
+	kFlow,							// !! Check type - tUInt32 : kPslave
+	kBits,							// tUInt32 : kPslave
+	kStopBits,					// tUInt32 : kPslave
+	kParity,						// !! Check type - tUInt32 : kPslave
+	kProtocol, 					// !! What parameter is this?
+	kDcdSensitive,			// !! Check type
+	kWriteLoginRecordsUtmp,	// !! Check type
+	kWriteLoginRecordsWtmp,
+	kInitChat,					// tString 
+	kPoolIpno,			// tIpAddress 
+	kPoolSocketPort,				// tUInt32 
+	kPoolServerFarm,		// tString 
+	kBrkSeq,					// tString 
+	kBrkInterval,		// tUInt32 
+
+
+	// POWER MANAGEMENT
+	kNumIpduOutlets,
+	kNumIpduEntries,
+	kPmType,						// !! Check type - tPmType 
+	kPmOutlet,
+	kPmNumOfOutlets, 			// tUInt32 
+	kPmHotKey,						// tString 
+	kPmUsers,							// tString 
+	kPmOutletInfo,
+	kPmIpduInfo,
+
+
+	// PCMCIA
+	kNumPcmciaSlots,
+	kPcmciaInfo,
+	kPcmciaNetwkConfig,
+	kPcmciaWirelessConfig,
+
+	// SNMP
+	kSysContact,
+	kSysLocation,				// tString : kSnmpSettings : /etc/snmp/snmp.conf
+	kNumCommunityEntries, 				// !! Check value type - tString : kSnmpSettings : /etc/snmp/snmp.conf
+	kCommunityInfo, 				// !! Check value type - tString : kSnmpSettings : /etc/snmp/snmp.conf
+	kNumSnmpv3Entries,
+	kSnmpv3Info,
+
+	// SERVICES
+	kSnmpdEnable,
+	kTelnetEnable,
+	kNtpEnable,
+
+	// NTP
+	kNtpServer,
+	
+	// TS110
+	kDigitalStatus,
+	kAnalogStatus,
+
+	// NOTIFICATION
+	kAlarmEmail,
+	kAlarmTrigger,			// tString : kEmail : /etc/syslog/syslog-ng
+	kToEmailAddress,		// tString : kEmail : /etc/syslog/syslog-ng
+	kFromEmailAddress,	// tString : kEmail : /etc/syslog/syslog-ng
+	kSubject,						// tString : kEmail : /etc/syslog/syslog-ng
+	kMessage,						// tString : kEmail : /etc/syslog/syslog-ng
+	kSmtpServer,				// !! Check type - tString : kEmail : /etc/syslog/syslog-ng
+	kSmtpPort,					// tUInt32 : kEmail : /etc/syslog/syslog-ng
+
+	//kAlarmTrigger,		// tString : kPager : /etc/syslog/syslog-ng
+	kPagerNumber,  		  // tString : kPager : /etc/syslog/syslog-ng
+	kSmsUserName,				// tString : kPager : /etc/syslog/syslog-ng
+	kSmsServerIp, 			// tIpAddress : kPager : /etc/syslog/syslog-ng
+	kSmsPort,						// tUInt32 : kPager : /etc/syslog/syslog-ng
+	//kMessage, 				// tString : kPager : /etc/syslog/syslog-ng
+
+	//kAlarmTrigger,		// tString : kSnmpTrap : /etc/syslog/syslog-ng
+	//kCommunity, 			// Remove later ? - tString : kSnmpTrap : /etc/snmp/snmp.conf
+	kSnmpdServerIp, 		// tIpAddress : kSnmpTrap : /etc/snmp/snmp.conf
+	//kMessage, 				// tString : kSnmpTrap : /etc/snmp/snmp.conf	
+
+	//UNIT INFORMATION
+	kUnitVersionInfo, 
+	kDate, 
+	kUpTime, 
+	kPwrSupplyInfo,
+	kCpuInfo, 
+	kMemInfo, 
+	kRamDiskInfo,
+	//kPcmciaInfo (already defined previously)
+
+	kRoutingTableEntry, 
+	kActiveSessionInfo,
+
+	kGateWay,					// tIpAddress : kkPslaveHostSettings : /etc/network/st_routes
+	kClass,
+	kModel,
+	kNumber,
+	kSwVersion,					// tString : kDevice : /proc/version
+	kType,
+	// ...
+
+   kConfigGroup, /* this is actually removed, but the removal was too late.... */
+   kDbEnable, /* move up to Data Buffering section */
+   kDbDestination, /* move up to Data Buffering section */
+} CycKey;
+
+
+/* General type definitions */
+/* ------------------------------------------------------------------------- */
+
+typedef UInt32 Sid;
+enum { kNone = 0 }; // Used in many enums, below
+
+typedef struct
+{
+	CycCategory category;
+	CycKey key;
+	void* value;
+	UInt32 collectionSize; // non-zero if array (incl. char-array/string)
+} CycParam;
+
+/* PortBundle is used with kPortsSpec to specify a CycGet or CycSet stream
+of CycParam objects. In other words, to set the baud rate to apply to ports
+4, 6, and 7, kPortsSpec/kPortBundle with PortBundle { [4, 6, 7, 0, ...], 1 }
+and follow with a single kPslave/kBaudRate.  To get the best "least common
+denominator" (single) value for the same ports, set it up the same way but
+use CycGet() rather than CycSet.  For baud rate and parity, PortBundle would
+have a count value of 2, rather than 1: { [4, 6, 7, 0, ...], 1 } */
+typedef struct
+{
+   SInt8 ports[kMaxPorts]; /* array of port id's; 1 is first, -1 means "all", 0 is end of spec */
+   UInt16 count;    /* number of CycParam-struct objects that will follow for these ports */
+} PortBundle;
+
+typedef enum
+{
+	kSet = 1, /* also known as "Apply", for config params - permanently applies the change */
+	kTry,     /* this is only valid for config params - temporarily applies the change */
+} CycSetAction;
+
+typedef enum
+{
+   /*kNone = 0*/
+	kDelete = 1, 
+	kAdd, 
+	kEdit,
+} Action; /* List actions */
+
+typedef enum
+{
+   kReadOnly,
+   kReadWrite
+} CycUserAccess;
+
+typedef enum
+{
+   kAdminUser = 1,
+   kRegularUser
+} CycUserType;
+
+typedef enum
+{
+	kNo,
+	kYes,
+} CycYesNoOption;
+
+typedef enum
+{
+	kOpen,
+	kClosed,
+} CycOpenClosedOption;
+
+typedef enum
+{
+	kOff,
+	kOn 
+} CycOnOffOption;
+
+/* Page-specific data */
+typedef enum
+{
+   kCyclades
+} CycDeviceClass;
+
+typedef enum
+{
+   kAcs,
+   kTs
+} CycDeviceModel;
+
+typedef enum
+{
+	kDsInactive,
+	kDsActive,
+	kDsActivateRestore
+} CycDhcpState;
+
+typedef enum
+{
+	kRtDefault,
+	kRtNetwork,
+	kRtHost
+} CycRouteType;
+
+typedef enum 
+{
+	kAoNone,
+	kAoHosts,
+	kAoDns,
+	kAoHostsDns,
+	kAoDnsHosts
+} CycAccessOrder;
+
+typedef enum
+{
+   kBuffAlways,
+   kBuffSometimes
+} CycBuffSess;
+
+typedef enum
+{
+	kInActive,
+	kActive
+} CycBootConfWatchDogTimer;
+
+typedef enum
+{
+	kFlash,
+	kNetwork	
+} CycBootConfUnitBoot;
+
+typedef enum
+{
+	kBootp = 1,
+	kTftp,
+	kBoth
+} CycBootConfBootType;
+
+typedef enum
+{
+	k4800,
+	k9600,
+	k19200,
+	k38400,
+	k57600, 
+	k115200
+} CycBootConfConsoleSpeed;
+
+typedef enum
+{
+	kSkipFlash,
+	kFullFlash
+} CycBootConfFlashTest;
+
+typedef enum
+{
+	kSkipRam,
+	kQuick, 
+	kFullRam
+} CycBootConfRamTest;
+
+typedef enum
+{
+	kAutoNegate,
+	k100BaseTHalf,
+	k10BaseTFull, 
+	k100BaseTFull,
+	k10BaseTHalf
+} CycBootConfFastEthernet;
+
+typedef enum
+{
+	kEsp,
+	kAh
+} CycIpSecAuthProtocol;
+
+typedef enum
+{
+	kRsa,
+	kIpSecSecret
+} CycIpSecAuthMethod;
+
+typedef enum
+{
+	kIgnore,
+	kIpSecAdd, 
+	kStart
+} CycIpSecBootAction;
+
+typedef enum
+{
+	kLower,
+	kUpper,
+} CycSlotLocationOption;
+
+typedef enum
+{
+	kPatNone, 										// None	
+	kPatRadius,										// Radius
+	kPatTacacs,										// TacacsPlus
+	kPatKerberos = 4,							// Kerberos
+	kPatLdap = 8,									// Ldap
+	kPatRemote = 16,							// Remote
+	kPatLocal, kPatNis, kPatNisDownLocal = 32,					// Local
+	kPatRadiusLocal = 49,					// Radius/Local
+	kPatTacacsLocal = 50,					// TacacsPlus/Local
+	kPatLocalRadius = 65,					// Local/TacacsPlus
+	kPatLocalTacacs = 66,					// RadiusDownLocal
+	kPatRadiusDownLocal = 81,			// TacacsPlusDownLocal
+	kPatTacacsDownLocal = 82,			// TacacsPlusDownLocal
+	kPatKerberosDownLocal = 84,		// KerberosDownLocal 
+	kPatLdapDownLocal = 88,				// LdapDownLocal
+} CycPortAuthType;
+
+typedef enum
+{
+	kPfnLocal0,
+	kPfnLocal1,
+	kPfnLocal2,
+	kPfnLocal3,
+	kPfnLocal4,
+	kPfnLocal5,
+	kPfnLocal6,
+	kPfnLocal7,
+} CycPortFacilityNum;
+
+typedef enum
+{
+	kPbr2400 = 2400, 
+	kPbr4800 = 4800,
+	kPbr9600 = 9600,
+	kPbr14400 = 14400,
+	kPbr19200 = 19200,
+	kPbr28800 = 28800,
+	kPbr38400 = 38400,
+	kPbr57600 = 57600,
+	kPbr76800 = 76800,
+	kPbr115200 = 115200,
+	kPbr230400 = 230400,
+	kPbr460800 = 460800,
+	kPbr921600 = 921600
+} CycPortBaudRate;
+
+typedef enum
+{
+	kPtcmText,
+	kPtcmBinary
+} CycPortTelnetClientMode;
+
+/*typedef enum
+{
+	kPtXterm
+} CycPortTranslation;*/
+
+typedef enum
+{
+	kPb5 = 5,
+	kPb6,
+	kPb7,
+	kPb8
+} CycPortBits;
+
+typedef enum
+{
+	kPsb1 = 1,
+	kPb2
+} CycPortStopBits;
+
+// Types of flow control.
+typedef enum
+{
+	kPftNone,			// None					
+	kPftHard,			// Hardware
+	kPftSoft			// Software
+} CycPortFlowType;
+
+// Types of sniff session mode.
+typedef enum
+{
+	kPstOut,			// Out
+	kPstIn,				// In
+	kPstInOut,		// In/Out
+	kPstNo				// No
+} CycPortSniffType;
+
+typedef enum
+{
+	kPdmShowAllMenu,
+	kPdmShowNoMenu,
+	kPdmShowNoMenuShowFile,
+	kPdmShowPartMenu
+} CycPortDbMenu;
+
+typedef enum
+{
+	kPdbmLin,			// Linear
+	kPdbmCir,			// Circular
+} CycPortDbModeType;
+
+typedef enum
+{
+   kPdbmLocal,
+   kPdbmRemote
+} CycPortDbDestination;
+
+// Types of Multiple sniff sessions 
+typedef enum
+{
+	kPmsNo,				// No
+	kPmsYes,			// Yes or All
+	kPmsRw,				// ReadWrite 
+	kPmsRo = 4		// ReadOnly
+} CycPortMultiSessType;
+
+// Types of parity.
+typedef enum
+{
+	kPptNone,	 		// None
+	kPptOdd,			// Odd
+	kPptEven			// Even
+} CycPortParityType;
+
+// Types of Protocols.
+typedef enum
+{
+	kPcptLogin = 76,						// Login
+	kPcptRlogin = 82,					// Rlogin
+	kPcptTelnet = 69,					// Telnet
+	kPcptSsh = 72,							// SSH
+	kPcptSsh2 = 50,						// SSH2
+	kPcptSlip = 83,						// SLIP
+	kPcptCslip = 67,						// CSLIP
+	kPcptPpp = 80,							// PPP
+	kPcptPppOnly = 79,					// PPP Only
+	kPcptTcpClear = 84,				// TcpClear
+	kPcptTcpLogin = 85,				// TcpLogin
+	kPcptConsole = 33,					// Console
+	kPcptSocketClient = 73,		// Socket Client
+	kPcptSocketServer = 87,		// Socket Server
+	kPcptSocketSsh = 89,				// Socket SSH
+	kPcptRawData = 86,					// Raw Data
+	kPcptIpdu = 105,						// IPDU
+	kPcptModbus = 77,					// MODBUS
+	kPcptBilling = 66					// Billing
+} CycPortConnectProtocolType;
+
+
+/* Parameter structures */
+/* ------------------------------------------------------------------------- */
+
+typedef struct
+{
+	char_t dns1[kIpLength];
+	char_t dns2[kIpLength];
+	char_t domainName[kDomainNameLength];
+} DnsService;
+
+typedef struct
+{
+	CycOnOffOption multiIp;
+	CycAccessOrder accessOrder;
+} NameServiceAccess;
+
+typedef struct
+{
+   Action action;
+	char_t userName[kUserNameLength];
+	char_t passWord[kPasswordLength];
+	char_t passWord2[kPasswordLength];
+	//char_t grpName[kGroupNameLength];
+	CycUserType group;
+	char_t comments[kCommentLength];
+	//char_t homeDir[kDirPathLength];
+	//char_t shell[kDirPathLength];
+	char_t sysMsg[kInfoLength];
+} Users;
+
+typedef struct
+{
+	char_t oldGrpName[kGroupNameLength];
+	char_t newGrpName[kGroupNameLength];
+	char_t usersInGrp[kListLength];
+} ConfGroups;
+
+typedef struct
+{
+	char_t hostIp[kIpLength];
+	char_t hostName[kHostNameLength];
+} Hosts;
+
+typedef struct
+{
+	int month;
+	int day;
+	int year;
+	int hour;
+	int min;
+	int sec;
+} DateTime;
+
+typedef struct
+{
+	char_t fsName[kDirPathLength];
+	char_t blocks[kBlockLength];
+	char_t used[kBlockLength];
+	char_t avail[kBlockLength];
+	char_t usage[kUsageLength];
+	char_t mountedOn[kDirPathLength];
+} RamDiskInfo;
+
+typedef struct
+{
+	CycSlotLocationOption slot;
+	char_t status[kStatusLength];
+	char_t identInfo[kInfoLength];
+	char_t configInfo[512];
+} PcmciaInfo;
+
+typedef struct
+{ // !! NOT YET IMPLEMENTED
+	int slotNum;
+	char_t ipAddr[kIpLength];
+	char_t netWkAddr[kIpLength];
+	char_t netMask[kIpLength];
+	char_t broadCast[kIpLength];
+	char_t gateWay[kIpLength];
+} PcmciaNetwkConfig;
+
+typedef struct
+{ // !! NOT YET IMPLEMENTED
+	char_t info[20];
+	char_t myPrivateNet[20];
+	char_t key[10];
+} PcmciaWirelessConfig;
+
+typedef struct
+{
+   int bogus;	// !! Not yet implemented
+} AlarmTrigger;
+
+typedef struct
+{
+	char_t toAddr[30];
+	char_t fromAddr[30];
+	char_t subject[50];
+	char_t message[256];
+ 	char_t smtpServer[20];			
+	char_t smtpPort[4];			
+} AlarmEmail; /* no longer used?!!! */
+
+typedef struct
+{
+	char_t ipAddr[kIpLength];
+	CycBootConfWatchDogTimer wdTimer;
+	CycBootConfUnitBoot uBoot;
+	CycBootConfBootType bType;
+	char_t bootFilename[kFileNameLength];
+	char_t serverIpAddr[kIpLength];
+	CycBootConfConsoleSpeed speed;
+	CycBootConfFlashTest flashTest;
+	CycBootConfRamTest ramTest;
+	CycBootConfFastEthernet fastEthernet;
+	int maxEvent;	
+} BootConf;
+
+typedef struct
+{
+	char_t connectionName[kFileNameLength];
+	char_t leftId[kDomainNameLength];
+	char_t leftIp[kIpLength];
+	char_t leftSubnet[kIpLength];
+	char_t leftNextHop[kIpLength];
+	char_t leftRsaKey[kRsaKeyLength];
+	char_t rightId[kDomainNameLength];
+	char_t rightIp[kIpLength];
+	char_t rightSubnet[kIpLength];
+	char_t rightNextHop[kIpLength];
+	char_t rightRsaKey[kRsaKeyLength];
+	CycIpSecBootAction bAction;
+	CycIpSecAuthProtocol aProtocol;
+	CycIpSecAuthMethod aMethod;
+	char_t secret[kPasswordLength];
+} IpSecInfo;
+
+typedef struct
+{
+	char_t ftpSite[kDomainNameLength];
+	char_t userName[kUserNameLength];
+	char_t passWd[kPasswordLength];
+	char_t filePathName[kDirPathLength];
+	CycYesNoOption checkSum;
+} UpGradeInfo;
+
+typedef struct
+{
+	CycRouteType routeType;
+	char_t destinationIp[kIpLength];	
+	char_t destinationMask[kIpLength];	
+	char_t gateWay[kIpLength];	
+	char_t routeInterface[kInterfaceLength];	
+	char_t metric[kMetricLength];	
+	char_t sysMsg[kInfoLength];  // saves the error message to be displayed to user
+} StRoutesInfo;
+
+typedef struct
+{
+	char_t destinationIp[kIpLength];	
+	char_t gateWay[kIpLength];	
+	char_t genMask[kIpLength];	
+	char_t flags[kRoutingTableMiscLength];
+	char_t metric[kMetricLength];
+	char_t mss[kRoutingTableMiscLength];
+  char_t window[kRoutingTableMiscLength];
+	char_t irtt[kRoutingTableMiscLength];
+	char_t routeInterface[kInterfaceLength];	
+} RoutingTableInfo;
+
+// MAY REMOVE LATER
+typedef struct
+{
+	char_t destinationIp[kIpLength];
+	char_t destinationMask[kIpLength];	
+	char_t hostIp[kIpLength];
+	char_t gateWay[kIpLength];	
+	char_t routeInterface[kInterfaceLength];	
+	char_t sysMsg[kInfoLength];  // saves the error message to be displayed to user
+} RoutingTableEntry;
+
+typedef struct
+{
+	char_t user[kUserNameLength];
+	char_t tty[kTtyLength];
+	char_t fromIp[kDomainNameLength];
+	char_t loginTime[kLoginTimeLength];
+	char_t idle[kIdleTimeLength];
+	char_t jcpu[kCpuTimeLength]; 
+	char_t pcpu[kCpuTimeLength];
+	char_t what[kWhatLength];
+} ActiveSessionInfo;
+
+typedef struct
+{
+	char_t linuxVersion[kVersionLength];
+	char_t kernelGenerationSess[kSessionLength];
+	char_t compilerVersion[kVersionLength];
+	char_t dateOfVersionGeneration[kVersionLength];
+	char_t firmwareVersion[kVersionLength];
+} UnitVersionInfo;
+
+typedef struct
+{
+	CycOnOffOption pwrSupply1;
+	CycOnOffOption pwrSupply2;
+} PwrSupplyInfo;
+
+typedef struct
+{
+	int processor;
+	char_t cpu[kCpuLength];
+	char_t clock[kClockLength];
+	char_t busClock[kClockLength];
+	char_t revision[kRevisionLength];
+	char_t bogomips[kBogomipsLength];
+	char_t zeroPages[kZeroPagesLength];
+} CpuInfo;
+
+typedef struct
+{
+	int numEntries;
+	char_t name[kMaxSysMemInfo][kSysMemInfoNameLength];
+	char_t value[kMaxSysMemInfo][kSysMemInfoValueLength];
+} MemInfo;
+
+typedef struct
+{
+	int outletNum;
+	int consolePortNum;
+	char_t consolePort[kHostNameLength];
+	char_t hotkey[kHotKeyLength];
+	char_t users[kListLength];
+} PmOutletInfo;
+
+typedef struct 
+{
+	int serialPort;
+	int numOutlets;
+	char_t type[kIpduTypeLength];
+	char_t users[kListLength];
+	char_t status[kHotKeyLength];
+	char_t consolePort[kHostNameLength];
+} PmIpduInfo;
+
+typedef struct
+{
+	char_t communityName[kGroupNameLength];
+	char_t source[kCommunitySourceLength];
+	char_t oid[kOidLength];
+	CycUserAccess permission;
+} CommunityInfo;
+
+typedef struct
+{
+	char_t userName[kUserNameLength];
+	char_t password[kPasswordLength];
+	CycUserAccess permission;
+	char_t oid[kOidLength];
+} Snmpv3Info;
+
+
+/* Function declarations */
+/* ------------------------------------------------------------------------- */
+
+/*-----------------------------------------------------------------------------
+CycLogIn
+Logs in <user> if <password> is correct.
+<sid> is ths new session ID if login is successful, and should be non-zero
+(unless login is unsuccessful).
+-----------------------------------------------------------------------------*/
+Result CycLogIn(const char_t* user, const char_t* password, Sid* sid);
+
+/*-----------------------------------------------------------------------------
+CycLogOut
+Logs out user on session identified by <sid>.
+-----------------------------------------------------------------------------*/
+Result CycLogOut(Sid sid);
+
+/*-----------------------------------------------------------------------------
+CycGetUserType
+Sets the <userType> for the user logged in on the session with <sid> (Session
+ID).
+-----------------------------------------------------------------------------*/
+Result CycGetUserType(Sid sid, CycUserType* userType);
+
+/*-----------------------------------------------------------------------------
+CycBecomeAdminBoss
+If another admin user is logged in and has the singleton config control (that
+is, s/he is "boss"), then the admin user logged in as <sid> can take over
+control via this call.
+-----------------------------------------------------------------------------*/
+Result CycBecomeAdminBoss(Sid sid);
+
+/*-----------------------------------------------------------------------------
+CycGet
+Retrieves <collectionSize> values for <param>s.
+<access> is set (from within) to indicate to the caller whether the data
+returned in <param> is only readable or is read-writable.
+<sid> identifies the session ID of the user attempting to access the data.
+For config data, if <sid> does not correspond to the currently logged-in admin
+who has config rights, kAnotherAdminIsOn should be returned and <param> should
+be considered read-only.  Note that some parameters represent data that does
+not require authentication; for these, a <sid> = 0 will work irrespective of
+any login state.
+<param> will be filled in-place (caller will be responsible for all allocation
+and deallocation) with current values from the device.
+-----------------------------------------------------------------------------*/
+Result CycGet(CycParam* param, UInt32 collectionSize, CycUserAccess* access, Sid sid);
+
+/*-----------------------------------------------------------------------------
+CycSet
+Commits <param>s to the device.
+<sid> identifies the session ID of the user attempting to access the data.
+For config data, if <sid> does not correspond to the currently logged-in admin
+who has config rights, kAnotherAdminIsOn should be returned and no action will
+be taken with respect to <param>.  Note that some parameters represent data
+that does not require authentication; for these, a <sid> = 0 will work
+irrespective of any login state.
+-----------------------------------------------------------------------------*/
+Result CycSet(CycParam* param, UInt32 collectionSize, CycSetAction action, Sid sid);
+
+#endif // h_WebApi

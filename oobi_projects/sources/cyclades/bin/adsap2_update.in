@@ -1,0 +1,34 @@
+#!/bin/sh
+
+CERT="/etc/CA/adsap2/@DSVIEW@_cert"
+
+if [ -f $CERT ] ; then
+  #Add @DSVIEW@ and appliance certificates from/to flash
+  grep "/etc/CA/adsap2/*" /etc/config_files 1> /dev/null 2>&1
+  if [ $? -eq 1 ]; then
+	  echo "/etc/CA/adsap2/*" >> /etc/config_files
+  fi
+  cp /etc/CA/adsap2/appliance_key.pem /etc/CA/ssh_appliance_key
+else
+  mv /etc/config_files /etc/config_files.tmp
+  grep -v "/etc/CA/adsap2/*" /etc/config_files.tmp > /etc/config_files
+  cp /etc/CA/global_appliance_key.txt /etc/CA/ssh_appliance_key
+  mv /etc/adsap2.conf /tmp/adsap2.conf
+  awk '$1 == "state" {print "state trust-all"; next}; {print $0};' \
+    /tmp/adsap2.conf > /etc/adsap2.conf
+fi
+
+chmod 600 /etc/CA/ssh_appliance_key
+
+#Read logpipe.sh to get ENABLE status
+. /etc/daemon.d/logpipe.sh
+
+daemon.sh stop LOGPIPE
+if [ "x$ENABLE" = "xYES" ]; then
+   daemon.sh restart LOGPIPE
+fi
+
+daemon.sh restart SSH
+if [ -f "/etc/daemon.d/aidp.sh" ]; then
+	/bin/aidpd -r
+fi

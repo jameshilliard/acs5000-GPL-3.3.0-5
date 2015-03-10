@@ -1,0 +1,96 @@
+# 1 "modules.dep.ons"
+# 1 "<built-in>"
+# 1 "<command line>"
+# 1 "modules.dep.ons"
+/lib/modules/2.4.17_mvl21-linuxplanet/kernel/drivers/char/pcmcia/serial_cs.o: /lib/modules/2.4.17_mvl21-linuxplanet/kernel/drivers/pcmcia/pcmcia_core.o /lib/modules/2.4.17_mvl21-linuxplanet/kernel/drivers/pcmcia/ds.o
+
+
+/lib/modules/2.4.17_mvl21-linuxplanet/kernel/drivers/ide/ide-cs.o: /lib/modules/2.4.17_mvl21-linuxplanet/kernel/drivers/pcmcia/pcmcia_core.o /lib/modules/2.4.17_mvl21-linuxplanet/kernel/drivers/pcmcia/ds.o
+
+
+/lib/modules/2.4.17_mvl21-linuxplanet/kernel/drivers/isdn/divert/dss1_divert.o: /lib/modules/2.4.17_mvl21-linuxplanet/kernel/drivers/isdn/isdn.o
+
+/lib/modules/2.4.17_mvl21-linuxplanet/kernel/drivers/isdn/hisax/avma1_cs.o: /lib/modules/2.4.17_mvl21-linuxplanet/kernel/drivers/pcmcia/pcmcia_core.o /lib/modules/2.4.17_mvl21-linuxplanet/kernel/drivers/pcmcia/ds.o /lib/modules/2.4.17_mvl21-linuxplanet/kernel/drivers/isdn/hisax/hisax.o
+
+
+
+/lib/modules/2.4.17_mvl21-linuxplanet/kernel/drivers/isdn/hisax/hisax.o: /lib/modules/2.4.17_mvl21-linuxplanet/kernel/drivers/isdn/isdn.o
+
+/lib/modules/2.4.17_mvl21-linuxplanet/kernel/drivers/isdn/hisax/sedlbauer_cs.o: /lib/modules/2.4.17_mvl21-linuxplanet/kernel/drivers/isdn/hisax/hisax.o /lib/modules/2.4.17_mvl21-linuxplanet/kernel/drivers/pcmcia/pcmcia_core.o /lib/modules/2.4.17_mvl21-linuxplanet/kernel/drivers/pcmcia/ds.o
+
+
+
+/lib/modules/2.4.17_mvl21-linuxplanet/kernel/drivers/isdn/isdn.o: /lib/modules/2.4.17_mvl21-linuxplanet/kernel/drivers/net/slhc.o
+
+/lib/modules/2.4.17_mvl21-linuxplanet/kernel/drivers/isdn/isdn_bsdcomp.o: /lib/modules/2.4.17_mvl21-linuxplanet/kernel/drivers/isdn/isdn.o
+
+/lib/modules/2.4.17_mvl21-linuxplanet/kernel/drivers/isdn/isdnloop/isdnloop.o: /lib/modules/2.4.17_mvl21-linuxplanet/kernel/drivers/isdn/isdn.o
+
+/lib/modules/2.4.17_mvl21-linuxplanet/kernel/drivers/net/8390.o:
+
+/lib/modules/2.4.17_mvl21-linuxplanet/kernel/drivers/net/bsd_comp.o: /lib/modules/2.4.17_mvl21-linuxplanet/kernel/drivers/net/ppp_generic.o
+
+/lib/modules/2.4.17_mvl21-linuxplanet/kernel/drivers/net/pcmcia/3c589_cs.o: /lib/modules/2.4.17_mvl21-linuxplanet/kernel/drivers/pcmcia/pcmcia_core.o /lib/modules/2.4.17_mvl21-linuxplanet/kernel/drivers/pcmcia/ds.o
+
+
+/lib/modules/2.4.17_mvl21-linuxplanet/kernel/drivers/net/pcmcia/axnet_cs.o: /lib/modules/2.4.17_mvl21-linuxplanet/kernel/drivers/pcmcia/pcmcia_core.o /lib/modules/2.4.17_mvl21-linuxplanet/kernel/drivers/pcmcia/ds.o
+
+
+/lib/modules/2.4.17_mvl21-linuxplanet/kernel/drivers/net/pcmcia/pcnet_cs.o: /lib/modules/2.4.17_mvl21-linuxplanet/kernel/drivers/net/8390.o /lib/modules/2.4.17_mvl21-linuxplanet/kernel/drivers/pcmcia/pcmcia_core.o /lib/modules/2.4.17_mvl21-linuxplanet/kernel/drivers/pcmcia/ds.o
+
+
+
+/lib/modules/2.4.17_mvl21-linuxplanet/kernel/drivers/net/pcmcia/xirc2ps_cs.o: /lib/modules/2.4.17_mvl21-linuxplanet/kernel/drivers/pcmcia/pcmcia_core.o /lib/modules/2.4.17_mvl21-linuxplanet/kernel/drivers/pcmcia/ds.o
+
+
+/lib/modules/2.4.17_mvl21-linuxplanet/kernel/drivers/net/ppp_async.o: /lib/modules/2.4.17_mvl21-linuxplanet/kernel/drivers/net/ppp_generic.o
+
+/lib/modules/2.4.17_mvl21-linuxplanet/kernel/drivers/net/ppp_deflate.o: /lib/modules/2.4.17_mvl21-linuxplanet/kernel/lib/zlib.o /lib/modules/2.4.17_mvl21-linuxplanet/kernel/drivers/net/ppp_generic.o
+
+
+/lib/modules/2.4.17_mvl21-linuxplanet/kernel/drivers/net/ppp_generic.o: /lib/modules/2.4.17_mvl21-linuxplanet/kernel/drivers/net/slhc.o
+
+/lib/modules/2.4.17_mvl21-linuxplanet/kernel/drivers/net/ppp_synctty.o: /lib/modules/2.4.17_mvl21-linuxplanet/kernel/drivers/net/ppp_generic.o
+
+/lib/modules/2.4.17_mvl21-linuxplanet/kernel/drivers/net/slhc.o:
+
+/lib/modules/2.4.17_mvl21-linuxplanet/kernel/drivers/net/slip.o: /lib/modules/2.4.17_mvl21-linuxplanet/kernel/drivers/net/slhc.o
+
+/lib/modules/2.4.17_mvl21-linuxplanet/kernel/drivers/net/wireless/hermes.o:
+
+/lib/modules/2.4.17_mvl21-linuxplanet/kernel/drivers/net/wireless/orinoco.o: /lib/modules/2.4.17_mvl21-linuxplanet/kernel/drivers/net/wireless/hermes.o
+
+/lib/modules/2.4.17_mvl21-linuxplanet/kernel/drivers/net/wireless/orinoco_cs.o: /lib/modules/2.4.17_mvl21-linuxplanet/kernel/drivers/net/wireless/orinoco.o /lib/modules/2.4.17_mvl21-linuxplanet/kernel/drivers/pcmcia/pcmcia_core.o /lib/modules/2.4.17_mvl21-linuxplanet/kernel/drivers/pcmcia/ds.o /lib/modules/2.4.17_mvl21-linuxplanet/kernel/drivers/net/wireless/hermes.o
+
+
+
+
+/lib/modules/2.4.17_mvl21-linuxplanet/kernel/drivers/pcmcia/ds.o: /lib/modules/2.4.17_mvl21-linuxplanet/kernel/drivers/pcmcia/pcmcia_core.o
+
+/lib/modules/2.4.17_mvl21-linuxplanet/kernel/drivers/pcmcia/m8xx_pcmcia.o: /lib/modules/2.4.17_mvl21-linuxplanet/kernel/drivers/pcmcia/pcmcia_core.o
+
+/lib/modules/2.4.17_mvl21-linuxplanet/kernel/drivers/pcmcia/pcmcia_core.o:
+
+/lib/modules/2.4.17_mvl21-linuxplanet/kernel/fs/ext3/ext3.o: /lib/modules/2.4.17_mvl21-linuxplanet/kernel/fs/jbd/jbd.o
+
+/lib/modules/2.4.17_mvl21-linuxplanet/kernel/fs/fat/fat.o:
+
+/lib/modules/2.4.17_mvl21-linuxplanet/kernel/fs/jbd/jbd.o:
+
+/lib/modules/2.4.17_mvl21-linuxplanet/kernel/fs/msdos/msdos.o: /lib/modules/2.4.17_mvl21-linuxplanet/kernel/fs/fat/fat.o
+
+/lib/modules/2.4.17_mvl21-linuxplanet/kernel/fs/nls/nls_cp437.o:
+
+/lib/modules/2.4.17_mvl21-linuxplanet/kernel/fs/nls/nls_cp850.o:
+
+/lib/modules/2.4.17_mvl21-linuxplanet/kernel/fs/nls/nls_cp852.o:
+
+/lib/modules/2.4.17_mvl21-linuxplanet/kernel/fs/nls/nls_iso8859-1.o:
+
+/lib/modules/2.4.17_mvl21-linuxplanet/kernel/fs/nls/nls_iso8859-15.o:
+
+/lib/modules/2.4.17_mvl21-linuxplanet/kernel/fs/nls/nls_iso8859-2.o:
+
+/lib/modules/2.4.17_mvl21-linuxplanet/kernel/fs/vfat/vfat.o: /lib/modules/2.4.17_mvl21-linuxplanet/kernel/fs/fat/fat.o
+
+/lib/modules/2.4.17_mvl21-linuxplanet/kernel/lib/zlib.o:

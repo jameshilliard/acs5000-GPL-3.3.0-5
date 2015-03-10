@@ -1,0 +1,22 @@
+.text
+{
+    FONT-SIZE: 11px;
+    COLOR: #333333;
+    LINE-HEIGHT: 16px;
+    FONT-FAMILY: Verdana, Arial, Helvetica
+}
+.text A:link
+{
+    COLOR: #999966;
+    FONT-WEIGHT: bold
+}
+.text A:visited
+{
+    COLOR: #999966;
+    FONT-WEIGHT: bold
+}
+.text A:hover
+{
+    COLOR: #FF3333;
+    FONT-WEIGHT: bold
+}

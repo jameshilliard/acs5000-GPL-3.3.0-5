@@ -1,0 +1,171 @@
+gtree.lo .libs/gtree.o: gtree.c ../config.h glib.h ../glib/galloca.h \
+  ../glib/gtypes.h ../glibconfig.h ../glib/gmacros.h \
+  /usr/lib/gcc-lib/i386-redhat-linux/3.2.2/include/stddef.h \
+  /usr/lib/gcc-lib/i386-redhat-linux/3.2.2/include/limits.h \
+  /usr/lib/gcc-lib/i386-redhat-linux/3.2.2/include/syslimits.h \
+  /usr/include/limits.h /usr/include/features.h /usr/include/sys/cdefs.h \
+  /usr/include/gnu/stubs.h /usr/include/bits/posix1_lim.h \
+  /usr/include/bits/local_lim.h /usr/include/linux/limits.h \
+  /usr/include/bits/posix2_lim.h \
+  /usr/lib/gcc-lib/i386-redhat-linux/3.2.2/include/float.h \
+  ../glib/garray.h ../glib/gasyncqueue.h ../glib/gthread.h \
+  ../glib/gerror.h ../glib/gquark.h ../glib/gatomic.h \
+  ../glib/gbacktrace.h ../glib/gbase64.h ../glib/gbookmarkfile.h \
+  /usr/include/time.h /usr/include/bits/time.h /usr/include/bits/types.h \
+  /usr/include/bits/wordsize.h /usr/include/bits/typesizes.h \
+  ../glib/gcache.h ../glib/glist.h ../glib/gmem.h ../glib/gslice.h \
+  ../glib/gcompletion.h ../glib/gconvert.h ../glib/gdataset.h \
+  ../glib/gdate.h ../glib/gdir.h ../glib/gfileutils.h ../glib/ghash.h \
+  ../glib/ghook.h ../glib/giochannel.h ../glib/gmain.h ../glib/gslist.h \
+  ../glib/gstring.h ../glib/gunicode.h ../glib/gutils.h \
+  /usr/lib/gcc-lib/i386-redhat-linux/3.2.2/include/stdarg.h \
+  ../glib/gkeyfile.h ../glib/gmappedfile.h ../glib/gmarkup.h \
+  ../glib/gmessages.h ../glib/gnode.h ../glib/goption.h \
+  ../glib/gpattern.h ../glib/gprimes.h ../glib/gqsort.h ../glib/gqueue.h \
+  ../glib/grand.h ../glib/grel.h ../glib/gscanner.h ../glib/gshell.h \
+  ../glib/gspawn.h ../glib/gstrfuncs.h ../glib/gthreadpool.h \
+  ../glib/gtimer.h ../glib/gtree.h galias.h galiasdef.c
+
+../config.h:
+
+glib.h:
+
+../glib/galloca.h:
+
+../glib/gtypes.h:
+
+../glibconfig.h:
+
+../glib/gmacros.h:
+
+/usr/lib/gcc-lib/i386-redhat-linux/3.2.2/include/stddef.h:
+
+/usr/lib/gcc-lib/i386-redhat-linux/3.2.2/include/limits.h:
+
+/usr/lib/gcc-lib/i386-redhat-linux/3.2.2/include/syslimits.h:
+
+/usr/include/limits.h:
+
+/usr/include/features.h:
+
+/usr/include/sys/cdefs.h:
+
+/usr/include/gnu/stubs.h:
+
+/usr/include/bits/posix1_lim.h:
+
+/usr/include/bits/local_lim.h:
+
+/usr/include/linux/limits.h:
+
+/usr/include/bits/posix2_lim.h:
+
+/usr/lib/gcc-lib/i386-redhat-linux/3.2.2/include/float.h:
+
+../glib/garray.h:
+
+../glib/gasyncqueue.h:
+
+../glib/gthread.h:
+
+../glib/gerror.h:
+
+../glib/gquark.h:
+
+../glib/gatomic.h:
+
+../glib/gbacktrace.h:
+
+../glib/gbase64.h:
+
+../glib/gbookmarkfile.h:
+
+/usr/include/time.h:
+
+/usr/include/bits/time.h:
+
+/usr/include/bits/types.h:
+
+/usr/include/bits/wordsize.h:
+
+/usr/include/bits/typesizes.h:
+
+../glib/gcache.h:
+
+../glib/glist.h:
+
+../glib/gmem.h:
+
+../glib/gslice.h:
+
+../glib/gcompletion.h:
+
+../glib/gconvert.h:
+
+../glib/gdataset.h:
+
+../glib/gdate.h:
+
+../glib/gdir.h:
+
+../glib/gfileutils.h:
+
+../glib/ghash.h:
+
+../glib/ghook.h:
+
+../glib/giochannel.h:
+
+../glib/gmain.h:
+
+../glib/gslist.h:
+
+../glib/gstring.h:
+
+../glib/gunicode.h:
+
+../glib/gutils.h:
+
+/usr/lib/gcc-lib/i386-redhat-linux/3.2.2/include/stdarg.h:
+
+../glib/gkeyfile.h:
+
+../glib/gmappedfile.h:
+
+../glib/gmarkup.h:
+
+../glib/gmessages.h:
+
+../glib/gnode.h:
+
+../glib/goption.h:
+
+../glib/gpattern.h:
+
+../glib/gprimes.h:
+
+../glib/gqsort.h:
+
+../glib/gqueue.h:
+
+../glib/grand.h:
+
+../glib/grel.h:
+
+../glib/gscanner.h:
+
+../glib/gshell.h:
+
+../glib/gspawn.h:
+
+../glib/gstrfuncs.h:
+
+../glib/gthreadpool.h:
+
+../glib/gtimer.h:
+
+../glib/gtree.h:
+
+galias.h:
+
+galiasdef.c:

@@ -1,0 +1,100 @@
+Index: readline-4.3/display.c
+===================================================================
+RCS file: /usr/cvsroot/tslinux_mv21/readline-4.3/display.c,v
+retrieving revision 1.1
+retrieving revision 1.2
+diff -u -r1.1 -r1.2
+--- readline-4.3/display.c	20 Mar 2004 02:59:06 -0000	1.1
++++ readline-4.3/display.c	20 Mar 2004 03:19:46 -0000	1.2
+@@ -142,7 +142,7 @@
+ static char *invisible_line = (char *)NULL;
+ 
+ /* A buffer for `modeline' messages. */
+-static char msg_buf[128];
++static char msg_buf[2048];
+ 
+ /* Non-zero forces the redisplay even if we thought it was unnecessary. */
+ static int forced_display;
+@@ -1729,6 +1729,7 @@
+   va_end (args);
+ 
+   rl_display_prompt = msg_buf;
++forced_display = 1;
+   (*rl_redisplay_function) ();
+   return 0;
+ }
+@@ -1740,6 +1741,7 @@
+   sprintf (msg_buf, format, arg1, arg2);
+   msg_buf[sizeof(msg_buf) - 1] = '\0';	/* overflow? */
+   rl_display_prompt = msg_buf;
++forced_display = 1;
+   (*rl_redisplay_function) ();
+   return 0;
+ }
+@@ -1768,6 +1770,7 @@
+ static char *saved_local_prefix;
+ static int saved_last_invisible;
+ static int saved_visible_length;
++static int saved_rl_end;
+ 
+ void
+ rl_save_prompt ()
+@@ -1776,7 +1779,8 @@
+   saved_local_prefix = local_prompt_prefix;
+   saved_last_invisible = prompt_last_invisible;
+   saved_visible_length = prompt_visible_length;
+-
++  saved_rl_end = rl_end;
++  rl_end = 0;
+   local_prompt = local_prompt_prefix = (char *)0;
+   prompt_last_invisible = prompt_visible_length = 0;
+ }
+@@ -1787,6 +1791,7 @@
+   FREE (local_prompt);
+   FREE (local_prompt_prefix);
+ 
++  rl_end = saved_rl_end;
+   local_prompt = saved_local_prompt;
+   local_prompt_prefix = saved_local_prefix;
+   prompt_last_invisible = saved_last_invisible;
+Index: readline-4.3/histfile.c
+===================================================================
+RCS file: /usr/cvsroot/tslinux_mv21/readline-4.3/histfile.c,v
+retrieving revision 1.1
+retrieving revision 1.2
+diff -u -r1.1 -r1.2
+--- readline-4.3/histfile.c	20 Mar 2004 02:59:52 -0000	1.1
++++ readline-4.3/histfile.c	18 Apr 2004 01:51:43 -0000	1.2
+@@ -377,9 +377,9 @@
+   size_t cursize;
+ 
+ #ifdef HAVE_MMAP
+-  mode = overwrite ? O_RDWR|O_CREAT|O_TRUNC|O_BINARY : O_RDWR|O_APPEND|O_BINARY;
++  mode = overwrite ? O_RDWR|O_CREAT|O_TRUNC|O_BINARY : O_CREAT|O_RDWR|O_APPEND|O_BINARY;
+ #else
+-  mode = overwrite ? O_WRONLY|O_CREAT|O_TRUNC|O_BINARY : O_WRONLY|O_APPEND|O_BINARY;
++  mode = overwrite ? O_WRONLY|O_CREAT|O_TRUNC|O_BINARY : O_CREAT|O_WRONLY|O_APPEND|O_BINARY;
+ #endif
+   output = history_filename (filename);
+   rv = 0;
+Index: readline-4.3/input.c
+===================================================================
+RCS file: /usr/cvsroot/tslinux_mv21/readline-4.3/input.c,v
+retrieving revision 1.1
+retrieving revision 1.2
+diff -u -r1.1 -r1.2
+--- readline-4.3/input.c	20 Mar 2004 02:59:57 -0000	1.1
++++ readline-4.3/input.c	20 Apr 2004 05:28:48 -0000	1.2
+@@ -461,6 +461,12 @@
+ #undef X_EWOULDBLOCK
+ #undef X_EAGAIN
+ 
++	if (errno == EINTR && rl_pending_input) {
++		c = rl_pending_input;
++		rl_pending_input = 0;;
++		return(c);
++	}
++
+       /* If the error that we received was SIGINT, then try again,
+ 	 this is simply an interrupted system call to read ().
+ 	 Otherwise, some error ocurred, also signifying EOF. */

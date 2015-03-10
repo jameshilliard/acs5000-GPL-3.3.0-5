@@ -1,0 +1,25 @@
+#!/bin/sh
+
+mount -o remount,rw /dev/root / -t root 2>/dev/null
+mount -t cycfs none /mnt/flash
+mount -a 2>/dev/null
+
+[ -x /sbin/depmod ] && /sbin/depmod -a
+
+KVER="$(uname -r)"
+# Mount sysfs to enable the handling of hotplug events.
+if [[ "$KVER" == 2.6.* ]] ; then
+        mkdir /sys
+        mount -t sysfs none /sys
+fi
+
+#Restore configuration from Flash
+/bin/restoreconf 1>/dev/null 2>&1
+
+/bin/check1stBoot 
+
+#update configuration files
+/bin/upgrade.sh
+
+#Keep the same HW console speed throughout Linux execution
+/bin/setConSpeed

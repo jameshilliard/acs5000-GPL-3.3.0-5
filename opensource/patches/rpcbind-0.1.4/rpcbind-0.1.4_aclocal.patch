@@ -1,0 +1,14 @@
+--- rpcbind-0.1.4/aclocal.m4.orig	2007-10-11 14:05:04.000000000 -0300
++++ rpcbind-0.1.4/aclocal.m4	2007-10-11 14:06:01.000000000 -0300
+@@ -497,9 +497,9 @@ _AM_IF_OPTION([no-define],,
+ AC_REQUIRE([AM_SANITY_CHECK])dnl
+ AC_REQUIRE([AC_ARG_PROGRAM])dnl
+ AM_MISSING_PROG(ACLOCAL, aclocal-${am__api_version})
+-AM_MISSING_PROG(AUTOCONF, autoconf)
++AM_MISSING_PROG(AUTOCONF, autoconf-2.61)
+ AM_MISSING_PROG(AUTOMAKE, automake-${am__api_version})
+-AM_MISSING_PROG(AUTOHEADER, autoheader)
++AM_MISSING_PROG(AUTOHEADER, autoheader-2.61)
+ AM_MISSING_PROG(MAKEINFO, makeinfo)
+ AM_MISSING_PROG(AMTAR, tar)
+ AM_PROG_INSTALL_SH

@@ -1,0 +1,788 @@
+--- isdn4k-utils.v3.2p1/ipppd/main.c	2002-07-17 21:06:21.000000000 -0300
++++ /root/tslinux_mv21/isdn4k-utils/ipppd/main.c	2005-06-10 18:45:32.000000000 -0300
+@@ -40,7 +44,6 @@
+ #include <pwd.h>
+ #include <unistd.h>
+ #include <ctype.h>
+-#include <time.h>
+ #include <sys/param.h>
+ #include <sys/types.h>
+ #include <sys/wait.h>
+@@ -48,7 +51,8 @@
+ #include <sys/resource.h>
+ #include <sys/stat.h>
+ #include <sys/socket.h>
+-#include </usr/include/net/if.h>
++//#include </usr/include/net/if.h>
++#include <net/if.h>
+ 
+ #include "fsm.h"
+ #include "ipppd.h"
+@@ -66,8 +70,6 @@
+ #include "patchlevel.h"
+ #include "protos.h"
+ 
+-extern int readpassw(char *, int);
+-
+ /*
+  * If REQ_SYSOPTIONS is defined to 1, pppd will not run unless
+  * /etc/ppp/ioptions exists.
+@@ -142,7 +144,7 @@
+ 
+ int main(int argc,char **argv)
+ {
+-	int             i,j,l;
++	int             i,j;
+ 	struct sigaction sa;
+ 	FILE            *pidfile;
+ 	struct timeval  timo;
+@@ -244,35 +246,6 @@
+         exit(1);
+     }
+ 
+-    if (ask_passwd) {
+-    	l = readpassw(passwd, MAXSECRETLEN);
+-    	if (l <= 0) {
+-    		fprintf(stderr, "get no password with askpassword\n");
+-    		exit(1);
+-    	}
+-    } else if (fdpasswd) {
+- 	i=1;   
+-    	l=0;
+-    	while(i>0) {
+-    		j = read(fdpasswd, &i, 1);
+-    		if (j == -1 && (errno == EAGAIN || errno == EINTR))
+-    			continue;
+-    		if (j!=1)
+-    			break;
+-    		if (i=='\n')
+-    			break;
+-    		passwd[l++] = i;
+-    		if (l>=MAXSECRETLEN) {
+-    			l--;
+-    			break;
+-    		}
+-    	}
+-    	if (l <= 0) {
+-    		fprintf(stderr, "get no password from fd(%d)\n", fdpasswd);
+-    		exit(1);
+-    	}
+-    	passwd[l] = 0;
+-    }
+     remove_sys_options();
+     check_auth_options();
+     setipdefault();
+@@ -284,27 +257,16 @@
+       die(1);
+     }
+     else {
+-      char devstr[1024], *p, *end;
+-      end = devstr+sizeof(devstr)-1;	/* points to last byte in array */
+-      /* p points to next empty byte always */
+-      p = devstr + sprintf(devstr,"Found %d device%s: ",numdev, numdev==1?"":"s");
++      char devstr[1024];
++      sprintf(devstr,"Found %d device%s: ",numdev, numdev==1?"":"s");
+       for(i=0;i<numdev;i++)
+       {
+-        int len = strlen(lns[i].ifname);
+-        if (p+len+3 > end) {
+-          /* not enough space left for interface name plus ... */
+-          if (p+3 < end) /* enough space for ... */
+-            strcpy(p, "..."); /* indicate truncation */
+-          break;
+-        }
+-        strcpy(p, lns[i].ifname);
+-        p += len;
+-        if (i < numdev - 1) {
+-          strcpy(p,", ");
+-          p += 2;
+-        }
++        /* strcat(devstr,lns[i].devnam); */
++        strcat(devstr,lns[i].ifname);
++        if (i < numdev - 1)
++          strcat(devstr,", ");
+       }
+-      syslog(LOG_NOTICE,"%s", devstr);
++      syslog(LOG_NOTICE,devstr);
+     }
+ 
+     /*
+@@ -347,7 +309,7 @@
+ 			p++;
+ 		else
+ 			p = lns[0].devnam;
+-		snprintf(pidfilename, sizeof(pidfilename), "%s%s.%s.pid", _PATH_VARRUN, "ipppd", p);
++		sprintf(pidfilename, "%s%s.%s.pid", _PATH_VARRUN, "ipppd", p);
+ 	}
+ #endif
+ 	
+@@ -971,7 +933,6 @@
+ 		setsid();
+ 		umask (S_IRWXG|S_IRWXO);
+ 		chdir ("/");
+-		/* AUD: full root privs? */
+ 		setuid(geteuid());
+ 		setgid(getegid());
+
+--- isdn4k-utils.v3.2p1/ipppd/lcp.c	2001-06-21 13:34:55.000000000 -0300
++++ /root/tslinux_mv21/isdn4k-utils/ipppd/lcp.c	2005-06-10 18:45:32.000000000 -0300
+@@ -51,10 +54,10 @@
+ 
+ #ifdef __linux__		/* Needs ppp ioctls */
+ #if defined __GLIBC__ && __GLIBC__ >= 2
+-# include </usr/include/net/if.h>
+-# include </usr/include/net/if_ppp.h>
++# include <net/if.h>
++# include <net/if_ppp.h>
+ #else
+-# include </usr/include/net/if.h>
++# include <net/if.h>
+ # include <linux/if_ppp.h>
+ #endif
+ #endif
+
+--- isdn4k-utils.v3.2p1/ipppd/ccp.c	2001-06-21 13:34:55.000000000 -0300
++++ /root/tslinux_mv21/isdn4k-utils/ipppd/ccp.c	2004-09-26 19:38:01.000000000 -0300
+@@ -41,7 +44,7 @@
+ 
+ #include "compressions.h"
+ 
+-#if 0
++#if HAVE_LZSCOMP_H
+ #include <linux/isdn_lzscomp.h>
+ #else
+ #include "../ipppcomp/isdn_lzscomp.h"
+
+--- isdn4k-utils.v3.2p1/ipppd/auth.c	2002-07-05 21:34:08.000000000 -0300
++++ /root/tslinux_mv21/isdn4k-utils/ipppd/auth.c	2004-09-26 19:38:01.000000000 -0300
+@@ -54,6 +58,10 @@
+ #include <netinet/in.h>
+ #include <arpa/inet.h>
+ 
++#ifdef USE_PAM
++#include <security/pam_appl.h>
++#endif
++
+ #if defined __GLIBC__ && __GLIBC__ >= 2
+ # include <crypt.h>
+ #endif
+@@ -63,16 +71,6 @@
+ #include <shadow.h>
+ #endif
+ 
+-#ifdef RADIUS
+-#include <radiusclient.h>
+-int  radius_pap_auth __P((int, char *, char *, char **, int *));
+-extern int auth_order ;
+-extern int idle_time_limit ;
+-extern int default_idle_time_limit ;
+-extern int session_time_limit ;
+-extern int default_session_time_limit ;
+-#endif
+-
+ #include "fsm.h"
+ #include "ipppd.h"
+ #include "lcp.h"
+@@ -136,14 +134,6 @@
+ void link_terminated(int linkunit)
+ {
+ 
+-#ifdef RADIUS
+-	extern u_int32_t	default_hisaddr;
+-	extern u_int32_t	default_ouraddr;	
+-	extern u_int32_t	default_netmask;
+-	struct in_addr hisifaddr;
+-	struct in_addr ourifaddr;
+-#endif
+-	
+ 	if(lns[linkunit].auth_up_script)
+ 		auth_script(linkunit,_PATH_AUTHDOWN,0);
+ 	if (lns[linkunit].phase == PHASE_DEAD)
+@@ -152,31 +142,7 @@
+ 		do_logout(linkunit);
+ 		lns[linkunit].logged_in = 0;
+ 	}
+-#ifdef RADIUS
+-	if (lns[linkunit].radius_in )
+-	{
+-		lns[linkunit].radius_in = FALSE ;
+-		if ( useradacct ) 
+-			radius_acct_stop(linkunit) ;
+-	}
+-	/* reset some parameters to their default (option-parsed) values */
+-	session_time_limit = default_session_time_limit ;
+-	idle_time_limit = default_idle_time_limit ;
+-	/* and reset IP addresses to their default values */
+-	hisifaddr.s_addr = default_hisaddr ? default_hisaddr : ipcp_wantoptions[linkunit].hisaddr ;
+-	ourifaddr.s_addr = default_ouraddr ? default_ouraddr : ipcp_wantoptions[linkunit].ouraddr ;
+-	syslog(LOG_DEBUG,
+-		"reseting remote ippp interface addresses for linkunit %d [ifunit %d] to %s:%s\n",
+-				linkunit,
+-				lns[linkunit].ifunit,
+-				inet_ntoa(ourifaddr),
+-				inet_ntoa(hisifaddr)
+-		);
+-	sifaddr(linkunit,
+-		default_ouraddr ? default_ouraddr :ipcp_wantoptions[linkunit].ouraddr,
+-		default_hisaddr ? default_hisaddr : ipcp_wantoptions[linkunit].hisaddr,
+-		default_netmask ? default_netmask : 0xffffffff);
+-#endif
++
+ 	lns[linkunit].phase = PHASE_DEAD;
+ 	syslog(LOG_NOTICE, "Connection terminated.");
+ }
+@@ -577,40 +543,19 @@
+ 	 * Check whether we have appropriate secrets to use
+ 	 * to authenticate ourselves and/or the peer.
+ 	 */
+-#ifdef RADIUS
+-	if (ao->neg_upap && passwd[0] == 0 && !get_upap_passwd() 
+-		&& !useradius ) {
+-#else
++
+ 	if (ao->neg_upap && passwd[0] == 0 && !get_upap_passwd()) {
+-#endif
+ 		syslog(LOG_INFO,"info: no PAP secret entry for this user!\n");
+ 		ao->neg_upap = 0;
+ 	}
+-#ifdef RADIUS
+-	if (wo->neg_upap && !uselogin && !ask_passwd && !fdpasswd &&
+-		!have_upap_secret() && !useradius )
+-#else
+-	if (wo->neg_upap && !uselogin && !ask_passwd && !fdpasswd &&
+-		!have_upap_secret())
+-#endif
++
++	if (wo->neg_upap && !uselogin && !have_upap_secret())
+ 		wo->neg_upap = 0;
+-#ifdef RADIUS
+-	if (ao->neg_chap && !ask_passwd && !fdpasswd &&
+-		!have_chap_secret(our_name, remote_name) && !useradius ) {
+-#else
+-	if (ao->neg_chap && !ask_passwd && !fdpasswd &&
+-		!have_chap_secret(our_name, remote_name)) {
+-#endif
++	if (ao->neg_chap && !have_chap_secret(our_name, remote_name)) {
+ 		syslog(LOG_INFO,"info: no CHAP secret entry for this user!\n");
+ 		ao->neg_chap = 0;
+ 	}
+-#ifdef RADIUS
+-	if (wo->neg_chap && !ask_passwd && !fdpasswd &&
+-		!have_chap_secret(remote_name, our_name) && !useradius )
+-#else
+-	if (wo->neg_chap && !ask_passwd && !fdpasswd &&
+-		!have_chap_secret(remote_name, our_name))
+-#endif
++	if (wo->neg_chap && !have_chap_secret(remote_name, our_name))
+ 		wo->neg_chap = 0;
+ 
+ 	if (auth_required && !wo->neg_chap && !wo->neg_upap) {
+@@ -667,7 +612,7 @@
+ 
+ 	syslog(LOG_INFO,"Check_passwd called with user=%s\n",user);
+ 
+-	snprintf(lns[linkunit].peer_authname,sizeof(lns[0].peer_authname), "%s", user);
++	strcpy(lns[linkunit].peer_authname,user);
+ 
+ 	/*
+ 	 * Open the file of upap secrets and scan for a suitable secret
+@@ -730,92 +675,66 @@
+ 	return ret;
+ }
+ 
+-#ifdef RADIUS
+-/*
+- * Name: radius_check_passwd 
+- *
+- * Purpose: Check the user name and passwd against RADIUS server
+- * 	    and acording to configuration also perform standard check_passwd
+- *
+- * returns:
+- *        UPAP_AUTHNAK: Authentication failed.
+- *        UPAP_AUTHACK: Authentication succeeded.
+- * In either case, msg points to an appropriate message.
+- */
+-int radius_check_passwd(linkunit,auser,userlen,apasswd,passwdlen,msg,msglen)
+-	int linkunit ;
+-	char *auser ;
+-	int userlen ;
+-	char *apasswd ;
+-	int passwdlen ;
+-	char **msg ;
+-	int *msglen ;			
+-{
+-	int ret;
+-	char passwd[256], user[256];
+-
+-	/*
+-	* Make copies of apasswd and auser, then null-terminate them.
+-	*/
+-	BCOPY(apasswd, passwd, passwdlen);
+-	passwd[passwdlen] = '\0';
+-	BCOPY(auser, user, userlen);
+-	user[userlen] = '\0';
+-	snprintf(lns[linkunit].peer_authname,sizeof(lns[0].peer_authname), "%s", user);
+-
+-	ret = UPAP_AUTHACK;
+-
+-	if ( useradius )
+-	{
+-		if ( auth_order & AUTH_RADIUS_FST )
+-		{
+-			ret = radius_pap_auth( linkunit, user, passwd, msg, msglen );
+-			if ((ret == UPAP_AUTHNAK) && (auth_order & AUTH_LOCAL_SND))
+-			{
+-				ret = check_passwd (linkunit,auser,userlen,apasswd,passwdlen,msg,msglen) ;
+-			}
+-		}
+-		else if ( auth_order & AUTH_LOCAL_FST )
+-		{
+-			ret = check_passwd (linkunit,auser,userlen,apasswd,passwdlen,msg,msglen) ;
+-			if ((auth_order & AUTH_RADIUS_SND) && (ret == UPAP_AUTHNAK))
+-			{
+-				ret = radius_pap_auth( linkunit, user, passwd, msg, msglen );
+-			}
+-		}
+-	} 
+-	else
+-	{
+-		ret = check_passwd (linkunit,auser,userlen,apasswd,passwdlen,msg,msglen) ;
+-	}
+-
+-	if (ret == UPAP_AUTHNAK) 
+-	{
+-		*msg = "Login incorrect";
+-		*msglen = strlen(*msg);
+-		if (lns[linkunit].attempts++ >= 10)
+-		{
+-			syslog(LOG_WARNING, "%d LOGIN FAILURES ON %s, %s",
+-				lns[linkunit].attempts, 
+-				lns[linkunit].devnam, user);
+-				lcp_close(lns[linkunit].lcp_unit,
+-				"max auth exceed");
+-			lns[linkunit].phase = PHASE_TERMINATE;
+-/* should I die here it must be something wrong here then */
+-/* then outside script can reestablish ipppd 		  */
+-		}
+-
+-	} 
+-	else 
+-	{
+-		lns[linkunit].attempts = 0;		/* Reset count */
+-		*msg = "Login ok";
+-		*msglen = strlen(*msg);
+-	}
+-
+-	return ret;
++#ifdef USE_PAM
++/* Static variables used to communicate between the conversation function
++ * and the server_login function 
++ */
++static char *PAM_username;
++static char *PAM_password;
++static int PAM_error = 0;
++static pam_handle_t *pamh = NULL;
++
++/* PAM conversation function
++ * Here we assume (for now, at least) that echo on means login name, and
++ * echo off means password.
++ */
++
++static int PAM_conv (int num_msg, const struct pam_message **msg,
++                    struct pam_response **resp, void *appdata_ptr)
++{
++    int replies = 0;
++    struct pam_response *reply = NULL;
++
++#define COPY_STRING(s) (s) ? strdup(s) : NULL
++
++    reply = malloc(sizeof(struct pam_response) * num_msg);
++    if (!reply) return PAM_CONV_ERR;
++
++    for (replies = 0; replies < num_msg; replies++) {
++        switch (msg[replies]->msg_style) {
++            case PAM_PROMPT_ECHO_ON:
++                reply[replies].resp_retcode = PAM_SUCCESS;
++                reply[replies].resp = COPY_STRING(PAM_username);
++                /* PAM frees resp */
++                break;
++            case PAM_PROMPT_ECHO_OFF:
++                reply[replies].resp_retcode = PAM_SUCCESS;
++                reply[replies].resp = COPY_STRING(PAM_password);
++                /* PAM frees resp */
++                break;
++            case PAM_TEXT_INFO:
++                /* fall through */
++            case PAM_ERROR_MSG:
++                /* ignore it, but pam still wants a NULL response... */
++                reply[replies].resp_retcode = PAM_SUCCESS;
++                reply[replies].resp = NULL;
++                break;
++            default:       
++                /* Must be an error of some sort... */
++                free (reply);
++                PAM_error = 1;
++                return PAM_CONV_ERR;
++        }
++    }
++    *resp = reply;     
++    return PAM_SUCCESS;
+ }
+-#endif
++
++static struct pam_conv PAM_conversation = {
++    &PAM_conv,
++    NULL
++};
++#endif  /* USE_PAM */
+ 
+ /*
+  * check_login - Check the user name and password against the system
+@@ -832,6 +751,46 @@
+ 	char *epasswd;
+ 	char *tty;
+ 
++#ifdef USE_PAM
++	int pam_error;
++
++	pam_error = pam_start ("ippp", user, &PAM_conversation, &pamh);
++	if (pam_error != PAM_SUCCESS) {
++		*msg = (char *) pam_strerror (pamh, pam_error);
++//	reopen_log();
++		return UPAP_AUTHNAK;
++	}
++	/*
++	 * Define the fields for the credential validation
++	 */
++     
++	PAM_username = user;
++	PAM_password = passwd;
++	PAM_error = 0;
++	pam_set_item (pamh, PAM_TTY, lns[unit].devnam); /* this might be useful to some modules */
++
++	/*
++	 * Validate the user
++	 */
++	pam_error = pam_authenticate (pamh, PAM_SILENT);
++	if (pam_error == PAM_SUCCESS && !PAM_error) {    
++		pam_error = pam_acct_mgmt (pamh, PAM_SILENT);
++		if (pam_error == PAM_SUCCESS)
++			pam_error = pam_open_session (pamh, PAM_SILENT);
++	}
++
++	*msg = (char *) pam_strerror (pamh, pam_error);
++
++	/*
++	 * Clean up the mess
++	 */
++//    reopen_log();	/* apparently the PAM stuff does closelog() */
++	PAM_username = NULL;
++	PAM_password = NULL;
++	if (pam_error != PAM_SUCCESS)
++		return UPAP_AUTHNAK;
++#else /* #ifdef USE_PAM */
++
+ #ifdef HAVE_SHADOW_H
+ 	struct spwd *spwd;
+ 	extern int isexpired (struct passwd *, struct spwd *);
+@@ -839,36 +798,38 @@
+ 
+ 	if ((pw = getpwnam(user)) == NULL) {
+ 		return (UPAP_AUTHNAK);
+-	 }
++	}
+ 
+ #ifdef HAVE_SHADOW_H
+ 	/* try to deal with shadow */
+ 	spwd = getspnam(user);
+ 	if (spwd) {
+-	   /* check the age of the password entry */
+-	   if (isexpired(pw, spwd)) {
+-		   syslog(LOG_WARNING,"Expired password for %s",user);
+-		   return (UPAP_AUTHNAK);
+-	   }
+-	   pw->pw_passwd = spwd->sp_pwdp;
++		/* check the age of the password entry */
++		if (isexpired(pw, spwd)) {
++			syslog(LOG_WARNING,"Expired password for %s",user);
++			return (UPAP_AUTHNAK);
++		}
++		pw->pw_passwd = spwd->sp_pwdp;
+ 	}
+ 	endspent();
+ #endif
+ 
+-	 /*
+-	  * XXX If no passwd, let them login without one.
+-	  */
++	/*
++	 * XXX If no passwd, let them login without one.
++	 */
+ 	if (!pw->pw_passwd || *pw->pw_passwd == '\0') {
+ 		return (UPAP_AUTHACK);
+-	 }
++	}
+ 
+ 	epasswd = crypt(passwd, pw->pw_passwd);
+ 	if (strcmp(epasswd, pw->pw_passwd)) {
+-	   return (UPAP_AUTHNAK);
++		return (UPAP_AUTHNAK);
+ 	}
+ 
+ 	syslog(LOG_INFO, "user %s logged in", user);
+ 
++#endif /* #ifdef USE_PAM */
++
+ 	/*
+ 	 * Write a wtmp entry for this user.
+ 	 */
+@@ -885,12 +846,24 @@
+  */
+ static void do_logout(int unit)
+ {
++#ifdef USE_PAM
++	int pam_error;
++
++	if (pamh != NULL) {
++		pam_error = pam_close_session (pamh, PAM_SILENT);
++		pam_end (pamh, pam_error);
++		pamh = NULL;
++	}
++	/* Apparently the pam stuff does closelog(). */
++//	reopen_log();
++#else /* ! USE_PAM */ 
+ 	char *tty;
+ 
+ 	tty = lns[unit].devnam;
+ 	if (strncmp(tty, "/dev/", 5) == 0)
+ 		tty += 5;
+ 	logwtmputmp(unit, tty, "", "");                /* Wipe out wtmp logout entry */
++#endif
+ }
+ 
+ 
+@@ -944,8 +917,6 @@
+ 	struct wordlist *addrs;
+ 	char secret[MAXWORDLEN];
+ 
+-	if ((ask_passwd || fdpasswd) && passwd[0])
+-		return 1;
+ 	filename = _PATH_UPAPFILE;
+ 	addrs = NULL;
+ 	f = fopen(filename, "r");
+@@ -1034,12 +1005,6 @@
+ 	struct wordlist *addrs;
+ 	char secbuf[MAXWORDLEN];
+ 
+-	if ((ask_passwd || fdpasswd) && passwd[0]) {
+-		len = strlen(passwd);
+-		BCOPY(passwd, secret, len);
+-		*secret_len = len;
+-		return 1;
+-	}
+ 	filename = _PATH_CHAPFILE;
+ 	addrs = NULL;
+ 	secbuf[0] = 0;
+@@ -1333,7 +1298,7 @@
+ 	struct passwd *pw;
+ 	char struid[32];
+ 	char *user_name;
+-	char *argv[9];
++	char *argv[10];
+ 
+ 	if ((pw = getpwuid(getuid())) != NULL && pw->pw_name != NULL)
+ 		user_name = pw->pw_name;
+@@ -1349,12 +1314,16 @@
+ 	argv[3] = user_name;
+ 	argv[4] = lns[linkunit].devnam;
+ 	argv[5] = strspeed;
+-	argv[6] = lns[linkunit].pci.remote_num;
+-	argv[7] = NULL;
++	/* need to supply "" arg if remote_num is empty,
++	   to not confuse auth-up script: */
++	argv[6] = (lns[linkunit].pci.remote_num[0] == '\0') ?
++		(unsigned char *)"\"\"" : lns[linkunit].pci.remote_num;
++	argv[7] = (lns[linkunit].pci.calltype & CALLTYPE_INCOMING) ? "incoming" : "outgoing";
++	argv[8] = NULL;
+ 	if (error_reason) {
+ 	  sprintf(struid,"%d",error_reason);
+-	  argv[7] = struid;
+-	  argv[8] = NULL;
++	  argv[9] = struid;
++	  argv[10] = NULL;
+ 	}
+ 	run_program(script, argv, debug,linkunit);
+ }
+
+--- isdn4k-utils.v3.2p1/ipppd/options.c	2002-07-05 21:34:08.000000000 -0300
++++ /root/tslinux_mv21/isdn4k-utils/ipppd/options.c	2005-03-16 09:06:21.000000000 -0300
+@@ -93,8 +96,6 @@
+ int	nodetach = 0;		/* Don't detach from controlling tty */
+ char user[MAXNAMELEN];	/* Username for PAP */
+ char passwd[MAXSECRETLEN];	/* Password for PAP */
+-int	ask_passwd = 0;		/* Ask user for password */
+-int	fdpasswd = 0;		/* Password via filedescriptor */
+ int	auth_required = 0;	/* Peer is required to authenticate */
+ int	defaultroute = 0;	/* assign default route through interface */
+ int hostroute = 1;
+@@ -203,9 +204,6 @@
+ static int setuser __P((int,char **));
+ static int setremote __P((int,char **));
+ static int setauth __P((int));
+-static int setaskpw __P((int));
+-static int unsetaskpw __P((int));
+-static int setfdpw __P((int,char **));
+ static int setnoauth __P((int));
+ static int readfile __P((int,char **));
+ static int pidfile __P((int,char **));
+@@ -373,10 +371,6 @@
+     {"user", 1, setuser},      /* Set name for auth with peer */
+     {"usehostname", 0, setusehostname},	/* Must use hostname for auth. */
+     {"remotename", 1, setremote}, /* Set remote name for authentication */
+-    {"askpassword", 0, setaskpw}, /* Ask user password on start */
+-    {"noaskpassword", 0, unsetaskpw}, /* Ask user password on start */
+-    {"-askpassword", 0, unsetaskpw}, /* Ask user password on start */
+-    {"passwordfd", 1, setfdpw}, /* Read password from fd */
+     {"auth", 0, setauth},	/* Require authentication from peer */
+     {"noauth", 0, setnoauth},  /* Don't require peer to authenticate */
+     {"file", 1, readfile},	/* Take options from a file */
+@@ -479,16 +473,16 @@
+ #define IMPLEMENTATION ""
+ #endif
+ 
+-static char *usage_string = "\
++static char *usage_string = " \
+ ipppd version %s patch level %d%s\n\
+ Usage: %s [ options ], where options are:\n\
+-\t<device>	Communicate over the named device\n\
++\t<device>	Communicate over the named device\n"
+ #ifdef INCLUDE_OBSOLETE_FEATURES
+-\tcrtscts		Use hardware RTS/CTS flow control\n\
+-\t<speed>		Set the baud rate to <speed>\n\
+-\tmodem		Use modem control lines\n\
++"\tcrtscts		Use hardware RTS/CTS flow control\n"
++"\t<speed>		Set the baud rate to <speed>\n"
++"\tmodem		Use modem control lines\n"
+ #endif
+-\t<loc>:<rem>	Set the local and/or remote interface IP\n\
++"\t<loc>:<rem>	Set the local and/or remote interface IP\n\
+ \t\taddresses.  (you also may use the option 'useifip' to get IPs).\n\
+ \tasyncmap <n>	Set the desired async map to hex <n>\n\
+ \tauth		Require authentication from peer\n\
+@@ -1567,7 +1561,7 @@
+     if (stat(cp, &statbuf) < 0) {
+ 	if (errno == ENOENT)
+ 	    return 0;
+-	syslog(LOG_ERR, "%s", cp);
++	syslog(LOG_ERR, cp);
+ 	return -1;
+     }
+ 
+@@ -1943,23 +1937,6 @@
+     return 1;
+ }
+ 
+-static int setaskpw(int slot)
+-{
+-    ask_passwd = 1;
+-    return 1;
+-}
+-
+-static int unsetaskpw(int slot)
+-{
+-    ask_passwd = 0;
+-    return 1;
+-}
+-
+-static int setfdpw(int slot,char **argv)
+-{
+-    return int_option(*argv, &fdpasswd);
+-}
+-
+ static int setauth(int slot)
+ {
+     auth_required = 1;
+
+--- isdn4k-utils.v3.2p1/ipppd/sys-linux.c	2000-10-05 17:45:25.000000000 -0300
++++ /root/tslinux_mv21/isdn4k-utils/ipppd/sys-linux.c	2005-09-09 19:00:45.000000000 -0300
+@@ -51,13 +54,13 @@
+ #include <unistd.h>
+ #include <netinet/in.h>
+ #include <arpa/inet.h>
+-#include </usr/include/net/if.h>
+-#include </usr/include/net/if_arp.h>
+-#include </usr/include/net/route.h>
++#include <net/if.h>
++#include <net/if_arp.h>
++#include <net/route.h>
+ #if defined __GLIBC__ && __GLIBC__ >= 2
+-# include </usr/include/net/ppp_defs.h>
+-# include </usr/include/net/if_ppp.h>
+-# include </usr/include/net/ethernet.h>
++# include <net/ppp_defs.h>
++# include <net/if_ppp.h>
++# include <net/ethernet.h>
+ # include "route.h"
+ #else
+ # include <linux/ppp_defs.h>
+@@ -735,33 +738,36 @@
+ 
+ static char *path_to_proc (void)
+   {
+-    struct mntent *mntent;
+-    FILE *fp;
+-
+-    fp = fopen (MOUNTED, "r");
+-    if (fp != 0)
+-      {
+-	mntent = getmntent (fp);
+-        while (mntent != (struct mntent *) 0)
+-	  {
+-	    if (strcmp (mntent->mnt_type, MNTTYPE_IGNORE) != 0)
+-	      {
+-		if (strcmp (mntent->mnt_type, "proc") == 0)
+-		  {
+-		    strncpy (route_buffer, mntent->mnt_dir,
++//mp: Bug Fix 4245
++//"proc" doesn't appear in /etc/mtab, but in fact we don't need to search for it...
++//    struct mntent *mntent;
++//    FILE *fp;
++
++//    fp = fopen (MOUNTED, "r");
++//    if (fp != 0)
++//      {
++//	mntent = getmntent (fp);
++//        while (mntent != (struct mntent *) 0)
++//	  {
++//	    if (strcmp (mntent->mnt_type, MNTTYPE_IGNORE) != 0)
++//	      {
++//		if (strcmp (mntent->mnt_type, "proc") == 0)
++//		  {
++//		    strncpy (route_buffer, mntent->mnt_dir,
++		    strncpy (route_buffer, "proc",
+ 			     sizeof (route_buffer)-10);
+ 		    route_buffer [sizeof (route_buffer)-10] = '\0';
+-		    fclose (fp);
++//		    fclose (fp);
+ 		    return (route_buffer);
+-		  }
+-	      }
+-	    mntent = getmntent (fp);
+-	  }
+-	fclose (fp);
+-      }
++//		  }
++//	      }
++//	    mntent = getmntent (fp);
++//	  }
++//	fclose (fp);
++//      }
+ 
+-    syslog (LOG_ERR, "proc file system not mounted");
+-    return 0;
++//    syslog (LOG_ERR, "proc file system not mounted");
++//    return 0;
+   }
+ 
+ /*
+

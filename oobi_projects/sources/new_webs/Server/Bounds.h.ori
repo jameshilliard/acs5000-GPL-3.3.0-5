@@ -1,0 +1,86 @@
+/* (c) 2003 Cyclades. All Rights Reserved. */
+/* $Id: Bounds.h.ori,v 1.1.1.1 2005/09/01 02:36:38 edson Exp $ */
+
+#ifndef h_Bounds
+#define h_Bounds
+
+#define kMaxPhysicalPorts 48
+#define kMaxPorts 1024
+#define kMaxUsersOnline 1
+#define kMaxSysMemInfo 14
+#define kMaxDigitalPorts 8
+#define kMaxAnalogPorts 2
+#define kMaxIdleTimeout 2147483648 /* ?!!! */
+#define kMaxSshBreakInterval 2147483648 /* ?!!! */
+
+#define kSwVersionLength 31
+#define kHostNameLength 31
+#define kUserNameLength 31
+#define kPasswordLength 31
+#define kConsoleBannerLength 50
+#define kIpVirtualLength 21 /* 255.255.255.255:9999 */
+#define kIpLength 16 /* 255.255.255.255 */
+#define kDomainNameLength 25
+#define kDnsLength 20
+#define kSttyCommandLength 65
+#define kServerFarmLength 31
+#define kServerNameLength 31
+#define kUserListLength 512
+
+#define kIntLength 4
+#define kHotKeyLength 3
+
+#define kGroupNameLength 20 
+#define kIdLength 4 
+#define kCommentLength 50
+#define kDirPathLength 50 /* is this really long enough?!!! */
+#define kFileNameLength 20 
+#define kRsaKeyLength 256 
+#define kInterfaceLength 10
+#define kSessionLength 25
+#define kVersionLength 65  
+
+#define kCpuLength 4
+#define kClockLength 6
+#define kRevisionLength 20
+#define kBogomipsLength 6
+#define kZeroPagesLength 60 
+
+#define kBlockLength  8
+#define kUsageLength 4
+
+#define kStatusLength 50 
+#define kInfoLength 300
+
+#define kPromptLength 15
+#define kTermTypeLength 10
+#define kListLength 512
+#define kBreakSeqLength 15
+#define kPmTypeLength 15
+#define kTtyLength 8
+
+#define kSysMemInfoNameLength 15
+#define kSysMemInfoValueLength 10
+
+#define kRoutingTableMiscLength 3
+
+#define kLoginTimeLength 7
+#define kIdleTimeLength 5
+#define kCpuTimeLength 5
+#define kWhatLength 50
+
+#define kMetricLength 3
+
+#define kAnalogStatusLength 5
+
+#define kNumOutletLength 2
+#define kIpduTypeLength 15
+
+#define kCommunitySourceLength 32
+#define kOidLength 40 
+
+#define kZeroLength 0
+
+#define kHtmlUserListLength 1024
+
+#endif

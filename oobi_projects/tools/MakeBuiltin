@@ -1,0 +1,44 @@
+#
+#  Makefile for Cyclades projects.
+#
+#  It will copy files (lib's and bin's) from builtin packages.
+#
+
+include $(ROOT_PROJ)/$(TOOLS)/MakeChecks
+
+$(call check_vars,WORK_DIR TARGET)
+
+include $(WORK_DIR)/config
+
+include $(ROOT_PROJ)/$(PACKAGES_DEF)
+
+my_prefix=$(WORK_DIR)/$(TARGET)
+
+include $(CONFIG_TOOL_DIR)/config_tools
+
+$(call check_vars,CROSS_BIN CROSS_STRIP)
+
+define DEP_template
+ifndef $(1)
+UNDEFINED_PAKAGES+=$(1)
+endif
+endef
+
+$(foreach pack,$(BUILTIN_PKGS),$(eval $(call DEP_template,$(pack))))
+
+ifneq ($(words $(UNDEFINED_PAKAGES)),0)
+$(error Package(s) '$(UNDEFINED_PAKAGES)' not properly defined.)
+endif
+
+all: $(BUILTIN_PKGS)
+
+$(BUILTIN_PKGS): force
+	$(MAKE) -C $(BUILTIN_DIST)/$($@) \
+			-f $(ROOT_PROJ)/$(TOOLS)/MakeCopyDir \
+			STRIP=$(CROSS_BIN)/$(CROSS_STRIP) \
+			TARGET_DIR=$(my_prefix) SUBDIR=/
+
+$(MAKEFILE_LIST): ;
+
+force: ;
+

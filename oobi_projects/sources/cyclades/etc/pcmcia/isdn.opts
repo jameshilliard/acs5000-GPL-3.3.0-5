@@ -1,0 +1,101 @@
+# Configurable parameters for isdn
+
+#-------------------
+# Set phone numbers
+#-------------------
+LOCALNUMBER="8358661"   	# Your MSN (or EAZ)
+				# "*" = accepts calls to any local number.
+DIALOUT_REMOTENUMBER="8358662" 	# Remote phone that you want to dial to
+DIALIN_REMOTENUMBER="8358662" 	# Remote phone from which you will receive calls
+SECURE="off"			# "on" = incoming calls accepted only if remote
+				# phone matches DIALIN_REMOTENUMBER; "off" = 
+				# accepts calls from any phone. "on" will work
+				# only if your line has the caller id info.
+
+
+#------------------------------------------------------
+# Set hangup timeout if there is inactivity on the line
+#------------------------------------------------------
+HUPTIMEOUT=300			# in seconds
+
+
+#-------------------
+# Set IP's
+#-------------------
+LOCALIP="10.0.0.21"   # Use "0.0.0.0" to accept the peer's idea of our local ip
+REMOTEIP="10.0.0.22"  # Use "0.0.0.0" to allow remote system to specify its own ip"
+NETMASK="255.255.255.255"
+
+
+#-------------------
+# Set profile 
+#-------------------
+DIALIN="yes"	# "yes" if you want dial in, "no" if you want dial out
+		# For dial in, it is suggested that LOCALIP and REMOTEIP 
+		# are set to values different of 0.0.0.0
+		# For dial out, it is suggested that LOCALIP and REMOTEIP
+		# are set to 0.0.0.0
+
+
+#-------------------
+# Callback parameters
+#
+# Note: This CALLBACK parameter is used for a low level callback, before
+#       PPP link is established. If you want callback after user 
+#       authentication, set CALLBACK="off" and uncomment lines in 
+#       /etc/ppp/auth-up.
+#-------------------
+CALLBACK="off"	# "off" = callback disabled. 
+		# "in" = after getting an incoming call, a callback is dialed.
+		# "out" = unit does the initial call and then waits for the 
+		#	  callback of the remote machine.
+
+CBDELAY="2"	# For CALLBACK set to "in", delay (in seconds) before dialing 
+		# back.
+		# For CALLBACK set to "out", delay before hanging up to free
+		# the line for the incoming callback from the remote machine.
+
+
+#-------------------
+# Dial in parameters
+#-------------------
+DIALIN_AUTHENTICATION="+pap"	# Examples: "+pap" for pap, "+chap" for chap, 
+				# 	    "auth login" for PAM. 
+				# 
+
+
+#--------------------------
+# Dial out and callback parameters
+#--------------------------
+USERNAME="mary"		# Include this username in /etc/ppp/pap-secrets
+			# for PAP authentication; include it in 
+			# /etc/ppp/chap-secrets for CHAP authentication. 
+
+
+
+ipppd_options="$LOCALIP:$REMOTEIP netmask $NETMASK"
+
+if [ "$LOCALIP" = "0.0.0.0" ]; then
+    ipppd_options="$ipppd_options ipcp-accept-local"
+fi
+
+if [ "$REMOTEIP" = "0.0.0.0" ]; then
+    ipppd_options="$ipppd_options ipcp-accept-remote"
+fi
+
+
+if [ "$CALLBACK" = "off" ]; then
+    if [ "$DIALIN" = "yes" ]; then
+        ipppd_options="$ipppd_options $DIALIN_AUTHENTICATION" 
+    else
+        ipppd_options="$ipppd_options user $USERNAME name $USERNAME" 
+    fi
+elif [ "$CALLBACK" = "in" ]; then
+    ipppd_options="$ipppd_options user $USERNAME name $USERNAME" 
+else # "$CALLBACK" = "out"
+    ipppd_options="$ipppd_options $DIALIN_AUTHENTICATION" 
+fi
+
+# Debug messages for syslog
+#ipppd_options="$ipppd_options debug"
+#logger "$ipppd_options"

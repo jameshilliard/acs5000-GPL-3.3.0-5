@@ -1,0 +1,286 @@
+#!/bin/sh 
+
+FILE_LOCK=/var/run/saveconf.pid
+
+if [ -f $FILE_LOCK ] ; then
+    kill -0 `cat $FILE_LOCK`
+	if [ $? -eq 0 ]; then
+		echo -e "\rError: saveconf or restoreconf already running!"
+		exit 1
+    fi
+fi
+
+echo $$ > $FILE_LOCK
+
+CF_FS=`set_nports 18`
+K26=`set_nports 19`
+PCMCIA=`set_nports 8`
+
+if [ "x$CF_FS" = "x1" ] ; then
+  CFG_FILE=/mnt/hda3/backup/configuration_files.gz
+  SDDIR="/mnt/ide/hda3/backup"
+  SD_FILE=$SDDIR/configuration_files.gz
+  CF_FILE=$SDDIR/storageOptions
+  EVT_MSG=1
+else
+  if [ "x$K26" = "x1" ] ; then
+    CFG_FILE=/mnt/flash/config.tgz
+    EVT_MSG=1
+  else
+    CFG_FILE=/proc/flash/script
+    EVT_MSG=1
+  fi
+  SDDIR="/mnt/ide/proc/flash"
+  SD_FILE=$SDDIR/script
+  CF_FILE=$SDDIR/storageOptions
+fi
+
+TMP_DIR=/tmp
+CONFIG_FILE_LIST=/etc/config_files
+TMP_FILE=$TMP_DIR/saving_config
+CONFIG_FILE=$TMP_FILE.tar.gz
+CONFIG_FILE_list=""
+
+do_exit ()
+{
+	if [ "$2" = "" ]; then
+		EXIT_CODE=1
+	else
+		EXIT_CODE=$2
+	fi
+	rm -rf $TMP_DIR/do_restart	
+	rm -f $TMP_FILE*
+	if [ "$1" = "" ]; then
+		echo -e "*** Aborting..."
+	else 
+		echo -e "$1"
+	fi
+	rm -f $FILE_LOCK
+	exit $EXIT_CODE
+}
+
+show_usage ()
+{
+	echo "Usage:"
+	echo "   Save to flash:              saveconf"
+        if [ "x$PCMCIA" = "x1" ]; then
+	  echo "   Save to storage device:     saveconf sd  [default] [replace]"
+        fi
+	echo "   Save to local file:         saveconf local <FILE>"
+	echo "   Save to FTP server:         saveconf ftp   <FILE> <FTP_SERVER> <USER> <PASSWORD>"
+	echo "   Save to TFTP server:        saveconf tftp  <FILE> <TFTP_SERVER> "
+	echo "   Save to SSH server:         saveconf ssh   <FILE> <SSH_SERVER> <USER>"
+	echo
+	rm -f $FILE_LOCK
+	exit 1
+}
+
+# TARGET  = flash/ftp/tftp/local/ssh
+# SERVER_IP = FTP_SERVER/TFTP_SERVER/SSH_SERVER
+# USER
+# PASSWORD
+# REMOTE_FILE
+
+# Trap signals so that this application is not interrupted
+trap do_exit SIGTERM SIGINT SIGQUIT SIGHUP
+umask 077
+
+if [ "x$1" = "x" ]; then
+	TARGET=flash
+else
+    TARGET=$1
+	case $1 in
+		ftp)
+          [ $# -lt 5 ] && show_usage
+          REMOTE_FILE=$2
+          SERVER_IP=$3
+          USER=$4
+          PASSWORD=$5
+        ;;
+        tftp)
+          [ $# -lt 3 ] && show_usage
+          REMOTE_FILE=$2
+          SERVER_IP=$3
+        ;;
+        local)
+          [ $# -lt 2 ] && show_usage
+          REMOTE_FILE=$2
+        ;;
+        ssh)
+          [ $# -lt 4 ] && show_usage
+          REMOTE_FILE=$2
+          SERVER_IP=$3
+          USER=$4
+        ;;
+        sd)
+          if [ "x$PCMCIA" = "x1" ]; then
+            SDMODE="$2" 
+            [ "$3" ] && SDMODE="$SDMODE $3"
+            case $SDMODE in
+              ""|"default"|"replace"|"default replace")
+              ;;
+              *)
+                show_usage
+              ;;
+            esac
+          else
+            show_usage
+          fi
+        ;;
+		*)
+	      show_usage
+        ;;
+	esac
+fi
+
+echo -e "\rChecking the configuration file list..."
+
+if [ ! -e $CONFIG_FILE_LIST ]; then
+	do_exit "*** ERROR: configuration file list does not exist" 10
+fi
+
+for file in `cat /etc/config_files` ; do
+	[ "x${file:0:1}" = "x#" ] && continue
+	if [ -L $file -o -f $file -o -d $file ] ; then
+		CONFIG_FILE_list="$CONFIG_FILE_list $file"
+	else
+                if [ "x$file" != "x/etc/security.opts" ]; then
+                        echo -e "\r$0 : File '$file' does not exist !"
+                fi
+        fi
+done
+
+if [ -z "$CONFIG_FILE_list" ]; then
+	rm -f $FILE_LOCK
+	do_exit "*** ERROR: configuration file list is empty" 11
+fi
+
+rm -f /root/core*
+rm -f /core*
+
+echo -ne "\rCompressing configuration files into $TMP_FILE.tar.gz ... "
+tar -pcf $TMP_FILE.tar $CONFIG_FILE_list > /dev/null 2>&1
+if [ $? -ne 0 ]; then
+	echo ""
+	do_exit "\r*** ERROR: failed to create $TMP_FILE.tar" 12
+fi
+
+chmod 0600 $TMP_FILE.tar
+gzip $TMP_FILE.tar
+if [ $? -ne 0 ]; then
+	do_exit "\r*** ERROR: failed to create compressed file $TMP_FILE.tar.gz" 13
+fi
+echo "done."
+
+if [ "$TARGET" = "sd" ]; then
+	[ ! "`df | grep "mnt/ide"`" ]  && do_exit "*** ERROR: no storage device detected" 1
+	[ ! -d $SDDIR ] && mkdir -p $SDDIR
+	[ ! -z "$SDMODE" ] && \
+		echo "$SDMODE" | tr a-z A-Z|tr ' ' '\n' > $CF_FILE
+	echo -en "\rSaving configuration files to storage device ... "
+	cp -p $CONFIG_FILE $SD_FILE
+	echo "done."
+	if [ "x$EVT_MSG" = "x1" ] ; then
+		sh_write_evt 14 U
+	else
+		showlogmsg info "$0: CONFIG: Configuration saved to storage device"
+	fi
+	rm -f $TMP_FILE*
+	rm -f $FILE_LOCK
+	exit 0
+fi
+
+if [ "$TARGET" = "flash" ]; then
+	echo -en "\rSaving configuration files to flash ... "
+	cp -p $CONFIG_FILE $CFG_FILE
+	echo "done."
+	if [ "x$EVT_MSG" = "x1" ] ; then
+		sh_write_evt 14 U
+	else
+		showlogmsg info "$0: CONFIG: Configuration$MSG saved to flash"
+	fi
+	rm -rf /tmp/.changedBy@DSVIEW_CAP@ >/dev/null 2>&1
+	if [ -f /var/firstBoot ]; then
+		rm -rf /var/firstBoot >/dev/null 2>&1
+		/bin/aidpd -r >/dev/null 2>&1
+	fi
+	rm -f $TMP_FILE*
+	rm -f $FILE_LOCK
+	exit 0
+fi
+
+if [ "$TARGET" = "ftp" ]; then
+TEMP_FILE=$TMP_DIR/ftp.cmd
+	echo "user $USER $PASSWORD" > $TEMP_FILE
+	echo "bin" >> $TEMP_FILE
+	echo "put $CONFIG_FILE $REMOTE_FILE" >> $TEMP_FILE
+	echo "quit" >> $TEMP_FILE
+
+	FTP_OUTPUT=`/usr/bin/ftp -n $SERVER_IP < $TEMP_FILE`
+	FTP_EXIT_CODE=$?
+	echo $FTP_OUTPUT
+
+	rm -f $TEMP_FILE
+
+	echo $FTP_OUTPUT | grep "Not connected"
+	if [ $? -eq 0 ]; then
+		do_exit "*** ERROR: Could not connect to ftp server" 20
+	fi
+
+	echo $FTP_OUTPUT | grep "Login incorrect"
+	if [ $? -eq 0 ]; then
+		do_exit "*** ERROR: Login incorrect" 21
+	fi
+
+	echo $FTP_OUTPUT | grep "Login failed"
+	if [ $? -eq 0 ]; then
+		do_exit "*** ERROR: Login failed" 21
+	fi
+
+	echo $FTP_OUTPUT | grep "Permission denied"
+	if [ $? -eq 0 ]; then
+		do_exit "*** ERROR: Permission denied" 22
+	fi
+
+	echo $FTP_OUTPUT | grep "Is a directory"
+	if [ $? -eq 0 ]; then
+		do_exit "*** ERROR: Is a directory" 25
+	fi
+
+	if [ $FTP_EXIT_CODE -ne 0 ]; then
+		rm -f $TEMP_FILE
+		do_exit "*** ERROR: file transfer failed." 23
+	fi
+fi
+
+if [ "$TARGET" = "tftp" ]; then
+	echo -n "Saving file $REMOTE_FILE in $SERVER_IP TFTP server ... "
+	tftp -p -l $CONFIG_FILE -r $REMOTE_FILE $SERVER_IP >/dev/null 2>&1
+	if [ $? -ne 0 ]; then
+		echo ""
+		do_exit "*** ERROR: file transfer failed." 1
+	fi
+fi
+
+if [ "$TARGET" = "local" ]; then
+	cp $CONFIG_FILE $REMOTE_FILE 
+fi
+
+if [ "$TARGET" = "ssh" ]; then
+	ssh_server="$SERVER_IP"
+	if echo "$ssh_server" | egrep -q '^[0-9a-fA-F]*:[0-9a-fA-F:]*([0-9.]*)?(%.*)?$'; then
+		# Numerical IPv6 address must be inside brackets...
+		ssh_server="[$ssh_server]"
+	fi
+	echo "Saving file $REMOTE_FILE to $SERVER_IP SSH server, as $USER."
+	scp -S ssh -q $CONFIG_FILE "$USER@$ssh_server:$REMOTE_FILE" 2>/dev/null 
+	if [ $? -ne 0 ]; then
+		do_exit "*** ERROR: file transfer failed." 1
+	fi
+fi
+
+rm -f $TMP_FILE*
+rm -f $FILE_LOCK
+echo "done."
+
+exit 0

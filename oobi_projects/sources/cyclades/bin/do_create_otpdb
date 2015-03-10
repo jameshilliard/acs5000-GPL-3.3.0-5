@@ -1,0 +1,207 @@
+#!/bin/sh 
+
+OTP_CONF=/etc/otp.conf
+IDE_CONF=/etc/pcmcia/ide.opts
+
+init_fs=no
+doformat=no
+
+do_exec()
+{
+  eval $1 >/dev/null 2>&1
+  if [ $? -ne 0 ] ; then
+    echo "*"
+    echo "*** Error in command : '$1'"
+    echo "*"
+    exit 1
+  fi
+}
+
+str=""
+
+my_read ()
+{
+found=0
+while [ $found -eq 0 ] ; do
+   aux="$2"
+   aux=$(echo $aux|tr "[A-Z]" "[a-z]")
+   echo -n "$1 [$aux] : "
+   read aux
+   aux=${aux:-$2}
+   aux=$(echo $aux|tr "[A-Z]" "[a-z]")
+   for ((i=3;$i<=$#;i++)) ; do
+     if [ "x$aux" = "x${!i}" ] ; then
+       found=1
+       break
+     fi
+   done
+done
+str=$(echo $aux|tr "[a-z]" "[A-Z]")
+}
+
+if [ ! -f ${OTP_CONF} ] ; then
+  echo "*"
+  echo "* ERROR - Configuration file '${OTP_CONF}' does not exist."
+  echo "*"
+  exit 1
+fi
+
+. ${OTP_CONF}
+
+echo
+echo "The OTP DB storage device is '${DEVICE}'"
+echo
+if [ "$DEVICE" != "LOCAL" -a "$DEVICE" != "PCMCIA" ] ; then 
+  NFS_PATH=$DEVICE
+  DEVICE=NFS
+fi
+
+my_read "Enter the new OTP DB device (local, pcmcia or nfs)" "$DEVICE" local pcmcia nfs
+DEVICE=${str}
+
+if [ "x${DEVICE}" = "xNFS" ]; then
+    aux=""
+    echo -n "Enter NFS path [$NFS_PATH] : "
+    read aux
+    DEVICE=${aux:-$NFS_PATH}
+fi
+
+if [ -z "$(grep -s 'DEVICE=${DEVICE}' ${OTP_CONF})" ] ; then
+  do_exec "mv ${OTP_CONF} ${OTP_CONF}.tmp"
+  awk '$1 ~ /^DEVICE=/ {print "DEVICE=" DEVICE; next}; {print $0};' \
+    DEVICE=${DEVICE} ${OTP_CONF}.tmp > ${OTP_CONF}
+  grep ${OTP_CONF}  /etc/config_files > /dev/null 2>&1
+  if [ $? -ne 0 ] ; then
+        do_exec "echo ${OTP_CONF} >> /etc/config_files"
+  fi
+  do_exec "/bin/updatefiles ${OTP_CONF}"
+fi
+
+echo
+echo "The OTP ENABLE status is '${ENABLE}'"
+echo
+my_read "Enter the new OTP ENABLE status (yes/no/cancel)" "$ENABLE" yes no cancel
+ENABLE=${str}
+
+if [ ${ENABLE} = CANCEL ] ; then
+  exit
+fi
+
+if [ -z "$(grep -s 'ENABLE=${ENABLE}' ${OTP_CONF})" ] ; then
+  do_exec "mv ${OTP_CONF} ${OTP_CONF}.tmp"
+  awk '$1 ~ /^ENABLE=/ {print "ENABLE=" ENABLE; next} {print $0};' \
+    ENABLE=${ENABLE} ${OTP_CONF}.tmp > ${OTP_CONF}
+  grep ${OTP_CONF}  /etc/config_files > /dev/null 2>&1
+  if [ $? -ne 0 ] ; then
+        do_exec "echo ${OTP_CONF} >> /etc/config_files"
+  fi
+  do_exec "/bin/updatefiles ${OTP_CONF}"
+fi
+
+if [ "x${DEVICE}" = "xPCMCIA" ] ; then
+  MOUNTPT=$(awk '/MOUNTPT=/ { print $2 }' FS='"' ${IDE_CONF})
+  FSTYPE=$(awk '/FSTYPE=/ { print $2 }' FS='"' ${IDE_CONF})
+
+  if [ -z "${MOUNTPT}" -o -z "${FSTYPE}" ]; then
+    echo "*"
+    echo "* ERROR - Missing definition of 'MOUNTPT' or 'FSTYPE' in 'ide.opts'"
+    echo "*"
+    exit 1
+  fi
+
+  if [ "x$(set_nports 18)" = "x1" ] ; then
+    MY_DEVICE=/dev/hdc
+  else
+    MY_DEVICE=/dev/hda
+  fi
+
+  echo "Reading '${MY_DEVICE}' information"
+
+  if [ -n "$(sfdisk -l ${MY_DEVICE} | grep -s "unrecognized partition")" ] ; then
+    echo
+    echo "The device '${MY_DEVICE}' is not formated yet."
+    my_read "Would you like to format it (yes/no)" NO yes no
+    doformat=${str}
+    if [ "${doformat}" != "YES" ] ; then
+      exit
+    fi
+  else
+    nparts=$(sfdisk -l ${MY_DEVICE} | grep -s "${MY_DEVICE}[1-9]" | grep -v Empty | wc -l)
+    echo
+    echo "The device '${MY_DEVICE}' has ${nparts} partition(s) on it."
+    my_read "Would you like to repartition the device (yes/no/cancel)" NO yes no cancel
+    doformat=${str}
+    if [ "${doformat}" = "CANCEL" ] ; then
+      exit
+    fi
+  fi
+
+  if [ -n "$(mount | grep -s ${MY_DEVICE})" ] ; then
+    echo "un-mounting device '${MY_DEVICE}'"
+    for file in $( mount | grep ${MY_DEVICE} | cut -f 3 -d ' ' )
+    do
+      for mfile in $( mount | grep ${file} | cut -f 3 -d ' ' )
+      do
+        echo " un-mounting directory $mfile"
+        do_exec "umount $mfile"
+      done
+    done
+  fi
+
+  if [ "${doformat}" == "YES" ] ; then
+    echo "*"
+    echo "* Creating CF card partition ..."
+    echo ",,L" | sfdisk ${MY_DEVICE} > /dev/null 2>&1
+    echo "* ... done."
+    sfdisk -l ${MY_DEVICE}
+    init_fs=YES
+  fi
+
+  if [ ${init_fs} != YES ] ; then
+    eval $(mount -t ${FSTYPE} ${MY_DEVICE}1 ${MOUNTPT}) >/dev/null 2>&1
+    if [ $? -ne 0 ] ; then
+      init_fs=YES
+    else 
+      do_exec "umount ${MOUNTPT}"
+      echo
+      echo "The device '${MY_DEVICE}1' has already a FS type '${FSTYPE}' on it."
+      my_read "Would you like to clean its contents (yes/no/cancel)" YES yes no cancel
+      init_fs=${str}
+      if [ "${init_fs}" = "CANCEL" ] ; then
+        exit
+      fi
+    fi
+  fi
+
+  if [ ${init_fs} = YES ] ; then
+    echo
+    echo "Creating the ${FSTYPE} FS in the device '${MY_DEVICE}1' ..."
+    if [ ${FSTYPE} = vfat ] ; then
+      do_exec "mkdosfs ${MY_DEVICE}1"
+    else
+      do_exec "mke2fs ${MY_DEVICE}1"
+    fi
+    echo "... done."
+  fi
+fi
+
+/bin/do_mount_otpdb.sh force
+
+if [ ! -d ${MOUNT_POINT}/etc ] ; then
+  echo
+  echo "Creating the OTP database"
+  do_exec "mkdir ${MOUNT_POINT}/etc"
+else
+  echo "Directory '${MOUNT_POINT}/etc' already exists ..."
+fi
+
+if [ -f ${MOUNT_POINT}/etc/opiekeys ] ; then 
+  echo "The OTP database '${MOUNT_POINT}/etc/opiekeys' already exists."
+  echo "It's been emptied ..."
+else
+  echo "Creating the OTP database '${MOUNT_POINT}/etc/opiekeys' ..."
+fi
+
+do_exec ">${MOUNT_POINT}/etc/opiekeys"
+do_exec "chmod 0644 ${MOUNT_POINT}/etc/opiekeys"
+

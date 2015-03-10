@@ -1,0 +1,63 @@
+
+		How to run portslave under telnetd.
+
+Some people want to run portslave on the telnet port of their machine.
+For example, one guy has terminal servers in 8 bit clean pass-through mode
+that connect a dialin user to a telnet session on a Linux machine. The
+portslave runs there.
+
+I haven't tested this myself yet, so I'm not sure if it works :)
+
+You can do this in 2 ways:
+
+1. On standard telnet port 23, instead of the regular login program.
+
+   You must have a recent telnetd for this. The Debian distribution has,
+   I don't know about others. Edit your /etc/inetd.conf file, and
+   look for the line:
+
+   telnet stream tcp nowait root /usr/sbin/tcpd /usr/sbin/in.telnetd
+
+   At the end of the line, add "-L /usr/local/portslave/bin/portslave".
+
+2. On another non-standard port, using TCP-Clear (no telnet protocol).
+
+   To your /etc/services file, add:
+
+   portslave  1923/tcp  # (adjust port number to taste)
+
+   And to /etc/inetd.conf, add:
+
+   telnet stream tcp nowait root /usr/sbin/tcpd \
+		/usr/local/portslave/bin/portslave -
+
+   (That should all be on one line without the `\'. Note the `-').
+
+Now let inetd reload its config files with "killall -1 inetd".
+
+
+To let portslave know it should not try to initialize a modem, and that
+it should use pty ports, change your server.cfg file as follows:
+
+1. Turn off modem support.
+   In server.cfg add:
+
+   all.initchat ""
+   all.waitfor  ""
+   all.answer   ""
+
+2. Define *all* pseudo terminals on your system in server.cfg (sorry,
+   there's no other way right now).
+
+   s0.tty     ttyp0
+   s1.tty     ttyp1
+   [...]
+   s63.tty    ttysf
+
+Oh in case you're wondering how it works - telnetd executes "login" or in this
+case "portslave" with a slew of options - at least "-h remote_hostname".
+Portslave simply detects the first "-" and sees that it's NOT a portnumber,
+so it tries to find the portnumber based on the tty it's running on instead
+of the other way around.
+
+That's all!

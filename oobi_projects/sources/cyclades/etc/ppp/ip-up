@@ -1,0 +1,20 @@
+#!/bin/sh
+
+IFCONFIG=/sbin/ifconfig
+IPTABLES=/sbin/iptables
+SED=/bin/sed
+GREP=/bin/grep
+
+ADD="$IPTABLES -t nat -I PREROUTING 1 "
+DEL="$IPTABLES -t nat -D PREROUTING "
+PPP_DEV=$1
+KVM_IP=$4
+
+ETH_DEV=eth0
+ETH_IP=`$IFCONFIG $ETH_DEV | $GREP "inet addr" | $SED -e "s/ *inet addr:\([\.0-9]*\) *Bcast.*/\1/"`
+
+$DEL -i $PPP_DEV -p tcp -d $KVM_IP -j INTERNAL_PRE 2>/dev/null
+$DEL -i $PPP_DEV -p tcp -d $ETH_IP -j INTERNAL_PRE 2>/dev/null
+$ADD -i $PPP_DEV -p tcp -d $KVM_IP -j INTERNAL_PRE 2>/dev/null
+$ADD -i $PPP_DEV -p tcp -d $ETH_IP -j INTERNAL_PRE 2>/dev/null
+

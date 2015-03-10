@@ -1,0 +1,16 @@
+#!/bin/sh
+#
+# This script can be included in a _test_ image just to help
+# debugging.
+#
+
+sendcons ()
+{
+	cat | sed "s/^/${PPID}-$$: /" > /dev/console
+}
+
+# Send to console
+{
+	echo "== Running hotplug $@"
+	env | sort | egrep '(PHYS|MODAL|ACTION|DEV|SYS|SOCK)'
+} | sendcons

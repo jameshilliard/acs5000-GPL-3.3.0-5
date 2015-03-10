@@ -1,0 +1,50 @@
+#
+#  Makefile for Cyclades projects.
+#
+# Perform clean-ups.
+#
+
+include $(OPENSOURCE_DIR)/$(TOOLS)/MakeChecks 
+
+$(call check_vars,SOURCES BUILD DIST WORK_DIR TOOLS)
+
+include $(WORK_DIR)/packages_def
+
+all:
+	@echo
+	@echo "To clean a package a target must be given:"
+	@echo
+	@echo "   clean_<package_name><version> or clean_<package_name>+"
+	@echo
+
+ACLEAN_PKGS := $(addprefix clean_,$(APPLET_PKGS))
+SCLEAN_PKGS := $(addprefix clean_,$(SRC_PKGS))
+BCLEAN_PKGS := $(addprefix clean_,$(BLD_PKGS))
+
+$(ACLEAN_PKGS): clean_%: force
+	sudo rm -rf $(OPENSOURCE_DIR)/$(APPLETS)/$*
+
+$(SCLEAN_PKGS): clean_%: force
+	sudo rm -rf $(OPENSOURCE_DIR)/$(SOURCES)/$*
+
+$(BCLEAN_PKGS): clean_%: force
+	sudo rm -rf $(OPENSOURCE_DIR)/$(SOURCES)/$*
+	sudo rm -rf $(WORK_DIR)/$(BUILD)/$*
+	sudo rm -rf $(WORK_DIR)/$(DIST)/$*
+	sudo rm -rf $(WORK_DIR)/$(LOGS)/src_$*
+	sudo rm -rf $(WORK_DIR)/$(LOGS)/bld_$*
+
+clean_%+:
+	@( \
+		TARGET="$(filter clean_$*%, $(SCLEAN_PKGS) $(BCLEAN_PKGS) $(ACLEAN_PKGS))";\
+		if [ "$$TARGET" = "" ] ; then \
+			echo Invalid target: $@ ; \
+			exit -1 ; \
+		else \
+			$(MAKE) -f $(firstword $(MAKEFILE_LIST)) $$TARGET ; \
+		fi )
+
+$(MAKEFILE_LIST): ;
+
+force: ;
+

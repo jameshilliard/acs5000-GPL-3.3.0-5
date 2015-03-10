@@ -1,0 +1,138 @@
+BEGIN {
+  FS = " "
+  OFS = " "
+  devReadSizes[ device "1" ] = 0
+  devReadSizes[ device "2" ] = 0
+  devReadSizes[ device "3" ] = 0
+  devReadSizes[ device "5" ] = 0
+  devReadSizes[ device "6" ] = 0
+  devReadSizes[ device "7" ] = 0
+  devReadSizes[ device "8" ] = 0
+  nCylinder = 0
+  sCylinder = 0
+  nHeads = 0
+  nSectors = 0
+  print_var = 0
+}
+$1 ~ /^$/ {
+  next
+}
+$1 == "Disk" && $2 == device ":" {
+  nCylinder = $3
+  nHeads = $5
+  nSectors = $7
+}
+$1 == "Units" && $3 == "cylinders" {
+  sCylinder = $5
+}
+$1 ~ /device|[1-35-8]/ {
+  if ( $2 == "\\*" )
+    aux = $5
+  else
+    aux = $4
+  sub("[-+]", "", aux)
+  devReadSizes[ $1 ] = strtonum(aux)
+}
+
+END {
+
+  szCyl = nHeads * nSectors * 512
+  if ( sCylinder == 0 ) sCylinder = szCyl
+
+  if ( print_var == 1 ) {
+    print "nCylinder=" nCylinder
+    print "sCylinder=" sCylinder
+    print "szCyl=" szCyl
+    print "nHeads=" nHeads
+    print "nSectors=" nSectors
+    print "hdR1="  devReadSizes[ device "1" ]
+    print "hdR2="  devReadSizes[ device "2" ]
+    print "hdR3="  devReadSizes[ device "3" ]
+    print "hdR4="  devReadSizes[ device "5" ]
+    print "hdR4="  devReadSizes[ device "6" ]
+    print "hdR4="  devReadSizes[ device "7" ]
+    print "hdR4="  devReadSizes[ device "8" ]
+  }
+
+  if ( nCylinder == 0 || nHeads == 0 || nSectors == 0 || sCylinder != szCyl) {
+    print "*"
+    print "* * ERROR: could not find cylinder size (" nCylinder "," nHeads "," nSectors ")."
+    print "*"
+    exit 1
+  }
+
+  minM = szP1 + szP2 + szP3 + szP5 + szP6 + szP7 + szP8
+  totalB = int ( nCylinder * sCylinder / 1048576 )
+
+  if ( totalB < minM ) {
+    print "*"
+    print "* * ERROR: Compact flash must have at least " minM " Mbytes, size[" totalB "]"
+    print "*"
+    exit 1
+  }
+
+  szP1C = int ( ( szP1 * 1048576 + sCylinder - 1 ) / sCylinder )
+  szP2C = int ( ( szP2 * 1048576 + sCylinder - 1 ) / sCylinder )
+  szP3C = int ( ( szP3 * 1048576 + sCylinder - 1 ) / sCylinder )
+  szP5C = int ( ( szP5 * 1048576 + sCylinder - 1 ) / sCylinder )
+  szP6C = int ( ( szP6 * 1048576 + sCylinder - 1 ) / sCylinder )
+  szP7C = int ( ( szP7 * 1048576 + sCylinder - 1 ) / sCylinder )
+  szP8C = int ( ( szP8 * 1048576 + sCylinder - 1 ) / sCylinder )
+  
+
+  if ( dontformat == "yes" ) {
+
+    part = 0
+
+    if ( devReadSizes[ device "1" ] < szP1C ) part = 1
+    if ( devReadSizes[ device "2" ] < szP2C ) part = 2
+    if ( devReadSizes[ device "3" ] < szP3C ) part = 3
+    if ( devReadSizes[ device "5" ] < szP5C ) part = 5
+    if ( devReadSizes[ device "6" ] < szP6C ) part = 6
+    if ( devReadSizes[ device "7" ] < szP7C ) part = 7
+    if ( devReadSizes[ device "8" ] < szP8C ) part = 8
+
+    if ( part != 0 ) {
+      print "*"
+      print "* * ERROR: '--dontformat' was given but the partition " part
+      print "* *        is too small."
+      print "*"
+      exit 1
+    }
+    exit 2
+  }
+   
+  szHd1 = szP1C
+  szHd2 = szP2C
+  szHd5 = int ( szP5 * nCylinder / minM )
+  szHd6 = int ( szP6 * nCylinder / minM )
+  szHd7 = int ( szP7 * nCylinder / minM )
+  szHd8 = int ( szP8 * nCylinder / minM )
+  szHd3 = nCylinder - szHd1 - szHd2 - szHd5 - szHd6 - szHd7 - szHd8
+
+  if ( doformat == "no" &&
+       devReadSizes[ device "1" ] == szHd1 &&
+       devReadSizes[ device "2" ] == szHd2 &&
+       devReadSizes[ device "3" ] == szHd3 &&
+       devReadSizes[ device "5" ] == szHd5 &&
+       devReadSizes[ device "6" ] == szHd6 &&
+       devReadSizes[ device "7" ] == szHd7 &&
+       devReadSizes[ device "8" ] == szHd8 ) {
+    print "*"
+    print "* * Warning: Compact flash previously formated, skipping..."
+    print "*"
+    exit 2
+  }
+
+  print "/sbin/sfdisk -q " device " << EOF" > "/tmp/cf_fmt.cmd"
+  print "," szHd1 ",4" >> "/tmp/cf_fmt.cmd"
+  print "," szHd2 ",4" >> "/tmp/cf_fmt.cmd"
+  print "," szHd3 ",L" >> "/tmp/cf_fmt.cmd"
+  print ",,E" >> "/tmp/cf_fmt.cmd"
+  print "," szHd5 ",L" >> "/tmp/cf_fmt.cmd"
+  print "," szHd6 ",L" >> "/tmp/cf_fmt.cmd"
+  print "," szHd7 ",L" >> "/tmp/cf_fmt.cmd"
+  print "," szHd8 ",L" >> "/tmp/cf_fmt.cmd"
+  print "EOF" >> "/tmp/cf_fmt.cmd"
+  
+}

@@ -1,0 +1,137 @@
+Index: syslog-ng-1.6.8/src/affile.c
+===================================================================
+--- syslog-ng-1.6.8.orig/src/affile.c
++++ syslog-ng-1.6.8/src/affile.c
+@@ -321,7 +321,9 @@ static void do_handle_dest_writer(struct
+ 			msg_line = expand_macros(
+ 					   self->owner->cfg,
+ 					   self->owner->template_output,
+-					   self->owner->template_escape, msg);
++					   self->owner->template_escape,
++					   self->owner->cmd_separator,
++					   msg);
+ 		} else {
+ 			msg_line = c_format("%S %S %S\n",
+ 					    msg->date,
+@@ -511,7 +513,7 @@ affile_find_writer(struct affile_dest *s
+ 		return self->writers;
+ 	}
+ 
+-	expanded_fname = expand_macros(self->cfg, self->template_fname, 0, msg);
++	expanded_fname = expand_macros(self->cfg, self->template_fname, 0, 0, msg);
+ 	if (self->flags & AFFILE_SANITIZE_FILENAMES) {
+ 		int i;
+ 		
+@@ -605,9 +607,11 @@ struct log_dest_driver *make_affile_dest
+ 	self->remove_if_older = -1;
+ 	self->template_fname = c_format_cstring("%z", name);
+ 	self->template_escape = 1;
++	self->cmd_separator = strcmp(name, "/dev/cyc_alarm") ? 0 : 1;
+ 	if (strchr(name, '$') == NULL)
+ 		flags |= AFFILE_NO_EXPAND;
+ 	self->flags = flags;
+ 	self->sync_freq = -1; /* use global setting */
+ 	return &self->super;
+ }
++
+Index: syslog-ng-1.6.8/src/affile.c.x
+===================================================================
+--- syslog-ng-1.6.8.orig/src/affile.c.x
++++ syslog-ng-1.6.8/src/affile.c.x
+@@ -117,6 +117,7 @@ struct affile_dest
+   struct ol_string *template_fname;
+   struct ol_string *template_output;
+   int template_escape;
++  int cmd_separator;
+   struct affile_dest_writer *writers;
+   struct syslog_config *cfg;
+ };
+@@ -146,4 +147,3 @@ struct ol_class affile_dest_class =
+   do_affile_dest_free
+ };
+ #endif /* !CLASS_DECLARE */
+-
+Index: syslog-ng-1.6.8/src/afinet.c
+===================================================================
+--- syslog-ng-1.6.8.orig/src/afinet.c
++++ syslog-ng-1.6.8/src/afinet.c
+@@ -599,7 +599,7 @@ void do_handle_afinet_dest(struct log_ha
+ 					    expand_macros(
+ 						    self->cfg,
+ 						    self->template_output,
+-						    self->template_escape, msg));
++						    self->template_escape, 0, msg));
+ 		} else {
+                 	msg_line = c_format("<%i>%S %S %S\n",
+ 					    msg->pri,
+Index: syslog-ng-1.6.8/src/afprogram.c
+===================================================================
+--- syslog-ng-1.6.8.orig/src/afprogram.c
++++ syslog-ng-1.6.8/src/afprogram.c
+@@ -147,7 +147,7 @@ do_handle_afprogram_dest(struct log_hand
+ 					    expand_macros(
+ 						    self->cfg,
+ 						    self->template_output,
+-						    self->template_escape, msg));
++						    self->template_escape, 0, msg));
+ 		} else {
+ 			msg_line = c_format("<%i>%S %S %S\n",
+ 					    msg->pri,
+Index: syslog-ng-1.6.8/src/afunix.c
+===================================================================
+--- syslog-ng-1.6.8.orig/src/afunix.c
++++ syslog-ng-1.6.8/src/afunix.c
+@@ -352,7 +352,7 @@ do_handle_afunix_dest(struct log_handler
+ 					    expand_macros(
+ 						    self->cfg,
+ 						    self->template_output,
+-						    self->template_escape, msg));
++						    self->template_escape, 0, msg));
+ 		} else {
+                 	msg_line = c_format("<%i>%S %S %S\n",
+ 					    msg->pri,
+Index: syslog-ng-1.6.8/src/afuser.c
+===================================================================
+--- syslog-ng-1.6.8.orig/src/afuser.c
++++ syslog-ng-1.6.8/src/afuser.c
+@@ -89,7 +89,7 @@ do_handle_afuser_log(struct log_handler 
+ 				    expand_macros(
+ 					    self->cfg,
+ 					    self->template_output,
+-					    self->template_escape, msg));
++					    self->template_escape, 0, msg));
+ 	} else {
+ 		msg_line = c_format("%S %S %S\n",
+ 				    msg->date, msg->host, msg->msg);
+Index: syslog-ng-1.6.8/src/macros.c
+===================================================================
+--- syslog-ng-1.6.8.orig/src/macros.c
++++ syslog-ng-1.6.8/src/macros.c
+@@ -533,7 +533,7 @@ find_macro(char *template, int template_
+ #endif
+ 
+ struct ol_string *
+-expand_macros(struct syslog_config *cfg, struct ol_string *template, int template_escape, struct log_info *msg)
++expand_macros(struct syslog_config *cfg, struct ol_string *template, int template_escape, int cmd_sep, struct log_info *msg)
+ {
+ 	char format[cfg->log_msg_size + 1], *format_ptr = format;
+ 	unsigned int left = sizeof(format) - 1;
+@@ -565,5 +565,5 @@ expand_macros(struct syslog_config *cfg,
+ 		}
+ 	}
+ 	*format_ptr = 0;
+-	return c_format_cstring("%z", format);
++	return c_format_cstring(cmd_sep ? "%z ;; " : "%z", format);
+ }
+Index: syslog-ng-1.6.8/src/macros.h
+===================================================================
+--- syslog-ng-1.6.8.orig/src/macros.h
++++ syslog-ng-1.6.8/src/macros.h
+@@ -84,6 +84,6 @@
+ #define M_SOURCE_IP      500
+ 
+ struct ol_string *
+-expand_macros(struct syslog_config *cfg, struct ol_string *template, int template_escape, struct log_info *msg);
++expand_macros(struct syslog_config *cfg, struct ol_string *template, int template_escape, int cmd_sep, struct log_info *msg);
+ 
+ #endif

@@ -1,0 +1,22 @@
+#
+#  Makefile for Cyclades projects.
+#
+# Remove the project suffix from files Ex: .config.ons ==> .config
+#
+
+ifndef SFX
+$(error "Variable(s): 'SFX' must be given.")
+endif
+
+FILES:=$(shell find . -name "*.cyc" -o -name "*.$(SFX)" -type l)
+TARGETS:=$(sort $(basename $(FILES)))
+
+all: $(TARGETS)
+
+$(TARGETS): force
+	[ -f $@.$(SFX) ] && mv -f $@.$(SFX) $@ || mv -f $@.cyc $@
+
+$(MAKEFILE_LIST): ;
+
+force: ;
+

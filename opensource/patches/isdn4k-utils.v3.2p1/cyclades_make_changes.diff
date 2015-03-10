@@ -1,0 +1,31 @@
+--- isdn4k-utils.v3.1pre1/isdnctrl/Makefile.in.old	2005-08-05 08:44:54.666312970 -0700
++++ isdn4k-utils.v3.1pre1/isdnctrl/Makefile.in	2005-08-05 08:46:32.121316484 -0700
+@@ -18,7 +18,7 @@
+ INSTALL			= @INSTALL@
+ INSTALL_PROGRAM	= $(INSTALL) -o 0 -g 0 -m 0750
+ INSTALL_MAN		= $(INSTALL) -o 0 -g 0 -m 0644
+-CC				= @CC@ -DVERSION=\"@I4LVERSION@\"
++CC				= @CC@
+ prefix			= @prefix@
+ exec_prefix		= @exec_prefix@
+ 
+@@ -57,7 +57,7 @@
+ endif
+ 
+ %.o: %.c Makefile
+-	$(CC) $(CFLAGS) $(INCLUDES) $(DEFS) $(COPTS) -c -o $@ $<
++	$(CC) $(CFLAGS) -DVERSION=\"@I4LVERSION@\" $(INCLUDES) $(DEFS) $(COPTS) -c -o $@ $<
+ 
+ all: $(PROGRAM)
+
+--- isdn4k-utils.v3.2p1/Makefile.old	2005-08-09 12:25:27.274521251 -0700
++++ isdn4k-utils.v3.2p1/Makefile	2005-08-09 12:26:02.479035405 -0700
+@@ -202,7 +202,7 @@
+ 	@set -e; for i in `echo $(BUILD_ONLY) $(SUBDIRS)`; do \
+ 		if [ -x $$i/configure ] ; then \
+ 			/bin/echo -e "\nRunning configure in $$i ...\n"; sleep 1; \
+-			(cd $$i; ./configure --sbindir=$(CONFIG_SBINDIR) --bindir=$(CONFIG_BINDIR) --mandir=$(CONFIG_MANDIR) --datadir=$(CONFIG_DATADIR) || $(MAKE) -C ../ ERRDIR=$$i cfgerror); \
++			(cd $$i; ./configure ${CONFIGURE_PARMS} --sbindir=$(CONFIG_SBINDIR) --bindir=$(CONFIG_BINDIR) --mandir=$(CONFIG_MANDIR) --datadir=$(CONFIG_DATADIR) || $(MAKE) -C ../ ERRDIR=$$i cfgerror); \
+ 		elif [ -f $$i/Makefile.in ] ; then \
+ 			/bin/echo -e "\nRunning make -f Makefile.in config in $$i ...\n"; sleep 1; \
+ 			$(MAKE) -C $$i -f Makefile.in config; \

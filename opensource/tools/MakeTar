@@ -1,0 +1,75 @@
+#
+#  Makefile for Cyclades projects.
+#
+#  It will decompress and applies patches to a package used by Cyclades
+#
+
+include $(OPENSOURCE_DIR)/$(TOOLS)/MakeChecks
+
+$(call check_vars,TARGET WORK_DIR TOOLS MD5)
+
+TARBAL_DIR := $(OPENSOURCE_DIR)/$(TARBAL)
+PATCHES_DIR := $(OPENSOURCE_DIR)/$(PATCHES)/$(TARGET)
+MD5_DIR := $(OPENSOURCE_DIR)/$(MD5)
+
+QUILT := quilt
+TAR_COOKIE := COOKIE_TAR
+
+TARGET_TAR := $(shell echo $(TARGET) | cut -d \~ -f 1)
+
+TARFILE := $(shell \
+if [ -f $(TARBAL_DIR)/$(TARGET_TAR).tar.gz ] ; then \
+  echo $(TARBAL_DIR)/$(TARGET_TAR).tar.gz; \
+elif [ -f $(TARBAL_DIR)/$(TARGET_TAR).tar.bz2 ] ; then \
+  echo $(TARBAL_DIR)/$(TARGET_TAR).tar.bz2; \
+elif [ -f $(TARBAL_DIR)/$(TARGET_TAR).tar ] ; then \
+  echo $(TARBAL_DIR)/$(TARGET_TAR).tar; \
+elif [ -f $(TARBAL_DIR)/$(TARGET_TAR).tgz ] ; then \
+  echo $(TARBAL_DIR)/$(TARGET_TAR).tgz; \
+else \
+  echo error; \
+fi)
+
+PATCH_FILES:=$(shell [ -f $(PATCHES_DIR)/series ] && echo series && cat $(PATCHES_DIR)/series)
+PATCH_PATHNAMES := $(addprefix $(PATCHES_DIR)/,$(subst ",,$(PATCH_FILES)))
+
+define DEP_EXTRACT
+	$(if $(findstring .tar.gz,$(1)),tar -xzf $(1),\
+	$(if $(findstring .tgz,$(1)),tar -xzf $(1),\
+	$(if $(findstring .tar,$(suffix $(1))),tar -xf $(1),\
+	$(if $(findstring .tar.bz2,$(1)),bzip2 -dc $(1) | tar -xf -))))
+endef
+
+$(TARGET): $(TARFILE) $(PATCH_PATHNAMES) | $(MD5_DIR)/$(TARGET).md5
+	-rm -rf $@
+ifneq ("$(TARGET)","$(TARGET_TAR)")
+	( \
+	  mkdir tmp; \
+	  cd tmp ; \
+	  $(call DEP_EXTRACT, $(TARFILE)) ;\
+	  cd ..; \
+	  mv tmp/$(TARGET_TAR) $(TARGET); \
+	)
+else
+	  $(call DEP_EXTRACT, $(TARFILE))
+endif
+	chmod -R u+w,g+rw,o+r $@
+	find $@ -type d -exec chmod +x \{} \;
+ifneq ($(words $(PATCH_PATHNAMES)),0)
+	cd $@; QUILT_PATCHES=$(PATCHES_DIR) $(QUILT) push -a
+endif
+	date > $@/$(TAR_COOKIE)
+	touch $@
+
+error: force
+	$(error Could not find tarbal for '$(TARGET)')
+
+
+$(MD5_DIR)/$(TARGET).md5: force
+	echo "empty-directory" $(PATCH_FILES) | md5sum > $(MD5_DIR)/$(TARGET).tmp
+	cmp -s $@ $(MD5_DIR)/$(TARGET).tmp || mv $(MD5_DIR)/$(TARGET).tmp $@
+
+$(MAKEFILE_LIST): ;
+
+force: ;
+

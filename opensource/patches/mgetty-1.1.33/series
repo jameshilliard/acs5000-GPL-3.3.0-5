@@ -1,0 +1,3 @@
+./cyclades_make.patch
+./cyclades_policy.patch
+./max_login_args.patch

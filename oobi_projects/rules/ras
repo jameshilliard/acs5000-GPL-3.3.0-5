@@ -1,0 +1,78 @@
+#
+#  Makefile for cyclades projects.
+#
+
+#
+# Addtional compiler and/or link options may be defined here
+#
+CFLAGS += -DUSE_PAM -I$(CONFIG_TOOL_DIR)/include -I$(my_prefix)/usr/include
+#LDFLAGS += ...
+
+#
+# Command line parameters for configure must be defined here
+#
+CONFIGURE_PARMS:=\
+	CROSS_COMPILE=$(CROSS_PREFIX) \
+	--prefix=$(my_prefix) \
+	--enable-instdir=/usr/local \
+	--enable-libdir=/usr/lib \
+	--with-nports=64 \
+	--with-nvlines=1024 \
+	--with-network=/etc/network \
+	--enable-syslog \
+	--host=$(HOST)
+
+CONFIGURE_ENV :=\
+	CROSS_COMPILE=$(CROSS_PREFIX) \
+	$(CROSS_ENV_TOOLS) \
+	STRIP="$(STRIP)" \
+	PATH=$(CROSS_PATH)
+
+MAKE_ENV:=\
+	PATH=$(CROSS_PATH)
+
+MAKE_PARMS:=\
+	CROSS_COMPILE=$(CROSS_PREFIX) \
+	PREFIX=$(my_prefix) \
+	TARG=$(TARGET_PRODUCT) \
+	DEFTARG=$(DEFTARG) \
+	PMCLIB_DIR=$(BUILD_DIR)/$(pmclib) \
+	UBOOT_DIR=$(BUILD_DIR)/$(u-boot) \
+	KVMNET_UTIL_DIR=$(BUILD_DIR)/$(kvmnet_util) \
+	LIBCYC_DIR=$(BUILD_DIR)/$(libcyc) \
+	LIBNETCFG_DIR=$(BUILD_DIR)/$(netcfg) \
+	pppd_DIR=$(BUILD_DIR)/$(pppd) \
+	WEBAPI_DIR=$(BUILD_DIR)/$(webApi) \
+	PMDenable=$(PMDenable) \
+	IPMIenable=$(IPMIenable) \
+	AVWORKSenable=$(AVWORKSenable) \
+	EVT_DIR=$(BUILD_DIR)/$(event_notif)
+
+
+#
+#  more ac_variables for configure may be defined here
+#
+CROSS_ENV_AC += \
+	CFLAGS="$(CFLAGS)" \
+	LDFLAGS="$(LDFLAGS)"
+
+############################################################################
+
+$(CFG_COOKIE):
+	rm -f config.cache configure
+	autoconf-2.13
+	case "$(TARGET_PRODUCT)" in \
+		apc) DSVIEW=avworks; DSVIEW_CAP=AVWorks ;; \
+		*) DSVIEW=dsview; DSVIEW_CAP=DSView ;; \
+	esac; \
+	$(CONFIGURE_ENV) \
+	$(CROSS_ENV_AC) \
+	DSVIEW=$${DSVIEW} \
+	DSVIEW_CAP=$${DSVIEW_CAP} \
+	./configure $(CONFIGURE_PARMS)
+	date > $@
+
+$(BLD_COOKIE): $(CFG_COOKIE)
+	$(MAKE_ENV) \
+	$(MAKE) $(MAKE_PARMS) all install
+

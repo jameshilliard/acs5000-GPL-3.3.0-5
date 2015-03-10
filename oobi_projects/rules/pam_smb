@@ -1,0 +1,86 @@
+#
+#  Makefile for cyclades projects.
+#
+
+#
+# Addtional compiler and/or link options may be defined here
+#
+CFLAGS += -I$(BUILD_DIR)/$(Linux-PAM)/libpam/include
+#LDFLAGS += ...
+
+#
+# Command line parameters for configure must be defined here
+#
+CONFIGURE_PARMS:=\
+	--prefix=$(my_prefix) \
+	--build=x86 \
+	--host=powerpc \
+	--sysconfdir=/etc
+
+CROSS_NM += -B
+
+CONFIGURE_ENV :=\
+	$(CROSS_ENV_TOOLS) \
+	LN_S="$(CROSS_LD) -s" \
+	DLLTOOL= \
+	PATH=$(CROSS_PATH) \
+	CFLAGS="$(CFLAGS)" \
+	CPPFLAGS="$(CPPFLAGS)" \
+	LDFLAGS="$(LDFLAGS)"
+
+MAKE_ENV:=\
+	PATH=$(CROSS_PATH)
+
+MAKE_PARMS:=\
+	samba_lib=$(BUILTIN_DIST)/$(samba)/lib \
+	samba_source=$(BUILTIN_BUILD)/$(samba)/source \
+	Linux-PAM=$(BUILD_DIR)/$(Linux-PAM) 
+
+#
+#  more ac_variables for configure may be defined here
+#
+#CROSS_ENV_AC += ...
+
+############################################################################
+
+$(CFG_COOKIE):
+
+	aclocal
+
+	rm -f config.h configure config.cache
+
+	@echo "Attempting to run autoheader (2.13) ..."
+	@if [ -x /usr/bin/autoheader-2.13 ]; then \
+		/usr/bin/autoheader-2.13 ;\
+	elif [ -x /usr/bin/autoheader2.13 ]; then \
+		/usr/bin/autoheader2.13 ;\
+	elif [ -x /usr/bin/autoheader ]; then \
+		/usr/bin/autoheader ;\
+	else \
+		echo "It seems you don't have autoconf (2.13) installed. Aborting..." ;\
+		exit 1 ;\
+	fi
+
+	@echo "Attempting to run autoconf (2.13) ..."
+	@if [ -x /usr/bin/autoconf-2.13 ]; then \
+		/usr/bin/autoconf-2.13 ;\
+	elif [ -x /usr/bin/autoconf2.13 ]; then \
+		/usr/bin/autoconf2.13 ;\
+	elif [ -x /usr/bin/autoconf ]; then \
+		/usr/bin/autoconf ;\
+	else \
+		echo "It seems you don't have autoconf (2.13) installed. Aborting..." ;\
+		exit 1 ;\
+	fi
+
+	$(CONFIGURE_ENV) \
+	$(CROSS_ENV_AC) \
+	./configure $(CONFIGURE_PARMS)
+	date > $@
+
+$(BLD_COOKIE): $(CFG_COOKIE)
+	$(MAKE_ENV) \
+	$(MAKE) $(MAKE_PARMS) all
+	PATH=$(CROSS_PATH) \
+	install -s -m 755 pam_smb_auth.so $(my_prefix)/lib/security
+

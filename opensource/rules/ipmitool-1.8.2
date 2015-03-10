@@ -1,0 +1,53 @@
+#
+#  Makefile for cyclades projects.
+#
+
+#
+# Addtional compiler and/or link options may be defined here
+#
+CFLAGS += "-I$(DIST_DIR)/$(OPENSSL)/include"
+LDFLAGS += "-L$(DIST_DIR)/$(OPENSSL)/lib"
+
+#
+# Command line parameters for configure must be defined here
+#
+CONFIGURE_PARMS := \
+	--host=$(HOST) \
+	--mandir=$(my_prefix)/man \
+	--infodir=$(my_prefix)/man \
+	--without-kernel-dir \
+	--prefix=$(my_prefix)
+
+CONFIG_ENV := \
+	CROSS_COMPILE=$(CROSS_COMPILE)\
+	PATH=$(CROSS_PATH) \
+	HOST_CC=cc \
+	$(CROSS_ENV_TOOLS) \
+	CFLAGS="$(CFLAGS)" \
+	LDFLAGS="$(LDFLAGS)"
+
+MAKE_ENV := \
+	PATH=$(CROSS_PATH)
+
+MAKE_PARMS :=\
+	CROSS_COMPILE=$(CROSS_COMPILE)
+
+#
+#  more ac_variables for configure may be defined here
+#
+CROSS_ENV_AC += ac_cv_func_malloc_0_nonnull=yes
+
+$(CFG_COOKIE):
+	-rm -f config.cache
+	-rm -f config.status
+	$(CONFIG_ENV) $(CROSS_ENV_AC) ./configure $(CONFIGURE_PARMS)
+	date > $@
+
+$(BLD_COOKIE):
+	$(MAKE_ENV) $(MAKE) all $(MAKE_PARMS)
+	date > $@
+
+$(INST_COOKIE):
+	$(MAKE_ENV) $(MAKE) install $(MAKE_PARMS)
+	date > $@
+

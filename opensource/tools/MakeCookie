@@ -1,0 +1,73 @@
+#
+#  Makefile for Cyclades projects.
+#
+
+APPLETS  := applets
+SOURCES  := sources
+BUILD    := build
+WORK_DIR := $(shell pwd)
+
+define text_error
+
+ERROR: eviroment variable 'OPENSOURCE_DIR' is not defined.
+
+The command '. ./$(TOOLS)/mk_env -s' must be executed inside the
+directory that will be value of 'OPENSOURCE_DIR'.
+
+endef
+
+ifndef OPENSOURCE_DIR
+  $(error $(text_error))
+endif
+
+include $(OPENSOURCE_DIR)/$(TOOLS)/MakeChecks
+
+include $(WORK_DIR)/packages_def
+
+include $(WORK_DIR)/config_tools
+
+ifneq ($(MAKELEVEL),1)
+$(error should be directly called by Makefile)
+endif
+
+SRC_DIRS := $(addprefix $(OPENSOURCE_DIR)/$(SOURCES)/,$(SRC_PKGS))
+BLD_DIRS := $(addprefix $(WORK_DIR)/$(BUILD)/,$(BLD_PKGS))
+JAV_DIRS := $(addprefix $(OPENSOURCE_DIR)/$(APPLETS)/,$(APPLET_PKGS))
+
+FILES :=	$(addsuffix /COOKIE_TAR,$(SRC_DIRS)) \
+			$(addsuffix /COOKIE_SRC,$(BLD_DIRS)) \
+			$(addsuffix /COOKIE_CFG,$(BLD_DIRS)) \
+			$(addsuffix /COOKIE_BLD,$(BLD_DIRS)) \
+			$(addsuffix /COOKIE_INST,$(BLD_DIRS)) \
+			$(addsuffix /COOKIE_INST_PRE,$(BLD_DIRS)) \
+			$(addsuffix /COOKIE_TAR,$(JAV_DIRS)) \
+			$(addsuffix /COOKIE_JAVA,$(JAV_DIRS))
+
+create: force
+	@cat $(FILES) | md5sum > cookie.md5
+
+check: $(FILES) force
+	@( \
+		new_md5=$$(cat $(FILES) | md5sum) ; \
+		old_md5=$$(cat cookie.md5) ; \
+		if [ "$$new_md5" != "$$new_md5" ] ; then \
+			echo "*" ; \
+			echo "* * Error: md5sum mismatch." ; \
+			echo "*" ; \
+			exit -1 ; \
+		fi \
+	)
+
+$(FILES):
+	@echo
+	@echo "*** ERROR ***"
+	@echo
+	@echo "The file: $@ - does not exist."
+	@echo "An 'xmake' in '$(WORK_DIR)' should be done."
+	@echo
+	@exit 3
+
+$(MAKEFILE_LIST): ;
+
+force: ;
+

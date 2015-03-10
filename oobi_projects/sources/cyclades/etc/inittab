@@ -1,0 +1,50 @@
+#
+# inittab       This file describes how the INIT process should set up
+#               the system in a certain run-level.
+#
+# Author:       Miquel van Smoorenburg, <miquels@drinkel.nl.mugnet.org>
+#               Modified for RHS Linux by Marc Ewing and Donnie Barnes
+#
+#	hacked for hhl-ppc_8xx
+
+# Default runlevel. The runlevels used by RHS are:
+#   0 - halt (Do NOT set initdefault to this)
+#   1 - Single user mode
+#   2 - Multiuser, without NFS (The same as 3, if you do not have networking)
+#   3 - Full multiuser mode
+#   4 - unused
+#   5 - X11
+#   6 - reboot (Do NOT set initdefault to this)
+# 
+
+# System initialization.
+::sysinit:/etc/rc.sysinit
+
+# Single user shell
+#console::respawn:/bin/sh < /dev/console > /dev/console 2> /dev/console 
+ttyS0::respawn:/sbin/getty -p ttyS0 ansi
+
+
+
+::once:/bin/ex_wdt_led.sh
+::once:/sbin/cron
+::once:/bin/cy_ras
+::once:/bin/cy_alarm
+
+# link proper pam service module for login, web, ssh
+::once:/bin/set_pam.sh
+
+#
+# Starts/stops the daemons: syslog-ng, ntpclient, nis, ipsec, snmpd, etc
+#
+# Every daemon must have a start shell script and its name must be in the
+# file /etc/daemon_list
+#
+::once:/bin/daemon.sh init
+
+
+# initialize shared memory configuration
+::wait:/bin/updconf -f -q
+# IPTables restore rules saved in /etc/network/firewall
+::wait:/bin/fwset restore
+

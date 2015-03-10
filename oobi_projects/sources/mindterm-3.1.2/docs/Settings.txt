@@ -1,0 +1,240 @@
+			  Mindterm Settings
+
+This document lists the different configuration options one may set to
+configure MindTerm. Settings can be specified on the command-line,
+stored in a per host file (~/mindterm/HOST.mtp) or specified in the
+html code used to launch the applet.
+
+
+  Properties file settings
+  ========================
+sshhome         Directory where files are stored by default
+propsfile	Name of properties file
+autoprops       Which operations should be performed on the properties file
+                load - Read data
+                save - Save data
+                both - read & save data (default for non applets)
+                Applets defaults to neither read nor save.
+
+
+  Common connection settings
+  ==========================
+protocol        Preferred protocol (auto/ssh1/ssh2)
+server          Name of server to connect to (see the quiet setting as well)
+port            Port on server to connect to (see the quiet setting as well)
+real-server     Real address of sshd if it is behind a firewall
+local-bind      Default local address to bind to for forwards
+connect-timeout Initial connection timeout (in seconds). Default is 60.
+hello-timeout   Handshake timeout (in seconds). Default is 10.
+kex-timeout     Key Exchange timeout (in seconds). Default is 180.
+username        User name to login as (see the quiet setting as well)
+auto-username   Use local username as default value
+password        Password for normal authentication
+		(only saved if save passwords checked)
+passphrase      Pass phrase for publickey keypair file
+		(only saved if save passwords checked)
+proxy-type      Type of proxy server to connect through
+		(none/http/socks4/socks5)
+proxy-host      Name of proxy server to connect through
+proxy-port      Port on proxy server to connect through
+proxy-user      User name if authentication on proxy server
+proxy-password  Password if authentication on proxy server
+proxy-timeout   Proxy connection timeout (in seconds). Default is 30.
+quiet           Don't query for server or user name if given
+ssh1-cipher     Name of block cipher to use in ssh1
+		(blowfish-cbc/3des-cbc/idea-cbc)
+auth-method     Method of authentication, either single or
+		comma-separated list (password/publickey/tis/
+		secureid/cryptocard/kbd-interact)
+private-key     Name of file containing private key for publickey authentication
+private-host-key Name of file containing private key for hostbased authentication
+display         Local X11 display definition (i.e. <host>:<screen>)
+compression     Compression Level (0 means none, 1=fast, 9=slow/best)
+x11-forward     Indicates whether X11 display is forwarded or not
+x11-display     Local display to forward
+force-pty       Indicates whether to allocate a pty or not
+sftpbridge-host Interface to listen on in ftp to sftp bridge
+		(empty if disabled)
+sftpbridge-port Port to listen on in ftp to sftp bridge
+sftpbridge-hosttype When transferring ASCII files do LR/CF conversion according
+                to what the remote system is - can be 'unix' or 'windows'.
+socksproxy-host Interface to listen on in SOCKS proxy
+		(empty if disabled)
+socksproxy-port Port to listen on in SOCKS proxy
+strict-hostid   Strict host key check, can only connect to known hosts
+mtu             Max packet size
+key-timing-noise Add noise when sending passwords to increase security
+commandline     Command to run on server
+allow-new-server Set this to false to prevent the user from connecting
+                 to additional SSH servers.
+
+
+  SSH2 specific settings
+  ======================
+kex-algorithms              Kex algorithms to use in preferred order
+                            (diffie-hellman-group1-sha1,
+			     diffie-hellman-group-exchange-sha1)
+server-host-key-algorithms  Host key algorithms to accept in preferred order
+			    (ssh-rsa, ssh-dss)
+enc-algorithms-cli2srv      Encryption algorithms client to server
+enc-algorithms-srv2cli      Encryption algorithms server to client
+mac-algorithms-cli2srv      Mac algorithms client to server
+mac-algorithms-srv2cli      Mac algorithms server to client
+comp-algorithms-cli2srv     Compression algorithms client to server
+                            (none, zlib, zlib@openssh.com)
+comp-algorithms-srv2cli     Compression algorithms server to client
+                            (none, zlib, zlib@openssh.com)
+package-version             Package version to send to server in
+                            protocol version exchange
+alive                       Connection keep-alive interval in seconds
+			    (0 means no keep-alive packets are sent)
+filelist-remote-command     Remote command to list files
+
+supported ciphers and modes:
+3des-cbc, 3des-ecb, 3des-cfb, 3des-ofb, 3des-ctr,
+blowfish-cbc, blowfish-ecb, blowfish-cfb, blowfish-ofb, blowfish-ctr,
+aes128-cbc, aes192-cbc, aes256-cbc, aes128-ctr, aes192-ctr, aes256-ctr,
+rijndael128-cbc, rijndael192-cbc, rijndael256-cbc,
+twofish128-ctr, twofish128-cbc, twofish192-ctr, twofish192-cbc,
+twofish256-ctr, twofish256-cbc,
+twofish-cbc, twofish-ecb, twofish-cfb, twofish-ofb,
+cast128-cbc, cast128-ecb, cast128-cfb, cast128-ofb,
+idea-cbc, idea-ecb, idea-cfb, idea-ofb,
+arcfour128, arcfour256, arcfour
+
+supported macs:
+hmac-md5, hmac-sha1, hmac-sha1-96, hmac-md5-96, hmac-ripemd160
+
+
+  Terminal window settings
+  ========================
+ascii-line      Use ASCII Line-draw-characters instead of drawing
+auto-linefeed   Do auto-linefeed
+autowrap        Auto wrapping of line if output reaches edge of window
+backspace-send  What to send on BACKSPACE:
+                 BS (^h, 0x08), DEL (^?, 0x7f), or ERASE (^E[3~)
+bg-color        Background color (<name> or '<r>,<g>,<b>')
+copy-crnl       Put <CR><NL> instead of <CR> at end of lines in copy/paste
+copy-select     Copy directly on mouse-selection
+crlf            Send carriage returns as telnet <CR><LF>
+cursor-color    Cursor color (<name> or '<r>,<g>,<b>') (name of colors
+                are: black, red, green, yellow, blue, magenta, cyan,
+                white, i_black, i_red, i_green, i_yellow, i_blue,
+                i_magenta, i_cyan, i_white)
+delete-send     Character to send on DELETE:
+                 BS (^h, 0x08), DEL (^?, 0x7f), or ERASE (^E[3~)
+encoding        Character encoding the server uses
+fg-color        Foreground color (<name> or '<r>,<g>,<b>')
+font-name       Name of font to use in terminal
+font-size       Size of font to use in terminal
+geometry        Geometry of terminal ('<cols>x<rows>')
+ignore-null     Ignore any null bytes in the data-stream
+input-charset   Character set to assume input is in. Currently the
+                only supported name here is 'vga'. The default value
+                is 'none' which means use the system default.
+insert-mode     Toggles insert mode
+key-mappings    A list of key-mappings. The format of each key mapping is
+
+                  {[<mod>]+<virtkey>=<charsequence>} 
+
+                where <mod> is one of
+                 
+                 alt
+                 altgraph       
+                 shift
+                 ctrl
+                 meta
+
+                and <virtkey> is the virtual key, for example
+ 
+                 a 
+                 f2 
+                 comma
+
+                <charsequence> is the characters that should be
+                output when the mapped key is pressed, for example
+                if we want to map ctrl+f2 to foo, the key mapping is
+
+                   ctrl+f2=foo
+
+                Characters can be written as unicode characters by
+                writing them as \uXXXX.
+
+                Key mappings are separated with ',' for example
+
+                  ctrl+f2=foo,shift+f2=bar
+ 
+line-space-delta Number of pixels to modify the line spacing with.
+local-echo      Do local echo
+local-pgkeys    Use PgUp, PgDn, Home, End keys for local scroll or escape them
+map-ctrl-space  Map <ctrl>+<space> to <NUL> (e.g. for emacs)
+passthru-prn-enable Enable passthrough printing
+paste-button    Mouse button for paste, (shift+left/middle/right)
+print-font-name Font to use when printing
+print-font-size Size of font to use when printing
+repos-input     Reposition scroll-area to bottom on keyboard input
+repos-output    Reposition scroll-area to bottom on output to screen
+resizable       Toggles if terminal window should be resizable or not
+rev-autowrap    Reverse autowrap when going off left edge of window
+rev-video       Reverse video in terminal
+save-lines      Number of lines to save in scroll back buffer
+scrollbar       Scrollbar position (none/left/right)
+select-delim    Delimiter characters for click-selection ("<characters>")
+term-type       Name of terminal to emulate (xterm, linux, scoansi,
+                att6386, sun, aixterm, vt220, vt100, ansi, vt52,
+                xterm-color, linux-lat, at386, vt320, vt102 and tn6530-8)
+virtual-kbd     Show an on-screen virtual keyboard. This property
+                holds a list of keys to show. The list entries are
+                separated by comma. By default the list element
+                defines both the label and what is generated by
+                pressing the key. What is generated can be customized
+                by adding a \= and the string to generate to the list
+                item. For example, the following value:
+
+                 virtual-kbd=Esc\=\u001b,A,F1\=f1
+
+                will show a virtual keyboard with three keys labeled
+                "Esc", "A" and "F1". "Esc" will generate the escape
+                character, "A" will generate a "A" and "F1" will
+                generate "f1".
+
+visible-cursor  Toggles if cursor is visible or not
+visual-bell     Toggles if audible or visual bell will be used
+
+  Applet parameters
+  =================
+debug           Set to true to generate debug output (on console)
+menus           Controls if there should be any menus. Possible values
+                are: no (no menu), yes (normal menu), popN (popup menu
+                on control+mouse-button N).
+exit-on-logout  Set to true to exit when the user has logged out
+savepasswords   True if passwords should be saved in settings-files
+sepframe        True if the application should open in a separate frame
+verbose         Set to true to generate verbose output (on console)
+useAWT          Set to true to force the applet to use the AWT toolkit
+
+
+  SFTP Module settings
+  ====================
+module.sftp.cwd-local  Local start directory
+module.sftp.cwd-remote Remote start directory
+
+
+  SCP Module settings
+  ===================
+module.scp.cwd-local   Local start directory
+module.scp.cwd-remote  Remote start directory
+
+
+  Port forward module settings
+  ============================
+local<n>  Port forward setting <n=0-31>. Example:
+	  local0=/general/5222:localhost:5222
+remote<n> Port forward setting <n=0-31>. Example:
+	  remote=/general/5222:localhost:5222
+
+  Telnet module settings
+  ======================
+module.telnet.inhibit   Set to true to disable use of the Telnet module
+module.telnet.havemenus Set to false if the terminal window should be
+                        without any menus.

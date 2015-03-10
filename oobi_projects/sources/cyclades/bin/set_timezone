@@ -1,0 +1,67 @@
+#!/bin/sh
+
+# Timezone configuration
+
+[ -d /tmp/share ] || mkdir /tmp/share
+
+cd /tmp/share
+tar -xzf /usr/share/zoneinfo.gz
+ZIPATH=/tmp/share/zoneinfo/Etc
+cd $ZIPATH
+
+unsetd() {
+	sed "s/TZ=.*/unset TZ/" /etc/profile > /tmp/profile
+	rm /etc/TIMEZONE >/dev/null 2>&1
+	grep -v TIMEZONE /etc/config_files > /tmp/config_files 2>&1
+	grep "/etc/localtime" /etc/config_files > /dev/null 2>&1 || echo "/etc/localtime" >> /tmp/config_files
+	grep "/etc/profile" /etc/config_files > /dev/null 2>&1 || echo "/etc/profile" >> /tmp/config_files
+	mv /tmp/config_files /tmp/profile /etc
+	unset TZ
+	grep -v TIMEZONE /etc/daemon.d/ntpclient.conf > /tmp/ntpclient.conf 2>&1
+	echo "TIMEZONE=$tz" >> /tmp/ntpclient.conf
+	mv /tmp/ntpclient.conf /etc/daemon.d
+}
+
+if [ -n "$1" ]; then
+	cp $ZIPATH/$1 /etc/localtime
+	rm -rf /tmp/share
+	tz=$1
+	unsetd
+	exit 0
+fi
+	
+echo "Please choose the time zone where this machine is located."
+PS3="Enter the number corresponding to your choice: "
+OPTS=27
+
+i=0
+for line in *; do
+	eval GMT$i=\"$line\"
+	if [ "$line" == "GMT" ]; then
+		echo "${i})$line"
+	elif echo $line|grep '-' >/dev/null 2>&1; then
+		echo "${i})${line:4}h East GMT" 		
+	else
+		echo "${i})${line:4}h West GMT"
+	fi
+	let i++
+done 
+
+ok=0
+
+while [ "$ok" == "0" ]; do
+	echo -n "Type your option: "
+	read tz
+	if [ "$tz" -le $OPTS -a "$tz" -ge 0 ]; then
+		eval tz=\"\$GMT$tz\"
+		cp $ZIPATH/$tz /etc/localtime >/dev/null 2>&1 
+		ok=1
+	else 
+		echo "Please type a valid option"
+	fi
+done
+
+echo "Your choice was: $tz"
+rm -rf /tmp/share
+unsetd
+exit 0

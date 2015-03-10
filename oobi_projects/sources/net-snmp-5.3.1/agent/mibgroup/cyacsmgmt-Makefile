@@ -1,0 +1,84 @@
+#
+# cyacsmgmt-Makefile, (c) Avocent, 2007
+#
+# Makefile to do brand removal for OEM projects which replaces
+# all references to Cyclades, Avocent, ACS in original cyacsmgmt
+# MIB module group sources (to avoid check-in different files
+# for each OEM vendor). This is to remove this Cyclades brand
+# references from /lib/libnetsnmpmibs.so.5.2.1 in the firmware
+# image.
+# It creates a new MIB module tree nameed "<OEM vendor>mgmt/"
+# from cyacsmgmt/ dir and links files from cyacsmgmt/ to the new
+# dir with names changed to contain OEM vendor rather than cyACS.
+# So for APC CPS OEM project it creates the dir apccpsmgmt/ and
+# links apcCPSSys.c against cyacsmgmt/cyACSSys.c. Same for other
+# .c and .h files. The .c and .h files are created by .in templates
+# with autoconf.
+#
+
+CONFIGURE := cyacsmgmt-configure
+
+APC_PREFIX1 := apcCPS
+APC_SHUP := apcCPSSerialHUP
+APC_SAVE := apcCPSSave
+APC_MGMT := apccpsmgmt
+APC_SYS := apcCPSSys
+APC_CONF := apcCPSConf
+APC_INFO := apcCPSInfo
+APC_ADM := apcCPSAdm
+
+CYC_PREFIX1 := cyACS
+CYC_SHUP := cyACSSerialHUP
+CYC_SAVE := cyACSSave
+CYC_MGMT := cyacsmgmt
+CYC_SYS := cyACSSys
+CYC_CONF := cyACSConf
+CYC_INFO := cyACSInfo
+CYC_ADM := cyACSAdm
+
+ifeq ($(DEFTARG),OEM3)
+	PREFIX := APC
+	LINKS := links
+else
+	PREFIX := CYC
+	LINKS :=
+endif
+
+# Defines variables CY_<BASE> from CYC_<BASE> or APC_<BASE> respectively
+# depending on the PREFIX, i.e. CY_MGMT := $(APC_MGMT) if PREFIX=APC
+VARS_BASE := MGMT SYS CONF INFO ADM PREFIX1 SHUP SAVE
+$(foreach VAR,$(VARS_BASE), $(eval CY_$(VAR) := $($(PREFIX)_$(VAR))))
+
+# variable name stem of files which will be linked to cyacsmgmt/ dir
+FILE_VARS := SYS CONF INFO ADM
+
+# cyacsmgmt dir
+CYC_DIR := $(CYC_MGMT)
+# for APC OEM_DIR := apccpsmgmt
+OEM_DIR := $(CY_MGMT)
+
+.PHONY: all configure links oem_dir
+
+all: configure $(LINKS)
+
+$(CONFIGURE): $(CONFIGURE).in
+	autoconf $< > $(CONFIGURE)
+	chmod u+x $(CONFIGURE)
+
+# brand removal for all sources files in the cyacsmgmt tree
+# with autoconf templates
+configure: $(CONFIGURE)
+	CYACS=$(CY_PREFIX1) CYACSMGMT=$(CY_MGMT) CYACSSYS=$(CY_SYS) \
+	CYACSCONF=$(CY_CONF) CYACSINFO=$(CY_INFO) CYACSADM=$(CY_ADM) \
+	CYACSSERIALHUP=$(CY_SHUP) CYACSSAVE=$(CY_SAVE) ./$(CONFIGURE)
+
+oem_dir:
+	-[ ! -d $(OEM_DIR) ] && mkdir $(OEM_DIR)
+
+links: oem_dir
+	cd $(OEM_DIR); $(foreach VAR, $(FILE_VARS), \
+	ln -sf ../$(CYC_DIR)/$(CYC_$(VAR)).h $(CY_$(VAR)).h; \
+	ln -sf ../$(CYC_DIR)/$(CYC_$(VAR)).c $(CY_$(VAR)).c; ) \
+	for f in apcdisc.{c,h} cyPM.{c,h} cySerial{Group,Port}Table.{c,h} cycommon.{c,h} cystrings.h; do \
+		ln -sf ../$(CYC_DIR)/$$f $$f; \
+	done

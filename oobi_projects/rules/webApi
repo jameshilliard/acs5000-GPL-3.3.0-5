@@ -1,0 +1,59 @@
+#
+#  Makefile for cyclades projects.
+#
+
+#
+# Addtional compiler and/or link options may be defined here
+#
+
+CFLAGS += -DPAM_STRERROR_NEEDS_TWO_ARGS -DUSE_PAM -I$(CONFIG_TOOL_DIR)/include -I$(my_prefix)/usr/include -I$(BUILD_DIR)/$(pmd) -I$(BUILD_DIR)/$(ras) -I$(BUILD_DIR)/$(ras)/src -I$(BUILD_DIR)/$(CLI) -I$(BUILD_DIR)/$(webApi) -I$(BUILD_DIR)/$(new_webs)/Server -I$(BUILD_DIR)/$(new_webs)/dmf212/AlFrame -I$(BUILD_DIR)/$(libcyc)/include
+
+LDFLAGS += -Wl,-Map,kvmd.map -lm
+
+#
+# Command line parameters for configure must be defined here
+#
+#CONFIGURE_PARMS := ...
+
+#CONFIGURE_ENV := ...
+
+MAKE_ENV:=\
+	PATH=$(CROSS_PATH) \
+	$(CROSS_ENV_TOOLS) \
+	CFLAGS="$(CFLAGS)" \
+	LDFLAGS="$(LDFLAGS)" \
+	ZIMAGE=$(ZIMAGE) \
+	DEFTARG=$(DEFTARG) \
+	TARG=$(TARGET_PRODUCT)
+
+MAKE_PARMS:=\
+	WebPagesDir=$(WebPagesDir) \
+	RAS_DIR=$(BUILD_DIR)/$(ras) \
+	ARTLOGIC_DIR=$(BUILD_DIR)/$(new_webs) \
+	LIBCYC_DIR=$(BUILD_DIR)/$(libcyc) \
+	PMDNGenable=$(PMDNGenable) \
+	PMCLIB_DIR=$(BUILD_DIR)/$(pmclib) \
+	UBOOT_DIR=$(BUILD_DIR)/$(u-boot) \
+	PMDenable=$(PMDenable) \
+	TARGET_DIR=$(my_prefix)
+
+#
+#  more ac_variables for configure may be defined here
+#
+#CROSS_ENV_AC += ...
+
+############################################################################
+
+$(CFG_COOKIE):
+	autoconf
+	case "$(TARGET_PRODUCT)" in \
+		apc) DSVIEW=avworks; DSVIEW_CAP=AVWorks ;; \
+		*) DSVIEW=dsview; DSVIEW_CAP=DSView ;; \
+	esac; DSVIEW=$${DSVIEW} DSVIEW_CAP=$${DSVIEW_CAP} \
+	./configure
+	date > $@
+
+$(BLD_COOKIE): $(CFG_COOKIE)
+	$(MAKE_ENV) \
+	$(MAKE) $(MAKE_PARMS) all
+

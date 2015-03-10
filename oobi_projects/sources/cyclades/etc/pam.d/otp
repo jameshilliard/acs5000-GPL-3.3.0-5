@@ -1,0 +1,4 @@
+auth	requisite	pam_securetty.so
+auth    requisite	pam_opie.so
+account required 	pam_unix2.so
+session required 	pam_unix2.so

@@ -1,0 +1,6 @@
+#!/bin/sh
+
+if [ -x /sbin/cardctl ]; then
+	echo "Shutting down pcmcia."
+	/sbin/cardctl eject
+fi

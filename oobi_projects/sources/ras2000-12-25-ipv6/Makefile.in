@@ -1,0 +1,43 @@
+.EXPORT_ALL_VARIABLES:  
+
+CFLAGS      = @CFLAGS@
+LDFLAGS     = @LDFLAGS@
+
+CC      	= @CC@
+CXX      	= @CXX@
+AS			= @AS@
+LD			= @LD@
+AR			= @AR@
+NM			= @NM@
+STRIP		= @STRIP@
+OBJCOPY		= @OBJCOPY@
+OBJDUMP		= @OBJDUMP@
+RANLIB		= @RANLIB@
+
+CPP			= $CC -E
+
+INSTALL=@INSTALL@
+PREFIX=@prefix@
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+
+all:
+	cd src && $(MAKE)
+	cd libpsr && $(MAKE)
+
+install:
+	@INSTALL@ -d @inst_bindir@
+	@INSTALL@ -d @inst_libdir@
+	cd src && $(MAKE) BINDEST=@inst_bindir@ LIBDEST=@inst_libdir@ install
+	cd libpsr && $(MAKE) BINDEST=@inst_bindir@ LIBDEST=@inst_libdir@ install
+
+clean:
+	rm -f pslave_cfg.h
+	$(MAKE) -C src clean
+	$(MAKE) -C libpsr clean
+
+distclean: clean
+	rm -f config.* Makefile pslave_cfg.h pslave.conf src/radinit.sh
+	rm -f configure-stamp build-stamp debian/postinst.debhelper debian/prerm.debhelper debian/substvars debian/files
+	rm -rf debian/portslave
+

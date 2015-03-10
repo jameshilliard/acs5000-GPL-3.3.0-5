@@ -1,0 +1,58 @@
+#!/bin/sh
+
+/bin/init_proc_fs
+
+# Set printk console_loglevel to ERR
+sysctl -w kernel.printk="3 4 1 3" >/dev/null 2>&1
+
+#create devices ttyS
+/bin/mk_devs
+
+# Set Host Name
+/bin/hostname `cat /etc/hostname`
+
+# Initialize Interfaces
+for file in /etc/network/ifcfg*
+do
+  /bin/sh $file
+done
+
+#create static routes
+if [ -f /etc/network/st_routes ] ; then
+  /bin/sh /etc/network/st_routes
+fi
+
+# Create shared memory
+/bin/cy_shm
+
+# Create cron process
+if [ -f /etc/crontab_files ] ; then
+  cat /etc/crontab_files | while read st user file
+  do
+    [ -z "$st" ] && continue
+    if [ "$st" = "active" -a -f $file ] ; then
+        crontab -u $user $file
+    fi
+  done
+fi
+
+# execute user scripts
+if [ -f /etc/users_scripts ] ; then
+  cat /etc/users_scripts | while read file
+  do
+    [ -z "$file" ] && continue
+  if [ ! "${file:0:1}" = "#" ] ; then
+    if [ -f $file ] ; then
+      /bin/sh $file
+    else
+      echo
+      echo "*** ERROR *** INVALID user's script filename ($file) !!!"
+      echo
+    fi
+  fi
+  done
+fi
+
+echo
+cat /proc/version
+echo

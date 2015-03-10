@@ -1,0 +1,7 @@
+#!/bin/sh
+signal_ras hup
+if [ $? -eq 1 ]; then
+   exit 1
+fi
+daemon.sh
+

@@ -1,0 +1,36 @@
+# This file defines the http/https services configuration
+
+ENABLE=YES            # Must be "NO" or "YES" (uppercase)
+DNAME=AcsWeb          # daemon name
+DPATH=/bin            # daemon path
+ShellInit=/bin/firstkssl.sh   # Performs any required initialization
+ConfigFiles=          # configuration files
+DTYPE=sig             # must be "sig" or "cmd" (lowercase)
+DSIG=int             # signal to stop/restart the daemon (lowercase)
+                      # if it's hup term will be used to stop the daemon
+# daemon command line parameters
+# HTTP enabled YES/NO
+HTTP=YES
+# HTTPS enabled YES/NO
+HTTPS=YES
+# Security level. If one switchs to https
+#SECLEVEL="-s 1"
+# SSL version. Default SSLV23
+#SSLVER="-v 3"
+#
+# Memory leak tool settings
+#
+#export DMALLOC_OPTIONS=debug=0x44a40503,inter=1,log=logfile
+#
+# do not touch the code below...
+#
+SSLCIPHER="-c DEFAULT"
+
+if [ "$HTTP" == "NO" ] ; then
+  HTTP_PORT="-p -1"
+fi
+if [ "$HTTPS" == "NO" ] ; then
+  HTTPS_PORT="-P -1"
+fi
+DPARM="$HTTP_PORT $HTTPS_PORT $SECLEVEL $SSLVER $SSLCIPHER"
+DSTOP=

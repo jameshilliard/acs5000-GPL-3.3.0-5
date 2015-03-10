@@ -1,0 +1,47 @@
+#!/bin/sh
+
+#DEBUG=yes; export DEBUG
+
+cd /etc/hotplug
+. ./hotplug.functions
+. ./cardmgr.functions
+
+if [ "$ACTION" = "" ]; then
+	mesg "Bad PCMCIA agent invocation, no action"
+	exit 1
+fi
+
+[ "$ACTION" = "add" -o "$ACTION" = "remove" ] || exit 2
+
+debug_mesg $DEVPATH $DRIVENAME
+
+# Remove ide<no>/<index>.<unit>
+physdevpath=${DEVPATH%/*/*}
+
+# Ignore event if ide is not on a pcmcia bus (note: depends on driver name).
+[[ "${physdevpath}" == *pcmcia* ]] || exit 2
+
+# Determine socket and device numbers:
+get_socket "${physdevpath##*/}" socket_no device_no
+
+#
+# Translate the parameters in order to call the cardmgr script.
+#
+if [ "$ACTION" = "add" ]; then
+	MGR_ACTION="start"
+	MGR_DEVICE="$DRIVENAME"
+	MGR_NEW_SCHEME="default"
+	MGR_SOCKET="$socket_no"
+	MGR_INSTANCE="$device_no"
+	MGR_MAJOR=""
+	MGR_MINOR=""
+	MGR_DRIVER=""
+	MGR_SCRIPT="ide"
+else
+	# Load previously saved parameters from file:
+	cardmgr_load_params "ide" "$socket_no" "$device_no" || exit 3
+
+	MGR_ACTION="stop"
+fi
+
+cardmgr_run_script

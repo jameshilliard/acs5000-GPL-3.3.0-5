@@ -1,0 +1,75 @@
+--- netkit-bootparamd-0.17/configure.old	2005-08-04 07:46:53.491347767 -0700
++++ netkit-bootparamd-0.17/configure	2005-08-04 07:50:25.026483688 -0700
+@@ -76,7 +76,6 @@
+     for TRY in egcs gcc g++ CC c++ cc; do
+        (
+            $TRY __conftest.c -o __conftest || exit 1;
+-           ./__conftest || exit 1;
+        ) >/dev/null 2>&1 || continue;
+        CC=$TRY
+        break;
+@@ -92,7 +91,6 @@
+     echo -n 'Checking if C compiler works... '
+     if (
+           $CC __conftest.c -o __conftest || exit 1
+-          ./__conftest || exit 1
+        ) >/dev/null 2>&1; then
+          echo 'yes'
+      else
+@@ -172,13 +170,11 @@
+ EOF
+ if (
+       $CC $CFLAGS  __conftest.c  -o __conftest || exit 1
+-      ./__conftest || exit 1
+    ) >/dev/null 2>&1; then
+     echo 'yes'
+ else
+     if (
+           $CC $CFLAGS -D__USE_BSD_SIGNAL __conftest.c  -o __conftest || exit 1
+-          ./__conftest || exit 1
+        ) >/dev/null 2>&1; then
+         echo '-D__USE_BSD_SIGNAL'
+         CFLAGS="$CFLAGS -D__USE_BSD_SIGNAL"
+@@ -210,7 +206,6 @@
+ else
+     if (
+           $CC $CFLAGS -D_GNU_SOURCE __conftest.c  -o __conftest || exit 1
+-          ./__conftest || exit 1
+        ) >/dev/null 2>&1; then
+         echo '-D_GNU_SOURCE'
+         CFLAGS="$CFLAGS -D_GNU_SOURCE"
+@@ -241,20 +236,17 @@
+ EOF
+ if (
+       $CC $CFLAGS  __conftest.c $LIBBSD -o __conftest || exit 1
+-      ./__conftest || exit 1
+    ) >/dev/null 2>&1; then
+     echo 'ok'
+ else
+     if (
+           $CC $CFLAGS  __conftest.c -lsnprintf $LIBBSD -o __conftest || exit 1
+-          ./__conftest || exit 1
+        ) >/dev/null 2>&1; then
+         echo '-lsnprintf'
+         LIBS="$LIBS -lsnprintf"
+     else
+         if (
+               $CC $CFLAGS  __conftest.c -ldb $LIBBSD -o __conftest || exit 1
+-              ./__conftest || exit 1
+            ) >/dev/null 2>&1; then
+             echo '-ldb'
+             LIBS="$LIBS -ldb"
+--- netkit-bootparamd-0.17/rpc.bootparamd/Makefile.ori	2005-09-23 12:14:27.157227001 -0700
++++ netkit-bootparamd-0.17/rpc.bootparamd/Makefile	2005-09-23 12:15:15.835939373 -0700
+@@ -22,9 +22,9 @@
+ 	${CC} $(LDFLAGS) $^ $(LIBS) -o $@
+ 
+ install: bootparamd callbootd
+-	install -s -m $(DAEMONMODE) bootparamd \
++	install -m $(DAEMONMODE) bootparamd \
+ 		$(INSTALLROOT)$(SBINDIR)/rpc.bootparamd
+-	install -s -m $(BINMODE) callbootd $(INSTALLROOT)$(BINDIR)/callbootd
++	install -m $(BINMODE) callbootd $(INSTALLROOT)$(BINDIR)/callbootd
+ 	install -m $(MANMODE) bootparamd.8 \
+ 		$(INSTALLROOT)$(MANDIR)/man8/rpc.bootparamd.8
+ 	ln -sf rpc.bootparamd.8 $(INSTALLROOT)$(MANDIR)/man8/bootparamd.8

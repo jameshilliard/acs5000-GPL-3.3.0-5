@@ -1,0 +1,6 @@
+# /etc/printcap 
+ 
+lp|serial printer on port ttyS2:\
+       :sh:\
+       :lp=/dev/ttyS2:sd=/var/spool/lpd/lp:lf=/var/log/lpd-errs:
+

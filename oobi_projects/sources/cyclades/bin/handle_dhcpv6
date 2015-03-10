@@ -1,0 +1,45 @@
+#!/bin/bash
+
+self="${0##*/}"
+
+export PATH=/bin:/usr/bin:/sbin:/usr/sbin:/usr/local/bin
+
+# Program names:
+Q=''
+PS='ps'
+CUT='cut'
+VERB='false'		# Or true/false to enable/disable verbose log.
+GREP='grep'
+KILL='kill'
+SLEEP='sleep'
+LOGGER='logger'
+SIGNAL_RAS='signal_ras'
+
+#
+# Show a message through syslog:
+#
+function verb ()
+{
+	$LOGGER -p daemon.crit "$self: $*"
+	return 0
+}
+
+#
+# Notify cy_ras about changes in IP address.
+#
+function notify_ras ()
+{
+	# Make sure updconf is not running before signaling:
+	local raspid="$($PS -e | $GREP updconf | $GREP -v grep | $CUT -b -6)"
+	if [ -n "$raspid" ]; then
+		while $KILL -0 $raspid 2>/dev/null; do
+			$VERB && verb "waiting updconf to finish."
+			$SLEEP 1
+		done
+	fi
+	$Q $SIGNAL_RAS "$1" &
+	return 0
+}
+
+# Tell RAS:
+notify_ras usr2

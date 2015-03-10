@@ -1,0 +1,140 @@
+#
+# pslave.conf	Wizard configuration file.
+#
+# Console Access Server Profile
+#
+#              DO NOT CHANGE THIS FILE!!!!
+#
+all.speed             9600
+all.datasize          8
+all.stopbits          1
+all.parity            none
+all.flow	      hard
+all.dcd               0
+all.sysutmp           1
+all.authtype          radius
+all.authhost1         200.200.200.2
+all.accthost1         200.200.200.2
+all.radtimeout        3
+all.secret            rad-secret
+all.radretries        5
+all.radnullpass       0
+all.protocol          socket_server
+all.socket_port	      7001+
+all.issue             \r\n\
+  Welcome to console access server %h port S%p \n\
+\r\n
+all.prompt	      %h login: 
+all.term              vt100
+#all.sttyCmd          -igncr -onlcr opost -icrnl
+all.tx_interval       100
+all.poll_interval     0
+all.idletimeout       0
+all.data_buffering    0
+all.DB_timestamp      0
+all.alarm             0
+all.syslog_buffering  0
+all.dont_show_DBmenu  1
+all.break_sequence    ~break
+all.break_interval 500
+#all.users             ! joe, mark
+all.sniff_mode        no
+#all.admin_users       peter, john
+all.multiple_sessions no
+all.escape_char       ^z
+s1.tty                ttyS1
+s1.alias         Server_connected_serial1
+s2.tty                ttyS2
+s2.alias         Server_connected_serial2
+s3.tty                ttyS3
+s3.alias         Server_connected_serial3
+s4.tty                ttyS4
+s4.alias         Server_connected_serial4
+s5.tty                ttyS5
+s5.alias         Server_connected_serial5
+s6.tty                ttyS6
+s6.alias         Server_connected_serial6
+s7.tty                ttyS7
+s7.alias         Server_connected_serial7
+s8.tty                ttyS8
+s8.alias         Server_connected_serial8
+s9.tty                ttyS9
+s9.alias         Server_connected_serial9
+s10.tty               ttyS10
+s10.alias        Server_connected_serial10
+s11.tty               ttyS11
+s11.alias        Server_connected_serial11
+s12.tty               ttyS12
+s12.alias        Server_connected_serial12
+s13.tty               ttyS13
+s13.alias        Server_connected_serial13
+s14.tty               ttyS14
+s14.alias        Server_connected_serial14
+s15.tty               ttyS15
+s15.alias        Server_connected_serial15
+s16.tty               ttyS16
+s16.alias        Server_connected_serial16
+s17.tty               ttyS17
+s17.alias        Server_connected_serial17
+s18.tty               ttyS18
+s18.alias        Server_connected_serial18
+s19.tty               ttyS19
+s19.alias        Server_connected_serial19
+s20.tty               ttyS20
+s20.alias        Server_connected_serial20
+s21.tty               ttyS21
+s21.alias        Server_connected_serial21
+s22.tty               ttyS22
+s22.alias        Server_connected_serial22
+s23.tty               ttyS23
+s23.alias        Server_connected_serial23
+s24.tty               ttyS24
+s24.alias        Server_connected_serial24
+s25.tty               ttyS25
+s25.alias        Server_connected_serial25
+s26.tty               ttyS26
+s26.alias        Server_connected_serial26
+s27.tty               ttyS27
+s27.alias        Server_connected_serial27
+s28.tty               ttyS28
+s28.alias        Server_connected_serial28
+s29.tty               ttyS29
+s29.alias        Server_connected_serial29
+s30.tty               ttyS30
+s30.alias        Server_connected_serial30
+s31.tty               ttyS31
+s31.alias        Server_connected_serial31
+s32.tty               ttyS32
+s32.alias        Server_connected_serial32
+s33.tty               ttyS33
+s33.alias        Server_connected_serial33
+s34.tty               ttyS34
+s34.alias        Server_connected_serial34
+s35.tty               ttyS35
+s35.alias        Server_connected_serial35
+s36.tty               ttyS36
+s36.alias        Server_connected_serial36
+s37.tty               ttyS37
+s37.alias        Server_connected_serial37
+s38.tty               ttyS38
+s38.alias        Server_connected_serial38
+s39.tty               ttyS39
+s39.alias        Server_connected_serial39
+s40.tty               ttyS40
+s40.alias        Server_connected_serial40
+s41.tty               ttyS41
+s41.alias        Server_connected_serial41
+s42.tty               ttyS42
+s42.alias        Server_connected_serial42
+s43.tty               ttyS43
+s43.alias        Server_connected_serial43
+s44.tty               ttyS44
+s44.alias        Server_connected_serial44
+s45.tty               ttyS45
+s45.alias        Server_connected_serial45
+s46.tty               ttyS46
+s46.alias        Server_connected_serial46
+s47.tty               ttyS47
+s47.alias        Server_connected_serial47
+s48.tty               ttyS48
+s48.alias        Server_connected_serial48

@@ -1,0 +1,66 @@
+#
+#  Makefile for cyclades projects.
+#
+
+#
+# Addtional compiler and/or link options may be defined here
+#
+#CFLAGS += ...
+#LDFLAGS += ...
+
+HOST_CPPFLAGS:=
+HOST_CFLAGS:=
+HOST_LDFLAGS += -static -lm -lc -L/usr/lib -L/lib
+HOST_TARGETS:=crclinux ts1h_mon what
+HOST_PREFIX:=$(HOME)
+
+PPC_TARGETS:=what
+
+#
+# Command line parameters for configure must be defined here
+#
+#CONFIGURE_PARMS:= ...
+
+#CONFIGURE_ENV := ...
+
+PPC_MAKE_ENV:=\
+	CROSS_COMPILE=$(CROSS_COMPILE)\
+	PATH=$(CROSS_PATH) \
+	$(CROSS_ENV_TOOLS) \
+	CFLAGS="$(CFLAGS)" \
+	LDFLAGS="$(LDFLAGS)" \
+	CPPFLAGS="$(CPPFLAGS)"
+
+PPC_MAKE_PARMS:=\
+	TARGETS=$(PPC_TARGETS) \
+	PREFIX=$(my_prefix)
+
+HOST_MAKE_ENV:=\
+	CFLAGS="$(HOST_CFLAGS)" \
+	CPPFLAGS="$(HOST_CPPFLAGS)" \
+	LDFLAGS="$(HOST_LDFLAGS)"
+
+HOST_MAKE_PARMS:=\
+	TARGETS="$(HOST_TARGETS)" \
+	PREFIX="$(HOST_PREFIX)"
+#
+#  more ac_variables for configure may be defined here
+#
+#CROSS_ENV_AC += ...
+
+############################################################################
+
+$(CFG_COOKIE):
+	date > $@
+
+$(BLD_COOKIE): $(CFG_COOKIE)
+ifneq ($(shell uname -m),$(HOST))
+	$(PPC_MAKE_ENV) \
+	$(MAKE) $(PPC_MAKE_PARMS) clean all
+endif
+	#
+	# crclinux will always have host binaries 
+	#
+	$(HOST_MAKE_ENV) \
+	$(MAKE) $(HOST_MAKE_PARMS) clean all
+

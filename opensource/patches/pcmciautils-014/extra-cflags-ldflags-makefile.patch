@@ -1,0 +1,19 @@
+--- pcmciautils-014-orig/Makefile	2007-08-15 17:26:59.000000000 -0300
++++ pcmciautils-014/Makefile	2007-08-15 17:28:22.000000000 -0300
+@@ -122,7 +122,7 @@ WARNINGS += $(call cc-supports,-Wno-poin
+ WARNINGS += $(call cc-supports,-Wdeclaration-after-statement)
+ WARNINGS += -Wshadow
+ 
+-CFLAGS := -pipe -DPCMCIAUTILS_VERSION=\"$(VERSION)\"
++CFLAGS := -pipe -DPCMCIAUTILS_VERSION=\"$(VERSION)\" $(EXTRA_CFLAGS)
+ YFLAGS := -d
+ 
+ HEADERS = \
+@@ -147,6 +147,7 @@ CFLAGS += $(WARNINGS) -I$(GCCINCDIR)
+ 
+ LIB_OBJS = -lc -lsysfs
+ LIB_PCI_OBJS = -lc -lpci
++LDFLAGS += $(EXTRA_LDFLAGS)
+ 
+ ifeq ($(strip $(STATIC)),true)
+ 	LIB_OBJS = -lsysfs

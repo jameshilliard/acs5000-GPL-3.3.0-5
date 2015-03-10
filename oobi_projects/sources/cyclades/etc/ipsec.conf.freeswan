@@ -1,0 +1,27 @@
+# /etc/ipsec.conf - FreeS/WAN IPsec configuration file
+
+# More elaborate and more varied sample configurations can be found
+# in FreeS/WAN's doc/examples file, and in the HTML documentation.
+
+# basic configuration
+config setup
+	# THIS SETTING MUST BE CORRECT or almost nothing will work;
+	interfaces="ipsec0=eth0"
+	# Debug-logging controls:  "none" for (almost) none, "all" for lots.
+	klipsdebug=none
+	plutodebug=none
+	# Use auto= parameters in conn descriptions to control startup actions.
+	plutoload=%search
+	plutostart=%search
+	# Close down old connection when new one using same ID shows up.
+	uniqueids=yes
+
+# defaults for subsequent connection descriptions
+conn %default
+	# How persistent to be in (re)keying negotiations (0 means very).
+	keyingtries=0
+	# RSA authentication with keys from DNS.
+	authby=rsasig
+
+# Don't touch this line
+include /etc/*.connection

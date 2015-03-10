@@ -1,0 +1,36 @@
+#!/bin/sh
+
+if [ $# -gt 1 ] ; then
+  echo USAGE:
+  echo set_nports [field_number or device_type]
+  echo where field_number is 1-19, device_type can be A, K, M, or S
+  exit 1
+fi
+
+if [ $# -eq 1 ] ; then
+  case $1 in 
+    'A') parm=`cat /proc/bdinfo | cut -f 2 -d \! | cut -f 1 -d \:`
+     ;;
+    'K') parm=`cat /proc/bdinfo | cut -f 2 -d \! | cut -f 2 -d \:`
+     ;;
+    'M') parm=`cat /proc/bdinfo | cut -f 2 -d \! | cut -f 3 -d \:`
+     ;;
+    'S') parm=`cat /proc/bdinfo | cut -f 2 -d \! | cut -f 4 -d \:`
+     ;;
+    '?') echo USAGE:
+	 echo set_nports [field_number or device_type]
+	 echo where field_number is 1-19, device_type can be A, K, M, or S
+     ;;
+      *) if [[ $1 == [1-9] || $1 == 1[0-9] || $1 == 20 ]]; then
+		parm=`cat /proc/bdinfo | cut -f $1 -d \!`
+	else
+		echo Invalid argument
+                exit 1
+	fi
+     ;;
+  esac
+else
+  parm=`cat /proc/bdinfo | cut -f 2 -d \! | cut -f 4 -d \:`
+fi
+echo $parm
+exit 0

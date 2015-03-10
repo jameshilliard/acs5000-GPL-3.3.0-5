@@ -1,0 +1,28 @@
+#ifndef __pslave_cfg_h
+#define __pslave_cfg_h
+
+@linux22@
+@uptime_define@
+@bigutmp@
+#define PSVERSION "@version@"
+
+#define RAD_ID_FILE		"@rundir@/radius.id"
+#define PID_DIR			"@rundir@"
+#define RAD_SESSIONID_FILE	"@rundir@/radsession.id"
+#define CONFFILE		"@etcdir@/pslave.conf"
+
+/* Old configuration items that are not autodetected */
+
+#define MAXLINES		@nports@
+#define MAXVLINES		@nvlines@
+
+#define PATH_ROUTE		"@route@"
+#define PATH_IFCONFIG		"@ifconfig@"
+#define PATH_ARP		"@arp@"
+#define PATH_NET		"@network@"
+
+/* Amount of seconds to sleep between SLIP/CSLIP traffic stat querys */
+/* Less time == more load but better total accuracy. Does not effect PPP. */
+#define STATS_SLEEP		3
+
+#endif	/* __pslave_cfg_h */

@@ -1,0 +1,7 @@
+#!/bin/sh
+
+RADINIT=@sbindir@/radinit
+
+[ -x $RADINIT ] && $RADINIT
+
+exit 0

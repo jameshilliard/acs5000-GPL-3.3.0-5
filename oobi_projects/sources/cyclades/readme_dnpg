@@ -1,0 +1,20 @@
+
+This product runs an embedded version of the Linux kernel. Even if you are
+an experienced Linux user, please do NOT use the generic system tools  for
+networking configuration.
+
+Please consult the  latest  version  of  the  user  documentation,  before 
+configuring this product.
+
+The User Manual details the configuration process. Here is  a  summary  of
+what you need to do in order to get the product working:
+
+1) Modify the files: /etc/hostname, /etc/hosts, /etc/resolv.conf,
+   /etc/network/st_routes and /etc/portslave/pslave.conf.
+2) Activate the changes (runconf).
+3) Make sure the configuration is working as you intended.
+4) Save the configuration into flash (saveconf).
+
+Also, if you are upgrading from a  previous  firmware  version,  read  the
+document "/upgrade_notes" that provides the information you need to  setup
+your CServer properly.

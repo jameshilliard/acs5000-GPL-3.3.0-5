@@ -1,0 +1,21 @@
+[ req ]
+default_bits            = 1024
+distinguished_name      = dnpg
+prompt                  = no
+x509_extensions         = x509v3
+
+[ dnpg ]
+C               = US
+ST              = NH
+L               = Londonderry
+O               = Digital Networks
+OU              = R&D
+CN              = www.dnpg.com
+emailAddress    = support@dnpg.com
+
+[ x509v3 ]
+subjectKeyIdentifier    = hash
+authorityKeyIdentifier  = keyid:always,issuer:always
+basicConstraints        = CA:true
+nsComment               = "This is just a TEST certificate. Don't use it for real secure conections. Create your own certificate instead."
+nsCertType              = server, sslCA

@@ -1,0 +1,42 @@
+#
+#  Makefile for cyclades projects.
+#
+
+#
+# Addtional compiler and/or link options may be defined here
+#
+CFLAGS += -I$(CONFIG_TOOL_DIR)/include -I$(my_prefix)/usr/include -I$(BUILD_DIR)/$(ras)/src -I$(BUILD_DIR)/$(ras) -DCYCLADES_TS
+#LDFLAGS += ...
+
+#
+# Command line parameters for configure must be defined here
+#
+#CONFIGURE_PARMS := ...
+
+#CONFIGURE_ENV := ...
+
+MAKE_ENV:=\
+	PATH=$(CROSS_PATH) \
+	$(CROSS_ENV_TOOLS)
+
+MAKE_PARMS:=\
+	LIBS=$(BUILD_DIR)/$(ras)/src/librad.a \
+	CROSS_COMPILE=$(CROSS_COMPILE) \
+	PREFIX=$(my_prefix) \
+	CFLAGS="$(CFLAGS)" \
+	LDFLAGS="$(LDFLAGS)" 
+
+#
+#  more ac_variables for configure may be defined here
+#
+#CROSS_ENV_AC += ...
+
+############################################################################
+
+$(CFG_COOKIE):
+	date > $@
+
+$(BLD_COOKIE): $(CFG_COOKIE)
+	$(MAKE_ENV) \
+	$(MAKE) $(MAKE_PARMS) all install
+

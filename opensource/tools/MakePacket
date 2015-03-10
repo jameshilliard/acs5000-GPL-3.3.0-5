@@ -1,0 +1,66 @@
+#
+#  Makefile for Cyclades projects.
+#
+#  It will build a package not changed by Cyclades
+#
+
+include $(OPENSOURCE_DIR)/$(TOOLS)/MakeChecks
+
+$(call check_vars,SOURCES BUILD DIST WORK_DIR TOOLS MAKE_PKT my_prefix DIST_DIR)
+
+include $(WORK_DIR)/config_tools
+include $(WORK_DIR)/packages_def
+
+SRC_COOKIE := COOKIE_SRC
+CFG_COOKIE := COOKIE_CFG
+BLD_COOKIE := COOKIE_BLD
+INST_COOKIE := COOKIE_INST
+PRE_INST_COOKIE := COOKIE_INST_PRE
+LNMODE=-fs
+DST := $(shell pwd)
+NAME_PKT := $(notdir $(DST))
+SRC := $(OPENSOURCE_DIR)/$(SOURCES)/$(NAME_PKT)
+
+ifneq "$(CCACHE_$(NAME_PKT))" "no"
+CROSS_PATH:=$(WORK_DIR)/dummy:$(CROSS_PATH)
+endif
+
+all:	$(SRC_COOKIE) \
+		$(CFG_COOKIE) \
+		$(BLD_COOKIE) \
+		$(PRE_INST_COOKIE) \
+		$(INST_COOKIE)
+
+include $(MAKE_PKT)
+
+$(CFG_COOKIE): $(SRC_COOKIE)
+$(BLD_COOKIE): $(CFG_COOKIE)
+$(INST_COOKIE): $(PRE_INST_COOKIE)
+
+$(PRE_INST_COOKIE): $(BLD_COOKIE)
+	-sudo rm -rf $(my_prefix) $@
+	install -m u=wrxs,g=rxsw,o=rx -d $(my_prefix)
+	date > $@
+
+$(SRC_COOKIE): $(SRC) $(MAKE_PKT)
+	rm -rf $(DST)/* $@
+ifeq ($(NO_LINKS),)
+	( \
+		cd $(SRC); \
+		for file in $$(find . -true | grep -v "^\./\.pc/") ; do \
+			if [ -L $$file ]; then \
+				ln $(LNMODE) `readlink $(SRC)/$$file` $(DST)/$$file ; \
+			elif [ -d $$file ]; then \
+				install -m u=wrxs,g=rxsw,o=rx -d $(DST)/$$file ; \
+			else \
+				ln $(LNMODE) $(SRC)/$$file $(DST)/$$file ; \
+			fi \
+		done \
+	)
+endif
+	date > $@
+
+$(MAKEFILE_LIST): ;
+
+force: ;
+

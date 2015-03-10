@@ -1,0 +1,82 @@
+--- mgetty-1.1.33/Makefile.old	2005-03-13 09:59:34.000000000 -0800
++++ mgetty-1.1.33/Makefile	2005-08-02 15:56:07.015828294 -0700
+@@ -164,7 +164,8 @@
+ #
+ # if your systems doesn't have one, use the shell script that I provide
+ # in "inst.sh" (taken from X11R5). Needed on IRIX5.2
+-INSTALL=install -c -o bin -g bin
++INSTALL=install
++#INSTALL=install -c -o bin -g bin
+ #INSTALL=install -c -o root -g wheel		# NeXT/BSD
+ #INSTALL=/usr/ucb/install -c -o bin -g bin	# AIX, Solaris 2.x
+ #INSTALL=installbsd -c -o bin -g bin		# OSF/1, AIX 4.1, 4.2
+@@ -176,7 +177,7 @@
+ #
+ # prefix for all the spool directories (usually /usr/spool or /var/spool)
+ #
+-spool=/var/spool
++spool=$(prefix)/var/spool
+ #
+ # where the mgetty + sendfax binaries live (used for "make install")
+ #
+@@ -422,7 +423,7 @@
+ 	chmod 700 sedscript
+ 
+ mksed: mksed.c policy.h Makefile 
+-	$(CC) $(CFLAGS) -DBINDIR=\"$(BINDIR)\" -DSBINDIR=\"$(SBINDIR)\" \
++	$(HOST_CC) $(HOST_CFLAGS) -DBINDIR=\"$(BINDIR)\" -DSBINDIR=\"$(SBINDIR)\" \
+ 		-DLIBDIR=\"$(LIBDIR)\" \
+ 		-DCONFDIR=\"$(CONFDIR)\" \
+ 		-DFAX_SPOOL=\"$(FAX_SPOOL)\" \
+@@ -597,8 +597,8 @@
+ 	-test -d $(SBINDIR) || ( ./mkidirs $(SBINDIR) ; chmod 755 $(SBINDIR) )
+ 	-mv -f $(SBINDIR)/mgetty $(SBINDIR)/mgetty.old
+ 	-mv -f $(SBINDIR)/sendfax $(SBINDIR)/sendfax.old
+-	$(INSTALL) -s -m 700 mgetty $(SBINDIR)
+-	$(INSTALL) -s -m 755 sendfax $(SBINDIR)
++	$(INSTALL) -m 700 mgetty $(SBINDIR)
++	$(INSTALL) -m 755 sendfax $(SBINDIR)
+ #
+ # data files + directories
+ #
+@@ -606,15 +607,15 @@
+ 	test -d $(CONFDIR) || \
+ 		( ./mkidirs $(CONFDIR) && chmod 755 $(CONFDIR))
+ 	test -f $(CONFDIR)/login.config || \
+-		$(INSTALL) -o root -m 600 login.config $(CONFDIR)/
++		$(INSTALL) -m 600 login.config $(CONFDIR)/
+ 	test -f $(CONFDIR)/mgetty.config || \
+-		$(INSTALL) -o root -m 600 mgetty.config $(CONFDIR)/
++		$(INSTALL) -m 600 mgetty.config $(CONFDIR)/
+ 	test -f $(CONFDIR)/sendfax.config || \
+-		$(INSTALL) -o root -m 644 sendfax.config $(CONFDIR)/
++		$(INSTALL) -m 644 sendfax.config $(CONFDIR)/
+ 	test -f $(CONFDIR)/dialin.config || \
+-		$(INSTALL) -o root -m 600 dialin.config $(CONFDIR)/
++		$(INSTALL) -m 600 dialin.config $(CONFDIR)/
+ 	test -f $(CONFDIR)/faxrunq.config || \
+-		$(INSTALL) -o root -m 644 faxrunq.config $(CONFDIR)/
++		$(INSTALL) -m 644 faxrunq.config $(CONFDIR)/
+ #
+ # test for outdated stuff
+ #
+@@ -659,7 +658,7 @@
+ 	if [ ! -z "$(INSTALL_MECHO)" ] ; then \
+ 	    cd compat ; \
+ 	    $(CC) $(CFLAGS) -o mg.echo mg.echo.c && \
+-	    $(INSTALL) -s -m 755 mg.echo $(BINDIR) ; \
++	    $(INSTALL) -m 755 mg.echo $(BINDIR) ; \
+ 	fi
+ 
+ #
+--- mgetty-1.1.33/g3/Makefile.ori	2005-09-23 11:55:03.656496163 -0700
++++ mgetty-1.1.33/g3/Makefile	2005-09-23 11:57:21.913618498 -0700
+@@ -40,7 +40,7 @@
+ # install programs
+ #
+ 	for f in $(G3_PROGRAMS) ; do \
+-		$(INSTALL) -s -m 755 $$f $(BINDIR) ; \
++		$(INSTALL) -m 755 $$f $(BINDIR) ; \
+ 	done
+ #
+ # make symlink for "g3topbm" (so third-party fax viewers won't fail)

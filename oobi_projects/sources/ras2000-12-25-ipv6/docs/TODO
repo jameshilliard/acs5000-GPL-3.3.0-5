@@ -1,0 +1,28 @@
+Test realms support, ssh, etc (pre9 changes)
+
+Update and clean up docs. (In progress)
+
+Merge most of conf.h into config file options?
+
+Fix update_framed_route() to better handle netmask according to RFC.
+(Linux 2.2 wants /bits on networkip. 2.0 can't deal with it.)
+
+Reply-Message Giving extra instance of element 0 for over 1 output.
+Can't find bug. Is it the RADIUS server?  
+
+Add connect info patch?
+
+post 1.2.0
+	ML-PPP support
+	provide route/ifconfig port to iproute?
+	Make debian package.
+	
+	Portability issue fixes.
+
+	Fix remaining 'FIX ME's.
+
+	Implement PW_NAS_PORT_LIMIT (?)
+	Implement PW_FRAMED_ROUTING (?)
+
+	Put common functions in libpsr, and have portslave link it.
+	Save probably 30 redundent KB.

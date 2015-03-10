@@ -1,0 +1,17 @@
+#ifndef __bootconf_h
+#define __bootconf_h
+
+/*
+ *  Define those default values which may differ
+ *  depending on the compiled target
+ */
+
+#define FLASH_BLOCK	(8*1024)
+
+#define DEFAULT_TFTP_PATH	"zvmppckvmmax.bin"
+#define BOOT_ORI_FILE		"/dev/mtd2"
+#define BOOT_CONF_FILE  	"/dev/mtd1"
+
+#include "uboot_def.h"
+
+#endif	/* __bootconf_h */

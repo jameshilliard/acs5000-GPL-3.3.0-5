@@ -1,0 +1,30 @@
+--- isdn4k-utils.v3.1pre1/isdnctrl/configure.old	2005-08-04 20:46:19.953312133 -0700
++++ isdn4k-utils.v3.1pre1/isdnctrl/configure	2005-08-04 20:51:48.132701170 -0700
+@@ -1180,7 +1180,8 @@
+   echo $ac_n "(cached) $ac_c" 1>&6
+ else
+   if test "$cross_compiling" = yes; then
+-    { echo "configure: error: Cannot check for file existence when cross compiling" 1>&2; exit 1; }
++    { echo "Cannot check for file existence when cross compiling: 'yes' assumed" 1>&2;
++    eval "ac_cv_file_$ac_safe=yes" ; }
+ else
+   if test -r $CONFIG_KERNELDIR/include/linux/isdn.h; then
+     eval "ac_cv_file_$ac_safe=yes"
+@@ -1189,6 +1190,7 @@
+   fi
+ fi
+ fi
++
+ if eval "test \"`echo '$ac_cv_file_'$ac_safe`\" = yes"; then
+   echo "$ac_t""yes" 1>&6
+   :
+@@ -1206,7 +1208,8 @@
+   echo $ac_n "(cached) $ac_c" 1>&6
+ else
+   if test "$cross_compiling" = yes; then
+-    { echo "configure: error: Cannot check for file existence when cross compiling" 1>&2; exit 1; }
++    { echo "Cannot check for file existence when cross compiling: 'yes' assumed" 1>&2;
++    eval "ac_cv_file_$ac_safe=yes"; }
+ else
+   if test -r $CONFIG_KERNELDIR/include/linux/isdnif.h; then
+     eval "ac_cv_file_$ac_safe=yes"

@@ -1,0 +1,18 @@
+#!/bin/sh
+cnt=0
+if [ $# -gt 0 ] ; then
+OUT="/dev/$1"
+else
+OUT=`tty`
+fi
+while true
+do
+cnt=`expr $cnt + 1`
+echo cat etc/termcap begin "[ $cnt ]" > $OUT
+echo > $OUT
+cat /etc/termcap > $OUT
+echo > $OUT
+echo cat etc/termcap end "[ $cnt ]" > $OUT
+sleep 5
+done
+

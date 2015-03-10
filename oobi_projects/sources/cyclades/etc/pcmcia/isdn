@@ -1,0 +1,64 @@
+#! /bin/sh
+
+if [ -r ./shared ] ; then . ./shared ; else . /etc/pcmcia/shared ; fi
+
+DEVICE="ippp0"
+
+. $0.opts
+
+ret_code=0
+case "$ACTION" in
+
+'start' )
+	/sbin/isdnctrl addif $DEVICE
+        if [ $? -ne 0 ] ; then ret_code=1 ; fi
+	/sbin/isdnctrl eaz $DEVICE "$LOCALNUMBER"
+        if [ $? -ne 0 ] ; then ret_code=1 ; fi
+	/sbin/isdnctrl l2_prot $DEVICE hdlc
+        if [ $? -ne 0 ] ; then ret_code=1 ; fi
+	/sbin/isdnctrl l3_prot $DEVICE trans
+        if [ $? -ne 0 ] ; then ret_code=1 ; fi
+	/sbin/isdnctrl encap $DEVICE syncppp
+        if [ $? -ne 0 ] ; then ret_code=1 ; fi
+	/sbin/isdnctrl huptimeout $DEVICE $HUPTIMEOUT
+        if [ $? -ne 0 ] ; then ret_code=1 ; fi
+	/sbin/isdnctrl secure $DEVICE $SECURE 
+        if [ $? -ne 0 ] ; then ret_code=1 ; fi
+	for num in $DIALOUT_REMOTENUMBER; do
+		/sbin/isdnctrl addphone $DEVICE out $num;
+        if [ $? -ne 0 ] ; then ret_code=1 ; fi
+	done
+	for num in $DIALIN_REMOTENUMBER; do
+		/sbin/isdnctrl addphone $DEVICE in $num;
+        if [ $? -ne 0 ] ; then ret_code=1 ; fi
+	done
+	/sbin/isdnctrl callback $DEVICE $CALLBACK 	
+        if [ $? -ne 0 ] ; then ret_code=1 ; fi
+	/sbin/isdnctrl cbdelay $DEVICE $CBDELAY 
+        if [ $? -ne 0 ] ; then ret_code=1 ; fi
+	/sbin/ifconfig $DEVICE $LOCALIP pointopoint $REMOTEIP netmask $NETMASK
+        if [ $? -ne 0 ] ; then
+           if [ "$LOCALIP" != "0.0.0.0" ] ; then ret_code=1 ; fi
+        fi
+# TODO: Fix (workaround for bug #25223) --------------
+        if [ -f /var/run/init_done ]; then
+           /sbin/ipppd $DEVICE $ipppd_options
+        else
+           echo /sbin/ipppd $DEVICE $ipppd_options >> /var/run/isdn_pending
+        fi
+        if [ $? -ne 0 ] ; then ret_code=1 ; fi
+	;;
+'stop' )
+	kill -9 $(/bin/ps -ax | /bin/grep ipppd | /bin/grep -v grep | /bin/awk '{print $1}')
+	/sbin/ifconfig $DEVICE down
+        if [ $? -ne 0 ] ; then ret_code=1 ; fi
+	/sbin/isdnctrl delif $DEVICE
+        if [ $? -ne 0 ] ; then ret_code=1 ; fi
+	;;
+'check')
+        exit 0
+        ;;
+*      )
+        exit 1
+esac
+exit $ret_code

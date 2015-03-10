@@ -1,0 +1,264 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html>
+<head>
+  <title>Untitled</title>
+  <link rel="STYLESHEET" type="text/css" href="/stylesLayout.css">
+   <script language="JavaScript" src="/scripts.js" type="text/javascript"></script>
+   <script type="text/javascript">
+
+<% ReqNum = getRequestNumber(); %>  
+  
+  parent.currentPage = self;
+  parent.helpPage = 'helpPages/secUsersGroupsHelp.asp';
+  window.name = '<%get("system.device.ip");%>_<%get("_sid_");%>_<%write(ReqNum);%>';
+  var target='target=' + window.name;
+   
+  if (parent.family_model == "KVM") {
+  	var leftMenu = '/normal/kvm/configKVMMenu.asp';
+  	var leftHead = 'KVM';
+  } else {
+	var leftMenu = '/normal/security/secAuthMenu.asp';
+  	var leftHead = 'SEC';
+  }
+
+
+  function init()
+  {
+  if (1 == parent.menuReady && 1 == parent.topMenuReady && 1 == parent.controlsReady)
+  {
+    if (checkLeftMenu(leftMenu) == 0) {
+       parent.menuReady = 0;
+       setTimeout('init()', 200);
+       return;
+    }
+	parent.menu.leftHeadMenu(leftHead);
+    setUnsavedImage(parent.controls.document, <%get("_changesLed_");%>);
+    parent.topMenu.selectItem(parent.menu.topItem);
+    parent.menu.selectItem("UG");
+  }
+  else
+    setTimeout('init()', 200);
+  }
+
+       function checkNewEntry(table,entry, val)
+       {
+          for (var i=0;i<table.options.length;i++)
+          {
+              if ((table.options[i].text == entry) && (table.options[i].value != val))
+                return false;
+          }
+          return true;
+       }
+
+       function copyData()
+       {
+               document.configForm.elements[7].value = ','+getValues(document.userForm.userTable, 0);
+               document.configForm.elements[8].value = ','+getValues(document.groupForm.groupTable, 0);
+       }
+
+       function deleteUser(formTable)
+       {
+               if (formTable.options[formTable.selectedIndex].value == '-1') {
+                       alert('Please select an item to delete.');
+               } else {
+                       if (formTable.options[formTable.selectedIndex].text == "root") {
+                               alert('root user cannot be deleted.');
+                       } else if (formTable.options[formTable.selectedIndex].text == "<%getLabel("system.access.admUser");%>") {
+                               alert('<%getLabel("system.access.admUser");%> user cannot be deleted.');
+                       } else if (formTable.options[formTable.selectedIndex].text == "Generic User"){
+                               alert('Generic User cannot be deleted.');
+                       } else {
+                               deleteSelOpt(formTable);
+                       }
+               }
+       }
+
+       function editUser(formTable)
+       {
+               if (document.userForm.userTable.options[document.userForm.userTable.selectedIndex].value == '-1') {
+                       alert('Please select an item to edit.');
+                       return;
+               } else {
+                 if (formTable.options[formTable.selectedIndex].text == "Generic User") {
+                    alert('The Generic User does not have a password.')
+                    return;
+                 } else if (formTable.options[formTable.selectedIndex].text == "root") {
+                    alert('You must be logged as root to change its own password.');
+                    return;
+                 } else {
+                    copyData();
+                    document.configForm.elements[6].value = '1';
+                    getValueSelectedEdit('configKVMchangePassword.asp','user','350','250',target+"&SSID=<%get("_sid_");%>",document.userForm.userTable, 'yes',1);
+                 }
+               }
+       }
+
+       function addUser()
+       {
+               copyData();
+               document.configForm.elements[6].value = '2';
+               getSelectedAdd('configKVMUsersEntry.asp','user','500','400',target+"&SSID=<%get("_sid_");%>",'yes');
+       }
+
+       function editGroup()
+       {
+               if (document.groupForm.groupTable.options[document.groupForm.groupTable.selectedIndex].value == '-1') {
+                       alert('Please select an item to edit.');
+                       return;
+               }
+               copyData();
+               document.configForm.elements[6].value = '3';
+               getSelectedEdit('configKVMGroupsEntry.asp','group','350','250',target+"&SSID=<%get("_sid_");%>", document.groupForm.groupTable, 'yes',1);
+       }
+
+       function addGroup()
+       {
+               copyData();
+               document.configForm.elements[6].value = '4';
+               getSelectedAdd('configKVMGroupsEntry.asp','group','350','250',target+"&SSID=<%get("_sid_");%>",'yes');
+       }
+
+       function deleteGroup()
+       {
+               deleteSelOpt(document.groupForm.groupTable)
+       }
+
+       function submit()
+       {
+               copyData();
+               document.configForm.submit();
+               parent.mainReady = null;
+       }
+
+	function setPermissions (table, usergroup)
+	{
+		if (table.selectedIndex == -1 || table.options[table.selectedIndex].value == '-1') {
+			alert('Please select an item.');
+		} else {
+			var name = table.options[table.selectedIndex].value;
+			if (usergroup != 0) {
+				document.configForm.urlOk.value = '/normal/kvm/configKVMSetPermissions.asp';
+				document.configForm.elements[9].value = "group=" + name;
+               			copyData();
+		setQuerySSID(document.configForm);
+       				document.configForm.submit();
+				parent.mainReady = null;
+			} else {
+				if (name.charAt(name.length -1) == 'a') {
+					alert ('You can not set KVM administrator user\'s permissions');
+				} else {
+					document.configForm.urlOk.value = '/normal/kvm/configKVMSetPermissions.asp';
+					document.configForm.elements[9].value = "user=" + name;
+               				copyData();
+		setQuerySSID(document.configForm);
+       					document.configForm.submit();
+					parent.mainReady = null;
+				}
+			}
+		}
+	}
+      
+    </script>
+</head>
+
+<body onload="init();" class="bodyMain">
+<br>
+<table border="0" align="center" cellpadding="0" cellspacing="0">
+  <tr align="center" valign="top"> 
+    <td width="50%">
+      <form name="userForm" method="POST" action="">
+      <table border="0" cellpadding="0" cellspacing="0" class="tableColor">
+         <tr>
+            <td class="tableColor"><font class="tabsTextBig">&nbsp;User List</font></td>
+         </tr>
+         <tr>
+            <td>
+               <select name="userTable" size="8" class="formText">
+                  <%get("system.access.usersHtml");%>
+                  <option value="-1" selected>
+                  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                  </option>
+               </select>
+            </td>
+         </tr>      
+      </table>
+      </form>
+    </td>
+    <td width="50%">
+      <form name="groupForm" method="POST" action="">
+      <table border="0" cellpadding="0" cellspacing="0" class="tableColor">
+         <tr>
+            <td class="tableColor"><font class="tabsTextBig">&nbsp;Group List</font></td>
+         </tr>
+         <tr>
+            <td>
+               <select name="groupTable" size="8" class="formText">
+                  <%get("system.access.groupsHtml");%>
+				  <option value="-1" selected>
+                  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                  </option>
+               </select>
+            </td>
+         </tr>      
+      </table>
+      </form>
+    </td>
+  </tr>
+  <tr align="center" valign="middle"> 
+    <td width="50%">
+<table align="center" cellspacing="15" cellpadding="0" border="0">
+<tr>
+	<td><a href="javascript:addUser()">
+       <img src="/Images/addButton.gif" alt="" width="47" height="21" border="0"></a></td>
+	<td><a href="javascript:deleteUser(document.userForm.userTable)">
+       <img src="/Images/deleteButton.gif" alt="" width="47" height="21" border="0"></a></td>
+	<td><a href="javascript:editUser(document.userForm.userTable)">
+       <img src="/Images/changePassButton.gif" alt="" width="108" height="21" border="0"></a></td>
+</tr>
+</table>	
+    </td>
+    <td width="50%">
+<table align="center" cellspacing="15" cellpadding="0" border="0">
+<tr>
+	<td><a href="javascript:addGroup()">
+       <img src="/Images/addButton.gif" alt="" width="47" height="21" border="0"></a></td>
+	<td><a href="javascript:deleteGroup()">
+       <img src="/Images/deleteButton.gif" alt="" width="47" height="21" border="0"></a></td>
+	<td><a href="javascript:editGroup()">
+       <img src="/Images/editButton.gif" alt="" width="47" height="21" border="0"></a></td>
+</tr>
+</table>	
+    </td>
+  </tr>
+  <tr align="center" valign="middle"> 
+    <td width="50%">
+       <a href="javascript:setPermissions(document.userForm.userTable, 0)">
+       <img src="/Images/permissions.gif" alt="" width="130" height="21" border="0"></a> 
+    </td>
+    <td width="50%">
+       <a href="javascript:setPermissions(document.groupForm.groupTable, 1)">
+       <img src="/Images/permissions.gif" alt="" width="130" height="21" border="0"></a>
+    </td>
+  </tr>
+</table>  
+   <form name="configForm" method="POST" action="/goform/Dmf">
+      <input type="hidden" name="system.req.action" value="">
+      <input type="hidden" name="system.req.sid" value="<%get("_sid_");%>">
+      <input type="hidden" name="urlOk" value="/normal/kvm/configKVMUsersGroups.asp">
+      <input type="hidden" name="urlError" value="/normal/kvm/configKVMUsersGroups.asp">
+      <input type="hidden" name="request" value="<%write(ReqNum);%>">
+      <input type="hidden" name="system.access.mode" value="1">
+      <input type="hidden" name="system.access.action" value="0">
+      <input type="hidden" name="system.access.usersCs" value="">
+      <input type="hidden" name="system.access.groupsCs" value="">
+      <input type="hidden" name="system.kvm.conf.acclist.entryname" value="-1">
+   </form>
+<script type="text/javascript">
+parent.mainReady = true;
+</script>
+<%set("_sid_","0");%>  
+</body>
+</html>

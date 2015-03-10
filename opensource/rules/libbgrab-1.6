@@ -1,0 +1,48 @@
+#
+#  Makefile for cyclades projects.
+#
+
+#
+# Addtional compiler and/or link options may be defined here
+#
+#CFLAGS += ...
+#LDFLAGS += ...
+
+#
+# Command line parameters for configure must be defined here
+#
+CONFIGURE_PARMS := \
+	--shared \
+	--prefix=$(my_prefix)
+
+CONFIG_ENV := \
+	PATH=$(CROSS_PATH) \
+	CFLAGS="$(CFLAGS)" \
+	LDFLAGS="$(LDFLAGS)"
+
+MAKE_ENV := \
+	PATH=$(CROSS_PATH)
+
+MAKE_PARMS := \
+	$(CROSS_ENV_TOOLS)
+
+#
+#  more ac_variables for configure may be defined here
+#
+#CROSS_ENV_AC += ...
+
+$(CFG_COOKIE):
+	date > $@
+
+$(BLD_COOKIE):
+	$(MAKE_ENV) $(MAKE) $(MAKE_PARMS)
+	date > $@
+
+$(INST_COOKIE):
+	mkdir -p $(my_prefix)/lib
+	mkdir -p $(my_prefix)/include
+	cp libbgrab.a $(my_prefix)/lib
+	cp xutil.h $(my_prefix)/include
+	cp bgrab.h $(my_prefix)/include
+	date > $@
+

@@ -1,0 +1,109 @@
+#!/bin/sh
+FW=$1
+
+SED=/bin/sed
+AWK=/bin/awk
+PROC_INFO_FILE=/proc/bdinfo
+PROC_INFO_DELIMITER="!"
+UPGRADE_PROG=/usr/bin/kvmipctl
+OUTP_FILE=/tmp/vcard_upgrade.out
+
+PRODCODE=`$AWK -F $PROC_INFO_DELIMITER '{ print $4 }' $PROC_INFO_FILE`
+if [ $PRODCODE -lt 26 -o $PRODCODE -gt 37 ]; then
+	exit 14
+fi
+
+if [ $PRODCODE -ge 36 -a $PRODCODE -le 37 ]; then
+	PLUS=1
+else
+	PLUS=0
+fi
+
+if [ "$PLUS" == "1" ]; then
+	INT_ETH_DEV=eth1
+	KVMIP_ACTIVE=`$AWK -F $PROC_INFO_DELIMITER '{ print $15 }' $PROC_INFO_FILE`
+	KVMIP_1_ACTIVE=`expr $KVMIP_ACTIVE % 2`
+	KVMIP_ACTIVE=`expr $KVMIP_ACTIVE / 2`
+	KVMIP_2_ACTIVE=`expr $KVMIP_ACTIVE % 2`
+	KVMIP_ACTIVE=`expr $KVMIP_ACTIVE / 2`
+	KVMIP_3_ACTIVE=`expr $KVMIP_ACTIVE % 2`
+	KVMIP_ACTIVE=`expr $KVMIP_ACTIVE / 2`
+	KVMIP_4_ACTIVE=`expr $KVMIP_ACTIVE % 2`
+else
+	INT_ETH_DEV=eth0
+	KVMIP_1_ACTIVE=`$AWK -F $PROC_INFO_DELIMITER '{ print $15 }' $PROC_INFO_FILE`
+	KVMIP_2_ACTIVE=`$AWK -F $PROC_INFO_DELIMITER '{ print $16 }' $PROC_INFO_FILE`
+fi
+
+if [ "$PLUS" = "1" -a "$KVMIP_4_ACTIVE" = "1" ]; then
+# Update in background if there is another board active to speed up process
+	if [ "$KVMIP_3_ACTIVE" = "1" ]; then
+		$UPGRADE_PROG -u -i 4 -z $FW >${OUTP_FILE}.4 2>/dev/null
+	else
+		$UPGRADE_PROG -u -i 4 -z $FW >${OUTP_FILE}.4 2>/dev/null
+	fi
+	if [ $? -ne 0 ]; then
+		echo "Upgrade Failed" >${OUTP_FILE}.4
+	fi
+fi
+
+if [ "$PLUS" = "1" -a "$KVMIP_3_ACTIVE" = "1" ]; then
+# Update in background if there is another board active to speed up process
+	if [ "$KVMIP_2_ACTIVE" = "1" ]; then
+		$UPGRADE_PROG -u -i 3 -z $FW >${OUTP_FILE}.3 2>/dev/null
+	else
+		$UPGRADE_PROG -u -i 3 -z $FW >${OUTP_FILE}.3 2>/dev/null
+	fi
+	if [ $? -ne 0 ]; then
+		echo "Upgrade Failed" >${OUTP_FILE}.3
+	fi
+fi
+
+if [ "$KVMIP_2_ACTIVE" = "1" ]; then
+# Update in background if there is another board active to speed up process
+	if [ "$KVMIP_1_ACTIVE" = "1" ]; then
+		$UPGRADE_PROG -u -i 2 -z $FW >${OUTP_FILE}.2 2>/dev/null
+	else
+		$UPGRADE_PROG -u -i 2 -z $FW >${OUTP_FILE}.2 2>/dev/null
+	fi
+	if [ $? -ne 0 ]; then
+		echo "Upgrade Failed" > ${OUTP_FILE}.2
+	fi
+fi
+
+if [ "$KVMIP_1_ACTIVE" = "1" ]; then
+	$UPGRADE_PROG -u -i 1 -z $FW >${OUTP_FILE}.1 2>/dev/null
+	if [ $? -ne 0 ]; then
+		echo "Upgrade Failed" > ${OUTP_FILE}.1
+	fi
+fi
+
+RETC=0
+if [ -s ${OUTP_FILE}.4 ]; then
+	cat ${OUTP_FILE}.4 |grep "Failed"
+	if [ $? -eq 0 ]; then
+		RETC=18;
+	fi 
+fi
+if [ -s ${OUTP_FILE}.3 ]; then
+	cat ${OUTP_FILE}.3 |grep "Failed"
+	if [ $? -eq 0 ]; then
+		RETC=17;
+	fi 
+fi
+if [ -s ${OUTP_FILE}.2 ]; then
+	cat ${OUTP_FILE}.2 |grep "Failed"
+	if [ $? -eq 0 ]; then
+		RETC=16;
+	fi 
+fi
+if [ -s ${OUTP_FILE}.1 ]; then
+	cat ${OUTP_FILE}.1 |grep "Failed"
+	if [ $? -eq 0 ]; then
+		RETC=15;
+	fi 
+fi
+
+rm -f ${OUTP_FILE}.*
+exit $RETC
+

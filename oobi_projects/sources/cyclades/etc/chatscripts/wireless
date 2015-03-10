@@ -1,0 +1,17 @@
+ABORT	BUSY
+ABORT	VOICE
+ABORT	"NO CARRIER"
+ABORT	"NO DIALTONE"
+
+""	AT
+""	ATZ
+
+####	Telco X
+#OK	AT+CGDCONT=1,"IP","claro.com.br"
+#OK	ATD*99#
+
+####	Telco Y
+#OK	AT&C0
+#OK	ATDT#777
+
+CONNECT ""

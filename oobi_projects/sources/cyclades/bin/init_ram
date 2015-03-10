@@ -1,0 +1,20 @@
+#!/bin/sh
+
+mount -o remount,rw /dev/root / -t root 2>/dev/null
+mount -a
+
+#Restore configuration from Flash
+/bin/restoreconf 1>/dev/null 2>&1
+
+#if (first boot with v2.3.1+) && (old configuration saved)
+#then (assume custom security profile and run pwconv)
+/bin/check1stBoot 
+
+#Keep the same HW console speed throughout Linux execution
+/bin/setConSpeed
+
+SD_CFG="/mnt/ide/proc/flash/storageOptions"
+
+/etc/init.d/pcmcia start
+sleep 10
+[ -e "$SD_CFG" -a "`grep -s DEFAULT $SD_CFG`" ] && restoreconf

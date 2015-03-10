@@ -1,0 +1,32 @@
+<html>
+<body>
+<pre>
+<h1>Build Log</h1>
+<h3>
+--------------------Configuration: expat - Win32 Debug--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "H:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSPE.tmp" with contents
+[
+/nologo /MLd /W3 /GX /O1 /I "..\xmlparse" /I "..\xmltok" /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /D XML_BYTE_ORDER=12 /Fo"Debug/" /Fd"Debug/" /FD /GZ /c 
+"D:\ArtLogic\Development\Dmf2.1.2\expat\xmlparse\xmlparse.c"
+"D:\ArtLogic\Development\Dmf2.1.2\expat\xmltok\xmlrole.c"
+"D:\ArtLogic\Development\Dmf2.1.2\expat\xmltok\xmltok.c"
+]
+Creating command line "cl.exe @H:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSPE.tmp" 
+Creating command line "link.exe -lib /nologo /out:"..\lib\expat.lib"  .\Debug\xmlparse.obj .\Debug\xmlrole.obj .\Debug\xmltok.obj "
+<h3>Output Window</h3>
+Compiling...
+xmlparse.c
+xmlrole.c
+xmltok.c
+Generating Code...
+Creating library...
+
+
+
+<h3>Results</h3>
+expat.lib - 0 error(s), 0 warning(s)
+</pre>
+</body>
+</html>

@@ -1,0 +1,45 @@
+#!/usr/bin/expect --
+set username root 
+set HOSTNAME localhost
+set PORT [lindex $argv 5]
+set ESCAPE \021
+set GATEW [lindex $argv 1]
+set NMASK [lindex $argv 4]
+
+log_user 0
+spawn /bin/tstest -l $PORT -s 115200 -p none -f hard  -i
+send "\r"
+expect {
+	"#" {send "exit\r"; exp_continue} 
+	"login:" {
+		send "$username\r"
+		expect "#"
+		send "cp /etc/rc.dhclient.off /etc/rc.dhclient\r"
+		expect "#"
+		send "echo [lindex $argv 1] > /etc/mygate\r"
+		expect "#"
+		send "echo [lindex $argv 0] > /etc/myipaddress\r"
+		expect "#"
+		send "echo [lindex $argv 2].[lindex $argv 3] > /etc/myname\r"
+		expect "#"
+		send "echo [lindex $argv 4] > /etc/mynetmask\r"
+		expect "#"
+		send "echo [lindex $argv 3] > /etc/myshortname\r"
+		expect "#"
+		send "/etc/rc.d/network restart\r"
+		expect "#"
+		send "cat /flash/inc/macaddress\r"
+		expect -re "cat.*\r"
+		expect -re "..:..:..:..:..:.." {puts $expect_out(buffer)}
+		expect "#"
+		send "exit\r" 
+		expect "login:"
+		send $ESCAPE
+		expect "#"
+		exit 0 
+	}
+	"refused" {
+		sleep 1
+		exit 1
+	}
+}

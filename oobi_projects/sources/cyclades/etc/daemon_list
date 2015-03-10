@@ -1,0 +1,26 @@
+#
+# List of services handled by daemon.sh
+#
+# Line format: "nickname  file" where:
+#
+# nickname - used to restarting or stopping services: Ex "daemon.sh stop NTP"
+#
+# file - shell script with all parameters for the service  
+#
+EVTGEN	    /etc/daemon.d/event_gen.sh
+NIS         /etc/daemon.d/ypbind.conf
+RPC         /etc/daemon.d/portmap.conf
+DB          /etc/daemon.d/cy_buffering.sh
+NET         /etc/daemon.d/inetd.sh
+LOG         /etc/daemon.d/syslog.sh
+SSH         /etc/daemon.d/sshd.sh
+NTP         /etc/daemon.d/ntpclient.conf
+SNMP        /etc/daemon.d/snmpd.sh
+IPSEC       /etc/daemon.d/ipsec.sh
+PMD         /etc/daemon.d/pmd.sh
+LP	        /etc/daemon.d/lpd.sh
+WEB	        /etc/daemon.d/webui.conf
+LOGPIPE     /etc/daemon.d/logpipe.sh
+ADSAP2      /etc/daemon.d/adsap2.sh
+AIDP        /etc/daemon.d/aidp.sh
+

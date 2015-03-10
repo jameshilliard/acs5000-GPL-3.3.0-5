@@ -1,0 +1,28 @@
+#!/bin/sh
+
+mount -n -t ramfs ramfs /etc
+mount -n -o remount,rw /dev/root / -t root
+mount -n -t ramfs ramfs /dev
+mount -n -t ramfs ramfs /home
+mount -n -t ramfs ramfs /root
+mount -n -t ramfs ramfs /var
+mount -n -t ramfs ramfs /usr/share/zoneinfo
+tar -xf /imgfil.tar -C / 
+mount -a
+
+#Set /tmp permissions properly once mount destroyed them
+chmod 1777 /tmp
+
+#Restore configuration from Flash
+/bin/restoreconf 1>/dev/null 2>&1
+
+#if (first boot with v2.3.1+) && (old configuration saved)
+#then (assume custom security profile and run pwconv)
+/bin/check1stBoot 
+
+#upgrade the daemon configuration from 2.3.0 to new directory
+#and update some configuration files
+/bin/upgrade.sh
+
+#Keep the same HW console speed throughout Linux execution
+/bin/setConSpeed

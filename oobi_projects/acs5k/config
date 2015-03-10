@@ -1,0 +1,110 @@
+#
+# Alterpath ACS's project definitions
+#
+
+#
+# Ramdisk sizes
+#
+RD_SIZE:=61440
+RD_NINODES:=6144
+
+#
+# Define the product identification
+#
+TARGETNAME:=ACS5K
+TARGET_PRODUCT:=acs5k
+TARGET_IMAGENAME:=zvmppcacs5k
+TARGET_BOOTCODE:=a5
+DEFTARG:=TSXK
+COMPILE_DEFTARG:=-DACS
+
+#
+# Defines the build type
+#
+BuildType := BuildImage
+
+#
+# Define file lists and packages
+#
+# These files must be created in the $(ROOT_PROJ) directory
+#
+
+PACKAGES_DEF:=packages_def.acs5k
+CYCLADES_FILES:=cyc_files.acs5k
+MVL_BIN_FILES:=bin_files.acs5k
+MVL_LIB_FILES:=lib_files.acs5k
+#PACKAGES_DEF:=packages_def
+#CYCLADES_FILES:=cyc_files
+#MVL_BIN_FILES:=bin_files.acs
+#MVL_LIB_FILES:=lib_files.acs
+# PCMCIA_FILES:=pcmcia_files.acs
+
+#
+# Defines the cross compiler tools
+#
+CONFIG_TOOL_DIR:=$(OPENSOURCE_DIR)/MVL-3.1/ppc_8xx_ipv6
+BUILTIN_DIST:=$(CONFIG_TOOL_DIR)/dist
+BUILTIN_BUILD:=$(CONFIG_TOOL_DIR)/build
+
+#
+# Kernel parameters
+#
+BUILD_KERNEL:=$(WORK_DIR)/$(BUILD)/linux
+#
+# The original linux sources path is "$(KERNEL_SOURCE)/$(LSP_DIR)
+# linux files changed by Cyclades is in $(ROOT_PROJ)/$(SOURCES)/$(LSP_DIR)
+#
+KERNEL_VERSION:=k26
+KERNEL_SOURCE:=$(OPENSOURCE_DIR)/sources
+LSP_DIR:=linux-2.6.22.1
+MODULES_DIR=lib/modules/2.6.22
+VERSION_FILE:=$(BUILD_KERNEL)/arch/ppc/boot/cyc_banner.h
+RD_IMAGE:=$(BUILD_KERNEL)/arch/ppc/boot/images/ramdisk.image.gz
+KERNEL_IMAGE:=$(BUILD_KERNEL)/arch/ppc/boot/images/zImage.initrd.elf
+ZIMAGE:=zImage
+KERNEL_CONFIG:=.config.acs5k
+#KERNEL_CONFIG:=.config.tsxk
+
+#
+### Custom Variables
+#
+
+#
+# The WEB root directory
+#
+WebPagesDir:=new_web
+
+#
+# features 
+#
+RDPenable:=no
+BondingLAN:=no
+DLAenable:=yes
+PCMCIAenable:=no
+DLSenable:=yes
+ALERTSenable:=yes
+CBCPenable:=yes
+EAPenable:=yes
+RADIUS2FACTORenable:=yes
+RADIUSSECIDenable:=yes
+OTPenable:=yes
+WINEMSenable:=yes
+GRPAUTHenable:=yes
+MODBUSenable:=yes
+BILLINGenable:=yes
+CUSTOMAPPLICSenable:=yes
+PMDenable:=yes
+PMDNGenable:=yes
+IPMIenable:=yes
+BIDIRECTenable:=yes
+ADSAP2enable:=yes
+SHOWDSVIEWOPTIONSenable:=yes
+KRBenable:=yes
+NISenable:=yes
+SECPROFILEenable:=yes
+SMBenable:=no
+IPSECenable:=yes
+CLUSTERenable:=yes
+MINDTERMenable:=yes
+AVWORKSenable:=no
+IPv6enable:=yes

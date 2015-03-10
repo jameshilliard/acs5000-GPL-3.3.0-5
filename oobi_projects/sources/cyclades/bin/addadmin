@@ -1,0 +1,15 @@
+#!/bin/sh
+tmpfile="/tmp/addadmin.tmp"
+adduser -g admin -G admin admin 2>"$tmpfile"
+retval="$?"
+if [ "$retval" -ne 0 ]; then
+	case "$(cat $tmpfile)" in
+	*login\ already\ in\ use*)
+			echo "$(cat $tmpfile)"", just adding it to admin group"
+			rm -f "$tmpfile"
+			exit 0
+			;;
+	esac
+	cat "$tmpfile"; rm -f "$tmpfile"
+	exit "$retval"
+fi

@@ -1,0 +1,56 @@
+#
+#  Makefile for cyclades projects.
+#
+
+#
+# Addtional compiler and/or link options may be defined here
+#
+#CFLAGS += ...
+
+
+#
+# Auxiliary variables
+#
+ifeq ($(strip $(IPv6Enable)), yes)
+DO_IPV6=1
+else
+DO_IPV6=0
+endif
+
+
+#
+# Command line parameters for configure must be defined here
+#
+
+MAKE_ENV := \
+	PATH=$(CROSS_PATH)
+
+MAKE_PARMS := \
+	CC=$(CROSS_CC) \
+	KERNEL_DIR=$(KERNEL_SRC_DIR) \
+	KBUILD_OUTPUT=$(KERNEL_SRC_DIR) \
+	DESTDIR=$(my_prefix) \
+	PREFIX="" \
+	PF_EXT_SLIB="conntrack icmp owner tos ttl DNAT LOG MASQUERADE REDIRECT REJECT SNAT TOS TTL" \
+	PF6_EXT_SLIB="eui64 hl icmp6 owner HL LOG REJECT" \
+	PFX_EXT_SLIB="length limit mac mark multiport state standard tcp tcpmss udp MARK TCPMSS" \
+	DO_IPV6=$(DO_IPV6) \
+	DO_MULTI=1
+
+
+
+#
+#  more ac_variables for configure may be defined here
+#
+#CROSS_ENV_AC +=
+
+$(CFG_COOKIE):
+	date > $@
+
+$(BLD_COOKIE):
+	$(MAKE_ENV) $(MAKE) $(MAKE_PARMS)
+	date > $@
+
+$(INST_COOKIE):
+	$(MAKE_ENV) $(MAKE) install install-experimental $(MAKE_PARMS)
+	date > $@

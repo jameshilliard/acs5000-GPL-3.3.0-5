@@ -1,0 +1,20 @@
+# pslave.wiz.auto	Wizard configuration file.
+#
+# TS100 Automation Profile
+#
+#              DO NOT CHANGE THIS FILE!!!!!
+#
+all.speed             9600
+all.datasize          8
+all.stopbits          1
+all.parity            none
+all.flow	      hard
+all.dcd               0
+all.media             rs232
+all.modbus_smode      ascii
+all.sysutmp           1
+all.authtype          none
+all.protocol          modbus
+all.socket_port	      520
+#all.sttyCmd          -igncr -onlcr opost -icrnl
+s1.tty                ttyS1

@@ -1,0 +1,27 @@
+#!/bin/sh
+
+if [ -z "`tar -tzf /mnt/flash/config.tgz 2> /dev/null | grep pslave.conf`" ] ; then
+#create default port names (aliases)
+	mac=`set_nports 17`
+	A=`echo $mac | cut -b7-8`
+	B=`echo $mac | cut -b9-10`
+	C=`echo $mac | cut -b11-12`
+	p=`set_nports S`
+	n=1
+	while [ $n -le $p ]
+	do
+	  echo "s$n.alias	$A-$B-${C}P$n" >> /etc/portslave/pslave.conf
+	  let n++
+	done
+	# tell AIDP daemon this is the first boot
+	touch /var/firstBoot
+fi
+
+if [ -f /etc/security.opts ]; then 
+	if [ `cat /etc/security.opts | grep icmp | awk '{ print $2  }'` = "enabled" ]
+	then
+		echo "0" > /proc/sys/net/ipv4/icmp_echo_ignore_all 
+	else
+		echo "1" > /proc/sys/net/ipv4/icmp_echo_ignore_all 
+	fi
+fi

@@ -1,0 +1,361 @@
+# The syslog-ng reads from sources (files, TCP/UDP connections, syslogd clients), 
+# filters the messages and takes an action(writes in files, sends snmptrap, pager, e-mail 
+# or syslogs).
+
+# After modifying this file, you will need to update the syslog-ng process in order to
+# re-read the configuration.  To reload this configuration file in syslog-ng, execute
+# the following command at the command prompt as the root user:
+#       $ killall -hup syslog-ng or kill -hup <syslog-ng pid>
+
+# You'll need to define sources, filters and actions (destinations), and after you'll connect
+# them as explained below.
+#
+# To define sources use this statement :  
+#	source <identifier> { source-driver([params]); source-driver([params]); ...};
+#
+# Some examples :
+# 1) To read from a file: source <identifier> {file(filename);};
+#    Example to read messages from "/temp/file1" file : 
+#           source file1 {file("/temp/file1");};
+#    Example to receive messages from kernel :
+#           source s_kernel { file("/proc/kmsg"); };
+#
+# 2) To receive messages from local syslogd clients : 
+#	source sysl {unix-stream("/dev/log");};
+#
+# 3) To receive messages from remote syslogd clients :
+#       source s_udp { udp(ip(<cliente ip>) port(<udp port>)); };
+#    Example to listen messages from all machines on UDP port 514 :
+#       source s_udp { udp(ip(0.0.0.0) port(514));};
+#    Example to listen messages from one client (IP address=10.0.0.1) on UDP port 999 :
+#       source s_udp_10 { udp(ip(10.0.0.1) port(999)); };
+#
+
+# To define filters use this statement :
+#	filter <identifier> { expression; };
+#
+# Some examples :
+# 1) To filter by facility : filter f_facilty { facility(<facility name>); };
+#    Examples :
+#	filter f_daemon { facility(daemon); };
+#	filter f_kern { facility(kern); };
+#	filter f_debug { not facility(auth, authpriv, news, mail); };
+#
+# 2) To filter by level : filter f_level { level(<level name>);};
+#	 Levels allowed: 1)emerg 2)alert 3)crit 4)err
+#    				5)warn 6)notice 7)info 8)debug
+#    Examples :
+#	filter f_messages { level(info..warn);};
+#	filter f_emergency { level(emerg); };
+#	filter f_alert { level(alert); };
+#
+# 3) To filter by matching one string in the received message: filter f_match { match("string"); };
+#    Example to filter by matching the string "named" :
+#	filter f_named { match("named"); }; 
+#
+# 4) To filter ALARM messages : 
+#	filter f_alarm { facility(local[0+<conf.DB_facility>]) and level(info) and 
+#			 match("ALARM") and match("<your string>"); } ;
+#    Example to filter ALARM message with the string "kernel panic" and DB_facility=1 :
+#    	filter f_kpanic { facility(local1) and level(info) and match("ALARM") and 
+#			  match("kernel panic"); };
+#    Example to filter ALARM message with the string "root login" and DB_facility=1 :
+#	filter f_root { facility(local1) and level(info) and match("ALARM") and match("root login"); };
+# 
+# 5) Example the filter to eliminate sshd debug messages
+#	filter f_sshd_debug { not program("sshd") or not level(debug); };
+#
+# 6) To filter the syslog_buffering ;
+#       filter f_syslog_buf { facility(local[0+<conf.DB_facility>]) and level(notice); }; 
+# 7) To filter the 
+#	filter f_signal_dcd { facility(kern) and level(notice) and match("CYC_MONIT");};
+
+# To define actions use this statement :
+# 	destination <identifier> { destination-driver([params]); destination-driver([param]); ..};
+#
+# Some examples :
+# 1) To send e-mail :
+#	destination <ident> { pipe("/dev/cyc_alarm" template("sendmail <pars>"));};
+#    where ident : uniquely identify this destination
+#	   pars: -t <name>[,<name>]      : To address
+#                [-c <name>[,<name>]]    : CC address
+#                [-b <name>[,<name>]]    : Bcc address
+#                [-r <name>[,<name>]]    : Reply-to address
+#                -f <name>               : From address
+#                -s \"<text>\"             : Subject
+#                -m \"<text message>\"     : Message
+#                -h <IP address or name> : SMTP server
+#                [-p <port>]             : port used. default:25
+#
+#	To mount the message, use this macros:
+#	$FULLDATE - the complete date when the message was sent.
+#	$FACILITY - the facility of the message
+#	$PRIORITY or $LEVEL - the priority of the message
+#	$PROGRAM - the message was sent by this program (BUFFERING or SOCK)
+#	$HOST - the name of the source host.
+#	$FULLHOST - the name of the source host and the source driver. Format: <source>@<hostname>
+#	$MSG or $MESSAGE - the message received
+#
+#    Example to send e-mail to z@none.com (SMTP's IP address 10.0.0.2) from the e-mail address
+#    a@none.com with subject "ALARM". The message will carry the current date, the hostname
+#    of this TS and the message that was received from the source.
+#	destination d_mail1 { 
+#      		pipe("/dev/cyc_alarm" 
+#                    template("sendmail -t z@none.com -f a@none.com -s \"ALARM\" \\
+#                             -m \"$FULLDATE $HOST $MSG\" -h 10.0.0.2"));
+#       }; 
+#
+# 2) To send to pager server (sms server) :
+#	destination <ident> {pipe("/dev/cyc_alarm" template("sendsms <pars>"));}; 
+#    where ident : uniquely identify this destination
+#           pars :-d <mobile phone number>
+#                -m \"<message - max.size 160 characters>\"
+#                -u <username to login on sms server>
+#                -p <port sms - default : 6701>
+#                <server IP address or name>
+#    Example to send a pager to phone number 123 (Pager server at 10.0.0.1) with message
+#    carrying the current date, the hostname of this unit the message that was received 
+#    from the source :
+#	destination d_pager {
+#		pipe("/dev/cyc_alarm" 
+#                   template("sendsms -d 123 -m \"$FULLDATE $HOST $MSG\" 10.0.0.1")); 
+# 	};
+#
+# 3) To send snmptrap :
+#	destination <ident> {pipe("/dev/cyc_alarm" template("snmptrap <pars>")); };
+#    where ident : uniquely identify this destination
+#           pars : -v 1
+#		   -c public		: community
+#                  <snmptrapd IP address>
+#		   \"\"			: enterprise-oid
+#		   \"\"			: agent/hostname
+#		   <trap number>   	: 2-Link Down, 3-Link Up, 4-Authentication Failure
+#                  0			: 
+#                  \"\"			: host-uptime
+#                  .1.3.6.1.2.1.2.2.1.2.1 :interfaces.iftable.ifentry.ifdescr.1
+#                  s
+#                  \"<message - max. size 250 characters>\"
+#
+#    Example to send a Link Down trap to server at 10.0.0.1 with message carrying the current
+#    date, the hostname of this TS and the message that received from the source :
+#       destination d_trap {
+#		pipe("/dev/cyc_alarm" 
+#		template("snmptrap -v 1 -c public 10.0.0.1 \"\" \"\" 2 0 \"\" \\
+#			.1.3.6.1.2.1.2.2.1.2.1 s \"$FULLDATE $HOST $MSG\" ")); 
+#	};
+#
+# 4) To write in file : destination d_file { file(<filename>);};
+#    Example send message to console :
+# 	destination d_console { file("/dev/ttyS0");};
+#    Example write message in /var/log/messages file :
+# 	destination d_message { file("/var/log/messages"); };
+#
+# 5) To write messages to the session of logged-in user : 
+#	destination d_user { usertty("<username>"); };
+#    Example to send message to all sessions with root user logged:
+#       destination d_userroot { usertty("root"); };
+#
+# 6) To send message to remote syslogd server :
+#	destination d_udp { udp("<remote IP address>" port(514)); };
+#    Example to send syslogs to syslogd located at 10.0.0.1 :
+#       destination d_udp1 { udp("10.0.0.1" port(514)); };
+#
+# To connect the sources, filters and actions (any message coming from one of the listed sources, 
+# matching the filters (each of them) is sent to the listed destinations). Use this statement:
+# 	log { 	source(S1); source(S2); ... 
+#		filter(F1);filter(F2);... 
+#		destination(D1); Destination(D2);... 
+#	};
+# Examples :
+# 1) To send all messages received from local syslog clients to console
+#		log { source(sysl); destination(d_console);};
+#
+# 2) To send only messages with level alert and received from local syslog clients to all logged 
+#    root user :
+#		log { source(sysl); filter(f_alert); destination(d_userroot); };
+#
+# 3) To writes all messages with levels info, notice or warning and received from syslog clients 
+#    (local and remotes) to /var/log/messages file :
+#		log { source(sysl); source(s_udp); filter(f_messages); destination(d_messages); };
+#
+# 4) To send e-mail if message received from local syslog client has the string "kernel panic" :
+#		log { source(sysl); filter(f_kpanic); destination(d_mail1); };
+#
+# 5) To send e-mail and pager if message received from local syslog client has the string 
+#    "root login":
+#		log { source(sysl); filter(f_root); destination(d_mail1); destination(d_pager); };
+#
+# 6) To send messages with facility kernel and received from syslog clients (local and remote)
+#    to remote syslogd :
+#		log { source(sysl); source(s_udp); filter(f_kern); destination(d-udp1); };
+#
+
+ 
+## For Windows Server 2003
+## 
+## When a Windows Server 2003 is connected to one of the unit's serial ports, you 
+## can enable monitoring of the xml tags emitted by Windows Server EMS.
+## To enable the monitoring of the xml tags, set the xml_monitor parameter
+## to 1 in /etc/portslave/pslave.conf. When xml_monitor is set, the unit sends
+## an XML_MONITOR message to syslog-ng when the xml tags are detected.
+## syslog-ng can filter the XML_MONITOR messages and take actions like
+## sending e-mails, sending pager notifications, sending snmptraps, etc.
+## The following filters are available to filter XML_MONITOR messages
+## to filter a bluescreen occurrence or a server boot:
+## Note: Do not forget to replace the <conf.DB_facility> by the
+##       value configured in /etc/portslave/pslave.conf.
+## (Uncomment the lines below to enable the filters)
+#
+#filter f_windows_bluescreen { facility(local<conf.DB_facility>) and
+#	level(info) and match("XML_MONITOR") and match("BLUESCREEN"); } ;
+#filter f_windows_boot { facility(local<conf.DB_facility>) and
+#	level(info) and match("XML_MONITOR") and
+#	not match("BLUESCREEN") and match("machine-info"); } ;
+#
+## Special macros that are available for XML_MONITOR messages filtered by
+## f_windows_bluescreen:
+##       $<INSTANCE CLASSNAME=> - type of breakpoint. Currently, there is only
+##                                one type being emitted, i.e. "BLUESCREEN"
+##                                which indicates the system was halted
+##                                prematurely. It is represented by the
+##                                CLASSNAME="BLUESCREEN" value.
+##       $<PROPERTY NAME=> - additional details of bluescreen. Example: STOPCODE
+##       $<VALUE> - blue screen error code. Example: 0xE2
+##       $<name> - server name.
+##       $<guid> - GUID that uniquely identifies the server platform. Normally,
+##                 this is an SMBIOS provided identification. If no such value
+##                 is available, all 0's GUID string is used.
+##       $<os-product> - name of the Windows Server 2003 product currently
+##                       running on this server. It is one of the following:
+##                       Windows Server 2003 Datacenter Edition
+##                       Windows Server 2003 Embedded
+##                       Windows Server 2003 Enterprise Edition
+##                       Windows Server 2003
+##       $<os-version> - numeric identification of Windows version currently
+##                       running
+##       $<os-build-number> - numeric string that identifies a successive
+##                            Windows build
+##       $<os-service-pack> - alphanumeric string that identifies the most
+##                            up-to-date service pack installed. If none
+##                            installed, the string is none.
+##       $<processor-architecture> - is either x86 or IA64, designating the
+##                                   two processor architectures currently
+##                                   supported by Windows Server 2003.
+##       $<tty> - tty or alias name assigned to the unit's serial port.
+##
+## And the following macros that are available for XML_MONITOR messages 
+## filtered by f_windows_boot:
+##       $<name> - server name.
+##       $<guid> - GUID that uniquely identifies the server platform. Normally,
+##                 this is an SMBIOS provided identification. If no such value
+##                 is available, all 0's GUID string is used.
+##       $<os-product> - name of the Windows Server 2003 product currently
+##                       running on this server. It is one of the following:
+##                       Windows Server 2003 Datacenter Edition
+##                       Windows Server 2003 Embedded
+##                       Windows Server 2003 Enterprise Edition
+##                       Windows Server 2003
+##       $<os-version> - numeric identification of Windows version currently
+##                       running
+##       $<os-build-number> - numeric string that identifies a successive
+##                            Windows build
+##       $<os-service-pack> - alphanumeric string that identifies the most
+##                            up-to-date service pack installed. If none
+##                            installed, the string is none.
+##       $<processor-architecture> - is either x86 or IA64, designating the
+##                                   two processor architectures currently
+##                                   supported by Windows Server 2003.
+##       $<tty> - tty or alias name assigned to the unit's serial port.
+##
+## As an example of actions that can be taken, the destination is configured
+## to send e-mails. You can use those special macros available for 
+## XML_MONITOR besides the normal macros available in syslog-ng.
+## (Uncomment the lines below to enable the desired destinations)
+#
+#destination d_mail_bluescreen { pipe("/dev/cyc_alarm"
+#	template("sendmail -t z@none.com -f a@none.com -s \"\
+#	Server $<name> crashed\" -m \'\
+#	Break Point: $<INSTANCE CLASSNAME=> $<PROPERTY NAME=> $<VALUE>\
+#	Server: $<name>\
+#	OS: $<os-product>\
+#	OS Version: $<os-version>  Build $<os-build-number>\
+#	Service Pack: $<os-service-pack>\
+#	Processor: $<processor-architecture>\
+#	Server GUID: $<guid>\
+#	unit port: $<tty>\
+#	\' -h 10.0.0.2 "));};
+#destination d_mail_boot { pipe("/dev/cyc_alarm"
+#	template("sendmail -t z@none.com -f a@none.com -s \"\
+#	Server $<name> booted \" -m \'\
+#	Server: $<name>\
+#	OS: $<os-product>\
+#	OS Version: $<os-version>  Build $<os-build-number>\
+#	Service Pack: $<os-service-pack>\
+#	Processor: $<processor-architecture>\
+#	Server GUID: $<guid>\
+#	unit port: $<tty>\
+#	\' -h 10.0.0.2 "));};
+#
+## To connect the filters and actions:
+## (Uncomment the lines below to enable the actions for each filter)
+#
+#log { source(src); filter(f_windows_bluescreen); destination(d_mail_bluescreen); };
+#log { source(src); filter(f_windows_boot); destination(d_mail_boot); };
+
+## Examples for event DCD state low/high
+# 1) DCD signal goes high, send SNMPTrap LINK UP to server 10.0.0.1 
+#    with community public :
+# filter f_dcdon { level(alert) and match("PORT DCD") and match("DCD went high"); };
+# destination d_traplinkup { pipe("/dev/cyc_alarm" 
+#	template("snmptrap -v 1 -c public 10.0.0.1 \"\" \"\" 3 0 \"\" \\
+#       .1.3.6.1.2.1.2.2.1.2.1 s \"$FULLDATE $HOST $MSG\" "));  };
+# log { source(s_kernel); filter(f_dcdon); destination(d_traplinkup); };
+#
+# 2) DCD signal goes low, send SNMPTrap LINK DOWN to server 10.0.0.1 
+#    with community public :
+# filter f_dcdoff { level(alert) and match("PORT DCD") and match("DCD went low"); };
+# destination d_traplinkdown { pipe("/dev/cyc_alarm" 
+#     template("snmptrap -v 1 -c public 10.0.0.1 \"\" \"\" 2 0 \"\" \\
+#     .1.3.6.1.2.1.2.2.1.2.1 s \"$FULLDATE $HOST $MSG\" "));  };
+# log { source(s_kernel); filter(f_dcdoff); destination(d_traplinkdown); };
+#
+# 3) DCD signal changes its state, send e-mail
+# filter f_dcdchg { level(alert) and match("PORT DCD"); };
+# destination d_maildcdchg { pipe("/dev/cyc_alarm" 
+#     template("sendmail -t z@none.com -f a@none.com -s \"ALARM - PORT DCD\" \\
+#     -m \"$FULLDATE $HOST $MSG\" -h 10.0.0.2")); };
+# log { source(s_kernel); filter(f_dcdchg); destination(d_maildcdchg); };
+#
+# 4) DCD signal changes its state, send pager message
+# filter f_dcdchg { level(alert) and match("PORT DCD"); };
+# destination d_pagerdcdchg { pipe("/dev/cyc_alarm" 
+#    template("sendsms -d 123 -m \"$FULLDATE $HOST $MSG\" 10.0.0.1")); };
+# log { source(s_kernel); filter(f_dcdchg); destination(d_pagerdcdchg); };
+#
+# 5) DCD signal changes its state, send one syslog message to remote Syslog server
+# filter f_dcdchg { level(alert) and match("PORT DCD"); };
+# destination d_rsysdcdchg { udp("10.0.0.1" port(514)); };
+# log { source(s_kernel); filter(f_dcdchg); destination(d_rsysdcdchg); };
+ 
+# This is the default configuration :
+
+# local syslog clients
+source inter { internal(); };
+source src_dev_log { unix-stream("/dev/log"); };
+source s_kernel { file("/proc/kmsg"); };
+
+# events notification 
+source s_evt { pipe("/var/run/evt_syslog_pipe"); };
+
+destination console { usertty("root"); };
+destination probe_s { pipe("/dev/cyc_alarm" template("/bin/net_probe --conflict \"$MESSAGE\""));}; 
+
+filter f_alerts { level(alert .. err); };
+filter f_kernel { level(alert .. err); };
+filter f_conflict { match("Duplicate"); }; 
+
+# send only criticals messages to logged root user
+log { source(src_dev_log); filter(f_alerts); destination(console); };
+log { source(s_kernel); filter(f_kernel); destination(console); };
+log { source(s_evt); destination(console); };
+log { source(s_kernel); filter(f_conflict); destination(probe_s); };

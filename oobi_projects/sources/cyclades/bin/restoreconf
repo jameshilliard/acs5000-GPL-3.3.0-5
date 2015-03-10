@@ -1,0 +1,321 @@
+#!/bin/sh 
+
+FILE_LOCK=/var/run/saveconf.pid
+
+if [ -f $FILE_LOCK ] ; then
+    kill -0 `cat $FILE_LOCK`
+	if [ $? -eq 0 ]; then
+		echo "Error: saveconf or restoreconf already running!"
+		exit 1
+    fi
+fi
+
+echo $$ > $FILE_LOCK
+
+CF_FS=`set_nports 18`
+K26=`set_nports 19`
+PCMCIA=`set_nports 8`
+
+if [ "x$CF_FS" = "x1" ] ; then
+  CFG_FILE=/mnt/hda3/backup/configuration_files.gz
+  SDDIR=/mnt/ide/hda3/backup
+  SD_FILE=$SDDIR/configuration_files.gz
+  CF_FILE=$SDDIR/storageOptions
+  SYNC="/bin/sync \; echo Please run sync before you power off the machine."
+else
+  if [ "x$K26" = "x1" ] ; then
+    CFG_FILE=/mnt/flash/config.tgz
+  else
+    CFG_FILE=/proc/flash/script
+  fi
+  SDDIR=/mnt/ide/proc/flash
+  SD_FILE=$SDDIR/script
+  CF_FILE=$SDDIR/storageOptions
+  SYNC=""
+fi
+
+CONFIG_FILE_LIST=/etc/config_files
+
+TMP_DIR=/tmp
+CONFIG_FILE=$TMP_DIR/restoring_config
+
+do_exit ()
+{
+	if [ "$2" = "" ]; then
+		EXIT_CODE=1
+	else
+		EXIT_CODE=$2
+	fi
+	rm -f $CONFIG_FILE*
+	if [ "$1" = "" ]; then
+		echo -e "*** Aborting..."
+	else
+		echo -e "$1"
+	fi	
+	rm -f $FILE_LOCK
+	exit $EXIT_CODE
+}
+
+show_usage ()
+{
+	echo "Usage:"
+	echo "   Restore from flash :              restoreconf "
+  	echo "   Restore from factory default:     restoreconf factory_default"
+        if [ "x$PCMCIA" = "x1" ]; then
+	  echo "   Restore from storage device:      restoreconf sd"
+        fi
+	echo "   Restore from local file :         restoreconf local <FILE>"
+	echo "   Restore from FTP server :         restoreconf ftp <FILE> <FTP_SERVER> <USER> <PASSWORD>"
+	echo "   Restore from TFTP server :        restoreconf tftp <FILE> <TFTP_SERVER>"
+	echo "   Restore from SSH server :         restoreconf ssh  <FILE> <SSH_SERVER> <USER>"
+	rm -f $FILE_LOCK
+	do_exit " " 1
+} 
+
+# Trap signals so that this application is not interrupted
+trap do_exit SIGTERM SIGINT SIGQUIT SIGHUP
+umask 77
+
+if [ "x$1" = "x" ]; then
+	TARGET=flash
+        if [ "x$PCMCIA" = "x1" ]; then
+	  if [ -e "$SD_FILE" ]; then
+		grep "DEFAULT" "$CF_FILE" >/dev/null 2>&1 && TARGET=sd
+	  fi
+	fi
+else
+    TARGET=$1
+	case $1 in
+	factory_default)
+          [ $# -eq 1 ] || show_usage
+          if [ $CF_FS -eq 1 ]; then
+             REMOTE_FILE=/mnt/hdCnf/backup/factory_default_files.gz
+          fi
+          ;;
+	ftp)
+          [ $# -lt 5 ] && show_usage
+          REMOTE_FILE=$2
+          SERVER_IP=$3
+          USER=$4
+          PASSWORD=$5
+        ;;
+        tftp)
+          [ $# -lt 3 ] && show_usage
+          REMOTE_FILE=$2
+          SERVER_IP=$3
+        ;;
+        local)
+          [ $# -lt 2 ] && show_usage
+          REMOTE_FILE=$2
+        ;;
+        ssh)
+          [ $# -lt 4 ] && show_usage
+          REMOTE_FILE=$2
+          SERVER_IP=$3
+          USER=$4
+        ;;
+        sd)
+          if [ "x$PCMCIA" = "x1" ]; then
+            SDMODE="$2" 
+            [ "$3" ] && SDMODE="$SDMODE $3"
+            case $SDMODE in
+              "")
+              ;;
+              "default")
+              ;;
+              "replace")
+              ;;
+              "default replace")
+              ;;
+              *)
+              show_usage
+              ;;
+            esac
+          else
+            show_usage
+          fi
+        ;;
+		*)
+          show_usage
+        ;;
+	esac
+fi
+
+if [ "$TARGET" = "flash" ]; then
+	echo -n "Restoring configuration files from Flash ... "
+	zcat -t $CFG_FILE > /dev/null 2>&1
+	if [ $? -ne 0 ] ; then
+		echo ""
+		do_exit "*** ERROR: invalid compressed config file." 1
+	fi
+	umask 22
+	zcat $CFG_FILE 2> /dev/null | tar -px -C / > /dev/null 2>&1
+	if [ $? -ne 0 ] ; then
+		echo ""
+		do_exit "*** ERROR: config file extraction failed." 1
+	fi
+	echo "done."
+	$SYNC
+	rm -f $FILE_LOCK
+	exit 0
+fi
+
+if [ "$TARGET" = "sd" ]; then
+	echo -n "Restoring configuration files from storage device ... "
+	zcat -t $SD_FILE > /dev/null 2>&1
+	if [ $? -ne 0 ] ; then
+		echo ""
+		do_exit "*** ERROR: invalid compressed config file." 1
+	fi
+	umask 22
+	zcat $SD_FILE 2> /dev/null | tar -px -C / > /dev/null 2>&1
+	if [ $? -ne 0 ] ; then
+		echo ""
+		do_exit "*** ERROR: config file extraction failed." 1
+	fi
+	[ "`grep "REPLACE" $CF_FILE`" ] && cp $SD_FILE $CFG_FILE
+	echo "done."
+	$SYNC
+	umask 77
+	rm -f $FILE_LOCK
+	exit 0
+fi
+
+
+TEMP_FILE=$TMP_DIR/ftp.cmd
+
+if [ "$TARGET" = "ftp" ]; then
+	echo "user $USER $PASSWORD" > $TEMP_FILE
+	echo "bin" >> $TEMP_FILE
+	echo "get $REMOTE_FILE $CONFIG_FILE" >> $TEMP_FILE
+	echo "quit" >> $TEMP_FILE
+
+#	echo "Loading file $REMOTE_FILE from $SERVER_IP FTP server."
+#	echo "User: $USER"
+	FTP_OUTPUT=`/usr/bin/ftp -n $SERVER_IP < $TEMP_FILE`
+	FTP_EXIT_CODE=$?
+#	echo $FTP_OUTPUT
+
+	rm -f $TEMP_FILE
+
+	echo $FTP_OUTPUT | grep "Not connected"
+	if [ $? -eq 0 ]; then
+		do_exit "*** ERROR: Could not connect to ftp server" 20
+	fi
+
+	echo $FTP_OUTPUT | grep "Login incorrect"
+	if [ $? -eq 0 ]; then
+		do_exit "*** ERROR: Login incorrect" 21
+	fi
+
+	echo $FTP_OUTPUT | grep "Login failed"
+	if [ $? -eq 0 ]; then
+		do_exit "*** ERROR: Login failed" 21
+	fi
+
+	echo $FTP_OUTPUT | grep "No such"
+	if [ $? -eq 0 ]; then
+		do_exit "*** ERROR: No such file or directory" 24
+	fi
+	echo $FTP_OUTPUT | grep "Failed to open"
+	if [ $? -eq 0 ]; then
+		do_exit "*** ERROR: No such file or directory" 24
+	fi
+	echo $FTP_OUTPUT | grep "File unavailable"
+	if [ $? -eq 0 ]; then
+		do_exit "*** ERROR: No such file or directory" 24
+	fi
+	echo $FTP_OUTPUT | grep "file not found"
+	if [ $? -eq 0 ]; then
+		do_exit "*** ERROR: No such file or directory" 24
+	fi
+	echo $FTP_OUTPUT | grep "Permission denied"
+	if [ $? -eq 0 ]; then
+		do_exit "*** ERROR: Permission denied" 22
+	fi
+
+	if [ $FTP_EXIT_CODE -ne 0 ]; then
+		rm -f $TEMP_FILE
+		do_exit "*** ERROR: file transfer failed." 23
+	fi
+fi
+
+if [ "$TARGET" = "tftp" ]; then
+	echo -n "Loading file $REMOTE_FILE from $SERVER_IP TFTP server ... "
+	tftp -g -l $CONFIG_FILE -r $REMOTE_FILE $SERVER_IP >/dev/null 2>&1
+	if [ $? -ne 0 ]; then
+		echo ""
+		do_exit "*** ERROR: file transfer failed." 23
+	fi
+fi
+
+if [ "$TARGET" = "factory_default" ]; then
+	echo -n "Restoring configuration files from Factory default ... "
+	if [ $CF_FS -eq 1 ] ; then
+		zcat -t $REMOTE_FILE > /dev/null 2>&1
+		if [ $? -ne 0 ] ; then
+			echo ""
+			do_exit "*** ERROR: invalid compressed config file." 1
+		fi
+		umask 22
+		rm -rf /mnt/hdCnf/webFiles/* /mnt/hdCnf/webFiles/.* > /dev/null 2>&1
+		rm -rf /mnt/hdCnf/home/* /mnt/hdCnf/home/.* > /dev/null 2>&1
+		rm -rf /mnt/hdCnf/root/* /mnt/hdCnf/root/.* > /dev/null 2>&1
+		rm -rf /mnt/hdCnf/etc/* /mnt/hdCnf/etc/.* > /dev/null 2>&1
+		tar -C /mnt/hdCnf/ -xzf $REMOTE_FILE > /dev/null 2>&1
+		if [ $? -ne 0 ] ; then
+			echo ""
+			do_exit "*** ERROR: configuration files extraction failed." 1
+		fi
+		# Indicate to check1stBoot that a factory default restoreconf was done.
+		touch /mnt/hdCnf/etc/factory_default	1>/dev/null 2>&1
+		$SYNC
+		rm -f $FILE_LOCK
+	else
+		echo 0 > $CFG_FILE
+	fi
+	echo ""
+	do_exit "*** Done: The Default Configuration will be effective after reboot." 0
+fi
+
+if [ "$TARGET" = "local" ]; then
+	cp $REMOTE_FILE $CONFIG_FILE
+fi
+
+if [ "$TARGET" = "ssh" ]; then
+	ssh_server="$SERVER_IP"
+	if echo "$ssh_server" | egrep -q '^[0-9a-fA-F]*:[0-9a-fA-F:]*([0-9.]*)?(%.*)?$'; then
+		# Numerical IPv6 address must be inside brackets...
+		ssh_server="[$ssh_server]"
+	fi
+	echo "Loading file $REMOTE_FILE from $SERVER_IP SSH server, as $USER."
+	scp -S ssh -q "$USER@$ssh_server:$REMOTE_FILE" $CONFIG_FILE 2>/dev/null
+	if [ $? -ne 0 ]; then
+		do_exit "*** ERROR: file transfer failed." 1
+	fi
+fi
+
+if [ ! -f $CONFIG_FILE ]; then
+	echo ""
+	do_exit "*** ERROR: config file transfer failed." 1
+fi
+
+zcat -t $CONFIG_FILE > /dev/null 2>&1
+if [ $? -ne 0 ] ; then
+	echo ""
+	do_exit "*** ERROR: invalid compressed config file." 14
+fi
+
+zcat $CONFIG_FILE 2> /dev/null | tar -px -C / >/dev/null 2>&1
+if [ $? -ne 0 ]; then
+	echo ""
+	do_exit "*** ERROR: config file extraction failed." 15
+fi
+
+rm -f $CONFIG_FILE
+echo "done."
+$SYNC
+rm -f $FILE_LOCK
+
+exit 0
+

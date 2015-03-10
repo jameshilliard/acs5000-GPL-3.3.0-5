@@ -1,0 +1,11 @@
+Source: portslave
+Section: comm
+Priority: optional
+Maintainer: Russell Coker <russell@coker.com.au>
+Build-Depends: debhelper
+Standards-Version: 3.1.1
+
+Package: portslave
+Architecture: any
+Depends: ${shlibs:Depends}
+Description: Terminal server that does PPP and authenticates via RADIUS

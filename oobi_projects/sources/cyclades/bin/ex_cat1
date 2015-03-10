@@ -1,0 +1,16 @@
+#!/bin/sh
+cnt=0
+while true
+do
+cnt=`expr $cnt + 1`
+echo cat etc/termcap begin "[ $cnt ]"
+echo
+cat /etc/termcap
+echo
+echo cat etc/termcap end "[ $cnt ]"
+sleep 5
+if [ $cnt -gt 10 ] ; then
+exit
+fi
+done
+

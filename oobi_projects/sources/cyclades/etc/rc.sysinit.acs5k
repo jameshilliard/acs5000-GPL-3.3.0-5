@@ -1,0 +1,75 @@
+#!/bin/sh
+
+/bin/init_proc_fs
+
+# Set printk console_loglevel to ERR
+sysctl -w kernel.printk="3 4 1 3" >/dev/null 2>&1
+
+#create devices ttyS
+/bin/mk_devs
+
+# Set Host Name
+/bin/hostname `cat /etc/hostname`
+
+# Initialize Interfaces
+for file in /etc/network/ifcfg*
+do
+  /bin/sh $file start
+done
+
+# Create shared memory
+/bin/cy_shm
+
+# Start cy_ras before running updconf.
+/bin/cy_ras &
+sleep 5
+
+# Run updconf to configure interfaces, firewall and routes.
+/bin/updconf -f -q -w
+
+# create the fifo devices for event notifications
+[ -p /var/run/snmp_pipe ] || mkfifo -m 666 /var/run/snmp_pipe
+[ -p /var/run/evt_syslog_pipe ] || mkfifo -m 666 /var/run/evt_syslog_pipe
+[ -p /dev/evt_pipe_logpipe ] || mkfifo -m 666 /dev/evt_pipe_logpipe
+
+# Add mgetty log dir if it does not exist
+if [ ! -e /var/log/mgetty ]
+then
+  mkdir /var/log/mgetty
+fi
+
+# Create cron process
+if [ -f /etc/crontab_files ] ; then
+  cat /etc/crontab_files | while read st user file
+  do
+    [ -z "$st" ] && continue
+    if [ "$st" = "active" -a -f $file ] ; then
+        crontab -u $user $file
+    fi
+  done
+fi
+
+# execute user scripts
+if [ -f /etc/users_scripts ] ; then
+  cat /etc/users_scripts | while read file
+  do
+    [ -z "$file" ] && continue
+  if [ ! "${file:0:1}" = "#" ] ; then
+    if [ -f $file ] ; then
+      /bin/sh $file
+    else
+      echo
+      echo "*** ERROR *** INVALID user's script filename ($file) !!!"
+      echo
+    fi
+  fi
+  done
+fi
+
+# TODO: Remove (workaround for bug #25223) --------------
+date > /var/run/init_done
+# -------------------------------------------------------
+
+echo
+cat /proc/version
+echo

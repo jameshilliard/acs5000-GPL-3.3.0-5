@@ -1,0 +1,52 @@
+#
+#  Makefile for cyclades projects.
+#
+
+#
+# Addtional compiler and/or link options may be defined here
+#
+#CFLAGS += ...
+#LDFLAGS += ...
+
+#
+# Command line parameters for configure must be defined here
+#
+CONFIGURE_PARMS:=\
+	--prefix=/usr/ \
+	--disable-static \
+	--cache-file=config.cache \
+	--host=powerpc-linux \
+	--disable-lynx
+
+CONFIGURE_ENV:=\
+	CROSS_COMPILE=$(CROSS_PREFIX) \
+	CC=$(CROSS_COMPILE)gcc
+
+MAKE_ENV:=
+
+MAKE_PARMS:= \
+	CROSS_COMPILE=$(CROSS_PREFIX)
+
+#
+#  more ac_variables for configure may be defined here
+#
+#CROSS_ENV_AC += ...
+
+############################################################################
+
+$(CFG_COOKIE):
+	echo 'ac_cv_func_setpgrp_void=yes' > config.cache
+	$(CONFIGURE_ENV) \
+	./configure $(CONFIGURE_PARMS)
+	# autoconf magic sucks:
+	touch config.h.in
+	date > $@
+
+$(BLD_COOKIE): $(CFG_COOKIE)
+	$(MAKE_ENV) \
+	$(MAKE) $(MAKE_PARMS)
+	date > $@
+
+$(INST_COOKIE): $(BLD_COOKIE)
+	$(MAKE) DESTDIR=$(my_prefix) install
+	date > $@

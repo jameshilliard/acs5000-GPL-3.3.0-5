@@ -1,0 +1,446 @@
+#include <net-snmp/net-snmp-config.h>
+#include <net-snmp/net-snmp-includes.h>
+#include <net-snmp/agent/net-snmp-agent-includes.h>
+#include "@CYACSSYS@.h"
+#include "cystrings.h"
+#include "cycommon.h"
+
+int btype;
+char pname[32];
+char pversion[32];
+char cy_version_descr[250];
+oid cy_version_sysoid[SIZE_PROD_VERSION_SYSOID]= { PROD_VERSION_SYSOID };
+static unsigned char pdevice_id[16];
+static unsigned int flash_size = 0;
+static unsigned int ram_size = 0;
+static unsigned int cpu_freq = 0;
+
+int cy_numports = 0;
+
+#ifndef TS1H
+int cy_numpwsupply = 0;
+int cy_numcards = 0;
+
+CY_PCMCIA_IDENT *cy_pcmcia_ident = 0;
+CY_PCMCIA_CONF *cy_pcmcia_conf = 0;
+CY_PCMCIA_STATUS *cy_pcmcia_status = 0;
+#endif
+
+/*
+ * @CYACSSYS@_variables_oid:
+ *   this is the top level oid that we want to register under.  This
+ *   is essentially a prefix, with the suffix appearing in the
+ *   variable below.
+ */
+
+oid @CYACSSYS@_variables_oid[] = { PROD_OID, 1 };
+
+#define @CYACSSYS@_PCMCIA_TABLE_LEN	PROD_OID_SIZE+5
+
+struct variable4 @CYACSSYS@_variables[] = {
+/*  magic number        , variable type , ro/rw , callback fn  , L, oidsuffix */
+#define   CYACSPNAME            1
+  { CYACSPNAME          , ASN_OCTET_STR , RONLY , var_@CYACSSYS@, 1, { 1 } },
+#define   CYACSVERSION          2
+  { CYACSVERSION        , ASN_OCTET_STR , RONLY , var_@CYACSSYS@, 1, { 2 } },
+#ifndef TS1H
+#define   CYACSPWNUM            3
+  { CYACSPWNUM          , ASN_INTEGER   , RONLY , var_@CYACSSYS@, 2, { 3,1 } },
+#define   CYACSPW1              4
+  { CYACSPW1            , ASN_INTEGER   , RONLY , var_@CYACSSYS@, 2, { 3,2 } },
+#define   CYACSPW2              5
+  { CYACSPW2            , ASN_INTEGER   , RONLY , var_@CYACSSYS@, 2, { 3,3 } },
+#define   CYACSNCARD            6
+  { CYACSNCARD          , ASN_INTEGER   , RONLY , var_@CYACSSYS@, 2, { 4,1 } },
+#define   CYCARDIDENTINDEX      9
+  { CYCARDIDENTINDEX    , ASN_INTEGER   , RONLY , var_cyCardIdentTable, 4, { 4,2,1,1 } },
+#define   CYCARDIDENTPROD       10
+  { CYCARDIDENTPROD     , ASN_OCTET_STR , RONLY , var_cyCardIdentTable, 4, { 4,2,1,2 } },
+#define   CYCARDIDENTMAN        11
+  { CYCARDIDENTMAN      , ASN_OCTET_STR , RONLY , var_cyCardIdentTable, 4, { 4,2,1,3 } },
+#define   CYCARDIDENTFUNC       12
+  { CYCARDIDENTFUNC     , ASN_OCTET_STR , RONLY , var_cyCardIdentTable, 4, { 4,2,1,4 } },
+#define   CYCARDIDENTPCI        13
+  { CYCARDIDENTPCI      , ASN_OCTET_STR , RONLY , var_cyCardIdentTable, 4, { 4,2,1,5 } },
+#define   CYCARDCONFINDEX       16
+  { CYCARDCONFINDEX     , ASN_INTEGER   , RONLY , var_cyCardConfTable, 4, { 4,3,1,1 } },
+#define   CYCARDCONFPOWER       17
+  { CYCARDCONFPOWER     , ASN_OCTET_STR , RONLY , var_cyCardConfTable, 4, { 4,3,1,2 } },
+#define   CYCARDCONFTYPE        18
+  { CYCARDCONFTYPE      , ASN_OCTET_STR , RONLY , var_cyCardConfTable, 4, { 4,3,1,3 } },
+#define   CYCARDCONFINTER       19
+  { CYCARDCONFINTER     , ASN_OCTET_STR , RONLY , var_cyCardConfTable, 4, { 4,3,1,4 } },
+#define   CYCARDCONFFUNC        20
+  { CYCARDCONFFUNC      , ASN_OCTET_STR , RONLY , var_cyCardConfTable, 4, { 4,3,1,5 } },
+#define   CYCARDCONFCARDV       21
+  { CYCARDCONFCARDV     , ASN_OCTET_STR , RONLY , var_cyCardConfTable, 4, { 4,3,1,6 } },
+#define   CYCARDCONFPORT1       22
+  { CYCARDCONFPORT1     , ASN_OCTET_STR , RONLY , var_cyCardConfTable, 4, { 4,3,1,7 } },
+#define   CYCARDCONFPORT2       23
+  { CYCARDCONFPORT2     , ASN_OCTET_STR , RONLY , var_cyCardConfTable, 4, { 4,3,1,8 } },
+#define   CYCARDSTATUSINDEX     26
+  { CYCARDSTATUSINDEX   , ASN_INTEGER   , RONLY , var_cyCardStatusTable, 4, { 4,4,1,1 } },
+#define   CYCARDSTATUSCARD      27
+  { CYCARDSTATUSCARD    , ASN_OCTET_STR , RONLY , var_cyCardStatusTable, 4, { 4,4,1,2 } },
+#define   CYCARDSTATUSFUNC      28
+  { CYCARDSTATUSFUNC    , ASN_OCTET_STR , RONLY , var_cyCardStatusTable, 4, { 4,4,1,3 } },
+#endif // not TS1H
+  
+#define   CYACSFLASH            29
+  { CYACSFLASH          , ASN_INTEGER   , RONLY , var_@CYACSSYS@, 1, { 5 } },
+#define   CYACSRAM            30
+  { CYACSRAM          , ASN_INTEGER   , RONLY , var_@CYACSSYS@, 1, { 6 } },
+#define   CYACSCPU            31
+  { CYACSCPU          , ASN_INTEGER   , RONLY , var_@CYACSSYS@, 1, { 7 } },
+#define   CYACSDEVID          32
+  { CYACSDEVID          , ASN_OCTET_STR   , RONLY , var_@CYACSSYS@, 1, { 8 } },
+
+};
+
+/** Initializes the @CYACSSYS@ module */
+void @CYACS@_read_bdinfo(void)
+{
+	int fd, num;
+
+	DEBUGMSGTL(("@CYACSSYS@", "@CYACS@_read_bdinfo\n"));
+	if ((fd = open("/proc/bdinfo", O_RDONLY)) > 0) {
+		char buffer[256], *p, *Sp;
+
+		read(fd, buffer, sizeof(buffer));
+		close(fd);
+
+		p = strtok(buffer, "!");
+		strcpy(pname, p);
+
+		Sp = strtok(NULL, "!"); //second field is !#Aports:#Kports:#Mports:#Sports!
+
+		p = strtok(NULL, "!"); // strcpy(name, p);
+		p = strtok(NULL, "!"); // board_type = atoi(p);
+		btype = atoi(p);
+		p = strtok(NULL, "!"); // strcpy(vendor_name, p);
+		p = strtok(NULL, "!"); // strcpy(prod_line, p);
+		p = strtok(NULL, "!"); // strcpy(prod_name, p);
+		p = strtok(NULL, "!"); // pcmcia = atoi(p);
+		p = strtok(NULL, "!");
+		strcpy(pversion, p);
+		p = strtok(NULL, "!");
+		cpu_freq = atoi(p);
+		p = strtok(NULL, "!");
+		ram_size = atoi(p);
+		p = strtok(NULL, "!");
+		flash_size = atoi(p);
+		p = strtok(NULL,"!");
+		strcpy(pdevice_id,p);
+		
+		p = strtok(Sp, ":");
+		p = strtok(NULL, ":");
+		p = strtok(NULL, ":");
+		p = strtok(NULL, ":");   //here the number of Sports is required
+		cy_numports = atoi(p);
+	}
+
+#ifndef TS1H
+	cy_numpwsupply = 1;
+
+	if ((fd = open("/dev/led", O_RDWR)) > 0) {
+		if (ioctl(fd,0,&num) == 0) {
+			cy_numpwsupply = num + 1;
+		}
+		close(fd);
+	}
+#endif
+	
+	snprintf(cy_version_descr,sizeof(cy_version_descr),PROD_VERSION_DESC);
+	cy_version_descr[sizeof(cy_version_descr)-1] = 0;
+
+#ifdef OEM4
+	if (cy_numports == PROD1) {
+		cy_version_sysoid[SIZE_PROD_VERSION_SYSOID - 1] = PROD1_OID;
+	} 
+#endif
+}
+
+/** Initializes the @CYACSSYS@ module */
+void init_@CYACSSYS@(void)
+{
+	DEBUGMSGTL(("@CYACSSYS@", "Initializing\n"));
+
+	if (!cy_numports) @CYACS@_read_bdinfo();
+	
+	REGISTER_MIB("@CYACSSYS@", @CYACSSYS@_variables, variable4,
+		     @CYACSSYS@_variables_oid);
+
+}
+
+/* cy_pwsupply_st() :
+ * This function verify the state of the power supply.
+ * parameter : number of the power supply.
+ * return    : 0 - not installed   1 - ON   2 - OFF
+ */
+#ifndef TS1H
+int cy_pwsupply_st(int npw)
+{
+	int fd, st = 0, val;
+
+	if ((fd = open("/dev/led", O_RDWR)) > 0) {
+		if (ioctl(fd,1,&val)== 0) {
+			st = (val & npw) ? 1 : 2;
+		}
+		close(fd);
+	}
+	return (st);
+}
+#endif
+
+/*
+ * var_@CYACSSYS@():
+ *   This function is called every time the agent gets a request for
+ *   a scalar variable that might be found within your mib section
+ *   registered above.  It is up to you to do the right thing and
+ *   return the correct value.
+ *     You should also correct the value of "var_len" if necessary.
+ *
+ *   Please see the documentation for more information about writing
+ *   module extensions, and check out the examples in the examples
+ *   and mibII directories.
+ */
+unsigned char *var_@CYACSSYS@(struct variable *vp,
+			    oid * name,
+			    size_t * length,
+			    int exact, size_t * var_len,
+			    WriteMethod ** write_method)
+{
+	static int int_val;
+
+	if (header_generic(vp, name, length, exact, var_len, write_method)
+	    == MATCH_FAILED)
+		return NULL;
+
+	*write_method = NULL;
+	*var_len = sizeof(int);
+
+	/*
+	 * * this is where we do the value assignments for the mib results.
+	 */
+	switch (vp->magic) {
+	      case CYACSPNAME:
+		*var_len = strlen(pname);
+		return (u_char *) & pname;
+		break;
+	      case CYACSVERSION:
+		*var_len = strlen(pversion);
+		return (u_char *) & pversion;
+		break;
+#ifndef TS1H
+	      case CYACSPWNUM:
+		int_val = cy_numpwsupply;
+		return (u_char *) & int_val;
+		break;
+	      case CYACSPW1:
+		if (cy_numpwsupply == 1) { 
+			int_val = 1; // ON
+		} else {
+			int_val = cy_pwsupply_st(1);
+		}
+		return (u_char *) & int_val;
+		break;
+	      case CYACSPW2:
+		if (cy_numpwsupply == 1) { 
+			int_val = 0; 	// not installed
+		} else {
+			int_val = cy_pwsupply_st(2);
+		}
+		return (u_char *) & int_val;
+		break;
+	      case CYACSNCARD :
+			cy_pcmcia_read();
+			int_val = cy_numcards;
+			return (u_char *) &int_val;
+			break;
+#endif // not TS1H
+			
+	      case CYACSFLASH:
+		int_val = flash_size;
+		return (u_char *) & int_val;
+		break;
+	      case CYACSRAM:
+		int_val = ram_size;
+		return (u_char *) & int_val;
+		break;
+	      case CYACSCPU:
+		int_val = cpu_freq;
+		return (u_char *) & int_val;
+		break;
+	      case CYACSDEVID:
+		*var_len = strlen(pdevice_id);
+		return (u_char *) & pdevice_id;
+		break;
+	      default:
+		break;
+	}
+	return NULL;
+}
+
+#ifndef TS1H
+/*
+ * var_cyCardIdentTable():
+ *   Handle this table separately from the scalar value case.
+ *   The workings of this are basically the same as for var_ above.
+ */
+unsigned char *var_cyCardIdentTable(struct variable *vp,
+				    oid * name,
+				    size_t * length,
+				    int exact,
+				    size_t * var_len,
+				    WriteMethod ** write_method)
+{
+	static int index;
+
+	cy_pcmcia_read();
+  	if (header_simple_table(vp,name,length,exact,var_len,write_method, cy_numcards)
+                                                == MATCH_FAILED )
+    		return NULL;
+	
+	index = name[@CYACSSYS@_PCMCIA_TABLE_LEN];
+	*write_method = NULL;
+
+	/*
+	 * * this is where we do the value assignments for the mib results.
+	 */
+	switch (vp->magic) {
+	      case CYCARDIDENTINDEX:
+		*var_len = sizeof(int);
+		return (u_char *) & index;
+		break;
+	      case CYCARDIDENTPROD:
+		*var_len = strlen(cy_pcmcia_ident[index-1].prod);
+		return (u_char *) &cy_pcmcia_ident[index-1].prod;
+		break;
+	      case CYCARDIDENTMAN:
+		*var_len = strlen(cy_pcmcia_ident[index-1].man);
+		return (u_char *) &cy_pcmcia_ident[index-1].man;
+		break;
+	      case CYCARDIDENTFUNC:
+		*var_len = strlen(cy_pcmcia_ident[index-1].func);
+		return (u_char *) &cy_pcmcia_ident[index-1].func;
+		break;
+	      case CYCARDIDENTPCI:
+		*var_len = strlen(cy_pcmcia_ident[index-1].pci);
+		return (u_char *) &cy_pcmcia_ident[index-1].pci;
+		break;
+	default:
+		break;
+	}
+	return NULL;
+}
+
+/*
+ * var_cyCardConfTable():
+ *   Handle this table separately from the scalar value case.
+ *   The workings of this are basically the same as for var_ above.
+ */
+unsigned char *var_cyCardConfTable(struct variable *vp,
+				   oid * name,
+				   size_t * length,
+				   int exact,
+				   size_t * var_len,
+				   WriteMethod ** write_method)
+{
+	static int index;
+
+	/*
+	 * variables we may use later 
+	 */
+	cy_pcmcia_read();
+
+  	if (header_simple_table(vp,name,length,exact,var_len,write_method, cy_numcards)
+                                                == MATCH_FAILED )
+    		return NULL;
+
+	index = name[@CYACSSYS@_PCMCIA_TABLE_LEN];
+	*write_method = NULL;
+
+	/*
+	 * * this is where we do the value assignments for the mib results.
+	 */
+	switch (vp->magic) {
+	      case CYCARDCONFINDEX:
+		*var_len = sizeof(int);
+		return (u_char *) & index;
+		break;
+	      case CYCARDCONFPOWER:
+		*var_len = strlen(cy_pcmcia_conf[index-1].power);
+		return (u_char *) &cy_pcmcia_conf[index-1].power;
+		break;
+	      case CYCARDCONFTYPE:
+		*var_len = strlen(cy_pcmcia_conf[index-1].type);
+		return (u_char *) &cy_pcmcia_conf[index-1].type;
+		break;
+	      case CYCARDCONFINTER:
+		*var_len = strlen(cy_pcmcia_conf[index-1].inter);
+		return (u_char *) &cy_pcmcia_conf[index-1].inter;
+		break;
+	      case CYCARDCONFFUNC:
+		*var_len = strlen(cy_pcmcia_conf[index-1].func);
+		return (u_char *) &cy_pcmcia_conf[index-1].func;
+		break;
+	      case CYCARDCONFCARDV:
+		*var_len = strlen(cy_pcmcia_conf[index-1].cardv);
+		return (u_char *) &cy_pcmcia_conf[index-1].cardv;
+		break;
+	      case CYCARDCONFPORT1:
+		*var_len = strlen(cy_pcmcia_conf[index-1].port1);
+		return (u_char *) &cy_pcmcia_conf[index-1].port1;
+		break;
+	      case CYCARDCONFPORT2:
+		*var_len = strlen(cy_pcmcia_conf[index-1].port2);
+		return (u_char *) &cy_pcmcia_conf[index-1].port2;
+		break;
+	default:
+		break;
+	}
+	return NULL;
+}
+
+/*
+ * var_cyCardStatusTable():
+ *   Handle this table separately from the scalar value case.
+ *   The workings of this are basically the same as for var_ above.
+ */
+unsigned char *var_cyCardStatusTable(struct variable *vp,
+				     oid * name,
+				     size_t * length,
+				     int exact,
+				     size_t * var_len,
+				     WriteMethod ** write_method)
+{
+	static int index;
+
+	cy_pcmcia_read();
+
+  	if (header_simple_table(vp,name,length,exact,var_len,write_method, cy_numcards)
+                                                == MATCH_FAILED )
+    		return NULL;
+
+	index = name[@CYACSSYS@_PCMCIA_TABLE_LEN];
+	*write_method = NULL;
+
+	switch (vp->magic) {
+	      case CYCARDSTATUSINDEX:
+		*var_len = sizeof(int);
+		return (u_char *) & index;
+		break;
+	      case CYCARDSTATUSCARD:
+		*var_len = strlen(cy_pcmcia_status[index-1].card);
+		return (u_char *) &cy_pcmcia_status[index-1].card;
+		break;
+	      case CYCARDSTATUSFUNC:
+		*var_len = strlen(cy_pcmcia_status[index-1].func);
+		return (u_char *) &cy_pcmcia_status[index-1].func;
+		break;
+	default:
+		break;
+	}
+	return NULL;
+}
+#endif // not TS1H

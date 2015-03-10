@@ -1,0 +1,29 @@
+BEGIN {
+  FS = " "
+  OFS = " "
+  nCylinder = 0
+  sCylinder = 0
+  nHeads = 0
+  nSectors = 0
+}
+$1 ~ /^$/ {
+  next
+}
+$1 == "Disk" && $2 == device ":" {
+  nCylinder = $3
+  nHeads = $5
+  nSectors = $7
+}
+$1 == "Units" && $3 == "cylinders" {
+  sCylinder = $5
+}
+
+END {
+
+  if ( sCylinder == 0 || nCylinder == 0 ) {
+	print "Not present"
+  } else {
+    totalB = int ( nCylinder * sCylinder / 1048576 )
+    print totalB " Mbytes"
+  }
+}

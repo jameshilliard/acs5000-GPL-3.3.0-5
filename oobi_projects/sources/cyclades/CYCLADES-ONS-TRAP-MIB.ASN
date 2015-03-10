@@ -1,0 +1,1550 @@
+CYCLADES-ONS-TRAP-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+   cyclades
+        FROM CYCLADES-MIB
+   MODULE-IDENTITY
+        FROM SNMPv2-SMI
+   Gauge,enterprises,TimeTicks,IpAddress,Counter,NetworkAddress
+      FROM RFC1155-SMI
+   OBJECT-TYPE
+      FROM RFC-1212
+   DisplayString,PhysAddress
+      FROM RFC1213-MIB
+   TRAP-TYPE
+      FROM RFC-1215;
+
+
+--------------------------------------------------------------------------------------
+-- OnSite MIB 
+--------------------------------------------------------------------------------------
+
+cyOnSite OBJECT-IDENTITY  
+	STATUS current
+	DESCRIPTION " OnSite product line. "
+	::= { cyclades 7  }
+
+cyOnSiteMgmt OBJECT-IDENTITY  
+	STATUS current
+	DESCRIPTION " Management OIDs for OnSite. "
+	::= { cyOnSite 2  }
+
+
+--------------------------------------------------------------------------------------
+-- OnSite Trap Object   2925.7.2.1 (cyclades.cyOnSite.cyOnSiteMgmt.cyOnSiteTrapObject)
+--
+-- The following objects are implemented only for the generation of TRAPs.
+-- The objects are sent in traps and are not accessible in any other way.
+-- 
+--------------------------------------------------------------------------------------
+
+cyOnSiteTrapObject OBJECT-IDENTITY  
+	STATUS current
+	DESCRIPTION " Define the trap objects "
+	::= { cyOnSiteMgmt  1  }
+
+cyOnSiteTrapObjectUserName OBJECT-TYPE
+      SYNTAX OCTET STRING
+      MAX_ACCESS not-accessible
+      STATUS current
+  --% AVAILABILITY public
+      DESCRIPTION 
+      "This object is sent in a trap to identify the name of the user
+       for which the trap condition occurred."
+       ::= { cyOnSiteTrapObject 1 }
+
+cyOnSiteTrapObjectTargetUserName OBJECT-TYPE
+      SYNTAX OCTET STRING
+      MAX_ACCESS not-accessible
+      STATUS current
+  --% AVAILABILITY public
+      DESCRIPTION 
+      "This object is sent in a trap to identify the name of the user
+       for which the trap condition occurred."
+       ::= { cyOnSiteTrapObject 2 }        
+
+cyOnSiteTrapObjectSerialPort OBJECT-TYPE
+      SYNTAX INTEGER
+      MAX_ACCESS not-accessible
+      STATUS current
+      DESCRIPTION       
+      "This object is sent in a trap to identify which serial port number 
+       the trap condition occurred."
+  --% AVAILABILITY public                         
+      ::= { cyOnSiteTrapObject 3 }
+
+cyOnSiteTrapObjectSerialSessionType OBJECT-TYPE
+      SYNTAX INTEGER {
+                        CAS-SSH(1),
+                        CAS-Telnet(2),
+                        CAS-RawData(3),
+                        TS(4),
+                        Dial-in(5)
+                     }
+      MAX_ACCESS not-accessible
+      STATUS current
+      DESCRIPTION 
+      "This object is sent in a trap to identify the type of a Serial Session."
+  --% AVAILABILITY public                         
+      ::= { cyOnSiteTrapObject 4 }
+      
+cyOnSiteTrapObjectSerialPortName OBJECT-TYPE
+      SYNTAX OCTET STRING 
+      MAX_ACCESS not-accessible
+      STATUS current
+      DESCRIPTION 
+      "This object is sent in a trap to identify the target Device by 
+       name - alias of the serial port."
+  --% AVAILABILITY public                         
+      ::= { cyOnSiteTrapObject 5 }
+            
+cyOnSiteTrapObjectAlertMessage OBJECT-TYPE
+      SYNTAX OCTET STRING
+      MAX_ACCESS not-accessible
+      STATUS current
+  --% AVAILABILITY public
+      DESCRIPTION
+      "This object is sent in a trap to identify the line text where 
+       the alert string was detected."
+      ::= { cyOnSiteTrapObject 6 }
+      
+cyOnSiteTrapObjectAlertString OBJECT-TYPE
+      SYNTAX OCTET STRING
+      MAX_ACCESS not-accessible
+      STATUS current
+      DESCRIPTION       
+      "This object is sent in a trap to identify the alert string 
+       that matched in the alert message."
+  --% AVAILABILITY public                         
+      ::= { cyOnSiteTrapObject 7}
+
+cyOnSiteTrapObjectPMCount OBJECT-TYPE
+      SYNTAX INTEGER
+      MAX_ACCESS not-accessible
+      STATUS current
+  --% AVAILABILITY public      
+      DESCRIPTION       
+      "This object is sent in a trap to identify number of PDU on 
+       the chain"
+      ::= { cyOnSiteTrapObject 8 }
+
+cyOnSiteTrapObjectPMSocketCount OBJECT-TYPE
+      SYNTAX INTEGER
+      MAX_ACCESS not-accessible
+      STATUS current
+  --% AVAILABILITY public      
+      DESCRIPTION
+      "This object is sent in a trap to identify number of outlets 
+       on the chain"
+      ::= { cyOnSiteTrapObject 9 }
+
+cyOnSiteTrapObjectPMNumber OBJECT-TYPE
+      SYNTAX INTEGER
+      MAX_ACCESS not-accessible
+      STATUS current
+  --% AVAILABILITY public          
+      DESCRIPTION       
+      "This object is sent in a trap to identify the IPDU number the trap 
+       condition occurred on."         
+      ::= { cyOnSiteTrapObject 10 }
+
+cyOnSiteTrapObjectPMSocketNumber OBJECT-TYPE
+      SYNTAX INTEGER
+      MAX_ACCESS not-accessible
+      STATUS current
+      DESCRIPTION       
+      "This object is sent in a trap to identify outlet number the trap
+         condition occurred on."
+  --% AVAILABILITY public   
+      ::= { cyOnSiteTrapObject 11 }
+      
+cyOnSiteTrapObjectPMSocketName OBJECT-TYPE
+      SYNTAX OCTET STRING
+      MAX_ACCESS not-accessible
+      STATUS current
+      DESCRIPTION       
+      "This object is sent in a trap to identify outlet association 
+       with serial port name if there any association or the name 
+       stored in the PM."
+  --% AVAILABILITY public   
+      ::= { cyOnSiteTrapObject 12 }
+            
+cyOnSiteTrapObjectDaemonName OBJECT-TYPE
+        SYNTAX OCTET STRING
+        MAX_ACCESS not-accessible
+        STATUS current            
+        DESCRIPTION     
+        "This object is sent in a trap to indicate the Daemon name
+        that has started/stopped."
+  --% AVAILABILITY public          
+        ::= { cyOnSiteTrapObject 13 }
+
+cyOnSiteTrapObjectPMCurrentValue OBJECT-TYPE
+        SYNTAX OCTET STRING
+        MAX_ACCESS not-accessible
+        STATUS current            
+        DESCRIPTION     
+        "This object is sent in a trap to detected current value of the PM."
+  --% AVAILABILITY public               
+        ::= { cyOnSiteTrapObject 14 }
+        
+cyOnSiteTrapObjectFirmwareVersion OBJECT-TYPE
+        SYNTAX OCTET STRING
+        MAX_ACCESS not-accessible
+        STATUS current            
+        DESCRIPTION
+        "This object is sent in a trap to identify current Firmware version."
+  --% AVAILABILITY public  
+        ::= { cyOnSiteTrapObject 15 }
+
+cyOnSiteTrapObjectNewFirmwareVersion OBJECT-TYPE
+        SYNTAX OCTET STRING
+        MAX_ACCESS not-accessible
+        STATUS current            
+        DESCRIPTION
+        "This object is sent in a trap to identify new Firmware version."
+  --% AVAILABILITY public  
+        ::= { cyOnSiteTrapObject 16 }
+        
+cyOnSiteTrapFirmwareUpgradeResult  OBJECT-TYPE
+        SYNTAX INTEGER  {
+                        imageUpgradeSuccess(1),
+                        imageUpgradeInternalError(2)
+               }
+        MAX_ACCESS not-accessible
+        STATUS current            
+        DESCRIPTION     
+        "This object is sent in a trap to identify the firmware upgrade result."
+  --% AVAILABILITY public  
+        ::= { cyOnSiteTrapObject 17 }
+
+cyOnSiteTrapObjectSessionType OBJECT-TYPE
+      SYNTAX INTEGER {
+                      SSH(1),
+                      TELNET(2),
+                      WEBUI(3),
+		      Console(4),
+		      ModemPCMCIA(5),
+                      KVM(6),
+             }
+      MAX_ACCESS not-accessible
+      STATUS current
+      DESCRIPTION 
+      "This object is sent in a trap to identify type of Session 
+       for access to appliance."
+  --% AVAILABILITY public                         
+      ::= { cyOnSiteTrapObject 18 }  
+      
+cyOnSiteTrapObjectTargetedSerialPort OBJECT-TYPE
+      SYNTAX INTEGER
+      MAX_ACCESS not-accessible
+      STATUS current
+      DESCRIPTION       
+      "This object is sent in a trap to identify which port 
+       the trap condition occurred."
+  --% AVAILABILITY public                         
+      ::= { cyOnSiteTrapObject 19 }
+
+cyOnSiteTrapObjectDataBufferSize OBJECT-TYPE
+      SYNTAX INTEGER
+      MAX_ACCESS not-accessible
+      STATUS current
+      DESCRIPTION       
+      "This object is sent in a trap to identify current size of 
+       global buffer."
+  --% AVAILABILITY public                         
+      ::= { cyOnSiteTrapObject 20 }
+      
+cyOnSiteTrapObjectProcessID OBJECT-TYPE
+      SYNTAX INTEGER
+      MAX_ACCESS not-accessible
+      STATUS current
+      DESCRIPTION       
+      "This object is sent in a trap to identify which session lost 
+       data through SSH or telnet session for the appliance."
+  --% AVAILABILITY public                         
+      ::= { cyOnSiteTrapObject 21 }      
+                      
+cyOnSiteTrapObjectAlertIndex OBJECT-TYPE
+      SYNTAX INTEGER
+      MAX_ACCESS not-accessible
+      STATUS current
+      DESCRIPTION       
+      "This object is sent in a trap to identify the alert string 
+       that matched in the alert message."
+  --% AVAILABILITY public                         
+      ::= { cyOnSiteTrapObject 22}
+
+cyOnSiteTrapObjectPMPhase OBJECT-TYPE
+        SYNTAX OCTET STRING
+        MAX_ACCESS not-accessible
+        STATUS current            
+        DESCRIPTION
+        "This object is sent in a trap to identify the Phase of the IPDU
+         where the trap occurred."
+  --% AVAILABILITY public  
+        ::= { cyOnSiteTrapObject 23 }
+        
+cyOnSiteTrapObjectPMType OBJECT-TYPE
+      SYNTAX INTEGER {
+		cyclades(1),
+		spc(2),
+		serverTech(3),
+      }
+       MAX_ACCESS not-accessible
+       STATUS current            
+       DESCRIPTION
+       "This object is sent in a trap to identify the vendor of the IPDU
+        where the trap occurred.
+       "
+  --% AVAILABILITY public  
+        ::= { cyOnSiteTrapObject 24 }
+        
+cyOnSiteTrapObjectPMId OBJECT-TYPE
+        SYNTAX OCTET STRING
+        MAX_ACCESS not-accessible
+        STATUS current            
+        DESCRIPTION
+        "This object is sent in a trap to identify the ID of the IPDU
+         where the trap occurred."
+  --% AVAILABILITY public  
+        ::= { cyOnSiteTrapObject 25 }
+        
+cyOnSiteTrapObjectPMSocketOldName OBJECT-TYPE
+      SYNTAX OCTET STRING
+      MAX_ACCESS not-accessible
+      STATUS current
+      DESCRIPTION       
+      "This object is sent in a trap to identify the old outlet  
+       name stored in the PM."
+  --% AVAILABILITY public   
+      ::= { cyOnSiteTrapObject 26 }
+
+cyOnSiteTrapOjectAuxPort OBJECT-TYPE
+      SYNTAX INTEGER
+      MAX_ACCESS not-accessible
+      STATUS current
+      DESCRIPTION
+      "This object is sent in a trap to identify the AUX port in which
+       the trap condition occurred."
+  --% AVAILABILITY public
+      ::= { cyOnSiteTrapObject 27 }
+
+cyOnSiteTrapObjectKvmPortName OBJECT-TYPE
+      SYNTAX OCTET STRING
+      MAX_ACCESS not-accessible
+      STATUS current
+      DESCRIPTION
+      "This object is sent in a trap to identify alias name of KVM port.
+       or Name of the target Device."
+  --% AVAILABILITY public
+      ::= { cyOnSiteTrapObject 28 }
+
+cyOnSiteTrapObjectTargetedKvmPort OBJECT-TYPE
+      SYNTAX INTEGER
+      MAX_ACCESS not-accessible
+      STATUS current
+      DESCRIPTION
+      "This object is sent in a trap to identify which kvm port is associated
+       with outlet."
+  --% AVAILABILITY public
+      ::= { cyOnSiteTrapObject 29 }
+
+cyOnSiteTrapObjectFanNumber OBJECT-TYPE
+      SYNTAX INTEGER
+      MAX_ACCESS not-accessible
+      STATUS current
+      DESCRIPTION
+      "This object is sent in a trap to identify which fan the trap
+       condition occured on."
+  --% AVAILABILITY public
+      ::= { cyOnSiteTrapObject 30 }
+
+cyOnSiteTrapObjectFanSpeed OBJECT-TYPE
+      SYNTAX INTEGER
+      MAX_ACCESS not-accessible
+      STATUS current
+      DESCRIPTION
+      "This object is sent in a trap to identify the fan speed."
+  --% AVAILABILITY public
+      ::= { cyOnSiteTrapObject 31 }
+
+cyOnSiteTrapObjectAuxPortName OBJECT-TYPE
+      SYNTAX OCTET STRING
+      MAX_ACCESS not-accessible
+      STATUS current
+      DESCRIPTION
+      "This object is sent in a trap to identify AUX port name."
+  --% AVAILABILITY public
+      ::= { cyOnSiteTrapObject 32 }
+
+cyOnSiteTrapObjectKvmPhysicalPort OBJECT-TYPE
+      SYNTAX OCTET STRING 
+      MAX_ACCESS not-accessible
+      STATUS current
+      DESCRIPTION
+      "This object is sent in a trap to identify physical id of the port.
+       It is the physical port of the KVM. For cascaded port, the physical port is
+       the master port number followed by '.' and slave port number.
+       For example, cascaded KVM on port 1 of master and slave port 1 will
+       be refered as '1.1'."
+  --% AVAILABILITY public
+      ::= { cyOnSiteTrapObject 33 }
+
+
+            
+--------------------------------------------------------------------------------------
+-- OnSite Trap Object   2925.7.2.2 (cyclades.cyOnSite.cyOnSiteMgmt.cyOnSiteModel)
+--
+-- The following objects are implemented only for the generation of TRAPs.
+-- The objects are sent in traps and are not accessible in any other way.
+-- 
+--------------------------------------------------------------------------------------
+
+cyOnSiteModel OBJECT-IDENTITY  
+	STATUS current
+	DESCRIPTION " Define the appliance models "
+	::= { cyOnSiteMgmt  2  }
+
+cyOnSite441 OBJECT-IDENTITY  
+	STATUS current
+	DESCRIPTION " Define the aplliance model OnSite-441 "
+	::= { cyOnSiteModel 1  }
+
+cyOnSite481 OBJECT-IDENTITY  
+	STATUS current
+	DESCRIPTION " Define the aplliance model OnSite-481 "
+	::= { cyOnSiteModel 2  }
+
+cyOnSite841 OBJECT-IDENTITY  
+	STATUS current
+	DESCRIPTION " Define the appliance model OnSite-841 "
+	::= { cyOnSiteModel 3  }
+
+cyOnSite881 OBJECT-IDENTITY  
+	STATUS current
+	DESCRIPTION " Define the appliance model OnSite-881 "
+	::= { cyOnSiteModel 4  }
+
+cyOnSite442 OBJECT-IDENTITY  
+	STATUS current
+	DESCRIPTION " Define the appliance model OnSite-442 "
+	::= { cyOnSiteModel 5  }
+
+cyOnSite482 OBJECT-IDENTITY  
+	STATUS current
+	DESCRIPTION " Define the appliance model OnSite-482 "
+	::= { cyOnSiteModel 6  }
+
+cyOnSite842 OBJECT-IDENTITY  
+	STATUS current
+	DESCRIPTION " Define the appliance model OnSite-842 "
+	::= { cyOnSiteModel 7 }
+
+cyOnSite882 OBJECT-IDENTITY  
+	STATUS current
+	DESCRIPTION " Define the appliance model OnSite-882 "
+	::= { cyOnSiteModel 8 }
+
+
+-------------------------------------------------------------------------------------
+--
+-- Enterprise Traps
+-- OnSite models: 
+--   ONS-441: 2925.7.2.2.1 (cyclades.cyOnSite.cyOnSiteMgmt.cyOnSiteModel.cyOnSite441)
+--   ONS-481: 2925.7.2.2.2 (cyclades.cyOnSite.cyOnSiteMgmt.cyOnSiteModel.cyOnSite481) 
+--   ONS-841: 2925.7.2.2.3 (cyclades.cyOnSite.cyOnSiteMgmt.cyOnSiteModel.cyOnSite841)
+--   ONS-881: 2925.7.2.2.4 (cyclades.cyOnSite.cyOnSiteMgmt.cyOnSiteModel.cyOnSite881)
+--   ONS-442: 2925.7.2.2.5 (cyclades.cyOnSite.cyOnSiteMgmt.cyOnSiteModel.cyOnSite442)
+--   ONS-482: 2925.7.2.2.6 (cyclades.cyOnSite.cyOnSiteMgmt.cyOnSiteModel.cyOnStie482)
+--   ONS-842: 2925.7.2.2.7 (cyclades.cyOnSite.cyOnSiteMgmt.cyOnSiteModel.cyOnSite842)
+--   ONS-882: 2925.7.2.2.8 (cyclades.cyOnSite.cyOnSiteMgmt.cyOnSiteModel.cyOnSite882)
+--
+-- The above Enterprise OIDs will be used for registering each Model for NNM module.
+--
+-------------------------------------------------------------------------------------
+
+cyOnSiteRebootStartedTrap TRAP-TYPE
+      ENTERPRISE  cyOnSite
+      VARIABLES   { cyOnSiteTrapObjectUserName }
+      DESCRIPTION
+         "Appliance is in process of rebooting.
+         The name of the user who issued the command is contained
+         in cyOnSiteTrapObjectUserName."
+      --#SUMMARY     "The appliance is rebooting. Command issued by user: %s."
+      --#ARGUMENTS   { 0 }
+      --#SEVERITY    INFORMATIONAL
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=15 
+      ::= 1
+
+cyOnSiteUserLoginTrap TRAP-TYPE
+      ENTERPRISE  cyOnSite
+      VARIABLES   { cyOnSiteTrapObjectUserName, cyOnSiteTrapObjectSessionType }
+      DESCRIPTION
+         "This trap is sent when user logged into the appliance.
+          The name of the user who logged in is contained in 
+          cyOnSiteTrapObjectUserName and the method used to log into
+          the appliance is contained in cyOnSiteTrapObjectSeesionType." 
+      --#SUMMARY     "A user logged into the appliance. User: %s. Session type: %d."
+      --#ARGUMENTS   { 0, 1 }
+      --#SEVERITY    INFORMATIONAL
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=15
+      ::= 2
+
+cyOnSiteUserLogoutTrap TRAP-TYPE
+      ENTERPRISE  cyOnSite
+      VARIABLES   { cyOnSiteTrapObjectUserName, cyOnSiteTrapObjectSessionType }
+      DESCRIPTION
+         "A user logged out of the appliance.
+          The name of the user who logged out is contained in 
+          cyOnSiteTrapObjectUserName and the method used to log into appliance 
+          is contained in cyOnSiteTrapObjectSessionType."
+      --#SUMMARY     "A user logged out of the appliance. User: %s. Session type: %d."
+      --#ARGUMENTS   { 0, 1}
+      --#SEVERITY    INFORMATIONAL
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=15
+      ::= 3
+
+cyOnSiteAuthenticationFailureTrap TRAP-TYPE
+      ENTERPRISE  cyOnSite
+      VARIABLES   { cyOnSiteTrapObjectUserName }
+      DESCRIPTION
+         "A user failed to authenticate with the appliance.
+          The name of the user who failed to authenticate is contained
+          in cyOnSiteTrapObjectUserName."
+      --#SUMMARY     "User authentication failed. User: %s."
+      --#ARGUMENTS   {0}
+      --#SEVERITY    INFORMATIONAL
+      --#CATEGORY    "Error Events"
+      --% TrapTypeEnum=15 
+      ::= 4
+
+cyOnSiteSerialSessionStartedTrap TRAP-TYPE
+      ENTERPRISE  cyOnSite
+      VARIABLES   {
+                     cyOnSiteTrapObjectUserName,
+                     cyOnSiteTrapObjectSerialPortName,
+                     cyOnSiteTrapObjectSerialPort,
+                     cyOnSiteTrapObjectSerialSessionType
+                     
+                  }
+      DESCRIPTION
+         "This trap is sent when a serial session has started on a particular port.
+          The name of the user who is connected to the session is contained in cyOnSiteTrapObjectUserName.
+          The serial port number on the appliance is contained in cyOnSiteTrapObjectSerialPort.
+          The serial port name on the appliance is contained in cyOnSiteTrapObjectSerialPortName
+          The type of protocol running on this serial port is contained in 
+          cyOnSiteTrapObjectSerialSessionType. "
+      --#SUMMARY     "Serial session started. User: %s. Port name: %s. Port number: %d. Session type: %d."
+      --#ARGUMENTS   { 0, 1, 2, 3 }
+      --#SEVERITY    INFORMATIONAL
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 5
+      
+cyOnSiteSerialSessionStoppedTrap TRAP-TYPE
+      ENTERPRISE  cyOnSite
+      VARIABLES   {
+                     cyOnSiteTrapObjectUserName,
+                     cyOnSiteTrapObjectSerialPortName,
+                     cyOnSiteTrapObjectSerialPort,
+                     cyOnSiteTrapObjectSerialSessionType
+                  }
+      DESCRIPTION
+        "This trap is sent when a serial session has stopped.
+         The user who was connected to the session is contained in cyOnSiteTrapObjectUserName.
+         The serial port number on the appliance is contained in cyOnSiteTrapObjectSerialPort.
+         The serial port name on the appliance is contained in cyOnSiteTrapObjectSerialPortName
+         The type of protocol running on this port is contained in 
+         cyOnSiteTrapObjectSerialSessionType."
+      --#SUMMARY     "Serial session stopped. User: %s. Port name: %s. Port number: %d. Session type: %d."
+      --#ARGUMENTS   { 0, 1, 2, 3 }
+      --#SEVERITY    INFORMATIONAL
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 6
+
+cyOnSitePortAuthenticationFailureTrap TRAP-TYPE
+      ENTERPRISE  cyOnSite
+      VARIABLES   {
+                     cyOnSiteTrapObjectUserName,
+                     cyOnSiteTrapObjectSerialPortName,
+                     cyOnSiteTrapObjectSerialPort,
+                     cyOnSiteTrapObjectSerialSessionType
+                     
+                  }
+      DESCRIPTION      
+        "This trap is sent when a serial session authentication fails.
+         The name of the user who failed to authenticate is contained in cyOnSiteTrapObjectUserName.
+         The serial port number on the appliance is contained in cyOnSiteTrapObjectSerialPort.
+         The serial port name on the appliance is contained in cyOnSiteTrapObjectSerialPortName
+         The type of protocol configured on this port is contained in cyOnSiteTrapObjectSerialSessionType."
+      --#SUMMARY     "Serial session authentication failed. User: %s. Port name: %s. Port number: %d. Session type: %d."
+      --#ARGUMENTS   { 0, 1, 2, 3 }
+      --#SEVERITY    INFORMATIONAL
+      --#CATEGORY    "Error Events"           
+      --% TrapTypeEnum=6                     
+      ::= 7              
+      
+cyOnSitePortAlertTrap TRAP-TYPE      
+      ENTERPRISE  cyOnSite
+      VARIABLES   {     
+                        cyOnSiteTrapObjectSerialPortName,                        
+                        cyOnSiteTrapObjectSerialPort,
+			cyOnSiteTrapObjectAlertIndex,
+                        cyOnSiteTrapObjectAlertString,
+                        cyOnSiteTrapObjectAlertMessage
+                  }
+      DESCRIPTION      
+        "The appliance detected a port alert on a serial port.
+         The serial port number the port alert was detected on is 
+         contained in cyOnSiteTrapObjectSerialPort.
+         The serial port name the port alert was detected on is 
+         contained in cyOnSiteTrapObjectSerialPortName.
+	 The index of the port alert that was detected is contained
+	 in cyOnSiteTrapObjectAlertIndex.
+         The port alert that was detected is contained in 
+	 cyOnSiteTrapObjectAlertString.
+         The line text where the port alert was detected is 
+         contained in cyOnSiteTrapObjectAlertMessage."
+      --#SUMMARY     "A port alert was detected on a serial port. Port name: %s. Port number: %d. Port alert index: %d. Port alert string: %s. Line text: %s."
+      --#ARGUMENTS   { 0, 1, 2, 3, 4 }
+      --#SEVERITY    CRITICAL
+      --#CATEGORY    "Error Events"           
+      --% TrapTypeEnum=19                     
+      ::= 8  
+      
+cyOnSitePortPowerOnDetectTrap TRAP-TYPE
+      ENTERPRISE  cyOnSite
+      VARIABLES   {     
+                        cyOnSiteTrapObjectSerialPortName,
+                        cyOnSiteTrapObjectSerialPort                        
+                  }    
+      DESCRIPTION
+        "The appliance has detected that the power on/off control signal
+         (RS232C - DCD signal) is high on a serial port indicating that the
+         server attached to the port is powered on.
+         This trap is sent on initialization if the condition is detected.
+         Subsequent traps occur only if there is a transition of the DCD
+         signal from low to high.
+         The affected serial port number is contained in cyOnSiteTrapObjectSerialPort.
+         The affected serial port name is contained in cyOnSiteTrapObjectSerialPortName."
+      --#SUMMARY     "Power on detected on a serial port. Port name: %s. Port number: %d."
+      --#ARGUMENTS   { 0, 1}
+      --#SEVERITY    MINOR
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=22
+      ::= 9    
+      
+cyOnSitePortPowerOffDetectTrap TRAP-TYPE
+      ENTERPRISE  cyOnSite
+      VARIABLES   {     
+                        cyOnSiteTrapObjectSerialPortName,
+                        cyOnSiteTrapObjectSerialPort                        
+                  }   
+     DESCRIPTION
+        "The appliance has detected that the power on/off control signal
+         (RS232C - DCD signal) is low on a serial port indicating that the
+         server attached to the port is powered off.
+         This trap is sent on initialization if the condition is detected.
+         Subsequent traps occur only if there is a transition of the DCD
+         signal from high to low.
+         The affected serial port number is contained in cyOnSiteTrapObjectSerialPort.
+         The affected serial port name is contained in cyOnSiteTrapObjectSerialPortName."
+      --#SUMMARY     "Power off detected on a serial port. Port name: %s. Port number: %d."
+      --#ARGUMENTS   { 0, 1}
+      --#SEVERITY    CRITICAL
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=23
+      ::= 10          
+                                  
+cyOnSiteDaemonStartedTrap TRAP-TYPE
+      ENTERPRISE  cyOnSite
+      VARIABLES   { cyOnSiteTrapObjectUserName, cyOnSiteTrapObjectDaemonName }
+      DESCRIPTION
+         "This trap is generated when daemon in the appliance started.
+          The daemon name is contained in cyOnSiteTrapObjectDaemonName.
+          The name of the user who start the daemon is contained in cyOnSiteTrapObjectUserName.
+         "
+      --#SUMMARY     "A daemon started. User: %s. Daemon name: %s."
+      --#ARGUMENTS   { 0, 1 }
+      --#SEVERITY    INFORMATIONAL
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 11     
+
+cyOnSiteDaemonStopedTrap TRAP-TYPE
+      ENTERPRISE  cyOnSite
+      VARIABLES   { cyOnSiteTrapObjectUserName, cyOnSiteTrapObjectDaemonName }
+      DESCRIPTION
+         "This trap is generated when daemon in the appliance stopped.
+          The daemon name is contained in cyOnSiteTrapObjectDaemonName.
+          The name of the user who stop the daemon is contained in cyOnSiteTrapObjectUserName.
+         "
+      --#SUMMARY     "A daemon stopped. User: %s. Daemon name: %s."
+      --#ARGUMENTS   { 0, 1 }
+      --#SEVERITY    INFORMATIONAL
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 12     
+  
+cyOnSiteAdminSessionTerminatedTrap TRAP-TYPE
+      ENTERPRISE  cyOnSite
+      VARIABLES   {     cyOnSiteTrapObjectUserName, 
+                        cyOnSiteTrapObjectTargetUserName
+                  }
+      DESCRIPTION
+         "This trap is generated when one previous admin session is 
+          terminated by another admin user.
+          The name of the user who terminated the session is contained in cyOnSiteTrapObjectUserName.
+          The name of the user who was terminated from the session is contained 
+          in cyOnSiteTrapObjectTargetUserName."
+      --#SUMMARY     "Admin session terminated. Command issued by user: %s. Terminated user: %s."
+      --#ARGUMENTS   { 0, 1 }
+      --#SEVERITY    INFORMATIONAL
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 13
+        
+cyOnSiteConfigurationSavedTrap TRAP-TYPE
+      ENTERPRISE  cyOnSite
+      VARIABLES   {     
+                        cyOnSiteTrapObjectUserName
+                  }
+      DESCRIPTION            
+         "This trap is generated when 'saveconf' command is successful.
+          cyOnSiteTrapObjectUserName is name of the user who executed saveconf."         
+      --#SUMMARY     "Appliance Backup configuration saved. User: %s."
+      --#ARGUMENTS   {0}
+      --#SEVERITY    INFORMATIONAL
+      --#CATEGORY    "Configuration Events"
+      --% TrapTypeEnum=9
+      ::= 14
+
+cyOnSiteConfigurationActivatedTrap TRAP-TYPE
+      ENTERPRISE  cyOnSite
+      VARIABLES   {
+                        cyOnSiteTrapObjectUserName
+                  }
+      DESCRIPTION
+      "This trap is generated when the configuration is activated.
+       cyOnSiteTrapObjectUserName is name of the user who activated new configuration."
+      --#SUMMARY     "Configuration activated. User: %s."
+      --#ARGUMENTS   {0}
+      --#SEVERITY    INFORMATIONAL
+      --#CATEGORY    "Configuration Events"
+      --% TrapTypeEnum=9
+      ::= 15    
+
+cyOnSiteLocalUserAddedTrap TRAP-TYPE
+      ENTERPRISE  cyOnSite
+      VARIABLES   {     
+                        cyOnSiteTrapObjectUserName,
+                        cyOnSiteTrapObjectTargetUserName 
+                  }
+      DESCRIPTION
+      "A new user has been added to the local user database.
+       The name of the user who added the new user is contained in cyOnSiteTrapObjectUserName.
+       The name of the new user is contained in cyOnSiteTrapObjectTargetUserName.
+      --#SUMMARY     "A user was added to the local user database. Command issued by user: %s. New user: %s."
+      --#ARGUMENTS   { 0, 1}
+      --#SEVERITY    INFORMATIONAL
+      --#CATEGORY    "Configuration Events"
+      --% TrapTypeEnum=9
+      ::= 16   
+      
+cyOnSiteLocalUserDeletedTrap TRAP-TYPE
+      ENTERPRISE  cyOnSite
+      VARIABLES   {     
+                        cyOnSiteTrapObjectUserName,
+                        cyOnSiteTrapObjectTargetUserName 
+                  }
+      DESCRIPTION
+      "A user has been deleted from the local user database.
+       The name of the user who deleted the user is contained in cyOnSiteTrapObjectUserName.
+       The name of the user who was deleted is contained in cyOnSiteTrapObjectTargetUserName.
+      --#SUMMARY     "A user was deleted to the local user database. Command issued by user: %s. Deleted user: %s."
+      --#ARGUMENTS   {0,1}
+      --#SEVERITY    INFORMATIONAL
+      --#CATEGORY    "Configuration Events"
+      --% TrapTypeEnum=9
+      ::= 17
+
+cyOnSiteDataBufferFullThresholdLowTrap TRAP-TYPE
+      ENTERPRISE  cyOnSite
+      VARIABLES   {
+                     cyOnSiteTrapObjectDataBufferSize         
+                  }
+      DESCRIPTION
+      "This trap is generated when the appliance is managed by DsView and 
+       global data buffer has reached configured Low level Threshold.
+       cyOnSiteTrapObjectDataBufferSize is current size of the buffer.       
+      --#SUMMARY     "Data Buffering for DSView data log is getting full (low threshold). Buffer size: %d."
+      --#ARGUMENTS   {0}
+      --#SEVERITY    INFORMATIONAL
+      --#CATEGORY    "Error Events"
+      --% TrapTypeEnum=9
+      ::= 18      
+      
+cyOnSiteDataBufferFullThresholdMedTrap TRAP-TYPE
+      ENTERPRISE  cyOnSite
+      VARIABLES   {
+                     cyOnSiteTrapObjectDataBufferSize 
+                  }
+      DESCRIPTION
+      "This trap is generated when the appliance is managed by DsView and 
+       global data buffer has reached configured Med level Threshold.
+       cyOnSiteTrapObjectDataBufferSize is current size of the buffer.       
+      --#SUMMARY     "Data Buffering for DSView data log is almost full (medium threshold). Buffer size: %d."
+      --#ARGUMENTS   {0}
+      --#SEVERITY    ALERT
+      --#CATEGORY    "Error Events"
+      --% TrapTypeEnum=9
+      ::= 19      
+
+cyOnSiteDataBufferFullLostDataTrap TRAP-TYPE
+      ENTERPRISE  cyOnSite
+      DESCRIPTION
+      "This trap is generated when the appliance is managed by DsView and 
+       global data buffer has exceeded beyond the size of buffer and data lost has occurred.     
+      --#SUMMARY     "Data Buffering for DSView data log had data loss because buffer full."
+      --#ARGUMENTS   {0}
+      --#SEVERITY    ALERT
+      --#CATEGORY    "Error Events"
+      --% TrapTypeEnum=9
+      ::= 20      
+      
+cyOnSiteApplianceLostDataTrap TRAP-TYPE
+      ENTERPRISE  cyOnSite
+      VARIABLES   {
+                     cyOnSiteTrapObjectProcessID,    
+                     cyOnSiteTrapObjectUserName
+                  }      
+      DESCRIPTION
+      "This trap is generated when the appliance is managed by DsView and 
+       Appliance data lost occurred on ssh or telnet session.
+       cyOnSiteTrapObjectProcessID is process id of the telnet or ssh session.
+       cyOnSiteTrapObjectUserName is name of user who session is active and data lost occurred.
+      "
+      --#SUMMARY     "Appliance data log loss. Process ID: %d. User: %s."
+      --#ARGUMENTS   { 0, 1}
+      --#SEVERITY    ALERT
+      --#CATEGORY    "Error Events"
+      --% TrapTypeEnum=9
+      ::= 21        
+      
+--------------------------------------------------------------------------------
+-- Power Management Enterprise Traps
+--------------------------------------------------------------------------------
+
+cyOnSitePMOnlineTrap TRAP-TYPE
+      ENTERPRISE  cyOnSite
+      VARIABLES   { 
+                        cyOnSiteTrapObjectSerialPort,
+			cyOnSiteTrapObjectPMNumber,
+			cyOnSiteTrapObjectPMId,
+                        cyOnSiteTrapObjectPMSocketCount,                        
+			cyOnSiteTrapObjectPMType
+                  }
+      DESCRIPTION
+      "A power device attached to the appliance is online. 
+       The port number on the appliance that the power device is 
+       attached to is contained in cyOnSiteTrapObjectSerialPort.
+       The power device number in the chain is contained in cyOnSiteTrapObjectPMNumber.
+       The power device ID is contained in cyOnSiteTrapObjectPMId.
+       The number of outlets of the power device is contained in cyOnSiteTrapObjectPMSocketCount.
+       The vendor of the power device is contained in cyOnSiteTrapObjectPMType"      
+      --#SUMMARY     "A power device is online. Port number: %d. Power device number: %d. Power device ID: %s. Number of sockets: %d. Type: %d."
+      --#ARGUMENTS   { 0, 1, 2, 3, 4}
+      --#SEVERITY    INFORMATIONAL
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 22    
+
+cyOnSitePMOfflineTrap TRAP-TYPE
+      ENTERPRISE  cyOnSite
+      VARIABLES   {     
+                        cyOnSiteTrapObjectSerialPort,
+			cyOnSiteTrapObjectPMNumber,
+			cyOnSiteTrapObjectPMId,
+                        cyOnSiteTrapObjectPMSocketCount,                        
+			cyOnSiteTrapObjectPMType
+                  }
+      DESCRIPTION
+      "A power device attached to the appliance is offline.
+       The port number on the appliance that the power device is 
+       attached to is contained in cyOnSiteTrapObjectSerialPort.
+       The power device number in the chain is contained in cyOnSiteTrapObjectPMNumber.
+       The power device ID is contained in cyOnSiteTrapObjectPMId.
+       The number of outlets of the power device is contained in cyOnSiteTrapObjectPMSocketCount.
+       The vendor of the power device is contained in cyOnSiteTrapObjectPMType"      
+      --#SUMMARY     "A power device is offline. Port number: %d. Power device number: %d. Power device ID: %s. Number of sockets: %d. Type: %d."
+      --#ARGUMENTS   { 0, 1, 2, 3, 4}
+      --#SEVERITY    CRITICAL
+      --#CATEGORY    "Error Events"
+      --% TrapTypeEnum=9
+      ::= 23
+
+cyOnSitePMOutletOnTrap TRAP-TYPE
+      ENTERPRISE  cyOnSite
+      VARIABLES   { 
+                        cyOnSiteTrapObjectUserName, 
+                        cyOnSiteTrapObjectSerialPort,
+                        cyOnSiteTrapObjectPMSocketNumber,
+			cyOnSiteTrapObjectPMNumber,
+			cyOnSiteTrapObjectPMId,
+			cyOnSiteTrapObjectPMSocketName
+                  }
+      DESCRIPTION
+      "An outlet on a chain of power device has been issued the on command.
+       The name of the user who issued the on command is contained 
+       in cyOnSiteTrapObjectUserName.      
+       The port number on the appliance that the chain of power device is
+       attached to is contained in cyOnSiteTrapObjectSerialPort.
+       The power device number in the chain is contained in cyOnSiteTrapObjectPMNumber.
+       The ID of the power device is contained in cyOnSiteTrapObjectPMId.
+       The socket number that was issued the on command is contained 
+       in cyOnSiteTrapObjectPMSocketNumber.
+       The socket name that was issued the on command is contained in 
+       cyOnSiteTrapObjectPMSocketName."      
+      --#SUMMARY  "The on command was issued to a power device socket. Command issued by user: %s. Power device port number: %d. Power device number: %d. Power device ID: %s. Socket number: %d. Socket name: %s."
+      --#ARGUMENTS   { 0, 1, 3, 4, 2, 5}
+      --#SEVERITY    MINOR
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 24
+
+cyOnSitePMOutletOffTrap TRAP-TYPE
+      ENTERPRISE  cyOnSite
+      VARIABLES   { 
+                        cyOnSiteTrapObjectUserName, 
+                        cyOnSiteTrapObjectSerialPort,
+                        cyOnSiteTrapObjectPMSocketNumber,
+			cyOnSiteTrapObjectPMNumber,
+			cyOnSiteTrapObjectPMId,
+			cyOnSiteTrapObjectPMSocketName
+                  }
+      DESCRIPTION
+         "An outlet on a chain of power device has been issued the off command.
+          The port number on the appliance that the chain of power device is
+          attached to is contained in cyOnSiteTrapObjectSerialPort.
+          The power device number in the chain is contained in cyOnSiteTrapObjectPMNumber.
+          The ID of the power device is contained in cyOnSiteTrapObjectPMId.
+          The socket number that was issued the off command is contained 
+          in cyOnSiteTrapObjectPMSocketNumber.
+          The socket name that was issued the off command is contained 
+          in cyOnSiteTrapObjectPMSocketName.
+          The name of the user who issued the off command is contained 
+          in cyOnSiteTrapObjectUserName."      
+      --#SUMMARY     "The off command was issued to a power device socket. Command issued by user: %s. Power device port number: %d. Power device number: %d. Power device ID: %s. Socket number: %d. Socket name: %s."
+      --#ARGUMENTS   { 0, 1, 3, 4, 2, 5}
+      --#SEVERITY    MINOR
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 25    
+
+cyOnSitePMOutletCycleFinishedTrap TRAP-TYPE
+      ENTERPRISE  cyOnSite
+      VARIABLES   { 
+                        cyOnSiteTrapObjectUserName,
+                        cyOnSiteTrapObjectSerialPort,
+                        cyOnSiteTrapObjectPMSocketNumber,
+			cyOnSiteTrapObjectPMNumber,
+			cyOnSiteTrapObjectPMId,
+			cyOnSiteTrapObjectPMSocketName
+                  }
+      DESCRIPTION
+      "An outlet on a chain of power device has completed the cycle command.
+      The port number on the appliance that the chain of power device is
+      attached to is contained in cyOnSiteTrapObjectSerialPort.
+      The power device number in the chain is contained in cyOnSiteTrapObjectPMNumber.
+      The ID of the power device is contained in cyOnSiteTrapObjectPMId.
+      The socket number that was issued the cycle command is contained 
+      in cyOnSiteTrapObjectPMSocketNumber.
+      The socket name that was issued the cycle command is contained 
+      in cyOnSiteTrapObjectPMSocketName.
+      The name of the user who issued the cycle command is contained 
+      in cyOnSiteTrapObjectUserName."      
+      --#SUMMARY     "The cycle command has completed to a power device socket. Command issued by user: %s. Power device port number: %d. Power device number: %d. Power device ID: %s. Socket number: %d. Socket name: %s."
+      --#ARGUMENTS   { 0, 1, 3, 4, 2, 5}
+      --#SEVERITY    MINOR
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 26 
+     
+cyOnSitePMMaxLoadThresholdReachedTrap TRAP-TYPE
+      ENTERPRISE  cyOnSite
+      VARIABLES   { 
+                        cyOnSiteTrapObjectSerialPort,
+			cyOnSiteTrapObjectPMNumber,
+			cyOnSiteTrapObjectPMId,
+			cyOnSiteTrapObjectPMPhase,
+                        cyOnSiteTrapObjectPMCurrentValue  
+                  }
+      DESCRIPTION
+      "A power device attached to the appliance exceeded the total load
+       maximum threshold.
+       The port number on the appliance that the power device is attached
+       to is contained in the cyOnSiteTrapObjectSerialPort.
+       The IPDU# that exceeded the total load maximum threshold is 
+       contained in the cyOnSiteTrapObjectPMNumber.
+       The ID of the IPDU that exceeded the total load maximum threshold is 
+       contained in the cyOnSiteTrapObjectPMId.
+       The Phase of the IPDU that detected the problem is contained in 
+       the cyOnSiteTrapObjectPMPhase.
+       The current value detected when this trap was originated is contained in
+       cyOnSiteTrapObjectPMCurrentValue."
+      --#SUMMARY     "Power device exceeded the total load maximum threshold. Power device port number: %d. Power device number: %d. Power device ID: %s. Phase: %s. Current detected: %s amps."
+      --#ARGUMENTS   { 0, 1, 2, 3, 4}
+      --#SEVERITY    ALERT
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 27
+      
+cyOnSitePMMinLoadThresholdReachedTrap TRAP-TYPE
+      ENTERPRISE  cyOnSite
+      VARIABLES   { 
+                        cyOnSiteTrapObjectSerialPort,
+			cyOnSiteTrapObjectPMNumber,
+			cyOnSiteTrapObjectPMId,
+			cyOnSiteTrapObjectPMPhase,
+                        cyOnSiteTrapObjectPMCurrentValue  
+                  }
+      DESCRIPTION
+        "A power device attached to the appliance exceeded the total 
+         load minimum threshold.
+         The port number on the appliance that the power device is attached 
+         to is contained in the cyOnSiteTrapObjectSerialPort.
+         The IPDU# that exceeded the total load minimum threshold is contained 
+         in the cyOnSiteTrapObjectPMNumber.
+         The ID of the IPDU that exceeded the total load maximum threshold is 
+         contained in the cyOnSiteTrapObjectPMId.
+    	 The Phase of the IPDU that detected the problem is contained in 
+         the cyOnSiteTrapObjectPMPhase.
+         The current value detected when this trap was originated is contained in
+         cyOnSiteTrapObjectPMCurrentValue."
+      --#SUMMARY     "Power device is back below the alarm threshold. Power device port number: %d. Power device number: %d. Power device ID: %s. Phase: %s. Current detected: %s amps."
+      --#ARGUMENTS   { 0, 1, 2, 3, 4}
+      --#SEVERITY    INFORMATIONAL
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 28
+
+---------------------------------------
+-- Appliance Alert Event
+---------------------------------------
+
+cyOnSiteApplianceAlertTrap  TRAP-TYPE
+      ENTERPRISE  cyOnSite
+      VARIABLES   { 
+                        cyOnSiteTrapObjectUserName,
+			cyOnSiteTrapObjectAlertIndex,
+                        cyOnSiteTrapObjectAlertString,
+                        cyOnSiteTrapObjectAlertMessage
+                  }
+      DESCRIPTION
+       "An appliance alert was detected on a ssh or telnet session.
+       The name of user who was logged into the appliance when 
+       trap occurred is contained in cyOnSiteTrapObjectUserName.
+       The index of the appliance alert that was detected in the message is 
+       contained in cyOnSiteTrapObjectAlertIndex.
+       The appliance alert that was detected is contained in cyOnSiteTrapObjectAlertString.
+       The line text where the appliance alert was detected is contained 
+       in cyOnSiteTrapObjectAlertMessage."
+      --#SUMMARY     "An appliance alert was detected. User: %s. Alert index: %d. Alert string: %s. Line text: %s."
+      --#ARGUMENTS   { 0, 1, 2, 3}
+      --#SEVERITY    CRITICAL
+      --#CATEGORY    "Error Events"           
+      --% TrapTypeEnum=9
+      ::= 29      
+      
+---------------------------------------------------------------
+-- Firmware Upgrade Traps when the process is started by DSView
+---------------------------------------------------------------
+
+cyOnSiteFirmwareUpgradeStarted TRAP-TYPE
+      ENTERPRISE  cyOnSite
+      VARIABLES   {     
+                        cyOnSiteTrapObjectUserName,
+			cyOnSiteTrapObjectFirmwareVersion
+                        cyOnSiteTrapObjectNewFirmwareVersion
+                        
+                  }
+      DESCRIPTION
+       "The appliance has started an upgrade of a software image by DSView.
+       The name of the user who initiate the process is contained 
+       in cyOnSiteTrapObjectUserName.
+       The current firmware version is contained in cyOnSiteTrapObjectFirmwareVersion.
+       The new firmware version is contained in cyOnSiteTrapObjectNewFirmwareVersion."
+      --#SUMMARY     "Image upgrade started by DSView. User: %s. Current version: %s. New version %s."
+      --#ARGUMENTS   { 0, 1, 2}
+      --#SEVERITY    INFORMATIONAL
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 30
+
+cyOnSiteFirmwareUpgradeResultsTrap TRAP-TYPE
+      ENTERPRISE  cyOnSite
+      VARIABLES   {     
+                        cyOnSiteTrapFirmwareUpgradeResult ,                        
+                        cyOnSiteTrapObjectNewFirmwareVersion
+                  }
+      DESCRIPTION
+      "This trap is generated when Firmware upgraded is done to indicate the result.
+       The new FW version is contained in cyOnSiteTrapObjectNewFirmwareVersion.
+       The result of the process is contained in cyOnSiteTrapFirmwareUpgradeResult."
+      --#SUMMARY     "Image upgrade result. Result: %d. New firmware version: %s."
+      --#ARGUMENTS   {0,1}
+      --#SEVERITY    INFORMATIONAL
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 31            
+      
+------------------------------
+-- PM Firmware Upgrade Traps 
+------------------------------
+
+cyOnSitePMFirmwareUpgradeStartedTrap TRAP-TYPE
+      ENTERPRISE  cyOnSite
+      VARIABLES   {     
+                        cyOnSiteTrapObjectUserName,
+                        cyOnSiteTrapObjectSerialPort,
+			cyOnSiteTrapObjectPMNumber,
+                        cyOnSiteTrapObjectFirmwareVersion,
+                        cyOnSiteTrapObjectNewFirmwareVersion              
+                  }
+      DESCRIPTION
+       "The appliance has started an upgrade of the PM software.
+        The name of the user who initiate the process is contained in cyOnSiteTrapObjectUserName.
+        The port number on the appliance that the power device is attached to is
+        contained in the cyOnSiteTrapObjectSerialPort.
+        The IPDU# where the firmware upgrade is being done is contained in cyOnSiteTrapObjectPMNumber.
+        The current firmware version is contained in cyOnSiteTrapObjectFirmwareVersion.
+        The new firmware version is contained in cyOnSiteTrapObjectNewFirmwareVersion."
+      --#SUMMARY     "PM image upgrade started. User: %s. Power device port number: %d. Power device number: %d. Current version: %s. New version: %s."
+      --#ARGUMENTS   { 0, 1, 2, 3, 4}
+      --#SEVERITY    INFORMATIONAL
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 32
+
+cyOnSitePMFirmwareUpgradeResultsTrap TRAP-TYPE
+      ENTERPRISE  cyOnSite
+      VARIABLES   {     
+                      cyOnSiteTrapObjectSerialPort,
+		      cyOnSiteTrapObjectPMNumber,
+                      cyOnSiteTrapFirmwareUpgradeResult,                        
+                      cyOnSiteTrapObjectNewFirmwareVersion
+                  }
+      DESCRIPTION
+      "This trap is generated when Firmware upgraded is done to indicate the result.
+       The port number on the appliance that the power device is attached to is
+       contained in the cyOnSiteTrapObjectSerialPort.
+       The IPDU# where the upgrade was done is contained in cyOnSiteTrapObjectPMNumber.
+       The new FW version is contained in cyOnSiteTrapObjectNewFirmwareVersion.
+       The result of the process is contained in cyOnSiteTrapFirmwareUpgradeResult."
+      --#SUMMARY     "PM image upgrade result. Power device port number:%d. Power device number: %d. Result: %d. New firmware version: %s."
+      --#ARGUMENTS   {0,1,2,3}
+      --#SEVERITY    INFORMATIONAL
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 33            
+
+cyOnSiteKvmSessionStartedTrap TRAP-TYPE
+      ENTERPRISE  cyOnSite
+      VARIABLES   {
+                     cyOnSiteTrapObjectUserName,
+                     cyOnSiteTrapObjectKvmPortName,
+                     cyOnSiteTrapObjectKvmPhysicalPort,
+                     cyOnSiteTrapObjectSessionType,
+                  }
+      DESCRIPTION
+         "This trap is sent when a kvm viewer session has started on a particular port.
+          The name of the user who started the session is contain in cyOnSiteTrapObjectUserName. 
+          The physical port name  is contained in cyOnSiteTrapObjectKvmPortName. 
+          The physical port number or id is contained in cyOnSiteTrapObjectKvmPhysicalPort 
+          The integer to indicate type of session is contained in cyOnSiteTrapObjectSessionType."  
+      --#SUMMARY     "KVM session started. User: %s. Port name: %s. Port number: %s Session type: %d."
+      --#ARGUMENTS   { 0, 1, 2, 3 }
+      --#SEVERITY    INFORMATIONAL
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 34 
+      
+cyOnSiteKvmSessionStoppedTrap TRAP-TYPE
+      ENTERPRISE  cyOnSite
+      VARIABLES   {
+                     cyOnSiteTrapObjectUserName,
+                     cyOnSiteTrapObjectKvmPortName,
+                     cyOnSiteTrapObjectKvmPhysicalPort,
+                     cyOnSiteTrapObjectSessionType,
+                  }
+      DESCRIPTION
+         "This trap is sent when a kvm viewer session has stopped on particular port.
+          The name of the user who stopped the session is contain in cyOnSiteTrapObjectUserName. 
+          The physical port name  is contained in cyOnSiteTrapObjectKvmPortName. 
+          The physical port number or id is contained in cyOnSiteTrapObjectKvmPhysicalPort 
+          The integer to indicate type of session is contained in cyOnSiteTrapObjectSessionType."  
+      --#SUMMARY     "KVM session stopped. User: %s. Port name: %s. Port number: %s Session type: %d."
+      --#ARGUMENTS   { 0, 1, 2, 3 }
+      --#SEVERITY    INFORMATIONAL
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 35 
+
+cyOnSiteKvmPortDisabledTrap TRAP-TYPE
+      ENTERPRISE  cyOnSite
+      VARIABLES   {
+                     cyOnSiteTrapObjectKvmPortName,
+                     cyOnSiteTrapObjectKvmPhysicalPort,
+                  }
+      DESCRIPTION
+         "This trap is generated when kvm port is DISABLED.
+          cyOnSiteTrapObjectKvmPortName is the KVM port name.
+          The physical port number or id is contain in cyOnSiteTrapObjectKvmPhysicalPort" 
+      --#SUMMARY     "Kvm port disabled. Port name: %s. Port number: %s"
+      --#ARGUMENTS   {0,1}
+      --#SEVERITY    INFORMATIONAL
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 36 
+
+cyOnSiteKvmPortEnabledTrap TRAP-TYPE
+      ENTERPRISE  cyOnSite
+      VARIABLES   {
+                     cyOnSiteTrapObjectKvmPortName,
+                     cyOnSiteTrapObjectKvmPhysicalPort,
+                  }
+      DESCRIPTION
+         "This trap is generated when kvm port is ENABLED.
+          cyOnSiteTrapObjectKvmPortName is the KVM port name.
+          The physical port number or id is contain in cyOnSiteTrapObjectKvmPhysicalPort 
+      --#SUMMARY     "Kvm port enabled. Port name: %s. Port number: %s"
+      --#ARGUMENTS   {0,1}
+      --#SEVERITY    INFORMATIONAL
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 37 
+
+cyOnSiteKvmSessionTerminatedTrap TRAP-TYPE
+      ENTERPRISE  cyOnSite
+      VARIABLES   {
+                     cyOnSiteTrapObjectUserName,
+                     cyOnSiteTrapObjectTargetUserName,
+                     cyOnSiteTrapObjectKvmPortName,
+                     cyOnSiteTrapObjectKvmPhysicalPort,
+                  }
+      DESCRIPTION
+         "This trap is generated when kvm session terminated or killed by other user.
+          cyOnSiteTrapObjectUserName contains the NEW user name.
+          cyOnSiteTrapObjectTargetUserName contains name of the user who session was terminated.
+          cyOnSiteTrapObjectKvmPortName is kvm port name."
+      --#SUMMARY     "Kvm Session terminated. Command issued by user: %s. Terminated user: %s. Port name: %s. Port number: %s."
+      --#ARGUMENTS   { 0, 1, 2, 3 }
+      --#SEVERITY    INFORMATIONAL
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 38 
+
+cyOnSiteKvmSessionRWTakeOverTrap TRAP-TYPE
+      ENTERPRISE  cyOnSite
+      VARIABLES   {
+                     cyOnSiteTrapObjectUserName,
+                     cyOnSiteTrapObjectTargetUserName,
+                     cyOnSiteTrapObjectKvmPortName,
+                     cyOnSiteTrapObjectKvmPhysicalPort,
+                  }
+      DESCRIPTION
+         "This trap is generated when one user takes over kvm session as Read/Write(RW) of other
+          kvm session and other kvm session becomes read only.
+          cyOnSiteTrapObjectUserName contains the user name that took over KVM session as RW.
+          cyOnSiteTrapObjectTargetUserName contains name of the user who session was changed from RW to read only.
+          cyOnSiteTrapObjectKvmPortName is kvm port name.
+          cyOnSiteTrapObjectKvmPhysicalPort is physical port number or id of this session."
+      --#SUMMARY     "Kvm ReadWrite session takeover occured. Command issued by user: %s. Terminated user: %s. Port name: %s. Port Number: %s."
+      --#ARGUMENTS   { 0, 1, 2, 3 }
+      --#SEVERITY    INFORMATIONAL
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 39 
+
+cyOnSiteKvmFanSpeedThresholdTrap TRAP-TYPE
+      ENTERPRISE  cyOnSite
+      VARIABLES   {
+                      cyOnSiteTrapObjectFanNumber,
+                      cyOnSiteTrapObjectFanSpeed,
+                  }
+      DESCRIPTION
+        "This trap is generated when Fan speed goes below the default configured RPM
+         The fan number is contained in cyOnSiteTrapObjectFanNumber. 
+         The detected fan speed is contained in cyOnSiteTrapObjectFanSpeed." 
+      --#SUMMARY     "KVM fan speed fallen below the default minimum speed limit. Fan number: %d. Detected speed: %d RPM."
+      --#ARGUMENTS   {0,1}
+      --#SEVERITY    INFORMATIONAL
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 40 
+
+cyOnSitePMOutletCycleStartedTrap TRAP-TYPE
+      ENTERPRISE  cyOnSite
+      VARIABLES   { 
+                        cyOnSiteTrapObjectUserName,
+                        cyOnSiteTrapObjectSerialPort,
+                        cyOnSiteTrapObjectPMSocketNumber
+                  }
+      DESCRIPTION
+         "
+          This trap is generated when an outlet cycle starts.
+          The name of the user who issued the cycle command is contained 
+          in cyOnSiteTrapObjectUserName."      
+          The port number on the appliance that the chain of power device is
+          attached to is contained in cyOnSiteTrapObjectSerialPort.
+          The power device number in the chain is contained in cyOnSiteTrapObjectPMNumber.
+         "
+      --#SUMMARY     "The cycle command has started to a power device socket. Command issued by user: %s. Power device port number: %d. Socket number: %d."
+      --#ARGUMENTS   {0,1,2}
+      --#SEVERITY    INFORMATIONAL
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 41 
+
+cyOnSiteKvmSessionStoppedPortInUseTrap TRAP-TYPE
+      ENTERPRISE  cyOnSite
+      VARIABLES   {
+                     cyOnSiteTrapObjectUserName,
+                     cyOnSiteTrapObjectKvmPortName,
+                     cyOnSiteTrapObjectSessionType,
+                     cyOnSiteTrapObjectKvmPhysicalPort
+                  }
+      DESCRIPTION
+       "This trap is sent when a KVM session has stopped.
+        But, there is still active sessions on this port.
+        The user who was connected to the session is contained in cyOnSiteTrapObjectUserName.
+        The KVM port name on the appliance is contained in cyOnSiteTrapObjectKvmPortName.
+        The integer to indicate type of session is contained in cyOnSiteTrapObjectSessionType.  
+        The KVM port number on the appliance is contained in cyOnSiteTrapObjectKvmPhysicalPort."
+      --#SUMMARY "KVM session stopped. Port in use. User: %s. Port name: %s. Session type: %d. Port Number: %s."
+      --#ARGUMENTS   { 0, 1, 2, 3 }
+      --#SEVERITY    INFORMATIONAL
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 42 
+
+--------------------------------------------------------------------------------
+-- New Power Management Enterprise Traps
+--------------------------------------------------------------------------------
+
+cyOnSitePMOutletStatusOnTrap TRAP-TYPE
+      ENTERPRISE  cyOnSite
+      VARIABLES   { 
+                        cyOnSiteTrapObjectSerialPort,
+			cyOnSiteTrapObjectPMNumber,
+			cyOnSiteTrapObjectPMId,
+                        cyOnSiteTrapObjectPMSocketNumber,
+			cyOnSiteTrapObjectPMSocketName
+                  }
+      DESCRIPTION
+      "An outlet on a chain of power device has changed to the on state.
+      The port number on the appliance that the chain of power device is
+      attached to is contained in cyOnSiteTrapObjectSerialPort.
+      The ID of the power device is contained in cyOnSiteTrapObjectPMId.
+      The socket number that has changed to the on state is contained 
+      The number of the power device is contained in the cyOnSiteTrapObjectPMNumber.
+      in cyOnSiteTrapObjectPMSocketNumber.
+      The socket name that has changed to the on state is contained in 
+      cyOnSiteTrapObjectPMSocketName."      
+      --#SUMMARY  "Power device socket state changed to on. Power device port number: %d. Power device number: %d. Power device ID: %s. Socket number: %d. Socket name: %s."
+      --#ARGUMENTS   { 0, 1, 2, 3, 4}
+      --#SEVERITY    MINOR
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 43 
+
+cyOnSitePMOutletStatusOffTrap TRAP-TYPE
+      ENTERPRISE  cyOnSite
+      VARIABLES   { 
+                        cyOnSiteTrapObjectSerialPort,
+			cyOnSiteTrapObjectPMNumber,
+			cyOnSiteTrapObjectPMId,
+                        cyOnSiteTrapObjectPMSocketNumber,
+			cyOnSiteTrapObjectPMSocketName
+                  }
+      DESCRIPTION
+      "An outlet on a chain of power device has changed to the off state.
+      The port number on the appliance that the chain of power device is
+      attached to is contained in cyOnSiteTrapObjectSerialPort.
+      The number of the power device is contained in the cyOnSiteTrapObjectPMNumber.
+      The ID of the power device is contained in cyOnSiteTrapObjectPMId.
+      The socket number that has changed to the off state is contained 
+      in cyOnSiteTrapObjectPMSocketNumber.
+      The socket name that has changed to the off state is contained in 
+      cyOnSiteTrapObjectPMSocketName."      
+      --#SUMMARY  "Power device socket state changed to off. Power device port number: %d. Power device number: %d. Power device ID: %s. Socket number: %d. Socket name: %s."
+      --#ARGUMENTS   { 0, 1, 2, 3, 4}
+      --#SEVERITY    MINOR
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 44
+
+cyOnSitePMOutletOnSenseFailTrap TRAP-TYPE
+      ENTERPRISE  cyOnSite
+      VARIABLES   { 
+                        cyOnSiteTrapObjectSerialPort,
+			cyOnSiteTrapObjectPMNumber,
+			cyOnSiteTrapObjectPMId,
+                        cyOnSiteTrapObjectPMSocketNumber,
+			cyOnSiteTrapObjectPMSocketName
+                  }
+      DESCRIPTION
+      "A power device attached to the appliance has detected an on sense
+       failure for a socket.
+       An on sense failure occurs when a socket should be in the on state
+       but is actually in the off state.
+       The port number on the appliance that the chain of power device is
+       attached to is contained in cyOnSiteTrapObjectSerialPort.
+       The number of the power device is contained in the cyOnSiteTrapObjectPMNumber.
+       The ID of the power device is contained in cyOnSiteTrapObjectPMId.
+       The socket number that has changed to the on state is contained 
+       in cyOnSiteTrapObjectPMSocketNumber.
+       The socket name that has changed to the on state is contained in 
+       cyOnSiteTrapObjectPMSocketName."      
+      --#SUMMARY  "Power device socket on sense failure. Power device port number: %d. Power device number: %d. Power device ID: %s. Socket number: %d. Socket name: %s."
+      --#ARGUMENTS   { 0, 1, 2, 3, 4}
+      --#SEVERITY    MINOR
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 45 
+
+cyOnSitePMOutletOffSenseFailTrap TRAP-TYPE
+      ENTERPRISE  cyOnSite
+      VARIABLES   { 
+                        cyOnSiteTrapObjectSerialPort,
+			cyOnSiteTrapObjectPMNumber,
+			cyOnSiteTrapObjectPMId,
+                        cyOnSiteTrapObjectPMSocketNumber,
+			cyOnSiteTrapObjectPMSocketName
+                  }
+      DESCRIPTION
+      "A power device attached to the appliance has detected an off sense
+       failure for a socket.
+       An off sense failure occurs when a socket should be in the off state
+       but is actually in the on state.
+       The port number on the appliance that the chain of power device is
+       attached to is contained in cyOnSiteTrapObjectSerialPort.
+       The number of the power device is contained in the cyOnSiteTrapObjectPMNumber.
+       The ID of the power device is contained in cyOnSiteTrapObjectPMId.
+       The socket number that has changed to the on state is contained 
+       in cyOnSiteTrapObjectPMSocketNumber.
+       The socket name that has changed to the on state is contained in 
+       cyOnSiteTrapObjectPMSocketName."      
+      --#SUMMARY  "Power device socket off sense failure. Power device port number: %d. Power device number: %d. Power device ID: %s. Socket number: %d. Socket name: %s."
+      --#ARGUMENTS   { 0, 1, 2, 3, 4}
+      --#SEVERITY    MINOR
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 46 
+
+cyOnSitePMOutletNameChangedTrap TRAP-TYPE
+      ENTERPRISE  cyOnSite
+      VARIABLES   { 
+                        cyOnSiteTrapObjectSerialPort,
+			cyOnSiteTrapObjectPMNumber,
+			cyOnSiteTrapObjectPMId,
+                        cyOnSiteTrapObjectPMSocketNumber,
+			cyOnSiteTrapObjectPMSocketOldName
+			cyOnSiteTrapObjectPMSocketName
+                  }
+      DESCRIPTION
+      "The name of socket was changed.
+       The port number on the appliance that the chain of power device is
+       attached to is contained in cyOnSiteTrapObjectSerialPort.
+       The number of the power device is contained in the cyOnSiteTrapObjectPMNumber.
+       The ID of the power device is contained in cyOnSiteTrapObjectPMId.
+       The socket number that has changed to the on state is contained 
+       in cyOnSiteTrapObjectPMSocketNumber.
+       The socket name that has changed to the on state is contained in 
+       cyOnSiteTrapObjectPMSocketName."      
+      --#SUMMARY  "Power device socket name was changed. Power device port number: %d. Power device number: %d. Power device ID: %s. Socket number: %d. Old socket name: %s. New socket name: %s."
+      --#ARGUMENTS   { 0, 1, 2, 3, 4, 5}
+      --#SEVERITY    MINOR
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 47 
+
+cyOnSitePMInletTotalLoadHighTrap TRAP-TYPE
+      ENTERPRISE  cyOnSite
+      VARIABLES   { 
+                        cyOnSiteTrapObjectSerialPort,
+			cyOnSiteTrapObjectPMNumber,
+			cyOnSiteTrapObjectPMId,
+			cyOnSiteTrapObjectPMPhase,
+                  }
+      DESCRIPTION
+      "A power device attached to the appliance has exceeded the maximum
+       threshold for total load of an inlet.
+       The port number on the appliance that the power device is attached
+       to is contained in the cyOnSiteTrapObjectSerialPort.
+       The number of the IPDU that has exceeded the maximum threshold for total load
+       of an inlet is contained in the cyOnSiteTrapObjectPMNumber.
+       The IPDU ID that has exceeded the maximum threshold for total load
+       of an inlet is contained in the cyOnSiteTrapObjectPMId.
+       The inlet of the power device is contained in the cyOnSiteTrapObjectPMPhase."
+      --#SUMMARY     "Power device inlet exceeded the total load maximum threshold. Power device port number: %d. Power device number: %d. Power device ID: %s. Inlet: %s." 
+      --#ARGUMENTS   { 0, 1, 2, 3}
+      --#SEVERITY    ALERT
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 48 
+      
+cyOnSitePMInletTotalLoadLowTrap TRAP-TYPE
+      ENTERPRISE  cyOnSite
+      VARIABLES   { 
+                        cyOnSiteTrapObjectSerialPort,
+			cyOnSiteTrapObjectPMNumber,
+			cyOnSiteTrapObjectPMId,
+			cyOnSiteTrapObjectPMPhase,
+                  }
+      DESCRIPTION
+      "A power device attached to the appliance has gone beneath the minimum
+       threshold for total load of an inlet.
+       The port number on the appliance that the power device is attached
+       to is contained in the cyOnSiteTrapObjectSerialPort.
+       The number of the IPDU that has exceeded the maximum threshold for total load
+       of an inlet is contained in the cyOnSiteTrapObjectPMNumber.
+       The IPDU ID that has gone beneath the minimum threshold for total load
+       of an inlet is contained in the cyOnSiteTrapObjectPMId.
+       The inlet of the power device is contained in the cyOnSiteTrapObjectPMPhase."
+      --#SUMMARY     "Power device inlet is back below the total load minimum threshold. Power device port number: %d. Power device number: %d. Power device ID: %s. Inlet: %s." 
+      --#ARGUMENTS   { 0, 1, 2, 3}
+      --#SEVERITY    ALERT
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 49
+
+cyOnSiteSerialSessionStoppedPortInUseTrap TRAP-TYPE
+      ENTERPRISE  cyACSMgmt
+      VARIABLES   {
+                     cyOnSiteTrapObjectUserName,
+                     cyOnSiteTrapObjectSerialPortName,
+                     cyOnSiteTrapObjectSerialPort,
+                     cyOnSiteTrapObjectSerialSessionType
+                  }
+      DESCRIPTION
+       "This trap is sent when a serial session has stopped.
+        But, there is still active sessions on this port.
+        The user who was connected to the session is contained in cyOnSiteTrapObjectUserName.
+        The serial port name on the appliance is contained in cyOnSiteTrapObjectSerialPortName
+        The serial port number on the appliance is contained in cyOnSiteTrapObjectSerialPort.
+        The type of protocol running on this port is contained in cyOnSiteTrapObjectSerialSessionType."
+      --#SUMMARY     "Serial session stopped. Port in use. User: %s. Port name: %s. Port number: %d. Session type: %d."
+      --#ARGUMENTS   { 0, 1, 2, 3 }
+      --#SEVERITY    INFORMATIONAL
+      --#CATEGORY    "Status Events"
+      --% TrapTypeEnum=9
+      ::= 50 
+
+END
+

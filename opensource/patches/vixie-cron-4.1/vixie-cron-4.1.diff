@@ -1,0 +1,16 @@
+diff -ruN vixie-cron-4.1/Makefile vixie-cron-4.1_patch/Makefile
+--- vixie-cron-4.1/Makefile	2004-07-21 06:31:55.000000000 -0700
++++ vixie-cron-4.1_patch/Makefile	2006-04-13 09:13:22.162844427 -0700
+@@ -110,8 +110,10 @@
+ 			$(CC) $(LDFLAGS) -o crontab $(CRONTAB_OBJ) $(LIBS)
+ 
+ install		:	all
+-			$(INSTALL) -c -m  111 -o root -s cron    $(DESTSBIN)/
+-			$(INSTALL) -c -m 4111 -o root -s crontab $(DESTBIN)/
++			$(INSTALL) -d $(DESTSBIN)
++			$(INSTALL) -d $(DESTBIN)
++			$(INSTALL) -c -m  111 cron    $(DESTSBIN)/
++			$(INSTALL) -c -m 4111 crontab $(DESTBIN)/
+ #			$(INSTALL) -c -m  111 -o root -g crontab -s cron $(DESTSBIN)/
+ #			$(INSTALL) -c -m 2111 -o root -g crontab -s crontab $(DESTBIN)/
+ 			sh putman.sh crontab.1 $(DESTMAN)

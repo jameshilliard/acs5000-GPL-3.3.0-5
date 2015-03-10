@@ -1,0 +1,7 @@
+./tcp_wrappers-7.6-1-config.patch
+./tcp_wrappers-7.6-3-netgroup.patch
+./tcp_wrappers-7.6-4-bug11881.patch
+./tcp_wrappers-7.6-5-bug17795.patch
+./tcp_wrappers-7.6-6-bug17847.patch
+./tcp_wrappers-7.6-7-fixgethostbyname.patch
+./tcp_wrappers-7.6-9-casesens.patch

@@ -1,0 +1,5 @@
+#!/bin/sh
+ssh-keygen -t rsa1 -C RSA1 -b 1024 -f /etc/ssh/ssh_host_key     -N ''
+ssh-keygen -t rsa  -C RSA  -b 1024 -f /etc/ssh/ssh_host_rsa_key -N ''
+ssh-keygen -t dsa  -C DSA  -b 1024 -f /etc/ssh/ssh_host_dsa_key -N ''
+

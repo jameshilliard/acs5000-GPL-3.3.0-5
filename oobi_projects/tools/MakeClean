@@ -1,0 +1,41 @@
+#
+#  Makefile for Cyclades projects.
+#
+# Performs clean-ups.
+#
+
+include $(ROOT_PROJ)/$(TOOLS)/MakeChecks 
+include $(WORK_DIR)/config
+include $(ROOT_PROJ)/$(PACKAGES_DEF)
+
+$(call check_vars,BUILD WORK_DIR TOOLS SOURCE_PKGS)
+
+foo:
+	@echo
+	@echo "To clean a package a target must be given:"
+	@echo
+	@echo "   clean_<package_name> or clean_<package_name>+"
+	@echo
+
+SCLEAN_PKGS := $(addprefix clean_,$(SOURCE_PKGS)) \
+				$(addprefix clean_,$(INCLUDE_PKGS))
+
+$(SCLEAN_PKGS): clean_%: force
+	-rm -rf $(WORK_DIR)/$(BUILD)/$($*)
+	-rm -rf $(WORK_DIR)/$(LOGS)/src_$*
+	-rm -rf $(WORK_DIR)/$(LOGS)/bld_$*
+
+clean_%+:
+	@( \
+	TARGET="$(filter clean_$*%, $(SCLEAN_PKGS))"; \
+	if [ "$$TARGET" = "" ] ; then \
+		echo Invalid target: $@ ; \
+		exit -1 ; \
+	else \
+		$(MAKE) -f $(firstword $(MAKEFILE_LIST)) $$TARGET ; \
+	fi )
+
+$(MAKEFILE_LIST): ;
+
+force: ;
+

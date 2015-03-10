@@ -1,0 +1,7 @@
+echo open $2> /bin/ftp.cmd
+echo user $3 $4>> /bin/ftp.cmd
+echo bin>> /bin/ftp.cmd
+echo hash>> /bin/ftp.cmd
+echo get $5/$1 /proc/flash/$6 >> /bin/ftp.cmd
+echo quit >> /bin/ftp.cmd
+

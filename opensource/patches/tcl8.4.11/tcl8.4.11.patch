@@ -1,0 +1,16 @@
+diff -Naur tcl8.4.11.ori/config.cache tcl8.4.11/config.cache
+--- tcl8.4.11.ori/config.cache	1969-12-31 16:00:00.000000000 -0800
++++ tcl8.4.11/config.cache	2005-11-08 17:03:14.701509014 -0800
+@@ -0,0 +1 @@
++ac_cv_prog_cc_cross=yes
+diff -Naur tcl8.4.11.ori/unix/configure tcl8.4.11/unix/configure
+--- tcl8.4.11.ori/unix/configure	2005-06-29 09:40:33.000000000 -0700
++++ tcl8.4.11/unix/configure	2005-11-08 17:11:03.100039893 -0800
+@@ -6571,7 +6571,6 @@
+ 	    echo "$ac_t""ok" 1>&6
+ 	else
+ 	    echo "$ac_t""buggy" 1>&6
+-	    LIBOBJS="$LIBOBJS fixstrtod.o"
+ 	    cat >> confdefs.h <<\EOF
+ #define strtod fixstrtod
+ EOF

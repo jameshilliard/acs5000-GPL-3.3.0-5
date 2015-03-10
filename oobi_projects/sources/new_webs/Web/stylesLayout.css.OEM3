@@ -1,0 +1,759 @@
+.bgColor1 
+{
+background-color : #b0bfe6;
+}
+
+.bgColor2 
+{
+background-color : #899dd8;
+}
+
+.bgColor3 
+{
+background-color : #4565bc;
+}
+
+.bgColor4 
+{
+background-color : #899dd8;
+}
+
+.bgColor5 
+{
+background-color : #c0ced9;
+}
+
+.bgColor6 
+{
+background-color : #7891c9;
+}
+
+.bgColor7 
+{
+background-color : #899dd8;
+}
+
+.bgColor8 
+{
+background-color : #c0ced9;
+}
+
+.bgColor9 
+{
+background-color : #acaec3;
+}
+
+.bgColor10
+{
+background-color : #c0ced9;
+}
+
+.bgColor11
+{
+background-color : #ffffff;
+}
+
+.bgColor12 
+{
+background-color : #f7f9fc;
+}
+
+.fontColor1
+{
+	color: red;
+}
+
+a.linkColor1:link 
+{
+color: #323369
+}
+
+a.linkColor1:visited 
+{
+color: #323369
+}
+
+a.linkColor1:active 
+{
+color: #323369
+}
+
+.body
+{
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 14px;
+}
+
+.table
+{
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 14px;
+}
+
+.bodyMain
+{
+   margin : 20px;
+   margin-bottom : 20px;
+   margin-left : 20px;
+   margin-right : 20px;
+   margin-top : 20px;
+   background-color : #f7f9fc;
+}
+
+.bodyForLayers
+{
+   margin : 0px;
+   margin-bottom : 20px;
+   margin-left : 0px;
+   margin-right : 0px;
+   margin-top : 20px;
+   background-color : #f7f9fc;
+}
+
+.bodyMainTabs
+{
+   margin : 0px;
+   margin-bottom : 0px;
+   margin-left : 0px;
+   margin-right : 0px;
+   margin-top : 0px;
+   background-color : #f7f9fc;
+}
+
+.bodyMiniWizard
+{
+   margin : 0px;
+   margin-bottom : 0px;
+   margin-left : 0px;
+   margin-right : 0px;
+   margin-top : 0px;
+   background-color : #f7f9fc;
+}
+
+.bodyBorders1
+{
+   background-color : #c0ced9;
+}
+
+.bodyBorders2
+{
+   background-color : #c0ced9;
+}
+
+.bodyBorders3
+{
+   background-color : #c0ced9;
+}
+
+.bodyBorders4
+{
+   background-color : #c0ced9;
+}
+
+.bodyBorders5
+{
+   background-color : #899dd8;
+}
+
+.bodyBorders6
+{
+   background-color : #f7f9fc;
+}
+
+.bodyBorders7
+{
+   background-color : #acaec3;
+}
+
+.bodyBorders8
+{
+   background-color : #899dd8;
+}
+
+.bodyBorders9
+{
+   background-color : #899dd8;
+}
+
+.bodyBorders10
+{
+   background-color : #4565bc;
+}
+
+.bodyBorders11
+{
+   background-color : #7891c9;
+}
+
+.tipclass
+{
+   background-color: #4565bc;
+   padding: 5px;
+   border-style : solid;
+   border-width: 2px;
+   border-color: #132963;
+   color: #132963;
+   font-size: 13px;
+   font-family: Helvetica, Arial, sans-serif;
+   visibility: hidden
+}
+
+.small
+{
+   color: #132963;
+   font-size: 10px;
+   font-family: Helvetica, Arial, sans-serif;
+}
+
+.pagecontent
+{
+   position: absolute;
+   left:10;
+   top:0
+}
+
+
+.alignRight
+{
+   text-align:right;
+}
+
+div.alignLeft
+{
+   text-align:left;
+   vertical-align : bottom;
+   padding: 0px;
+}
+
+div.alignLeftTop
+{
+   text-align:left;
+   vertical-align : top;
+}
+
+.helpBox
+{
+   font-family: Helvetica, Arial, sans-serif;
+   font-size: 13px;
+   font-weight: bold;
+   color : #132963;
+   text-align:left;
+   vertical-align : middle;
+}
+
+.securityBox
+{
+   font-family: Helvetica, Arial, sans-serif;
+   font-size: 11px;
+   color : #132963;
+   text-align:left;
+   vertical-align : middle;
+}
+
+div.alignRightTop
+{
+   text-align:right;
+   vertical-align : top;
+}
+
+div.alignCenter
+{
+   text-align: center;
+   vertical-align : middle;
+}
+
+.tableText
+{
+   font-family: Helvetica, Arial, sans-serif;
+   font-size: 14px;
+   color : #000000;
+}
+
+.tableTextInactive
+{
+ 	font-family: Helvetica, Arial, sans-serif;
+	font-size: 12px;
+    font-weight: bold;
+	color : #859ae6;
+	text-decoration: none;
+}
+
+.colorTRow
+{
+	font-family: Helvetica, Arial, sans-serif;
+	font-size: 13px;
+	color : #000000;
+	background-color: #ffffff;
+	vertical-align : top;
+}
+
+.colorTRowMiddle
+{
+	font-family: Helvetica, Arial, sans-serif;
+	font-size: 13px;
+	color : #000000;
+	background-color: #ffffff;
+	vertical-align : middle;
+}
+
+.colorTRowAlt
+{
+	font-family: Helvetica, Arial, sans-serif;
+	font-size: 13px;
+	color : #000000;
+	background-color: #f7f9fc;
+	vertical-align : top;
+   font-weight : normal;
+}
+
+.colorTRowAltMiddle
+{
+	font-family: Helvetica, Arial, sans-serif;
+	font-size: 13px;
+	color : #000000;
+	background-color: #f7f9fc;
+	vertical-align : middle;
+   font-weight : normal;
+}
+
+.colorTRowAltMiddleOdd
+{
+	font-family: Helvetica, Arial, sans-serif;
+	font-size: 13px;
+	color : #000000;
+	background-color: #EDEDFF;
+	vertical-align : middle;
+   font-weight : normal;
+}
+
+.colorTRowAltMiddleEven
+{
+	font-family: Helvetica, Arial, sans-serif;
+	font-size: 13px;
+	color : #000000;
+	background-color: #FFEAEE;
+	vertical-align : middle;
+   font-weight : normal;
+}
+
+.colorTRowAlt2
+{
+	font-family: Helvetica, Arial, sans-serif;
+	font-size: 13px;
+	color: #b0bfe6;
+	background-color: #4565bc;
+	vertical-align: top;
+	font-weight: bold;
+}
+
+.colorTHeader
+{
+	font-family: Helvetica, Arial, sans-serif;
+	font-size: 13px;
+	color : #ffffff;
+	background-color: #899dd8;
+	vertical-align : top;
+	font-weight : bold;
+}
+
+.colorTHeader2
+{
+	font-family: Helvetica, Arial, sans-serif;
+	font-size: 13px;
+	color : #ffffff;
+	background-color: #899dd8;
+	vertical-align : middle;
+	font-weight : bold;
+}
+
+.tableColor
+{
+	color : #ffffff;
+	background-color: #899dd8;
+}
+
+
+.colorTHeaderAlt
+{
+	font-family: Helvetica, Arial, sans-serif;
+	font-size: 13px;
+	color : #ffffff;
+	background-color: #c0ced9;
+	vertical-align : top;
+	font-weight : bold;
+}
+
+.label
+{
+   font-family: Helvetica, Arial, sans-serif;
+   font-size: 14px;
+   color : #000000;
+   text-decoration: none;
+}
+
+.label_for_tables
+{
+   font-family: Helvetica, Arial, sans-serif;
+   font-size: 13px;
+   color : #213b85;
+   font-weight: bold;
+   text-decoration: none;
+}
+.label_for_tables2
+{
+   font-family: Helvetica, Arial, sans-serif;
+   font-size: 14px;
+   color : #213b85;
+   font-weight: bold;
+   text-decoration: none;
+}
+.labelBold
+{
+   font-family: Helvetica, Arial, sans-serif;
+   font-size: 16px;
+   font-weight: bold;
+   color : #000000;
+}
+
+.redBold
+{
+   font-family: Helvetica, Arial, sans-serif;
+   font-size: 16px;
+   font-weight: bold;
+   color : #132963;
+}
+
+.tableHeader
+{
+   font-family: Helvetica, Arial, sans-serif;
+   font-size: 14px;
+   font-weight: bold;
+   color : #ffffff;
+}
+
+.formText
+{
+	font-family: "Courier New", Courier, Fixed, monospace;
+	font-size: 15px;
+	color: #000000;
+}
+
+.formPre
+{
+	font-family: "Courier New", Courier, Fixed, monospace;
+	font-size: 15px;
+	color : #000000;
+	white-space: pre;
+}
+
+.logoutText
+{
+   font-family: Helvetica, Arial, sans-serif;
+   font-size: 16px;
+   font-weight: bold;
+   color : #132963;
+   text-decoration : none;
+   text-hover: #b0bfe6;
+}
+
+.loginText
+{
+   font-family: Helvetica, Arial, sans-serif;
+   font-size: 16px;
+   font-weight: bold;
+   color : #cad7df;
+}
+
+.newloginText
+{
+   font-family: Helvetica, Arial, sans-serif;
+   font-size: 16px;
+   font-weight: bold;
+   color : #132963;
+   text-decoration : none;
+   text-hover: #F7F9FC;
+}
+
+.yellowText
+{
+   font-family: Helvetica, Arial, sans-serif;
+   font-size: 12px;
+   font-weight: bold;
+   color : #132963;
+   text-decoration : none;
+   text-hover: #b0bfe6;
+}
+
+.topMenuText {
+
+	font-family: Helvetica, Arial, sans-serif;
+	font-size: 14px;
+    font-weight: bold;
+	color : #132963;
+	text-decoration: none;
+}
+
+.topMenuMono {
+
+	font-family: "Courier New", Courier, monospace;
+	font-size: 9pt;
+	color : #132963;
+	text-decoration: none;
+}
+
+.topMenuTextHigh {
+
+	font-family: Helvetica, Arial, sans-serif;
+	font-size: 14px;
+    font-weight: bold;
+	color : #b00a2e;
+	text-decoration: none;
+
+}
+
+.tabsText
+{
+	font-family: Helvetica, Arial, sans-serif;
+	font-size: 12px;
+    font-weight: bold;
+	color : #132963;
+	text-decoration: none;
+
+}
+.tabsTextBig
+{
+	font-family: Helvetica, Arial, sans-serif;
+	font-size: 13px;
+    font-weight: bold;
+	color : #132963;
+	text-decoration: none;
+
+}
+
+.tabsTextAlt
+{
+	font-family: Helvetica, Arial, sans-serif;
+	font-size: 12px;
+    font-weight: bold;
+	color : #b0bfe6;
+	text-decoration: none;
+
+}
+
+.IPGatewayText
+{
+   font-family: Helvetica, Arial, sans-serif;
+   font-size: 11px;
+   font-weight: bold;
+   color : #132963;
+}
+
+.smallTitle
+{
+	font-family: Helvetica, Arial, sans-serif;
+	font-size: 12px;
+	font-weight: normal;
+	color: #132963;
+}
+
+.helpText
+{
+   font-family: Helvetica, Arial, sans-serif;
+   font-size: 12px;
+   font-weight: bold;
+   color : #132963;
+   text-decoration : none;
+   text-hover: #b0bfe6;
+}
+
+.menuButton
+{
+   position: absolute;
+   visibility: hidden;
+}
+
+.menuText
+{
+   font-family: Helvetica, Arial, sans-serif;
+   font-size: 12px;
+   font-weight: bold;
+   color : #ffffff;
+   text-decoration : none;
+   padding-top: 2;
+   padding-left: 5;
+/*   vertical-align: super; */
+}
+
+.submenuText
+{
+   font-family: Helvetica, Arial, sans-serif;
+   font-size: 12px;
+   font-weight: normal;
+   color : #ffffff;
+   text-decoration : none;
+   padding-top: 2;
+   padding-left: 5;
+/*   vertical-align: super; */
+}
+
+.menuTextSelected
+{
+   font-family: Helvetica, Arial, sans-serif;
+   font-size: 12px;
+   font-weight: bold;
+   color : #132963;
+   text-decoration : none;
+   padding-top: 2;
+   padding-left: 5;
+/*   vertical-align: super; */
+}
+
+.submenuTextSelected
+{
+   font-family: Helvetica, Arial, sans-serif;
+   font-size: 12px;
+   font-weight: normal;
+   color : #132963;
+   text-decoration : none;
+   padding-top: 2;
+   padding-left: 5;
+/*   vertical-align: super; */
+}
+
+.loginError
+{
+	font-family: Helvetica, Arial, sans-serif;
+	font-size: 12px;
+	color : #ffffff;
+	text-decoration: none;
+
+}
+
+.hidden
+{
+   position: relative;
+   visibility:hidden;
+   }
+
+.visible {
+   position: relative;
+   visibility:visible;
+   }
+
+.bodyHelp {
+    margin : 0px;
+    margin-bottom : 0px;
+    margin-left : 0px;
+    margin-right : 15px;
+    margin-top : 0px;
+	background-attachment: scroll;
+	background-color: #f0f2fb;
+	background-image: url(Images/leftHelp.gif);
+	background-repeat: repeat-y;
+	background-position: left top;
+}
+
+.textHelp
+{
+	font-family: Helvetica, Arial, sans-serif;
+	font-size: 13px;
+	color : #000000;
+	background-color: #f0f2fb;
+	vertical-align : middle;
+	text-align: justify;
+}
+
+.paragHelp
+{
+	font-family: Helvetica, Arial, sans-serif;
+	font-size: 13px;
+	font-weight: bold;
+	color : #7160a6;
+	background-color: #f0f2fb;
+	text-decoration: none;
+	text-align: left;
+	vertical-align: middle;
+}
+
+.titleHelp
+{
+	font-family: Helvetica, Arial, sans-serif;
+	font-size: 14px;
+	font-weight: bold;
+	color : #7160a6;
+	text-decoration: none;
+	background-color: #f0f2fb;
+	text-align: center;
+	vertical-align: middle;
+}
+
+.lightButton
+{
+	font-family: Helvetica, Arial, sans-serif;
+	font-size: 12px;
+	color: #132963;
+	vertical-align: middle;
+	text-decoration: none;
+	border: 1px ridge transparent;
+	font-weight: bold;
+	-moz-resizer: none;
+	background-color: #c0ced9;
+}
+
+.yellowButton
+{
+	font-family: Helvetica, Arial, sans-serif;
+	font-size: 12px;
+	color: #213b85;
+	vertical-align: middle;
+	text-decoration: none;
+	border: 1px solid #213b85;
+	font-weight: bold;
+	-moz-resizer: none;
+	background-color: #899dd8;
+}
+
+.lightPorts
+{
+	font-family: Helvetica, Arial, sans-serif;
+	font-size: 12px;
+	color: #132963;
+	vertical-align: middle;
+	text-decoration: none;
+	font-weight: bold;
+}
+
+.mainButtons
+{
+	font-family: Helvetica, Arial, sans-serif;
+	font-size: 13px;
+	font-weight: bold;
+	color : #132963;
+	text-decoration: none;
+	border: 1px solid #132963;
+	background: #899dd8;
+	line-height: 25px;
+}
+
+#container
+{
+        width: 100%;
+        height: 100%;
+	display: none;
+	background: #FFFFE6;
+	z-index:1000000;
+
+}
+
+#loading
+{
+	position:absolute;
+	left:32%;
+	top:16%;
+}
+
+#fwstatus
+{
+	display: none;
+}
+

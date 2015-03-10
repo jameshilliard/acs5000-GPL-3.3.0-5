@@ -1,0 +1,319 @@
+--- openswan-2.4.9/lib/libopenswan/Makefile.orig	2007-10-22 09:37:24.000000000 -0200
++++ openswan-2.4.9/lib/libopenswan/Makefile	2007-10-22 09:40:13.000000000 -0200
+@@ -21,8 +21,6 @@ include ${OPENSWANSRCDIR}/Makefile.inc
+ include ${OPENSWANSRCDIR}/Makefile.ver
+ 
+ 
+-MANDIR=$(MANTREE)/man3
+-
+ SRCS=addrtoa.c addrtot.c addrtypeof.c alg_info.c anyaddr.c atoaddr.c \
+ 	atoasr.c atosubnet.c atoul.c constants.c copyright.c datatot.c \
+ 	alloc.c diag.c \
+@@ -48,7 +46,6 @@ LOGOBJS=${LOGSRCS:.c=.o}
+ 
+ KLIPSD=${OPENSWANSRCDIR}/linux/include
+ KLIPSSRCDIR=${OPENSWANSRCDIR}/linux/net/ipsec
+-MANSRCDIR=${OPENSWANSRCDIR}/lib/libopenswan
+ 
+ VPATH+= ${KLIPSSRCDIR}
+ 
+@@ -80,39 +77,13 @@ endif
+ ARFLAGS=crvs
+ EXTHDRS=des.h
+ EXTLIBS=libdes.a
+-MANS=anyaddr.3 atoaddr.3 atoasr.3 atoul.3 goodmask.3 \
+-	initaddr.3 initsubnet.3 optionsfrom.3 portof.3 rangetosubnet.3 \
+-	sameaddr.3 subnetof.3 ttoaddr.3 ttodata.3 ttosa.3 ttoul.3 version.3
+ 
+-.PHONY:	all install clean l t lt tar check depend checkprograms
++.PHONY: all clean l t lt tar check depend checkprograms
++
+ 
+ all:	$(LIBA) ${LIBL}
+ programs: $(LIBA) ${LIBL}
+ 
+-install:
+-	@mkdir -p $(MANDIR)
+-	@for f in $(MANS) ; \
+-	do \
+-		$(INSTALL) $(INSTMANFLAGS) $(MANSRCDIR)/$$f $(MANDIR)/ipsec_$$f || exit 1 ; \
+-	done
+-	@$(OPENSWANSRCDIR)/packaging/utils/manlink $(foreach man, $(MANS), ${MANSRCDIR}/$(man)) | \
+-	while read from to; \
+-	do \
+-		ln -s -f ipsec_$$from $(MANDIR)/$$to; \
+-	done
+-
+-
+-install_file_list:
+-	@for f in $(MANS) ; \
+-	do \
+-		echo $(MANDIR)/ipsec_$$f;\
+-	done;
+-	@$(OPENSWANSRCDIR)/packaging/utils/manlink $(foreach man, $(MANS), ${MANSRCDIR}/$(man)) | \
+-	while read from to; \
+-	do \
+-		echo $(MANDIR)/$$to; \
+-	done
+-
+ $(LIBA): $(OBJS)
+ 	$(AR) $(ARFLAGS) $(LIBA) $(OBJS)
+ 
+--- openswan-2.4.9/lib/Makefile.orig	2007-10-22 09:35:29.000000000 -0200
++++ openswan-2.4.9/lib/Makefile	2007-10-22 10:22:53.000000000 -0200
+@@ -31,9 +31,11 @@ def:
+ 	@echo "Please read doc/intro.html or INSTALL before running make"
+ 	@false
+ 
++install:
++
+ # programs
+ 
+-cleanall distclean mostlyclean realclean install programs checkprograms check clean spotless install_file_list:
++cleanall distclean mostlyclean realclean programs checkprograms check clean spotles:
+ 	@for d in $(SUBDIRS) ; \
+ 	do \
+ 		(cd $$d && $(MAKE) srcdir=${srcdir}$$d/ OPENSWANSRCDIR=$(OPENSWANSRCDIR) $@ ) || exit 1;\
+--- openswan-2.4.9/programs/_realsetup/_realsetup.in.orig	2007-10-22 10:34:49.000000000 -0200
++++ openswan-2.4.9/programs/_realsetup/_realsetup.in	2007-10-22 10:48:54.000000000 -0200
+@@ -58,7 +58,7 @@ IPSECplutowait=${IPSECplutowait:-no}
+ IPSECrp_filter=${IPSECrp_filter:-0}
+ IPSECuniqueids=${IPSECuniqueids:-yes}
+ IPSECcrlcheckinterval=${IPSECcrlcheckinterval:-0}
+-IPSECprotostack=${IPSECprotostack:-auto}
++IPSECprotostack=${IPSECprotostack:-netkey}
+ # IPSECoverridemtu	""
+ 
+ # which kernel are we using?
+--- openswan-2.4.9/programs/_startklips/_startklips.in.orig	2007-10-22 09:49:33.000000000 -0200
++++ openswan-2.4.9/programs/_startklips/_startklips.in	2007-10-24 10:00:02.000000000 -0200
+@@ -18,7 +18,7 @@ me='ipsec _startklips'		# for messages
+ 
+ # KLIPS-related paths
+ sysflags=/proc/sys/net/ipsec
+-modules=/proc/modules
++modules=/proc/modules_already_compiled_in
+ # full rp_filter path is $rpfilter1/interface/$rpfilter2
+ rpfilter1=/proc/sys/net/ipv4/conf
+ rpfilter2=rp_filter
+@@ -37,7 +37,7 @@ case $bareversion in
+ 		;;
+ esac
+ 
+-klips=true
++klips=false
+ netkey=/proc/net/pfkey
+ 
+ info=/dev/null
+@@ -237,6 +237,10 @@ logonly() {
+ 
+ # sort out which module is appropriate, changing it if necessary
+ setmodule() {
++	# For Cyclades, we don't want to install perl, and we don't need versioning anyway.
++	# We therefore simply return here.
++	return
++
+ 	if [ -e /proc/kallsyms ]
+ 	then
+ 		kernelsymbols="/proc/kallsyms";
+@@ -295,6 +299,15 @@ then
+ 	# echo "kernel appears to lack IPsec support (neither CONFIG_KLIPS or CONFIG_NET_KEY are set)"
+ 	# exit 1
+ fi
++
++if test -f $netkey
++then
++	echo "Loading modules..."
++	@MODPROBE@ -q ah6 2> /dev/null
++	@MODPROBE@ -q esp6 2> /dev/null
++	@MODPROBE@ -q ipcomp6 2> /dev/null
++fi
++
+ # modules shared between klips and netkey
+ if test -f $modules
+ then
+--- openswan-2.4.9/programs/pluto/Makefile.orig	2007-10-22 09:51:50.000000000 -0200
++++ openswan-2.4.9/programs/pluto/Makefile	2007-10-22 09:54:16.000000000 -0200
+@@ -51,9 +51,6 @@ XAUTH_USEPAM=1
+ endif
+ endif
+ 
+-FMANDIR=$(MANTREE)/man5
+-PMANDIR=$(MANTREE)/man8
+-
+ # -O on Linux makes gcc coredump when compiling sha1.c
+ # -Wundef is nice but RHL5.2 compiler doesn't support it
+ CFLAGS = -g -Wall -W -Wmissing-prototypes -Wpointer-arith -Wbad-function-cast \
+@@ -398,38 +395,17 @@ install: all
+ 	mkdir -p -m 755 $(CONFDIR)/ipsec.d/crls
+ 	mkdir -p -m 700 $(CONFDIR)/ipsec.d/private
+ 	mkdir -p -m 700 $(VARDIR)/run/pluto
++	$(STRIP) $(BINNAMEPLUTO)
++	$(STRIP) $(BINNAMEWHACK)
+ 	$(INSTALL) $(INSTBINFLAGS) $(BINNAMEPLUTO) $(BINNAMEWHACK) $(LIBEXECDIR)
+ 	#$(INSTALL) $(INSTSUIDFLAGS) $(BINNAMEWHACKINIT) $(LIBEXECDIR)
+ 	if $(USE_ADNS) ; then $(INSTALL) $(INSTBINFLAGS) $(BINNAMEADNS)  $(LIBEXECDIR) ; fi
+ 	$(INSTALL) $(INSTMANFLAGS) ${srcdir}/pluto.8 $(PMANDIR)/ipsec_pluto.8
+-	sh ${OPENSWANSRCDIR}/packaging/utils/manlink pluto.8 | \
+-		while read from to ; \
+-		do \
+-			ln -s -f ipsec_$$from $(PMANDIR)/$$to; \
+-		done
+-	$(INSTALL) $(INSTMANFLAGS) ${srcdir}/ipsec.secrets.5 $(FMANDIR)
+-	sh ${OPENSWANSRCDIR}/packaging/utils/manlink ipsec.secrets.5 | \
+-		while read from to ; \
+-		do \
+-		 ln -s -f $$from $(FMANDIR)/$$to; \
+-		done
+ 
+ install_file_list:
+ 	@echo $(LIBEXECDIR)/$(BINNAMEPLUTO)
+ 	@if $(USE_ADNS) ; then echo $(LIBDIR)/$(BINNAMEADNS) ; fi
+ 	@echo $(LIBEXECDIR)/$(BINNAMEWHACK)
+-	@echo $(PMANDIR)/ipsec_pluto.8
+-	@sh ${OPENSWANSRCDIR}/packaging/utils/manlink pluto.8 | \
+-		while read from to; \
+-		do\
+-			 echo $(PMANDIR)/$$to; \
+-		done
+-	@echo $(FMANDIR)/ipsec.secrets.5
+-	@sh ${OPENSWANSRCDIR}/packaging/utils/manlink ipsec.secrets.5 | \
+-		while read from to; \
+-		do \
+-			echo $(FMANDIR)/$$to; \
+-		done
+ 
+ alg_info_test: alg_info_test.o ike_alg.o constants.o defs.o log.o db_ops.o crypto.o $(LIBDESLITE) $(OPENSWANLIB)
+ 	$(CC) -o $@ $^ $(LIBSPLUTO)
+--- openswan-2.4.9/programs/pluto/pluto_endian.h.orig	2007-10-22 09:54:22.000000000 -0200
++++ openswan-2.4.9/programs/pluto/pluto_endian.h	2007-10-22 09:56:27.000000000 -0200
+@@ -16,7 +16,9 @@
+ 
+ /* sets BYTE_ORDER, LITTLE_ENDIAN, and BIG_ENDIAN */
+ 
+-#if defined(__OpenBSD__) || defined(__NetBSD__)
++#if 1
++#include <endian.h>
++#elif defined(__OpenBSD__) || defined(__NetBSD__)
+ # include <machine/endian.h>
+ #elif linux
+ # if defined(i386) && !defined(__i386__)
+--- openswan-2.4.9/programs/Makefile.orig	2007-10-22 09:40:25.000000000 -0200
++++ openswan-2.4.9/programs/Makefile	2007-10-22 09:42:42.000000000 -0200
+@@ -22,7 +22,7 @@ include ${OPENSWANSRCDIR}/Makefile.inc
+ SUBDIRS=spi eroute spigrp tncfg klipsdebug pf_key proc pluto 
+ SUBDIRS+=_confread _copyright _include _keycensor _plutoload _plutorun
+ SUBDIRS+=_realsetup _secretcensor _startklips _updown _updown_x509
+-SUBDIRS+=auto barf verify ipsec look manual newhostkey ranbits secrets
++SUBDIRS+=auto barf verify ipsec look newhostkey ranbits secrets
+ SUBDIRS+=rsasigkey setup showdefaults showhostkey calcgoo mailkey
+ SUBDIRS+=ikeping examples livetest
+ 
+--- openswan-2.4.9/programs/Makefile.program.orig	2007-10-22 09:42:53.000000000 -0200
++++ openswan-2.4.9/programs/Makefile.program	2007-10-22 10:19:11.000000000 -0200
+@@ -40,17 +40,10 @@ ifneq ($(LD_LIBRARY_PATH),)
+ LDFLAGS=-L$(LD_LIBRARY_PATH)
+ endif
+ 
+-MANDIR8=$(MANTREE)/man8
+-MANDIR5=$(MANTREE)/man5
+-
+ ifndef PROGRAMDIR
+ PROGRAMDIR=${LIBEXECDIR}
+ endif
+ 
+-ifndef MANPROGPREFIX
+-MANPROGPREFIX=ipsec_
+-endif
+-
+ ifndef CONFDSUBDIR
+ CONFDSUBDIR=.
+ endif
+@@ -66,25 +59,9 @@ endif
+ 
+ ifneq ($(NOINSTALL),true)
+ 
+-install:: $(PROGRAM) $(CONFFILES) $(EXTRA8MAN) $(EXTRA5MAN) $(EXTRA5PROC) $(LIBFILES) $(CONFDFILES)
+-	@mkdir -p $(PROGRAMDIR) $(MANDIR8) $(MANDIR5) $(LIBDIR) $(CONFDIR) $(CONFDDIR) $(CONFDDIR)/$(CONFDSUBDIR) $(EXAMPLECONFDIR)
++install:: $(PROGRAM) $(CONFFILES) $(EXTRA5PROC) $(LIBFILES) $(CONFDFILES)
++	@mkdir -p $(PROGRAMDIR) $(LIBDIR) $(CONFDIR) $(CONFDDIR) $(CONFDDIR)/$(CONFDSUBDIR) $(EXAMPLECONFDIR)
+ 	@if [ -n "$(PROGRAM)" ]; then $(INSTALL) $(INSTBINFLAGS) $(PROGRAM) $(PROGRAMDIR); fi
+-	@$(foreach f, $(addsuffix .8, $(PROGRAM)), \
+-		g=`if [ -r $f ]; then echo $f; else echo ${srcdir}/$f; fi`; \
+-		$(INSTALL) $(INSTMANFLAGS) $$g $(MANDIR8)/$(MANPROGPREFIX)$f || exit 1; \
+-	)
+-	@$(foreach f, $(EXTRA8MAN), \
+-		g=`if [ -r $f ]; then echo $f; else echo ${srcdir}/$f; fi`; \
+-		$(INSTALL) $(INSTMANFLAGS) $$g $(MANDIR8)/ipsec_$f || exit 1; \
+-	)
+-	@$(foreach f, $(EXTRA5MAN), \
+-		g=`if [ -r $f ]; then echo $f; else echo ${srcdir}/$f; fi`; \
+-		$(INSTALL) $(INSTMANFLAGS) $$g $(MANDIR5)/$f || exit 1 ;\
+-	)
+-	@$(foreach f, $(EXTRA5PROC), \
+-		g=`if [ -r $f ]; then echo $f; else echo ${srcdir}/$f; fi`; \
+-		$(INSTALL) $(INSTMANFLAGS) $$g $(MANDIR5)/ipsec_$f || exit 1 ;\
+-	)
+ 	@$(foreach f, $(LIBFILES), \
+ 		g=`if [ -r $f ]; then echo $f; else echo ${srcdir}/$f; fi`; \
+ 		$(INSTALL) $(INSTCONFFLAGS) $$g $(LIBDIR)/$f || exit 1 ;\
+@@ -101,18 +78,6 @@ install:: $(PROGRAM) $(CONFFILES) $(EXTR
+ 
+ install_file_list::
+ 	@if [ -n "$(PROGRAM)" ]; then echo $(PROGRAMDIR)/$(PROGRAM); fi
+-	@$(foreach f, $(addsuffix .8, $(PROGRAM)), \
+-		echo $(MANDIR8)/${MANPROGPREFIX}$f; \
+-	)
+-	@$(foreach f, $(EXTRA8MAN), \
+-		echo $(MANDIR8)/ipsec_$f; \
+-	)
+-	@$(foreach f, $(EXTRA5MAN), \
+-		echo $(MANDIR5)/$f;\
+-	)
+-	@$(foreach f, $(EXTRA5PROC), \
+-		echo $(MANDIR5)/ipsec_$f; \
+-	)
+ 	@$(foreach f, $(LIBFILES), \
+ 		echo $(LIBDIR)/$f;\
+ 	)
+@@ -132,6 +97,7 @@ LDLIBS=${LIBS} ${USERLINK}
+ 
+ %: %.o $(OBJS) $(OPENSWANLIB)
+ 	$(CC) $(CFLAGS) -o $@ $@.o ${OBJS} $(LDFLAGS) $(LIBS) $(USERLINK)
++	$(STRIP) $@
+ 
+ %.o: ${srcdir}%.c
+ 	${CC} -c ${CFLAGS} $<
+@@ -161,21 +127,6 @@ LDLIBS=${LIBS} ${USERLINK}
+ 	@if [ -x $< ]; then chmod +x $@; fi
+ 	@if [ "${PROGRAM}.in" = $< ]; then chmod +x $@; fi
+ 
+-# xmlto is from http://cyberelk.net/tim/xmlto/
+-ifneq ($(strip $(XMLTO)),)
+-%.8: %.8.xml
+-	${XMLTO} man $< 
+-	mv "ipsec_$@" $@
+-
+-%.5: %.5.xml
+-	${XMLTO} man $< 
+-	mv "ipsec_$@" $@
+-
+-%.1: %.1.xml
+-	${XMLTO} man $< 
+-	mv "ipsec_$@" $@
+-endif
+-
+ cleanall: clean
+ 
+ distclean: clean
+--- openswan-2.4.9/Makefile.inc.orig	2007-10-22 09:34:00.000000000 -0200
++++ openswan-2.4.9/Makefile.inc	2007-10-22 09:35:18.000000000 -0200
+@@ -264,7 +264,7 @@ USE_LWRES?=false
+ # Whether or not to use iproute2 based commands.
+ # On Kernel 2.0, and early 2.2 systems you may need to either install the
+ # iproute2 package, or set this to false
+-USE_IPROUTE2?=true
++USE_IPROUTE2?=false
+ 
+ # what kind of firewalling to use:
+ #  2.0 	- ipfwadm

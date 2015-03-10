@@ -1,0 +1,25 @@
+#!/bin/sh
+
+Mtype=$(set_nports 4)
+
+
+case $Mtype in
+  22|38)
+    # the 1-port units need some work around; ttyS1 is via SCC
+    cd /dev
+    rm -f ttyS1
+    mknod -m 0666 ttyS1 c 4 65
+  ;;
+  28|29|30|31|32|33|34|35)
+    # ONS V2 need work around in osd
+    bd_ver=$(set_nports 14)
+    if [ ${bd_ver:${#bd_ver}-1:1} -eq 2 ] ; then
+      cd /dev
+      rm -f osd0 osd1 osd2
+      mknod -m 0666 osd0 c 10 190
+      mknod -m 0666 osd1 c 10 191
+      mknod -m 0666 osd2 c 10 192
+    fi
+  ;;
+esac
+

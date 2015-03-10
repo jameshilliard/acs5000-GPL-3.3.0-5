@@ -1,0 +1,26 @@
+Index: curl-7.19.0/src/Makefile.am
+===================================================================
+--- curl-7.19.0.orig/src/Makefile.am
++++ curl-7.19.0/src/Makefile.am
+@@ -45,7 +45,7 @@ bin_PROGRAMS = curl
+ 
+ include Makefile.inc
+ 
+-curl_LDADD = ../lib/libcurl.la @CURL_LIBS@
++curl_LDADD = ../lib/libcurl.la $(LIBCURL_LIBS)
+ curl_DEPENDENCIES = ../lib/libcurl.la
+ BUILT_SOURCES = hugehelp.c
+ CLEANFILES = hugehelp.c
+Index: curl-7.19.0/src/Makefile.in
+===================================================================
+--- curl-7.19.0.orig/src/Makefile.in
++++ curl-7.19.0/src/Makefile.in
+@@ -286,7 +286,7 @@ CURL_HFILES = hugehelp.h setup.h config-
+ 	writeout.h writeenv.h getpass.h homedir.h curlutil.h
+ 
+ curl_SOURCES = $(CURL_SOURCES) $(CURLX_ONES) $(CURL_HFILES)
+-curl_LDADD = ../lib/libcurl.la @CURL_LIBS@
++curl_LDADD = ../lib/libcurl.la $(LIBCURL_LIBS)
+ curl_DEPENDENCIES = ../lib/libcurl.la
+ BUILT_SOURCES = hugehelp.c
+ CLEANFILES = hugehelp.c

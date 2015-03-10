@@ -1,0 +1,112 @@
+--- wide-dhcpv6-20070507/dhcp6.h.orig	2007-12-10 13:47:33.000000000 -0200
++++ wide-dhcpv6-20070507/dhcp6.h	2007-12-10 15:33:44.000000000 -0200
+@@ -310,6 +310,8 @@ struct dhcp6_relay {
+ #define DH6OPT_SUBSCRIBER_ID 38
+ #define DH6OPT_CLIENT_FQDN 39
+ 
++#define MAC_SIZE 6
++
+ /* The followings are KAME specific. */
+ 
+ struct dhcp6opt {
+@@ -326,6 +328,14 @@ struct dhcp6opt_duid_type1 {
+ 	/* link-layer address follows */
+ } __attribute__ ((__packed__));
+ 
++/* DUID type 3 */
++struct dhcp6opt_duid_type3 {
++	u_int16_t dh6_duid3_type;
++	u_int16_t dh6_duid3_hwtype;
++	unsigned char hwaddr[MAC_SIZE];
++	/* link-layer address follows */
++} __attribute__ ((__packed__));
++
+ /* Status Code */
+ struct dhcp6opt_stcode {
+ 	u_int16_t dh6_stcode_type;
+--- wide-dhcpv6-20070507/common.c.orig	2007-12-10 13:47:42.000000000 -0200
++++ wide-dhcpv6-20070507/common.c	2007-12-10 15:59:59.000000000 -0200
+@@ -986,15 +986,32 @@ in6_matchflags(addr, ifnam, flags)
+ #endif
+ }
+ 
+-int
+-get_duid(idfile, duid)
+-	char *idfile;
+-	struct duid *duid;
++//stores the mac address of the eth0 interface into the function argument mac
++int getMac(unsigned char *mac, int tam) {
++
++	int fd;
++	struct ifreq ifr;
++
++	fd = socket(AF_INET6, SOCK_DGRAM, 0);
++
++	ifr.ifr_addr.sa_family = AF_INET6;
++	strncpy(ifr.ifr_name, "eth0", IFNAMSIZ-1);
++
++	ioctl(fd, SIOCGIFHWADDR, &ifr);
++
++	close(fd);
++
++	memcpy(mac, ifr.ifr_hwaddr.sa_data, tam);
++
++	return(tam);
++}
++
++int get_duid(char *idfile, struct duid *duid)
+ {
+ 	FILE *fp = NULL;
+-	u_int16_t len = 0, hwtype;
+-	struct dhcp6opt_duid_type1 *dp; /* we only support the type1 DUID */
+-	char tmpbuf[256];	/* DUID should be no more than 256 bytes */
++	u_int16_t len = 0;
++
++	char *buf;
+ 
+ 	if ((fp = fopen(idfile, "r")) == NULL && errno != ENOENT)
+ 		dprintf(LOG_NOTICE, FNAME, "failed to open DUID file: %s",
+@@ -1007,14 +1024,7 @@ get_duid(idfile, duid)
+ 			goto fail;
+ 		}
+ 	} else {
+-		int l;
+-
+-		if ((l = gethwid(tmpbuf, sizeof(tmpbuf), NULL, &hwtype)) < 0) {
+-			dprintf(LOG_INFO, FNAME,
+-			    "failed to get a hardware address");
+-			goto fail;
+-		}
+-		len = l + sizeof(struct dhcp6opt_duid_type1);
++		len = sizeof(struct dhcp6opt_duid_type3);
+ 	}
+ 
+ 	memset(duid, 0, sizeof(*duid));
+@@ -1035,15 +1045,19 @@ get_duid(idfile, duid)
+ 		    "extracted an existing DUID from %s: %s",
+ 		    idfile, duidstr(duid));
+ 	} else {
+-		u_int64_t t64;
++		int ind = 0;
++		buf = duid->duid_id;
++
++		/* type 3 */
++		buf[ind++] = 0x00;
++		buf[ind++] = 0x03;
++
++		/* hardware type */
++		buf[ind++] = 0x00;
++		buf[ind++] = 0x01;
+ 
+-		dp = (struct dhcp6opt_duid_type1 *)duid->duid_id;
+-		dp->dh6_duid1_type = htons(1); /* type 1 */
+-		dp->dh6_duid1_hwtype = htons(hwtype);
+-		/* time is Jan 1, 2000 (UTC), modulo 2^32 */
+-		t64 = (u_int64_t)(time(NULL) - 946684800);
+-		dp->dh6_duid1_time = htonl((u_long)(t64 & 0xffffffff));
+-		memcpy((void *)(dp + 1), tmpbuf, (len - sizeof(*dp)));
++		/* mac address */
++		ind += getMac(&buf[ind], MAC_SIZE);
+ 
+ 		dprintf(LOG_DEBUG, FNAME, "generated a new DUID: %s",
+ 		    duidstr(duid));

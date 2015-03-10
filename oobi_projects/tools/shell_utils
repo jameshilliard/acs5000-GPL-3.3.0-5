@@ -1,0 +1,83 @@
+#
+# Checks if enviroment variables are defined
+#
+# Parameters $*: variable name list
+#
+check_vars ()
+{
+  rtn=0
+  while [ -n "$1" ] ; do
+    if [ -z "${!1}" ] ; then
+      [ $rtn -eq 0 ] && echo
+      echo "ERROR: $0: variable '$1' is not defined."
+      rtn=1
+    fi
+	shift
+  done
+  if [ $rtn -eq 1 ] ; then
+    echo
+    exit -1
+  fi
+}
+
+#
+# Checks if a list of directory names are valid 
+#
+# Parameters $*: directory name list
+#
+check_dirs ()
+{
+  rtn=0
+  while [ -n "$1" ] ; do
+    if [ ! -d $1 ] ; then
+      [ $rtn -eq 0 ] && echo
+      echo "ERROR: $0: directory '$1' is invalid"
+      rtn=1
+    fi
+    shift
+  done
+  if [ $rtn -eq 1 ] ; then
+    echo
+    exit -1
+  fi
+}
+
+#
+#
+# Checks if a list of file names are valid 
+#
+# Parameters $*: file name list
+#
+check_files ()
+{
+  rtn=0
+  while [ -n "$1" ] ; do
+    if [ ! -f $1 ] ; then
+      [ $rtn -eq 0 ] && echo
+      echo "ERROR: $0: file '$1' is invalid"
+      rtn=1
+    fi
+    shift
+  done
+  if [ $rtn -eq 1 ] ; then
+    echo
+    exit -1
+  fi
+}
+
+#
+# creates a file and set its permissions
+# 
+# Parameter $1: filename
+#           $2: permissions
+#
+create_file ()
+{
+  touch $1
+  if [ x$2 = x ] ; then
+    chmod 666 $1
+  else
+    chmod $2 $1
+  fi
+}
+

@@ -1,0 +1,234 @@
+#
+# Packages dependence (build)
+#
+BDEP_avct_cas:=ras pmclib netcfg
+BDEP_openssh:=Linux-PAM ras libadsap2 pmclib
+BDEP_adsap2:=libadsap2
+BDEP_ras:=Linux-PAM libcyc pmclib
+BDEP_busybox:=Linux-PAM ras
+BDEP_pmapps:=pmclib
+BDEP_configts:=ras
+BDEP_inetd:=ras
+BDEP_new_webs:=ras Linux-PAM libcyc webApi pmclib
+BDEP_mindterm:=new_webs
+BDEP_CLI:=ras libcyc webApi pmclib
+BDEP_pam_shm:=Linux-PAM nss_shm
+BDEP_pam_auth_srv:=Linux-PAM
+BDEP_pam_redirect:=Linux-PAM
+BDEP_pam_krb5_fk:=Linux-PAM
+BDEP_pam_radius:=Linux-PAM
+BDEP_pam_tacplus:=Linux-PAM
+BDEP_pam_unix2:=Linux-PAM
+BDEP_pam_ldap:=Linux-PAM
+BDEP_pam_opie:=Linux-PAM
+BDEP_pam_adsap2:=Linux-PAM libadsap2
+BDEP_tstest:=ras
+BDEP_pppd:=Linux-PAM 
+BDEP_logpipe:=llconf
+BDEP_event_notif:=ras
+BDEP_aidpd2:=dlog avct-protocol-core
+BDEP_apctl:=libcyc
+BDEP_src_cycl:=ras
+BDEP_net-snmp:=pmclib
+
+#
+# Packages dependence (source)
+#
+SDEP_ras:=pppd webApi
+SDEP_webApi:=new_webs ras Linux-PAM libcyc pmclib
+SDEP_CLI:=new_webs
+SDEP_net-snmp:=ras
+SDEP_libcyc:=ras
+SDEP_pmd-gsp:=pmclib
+SDEP_pmapps:=libcyc fw-utils
+
+#
+# Packages Dir/Names
+#
+fw-utils:=dsview_fw_util
+curl:=curl-7.19.0
+avct_cas:=avct-cas
+cyclades=cyclades
+mgetty:=mgetty-1.1.33
+dhcpcd:=dhcpcd-1.3.22-pl4
+dhcp6c:=wide-dhcpv6-20070507
+smslink:=smslink-0.56b
+syslog-ng:=syslog-ng-2.0.5
+eventlog:=eventlog-0.2.5
+zlib:=zlib-1.2.3
+dosfstools:=dosfstools-2.11
+libol:=libol-0.3.16
+openssl:=openssl-0.9.8l
+openldap:=openldap-2.2.26
+ntpclient:=ntpclient
+readline:=readline-4.3
+ipmitool:=ipmitool-1.8.2
+netkit-bootparamd:=netkit-bootparamd-ipv6-0.17
+kerberos:=krb5-1.6.2
+openssh:=openssh-5.6p1
+gmp:=gmp-3.1.1
+openswan := openswan-2.4.9
+ipsec-tools := ipsec-tools-0.7
+#isdn4k-utils:=isdn4k-utils.v3.1pre1
+isdn4k-utils:=isdn4k-utils.v3.2p1
+busybox:=busybox-1.7.1
+Linux-PAM:=Linux-PAM-0.75
+net-snmp:=net-snmp-5.3.1
+pam_ldap:=pam_ldap-180
+pam_krb5_fk:=pam_krb5_fk-1.0
+pam_radius:=pam_radius-1.3.15
+pam_tacplus:=pam_tacplus-1.2.9
+pam_unix2:=pam_unix2-1.15
+pam_auth_srv:=pam_auth_srv
+pam_redirect:=pam_redirect
+netcfg:=netcfg
+ras:=ras2000-12-25-ipv6
+pmclib:=pmclib
+pmapps:=pmapps
+pmd:=pmd-gsp
+libcyc:=libcyc
+crclinux:=crclinux
+configts:=configts
+inetd:=inetd
+webApi:=webApi
+new_webs:=new_webs
+mindterm:=mindterm-3.1.2
+CLI:=CLI
+llconf:=llconf2
+javaApplet:=javaApplet
+src_cycl:=src_cycl
+tstest:=tstest
+pppd:=ppp-2.4.3
+rlogin:=rlogin-8.10
+modules-tools := module-init-tools-3.3-pre1
+wireless-tools := wireless_tools.27
+samba:=samba-3.0.20a
+opie:=opie-2.4
+pam_opie := pam_opie
+srp := srp-2.1.1
+cron := vixie-cron-4.1
+libadsap2 := libadsap2
+adsap2 := adsap2
+pam_adsap2 := pam_adsap2
+libdaemon:=libdaemon-0.10
+logpipe:=logpipe
+event_notif := event_notif
+aidpd2:=aidpd2
+dlog:=dlog
+avct-protocol-core:=avct-protocol-core
+libxcrypt := libxcrypt-2.3
+apctl:=apctl
+nss_shm:=nss_shm
+pam_shm:=pam_shm
+iptables:=iptables-1.3.8-20070822
+netbsd-tftp:=netbsd-tftp-20020313
+telnet-bsd:=telnet-bsd-1.2
+dummy_tcpd:=dummy_tcpd
+hotplug:=hotplug-2004_03_29
+pcmciautils:=pcmciautils-014
+sysfsutils:=sysfsutils-2.0.0
+rpcbind:=rpcbind-0.1.4
+libtirpc:=libtirpc-0.1.7
+iproute2 := iproute2-2.6.22-070710
+netkit-ftp := netkit-ftp-2.0.4
+lrzsz := lrzsz-0.12.20
+
+#
+# Build packages
+#
+SRC_PKGS:=\
+avct_cas \
+cyclades \
+pam_shm \
+nss_shm \
+busybox \
+pmclib \
+pmapps \
+pmd \
+inetd \
+configts \
+crclinux \
+Linux-PAM \
+pam_auth_srv \
+pam_redirect \
+pam_krb5_fk \
+pam_radius \
+pam_tacplus \
+pam_unix2 \
+pam_ldap \
+pam_opie \
+pam_adsap2 \
+netcfg \
+ras \
+CLI \
+webApi \
+new_webs \
+mindterm \
+libcyc \
+net-snmp \
+ntpclient \
+src_cycl \
+openssh \
+tstest \
+dhcpcd \
+pppd \
+rlogin \
+llconf \
+logpipe \
+event_notif \
+dlog \
+avct-protocol-core \
+aidpd2\
+libadsap2 \
+adsap2 \
+apctl \
+netbsd-tftp \
+dummy_tcpd \
+netkit-bootparamd \
+fw-utils
+
+APPLET_PKGS := \
+javaApplet
+
+#SOURCE_PKGS:= $(SRC_PKGS) $(APPLET_PKGS)
+SOURCE_PKGS:= $(SRC_PKGS)
+
+#
+# Pre-build packages
+#
+BUILTIN_PKGS:=\
+curl \
+zlib \
+openssl \
+openldap \
+smslink \
+syslog-ng \
+eventlog \
+dosfstools \
+libol \
+readline \
+ipmitool \
+gmp \
+openswan \
+ipsec-tools \
+isdn4k-utils \
+mgetty \
+kerberos \
+srp  \
+modules-tools \
+opie \
+samba \
+wireless-tools \
+cron \
+libdaemon \
+libxcrypt \
+dhcp6c \
+iptables \
+telnet-bsd \
+iproute2 \
+hotplug \
+pcmciautils \
+sysfsutils \
+rpcbind \
+netkit-ftp \
+lrzsz

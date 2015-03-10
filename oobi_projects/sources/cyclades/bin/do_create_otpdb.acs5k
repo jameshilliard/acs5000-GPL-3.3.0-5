@@ -1,0 +1,119 @@
+#!/bin/sh 
+
+OTP_CONF=/etc/otp.conf
+
+init_fs=no
+doformat=no
+
+do_exec()
+{
+  eval $1 >/dev/null 2>&1
+  if [ $? -ne 0 ] ; then
+    echo "*"
+    echo "*** Error in command : '$1'"
+    echo "*"
+    exit 1
+  fi
+}
+
+str=""
+
+my_read ()
+{
+found=0
+while [ $found -eq 0 ] ; do
+   aux="$2"
+   aux=$(echo $aux|tr "[A-Z]" "[a-z]")
+   echo -n "$1 [$aux] : "
+   read aux
+   aux=${aux:-$2}
+   aux=$(echo $aux|tr "[A-Z]" "[a-z]")
+   for ((i=3;$i<=$#;i++)) ; do
+     if [ "x$aux" = "x${!i}" ] ; then
+       found=1
+       break
+     fi
+   done
+done
+str=$(echo $aux|tr "[a-z]" "[A-Z]")
+}
+
+if [ ! -f ${OTP_CONF} ] ; then
+  echo "*"
+  echo "* ERROR - Configuration file '${OTP_CONF}' does not exist."
+  echo "*"
+  exit 1
+fi
+
+. ${OTP_CONF}
+
+echo
+echo "The OTP DB storage device is '${DEVICE}'"
+echo
+if [ "$DEVICE" != "LOCAL" ] ; then 
+  NFS_PATH=$DEVICE
+  DEVICE=NFS
+fi
+
+my_read "Enter the new OTP DB device (local, or nfs)" "$DEVICE" local nfs
+DEVICE=${str}
+
+if [ "x${DEVICE}" = "xNFS" ]; then
+    aux=""
+    echo -n "Enter NFS path [$NFS_PATH] : "
+    read aux
+    DEVICE=${aux:-$NFS_PATH}
+fi
+
+if [ -z "$(grep -s 'DEVICE=${DEVICE}' ${OTP_CONF})" ] ; then
+  do_exec "mv ${OTP_CONF} ${OTP_CONF}.tmp"
+  awk '$1 ~ /^DEVICE=/ {print "DEVICE=" DEVICE; next}; {print $0};' \
+    DEVICE=${DEVICE} ${OTP_CONF}.tmp > ${OTP_CONF}
+  grep ${OTP_CONF}  /etc/config_files > /dev/null 2>&1
+  if [ $? -ne 0 ] ; then
+        do_exec "echo ${OTP_CONF} >> /etc/config_files"
+  fi
+  do_exec "/bin/updatefiles ${OTP_CONF}"
+fi
+
+echo
+echo "The OTP ENABLE status is '${ENABLE}'"
+echo
+my_read "Enter the new OTP ENABLE status (yes/no/cancel)" "$ENABLE" yes no cancel
+ENABLE=${str}
+
+if [ ${ENABLE} = CANCEL ] ; then
+  exit
+fi
+
+if [ -z "$(grep -s 'ENABLE=${ENABLE}' ${OTP_CONF})" ] ; then
+  do_exec "mv ${OTP_CONF} ${OTP_CONF}.tmp"
+  awk '$1 ~ /^ENABLE=/ {print "ENABLE=" ENABLE; next} {print $0};' \
+    ENABLE=${ENABLE} ${OTP_CONF}.tmp > ${OTP_CONF}
+  grep ${OTP_CONF}  /etc/config_files > /dev/null 2>&1
+  if [ $? -ne 0 ] ; then
+        do_exec "echo ${OTP_CONF} >> /etc/config_files"
+  fi
+  do_exec "/bin/updatefiles ${OTP_CONF}"
+fi
+
+/bin/do_mount_otpdb.sh force
+
+if [ ! -d ${MOUNT_POINT}/etc ] ; then
+  echo
+  echo "Creating the OTP database"
+  do_exec "mkdir ${MOUNT_POINT}/etc"
+else
+  echo "Directory '${MOUNT_POINT}/etc' already exists ..."
+fi
+
+if [ -f ${MOUNT_POINT}/etc/opiekeys ] ; then 
+  echo "The OTP database '${MOUNT_POINT}/etc/opiekeys' already exists."
+  echo "It's been emptied ..."
+else
+  echo "Creating the OTP database '${MOUNT_POINT}/etc/opiekeys' ..."
+fi
+
+do_exec ">${MOUNT_POINT}/etc/opiekeys"
+do_exec "chmod 0644 ${MOUNT_POINT}/etc/opiekeys"
+

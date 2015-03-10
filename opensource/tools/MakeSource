@@ -1,0 +1,40 @@
+#
+#  Makefile for Cyclades projects.
+#
+#  It will to decompress packages used by Cyclades
+#
+#  For each package it determines the tarball name and its patches,
+#  if any, and call MakeTar.
+#
+
+include $(OPENSOURCE_DIR)/$(TOOLS)/MakeChecks
+
+$(call check_vars,SOURCES WORK_DIR PATCHES TARBAL)
+
+SOURCE_DIR := $(OPENSOURCE_DIR)/$(SOURCES)
+
+include $(WORK_DIR)/packages_def
+
+define DEP_template
+ifdef DEP_$(1)
+$(1): $$(DEP_$(1))
+endif
+endef
+
+.PHONY: all
+
+all: check_util $(SRC_SPC_PKGS) $(SRC_PKGS) $(BLD_PKGS)
+
+check_util: force
+	@$(call CHECK_UTIL,quilt)
+
+$(foreach pack,$(BLD_PKGS),$(eval $(call DEP_template,$(pack))))
+
+$(SRC_SPC_PKGS) $(SRC_PKGS) $(BLD_PKGS): force
+	$(call EXEC_ACTION,src_$@,\
+	$(MAKE) -C $(SOURCE_DIR) -f $(OPENSOURCE_DIR)/$(TOOLS)/MakeTar TARGET=$@)
+
+$(MAKEFILE_LIST): ;
+
+force: ;
+

@@ -1,0 +1,19 @@
+nodetach
+#debug
+/dev/ttyM1
+57600
+crtscts
+lock
+noauth
+#nomagic
+user claro
+show-password
+noipdefault
+defaultroute
+ipcp-accept-local
+ipcp-accept-remote
+noproxyarp
+novj
+novjccomp
+lcp-echo-interval 0
+connect '/usr/local/sbin/chat -v -t3 -f /etc/chatscripts/wireless'

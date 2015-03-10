@@ -1,0 +1,129 @@
+#!/bin/sh
+# parameters:
+#
+# $1 - dhcp info filename ["/etc/dhcpc/dhcpcd-eth0.info"]
+# 
+# $2 - event: up, down, new, or rt (called from cy_ras).
+#
+# $3 - dhcp mode: 0 - DHCP client daemon called without option -x
+#                 N - DHCP client daemon called with option -x N
+#               
+#
+# PS. DHCP client daemon should be activated with option -x if the
+#     parameter conf.dhcp_client is configured as 2
+#
+
+echo "$0 : $1 $2 $3" > /dev/ttyS0
+
+ST_ROUTES=/etc/network/st_routes
+FILE_INFO="$1"
+FILE_SAVE="/etc/dhcpcd-eth0.save"
+FILE_LOCK="/etc/dhcp_lock"
+
+set_static_routes ()
+{
+  if [ -n "$2" ] ; then
+    GATEWAY=`grep ^GATEWAY $2 | cut -f 2 -d '='` 
+  fi
+  if [ -n "$GATEWAY" ] ; then
+	if [ "$1" = "yes" ] ; then
+      route add default gw $GATEWAY
+    fi
+    grep -v default $ST_ROUTES > /tmp/st_routes
+    /bin/sh /tmp/st_routes
+    rm -f /tmp/st_routes
+  else
+    /bin/sh $ST_ROUTES
+  fi
+}
+
+if [ "$2" = "down" ] ; then  
+  ifconfig eth0 down
+  ifconfig eth0 up
+  ifconfig eth0 0.0.0.0
+  if [ $3 -eq 2 ] ; then
+    # use the DHCP information saved before
+    if [ -f $FILE_SAVE ]; then
+      # check if IP save is in use by another device
+      IP_INFO=`grep ^IPADDR $FILE_SAVE | cut -f 2 -d '='` 
+      IP_BRO=`grep ^BROADCAST $FILE_SAVE | cut -f 2 -d '='` 
+      IP_MASK=`grep ^NETMASK $FILE_SAVE | cut -f 2 -d '='` 
+      ifconfig eth0 $IP_INFO netmask $IP_MASK broadcast $IP_BRO
+      echo -n "search " > /etc/resolv.conf
+      grep -i "^domain" $FILE_SAVE | cut -f 2 -d '=' | tr -d \"\' >> /etc/resolv.conf
+      tmp=`grep -i "^dns" $FILE_SAVE | cut -f 2 -d '=' | sed "s/,/ /g"`
+      for i in $tmp 
+      do
+        echo -n "nameserver " >> /etc/resolv.conf
+        echo $i >> /etc/resolv.conf
+      done
+      set_static_routes yes $FILE_SAVE
+      # this is for the KVM:
+      [ -x /usr/bin/forward.sh ] && /usr/bin/forward.sh
+      /bin/signal_ras usr1 &
+    fi
+  fi
+  exit
+fi
+
+if [ "$2" = "rt" ] ; then  
+  ifconfig eth0 down
+  ifconfig eth0 up
+  if [ $3 -eq 2 ] ; then
+    if [ -f $FILE_SAVE ]; then
+      set_static_routes yes $FILE_SAVE
+      exit
+    fi
+    if [ -f $FILE_INFO ]; then
+      set_static_routes yes $FILE_INFO
+      exit
+    fi
+  fi
+  set_static_routes yes
+  exit
+fi
+
+# UP or NEW 
+
+IP_INFO=`grep ^IPADDR $FILE_INFO | cut -f 2 -d '='` 
+
+if [ $3 -eq 0 ] ; then
+  exit
+fi
+
+set_static_routes no $FILE_INFO
+/bin/signal_ras usr1 &
+
+if [ $3 -eq 1 ] ; then
+  exit
+fi
+
+SAVE=0
+
+lock_var=1
+while [ $lock_var = 1 ] ; do
+  if [ -f $FILE_LOCK ] ; then
+    sleep 1
+  else
+    lock_var=0
+    echo 1 > $FILE_LOCK
+  fi
+done
+
+if [ ! -f $FILE_SAVE ] ; then
+  SAVE=1
+else
+  IP_SAVE=`grep ^IPADDR $FILE_SAVE | cut -f 2 -d '='` 
+  if [ "$IP_INFO" != "$IP_SAVE" ] ; then
+    SAVE=1
+  fi
+fi
+
+Mtype=`set_nports 3`
+
+if [ $SAVE -eq 1 ] ; then
+  cp $FILE_INFO $FILE_SAVE
+fi
+
+rm -f $FILE_LOCK
+

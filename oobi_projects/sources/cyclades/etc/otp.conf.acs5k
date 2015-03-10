@@ -1,0 +1,15 @@
+#
+# ENABLE can be 'YES' or 'NO'
+#
+ENABLE=NO
+#
+# Where to mount the otp database
+#
+MOUNT_POINT=/mnt/opie
+#
+# Device specify where otp database will be. it can be:
+#
+#   LOCAL     - sould be used only if FS is in the builtin IDE/CF
+#   host:path - NFS
+#
+DEVICE=LOCAL   

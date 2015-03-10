@@ -1,0 +1,771 @@
+.bgColor1 
+{
+background-color : #ffffe6;
+}
+
+.bgColor2 
+{
+background-color : #a5737b;
+}
+
+.bgColor3 
+{
+background-color : #a15719;
+}
+
+.bgColor4 
+{
+background-color : #fab913;
+}
+
+.bgColor5 
+{
+background-color : #d89438;
+}
+
+.bgColor6 
+{
+background-color : #a85820;
+}
+
+.bgColor7 
+{
+background-color : #fec127;
+}
+
+.bgColor8 
+{
+background-color : #d49033;
+}
+
+.bgColor9 
+{
+background-color : #d4c9ab;
+}
+
+.bgColor10
+{
+background-color : #d89238;
+}
+
+.bgColor11
+{
+background-color : #ffffff;
+}
+
+.bgColor12 
+{
+background-color : #ffffe6;
+}
+
+.fontColor1
+{
+	color: red;
+}
+
+a.linkColor1:link 
+{
+color: #323369
+}
+
+a.linkColor1:visited 
+{
+color: #323369
+}
+
+a.linkColor1:active 
+{
+color: #323369
+}
+
+body 
+{
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 14px;
+}
+
+table
+{
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 14px;
+}
+
+.bodyMain
+{
+   margin : 20px;
+   margin-bottom : 20px;
+   margin-left : 20px;
+   margin-right : 20px;
+   margin-top : 20px;
+   background-color : #FFFFE6;
+}
+
+.bodyForLayers
+{
+   margin : 0px;
+   margin-bottom : 20px;
+   margin-left : 0px;
+   margin-right : 0px;
+   margin-top : 20px;
+   background-color : #FFFFE6;
+}
+
+.bodyMainTabs
+{
+   margin : 0px;
+   margin-bottom : 0px;
+   margin-left : 0px;
+   margin-right : 0px;
+   margin-top : 0px;
+   background-color : #FFFFE6;
+}
+
+.bodyMiniWizard
+{
+   margin : 0px;
+   margin-bottom : 0px;
+   margin-left : 0px;
+   margin-right : 0px;
+   margin-top : 0px;
+   background-color : #FFFFE6;
+}
+
+.bodyBorders1
+{
+   background-color : #D49033;
+}
+
+.bodyBorders2
+{
+   background-color : #D89238;
+}
+
+.bodyBorders3
+{
+   background-color : #D89438;
+}
+
+.bodyBorders4
+{
+   background-color : #D89033;
+}
+
+.bodyBorders5
+{
+   background-color : #FEC127;
+}
+
+.bodyBorders6
+{
+   background-color : #FFFFE6;
+}
+
+.bodyBorders7
+{
+   background-color : #D4C9AB;
+}
+
+.bodyBorders8
+{
+   background-color : #FAB913;
+}
+
+.bodyBorders9
+{
+   background-color : #A5737B;
+}
+
+.bodyBorders10
+{
+   background-color : #A15719;
+}
+
+.bodyBorders11
+{
+   background-color : #A85820;
+}
+
+.tipclass
+{
+   background-color: #FFCC4C; 
+   padding: 5px; 
+   border-style : solid; 
+   border-width: 2px; 
+   border-color: #780B20; 
+   color: #780B20; 
+   font-size: 13px; 
+   font-family: Helvetica, Arial, sans-serif; 
+   visibility: hidden
+}
+
+.small
+{
+   color: #780B20; 
+   font-size: 10px; 
+   font-family: Helvetica, Arial, sans-serif;
+}
+
+.pagecontent
+{
+   position: absolute; 
+   left:10; 
+   top:0
+}
+
+
+.alignRight
+{
+   text-align:right;
+}
+
+div.alignLeft
+{
+   text-align:left;
+   vertical-align : bottom;
+   padding: 0px;
+}
+
+div.alignLeftTop
+{
+   text-align:left;
+   vertical-align : top;
+}
+
+.helpBox
+{
+   font-family: Helvetica, Arial, sans-serif;
+   font-size: 13px;
+   font-weight: bold;
+   color : #7C0F1D;
+   text-align:left;
+   vertical-align : middle;
+}
+
+.securityBox
+{
+   font-family: Helvetica, Arial, sans-serif;
+   font-size: 11px;
+   color : #7C0F1D;
+   text-align:left;
+   vertical-align : middle;
+}
+
+div.alignRightTop
+{
+   text-align:right;
+   vertical-align : top;
+}
+	
+div.alignCenter
+{
+   text-align: center;
+   vertical-align : middle;
+}
+   
+.tableText
+{
+   font-family: Helvetica, Arial, sans-serif;
+   font-size: 14px;
+   color : #000000;
+}
+
+.tableTextInactive
+{
+ 	font-family: Helvetica, Arial, sans-serif;
+	font-size: 12px;
+    font-weight: bold;
+	color : #a5737b;
+	text-decoration: none;
+}
+
+.colorTRow
+{
+	font-family: Helvetica, Arial, sans-serif;
+	font-size: 13px;
+	color : #000000;
+	background-color: #ffffff;
+	vertical-align : top;
+}
+
+.colorTRowMiddle
+{
+	font-family: Helvetica, Arial, sans-serif;
+	font-size: 13px;
+	color : #000000;
+	background-color: #ffffff;
+	vertical-align : middle;
+}
+
+.colorTRowAlt
+{
+	font-family: Helvetica, Arial, sans-serif;
+	font-size: 13px;
+	color : #000000;
+	background-color: #FFFFE6;
+	vertical-align : top;
+   font-weight : normal;
+}
+
+.colorTRowAltMiddle
+{
+	font-family: Helvetica, Arial, sans-serif;
+	font-size: 13px;
+	color : #000000;
+	background-color: #FFFFE6;
+	vertical-align : middle;
+   font-weight : normal;
+}
+
+.colorTRowAltMiddleOdd
+{
+	font-family: Helvetica, Arial, sans-serif;
+	font-size: 13px;
+	color : #000000;
+	background-color: #FFFF7D;
+	vertical-align : middle;
+   font-weight : normal;
+}
+
+.colorTRowAltMiddleEven
+{
+	font-family: Helvetica, Arial, sans-serif;
+	font-size: 13px;
+	color : #000000;
+	background-color: #FFFFAF;
+	vertical-align : middle;
+   font-weight : normal;
+}
+
+.colorTRowAlt2
+{
+	font-family: Helvetica, Arial, sans-serif;
+	font-size: 13px;
+	color: #FFFFE6;
+	background-color: #A15719;
+	vertical-align: top;
+	font-weight: bold;
+}
+
+.colorTHeader
+{
+	font-family: Helvetica, Arial, sans-serif;
+	font-size: 13px;
+	color : #ffffff;
+	background-color: #FAB913;
+	vertical-align : top;
+	font-weight : bold;
+} 
+
+.colorTHeader2
+{
+	font-family: Helvetica, Arial, sans-serif;
+	font-size: 13px;
+	color : #ffffff;
+	background-color: #FAB913;
+	vertical-align : middle;
+	font-weight : bold;
+}
+
+.tableColor
+{
+	color : #ffffff;
+	background-color: #FAB913;
+}
+
+
+.colorTHeaderAlt
+{
+	font-family: Helvetica, Arial, sans-serif;
+	font-size: 13px;
+	color : #ffffff;
+	background-color: #B0731D;
+	vertical-align : top;
+	font-weight : bold;
+}
+
+.label
+{
+   font-family: Helvetica, Arial, sans-serif;
+   font-size: 14px;
+   color : #000000;
+   text-decoration: none;
+}
+
+.label_for_tables
+{
+   font-family: Helvetica, Arial, sans-serif;
+   font-size: 13px;
+   color : #7A0E20;
+   font-weight: bold;
+   text-decoration: none;
+}
+.label_for_tables2
+{
+   font-family: Helvetica, Arial, sans-serif;
+   font-size: 14px;
+   color : #7A0E20;
+   font-weight: bold;
+   text-decoration: none;
+}  
+.labelBold
+{
+   font-family: Helvetica, Arial, sans-serif;
+   font-size: 16px;
+   font-weight: bold;
+   color : #000000;
+}
+
+.redBold
+{
+   font-family: Helvetica, Arial, sans-serif;
+   font-size: 16px;
+   font-weight: bold;
+   color : #7C0F1D;
+}
+
+.tableHeader
+{
+   font-family: Helvetica, Arial, sans-serif;
+   font-size: 14px;
+   font-weight: bold;
+   color : #ffffff;
+}
+
+.formText
+{
+	font-family: "Courier New", Courier, Fixed, monospace;
+	font-size: 15px;
+	color: #000000;
+}
+
+.formPre
+{
+	font-family: "Courier New", Courier, Fixed, monospace;
+	font-size: 15px;
+	color : #000000;
+	white-space: pre;
+}
+
+.logoutText
+{
+   font-family: Helvetica, Arial, sans-serif;
+   font-size: 16px;
+   font-weight: bold;
+   color : #7C0F1D;
+   text-decoration : none;
+   text-hover: #FFFFE6;
+}
+
+.loginText
+{
+   font-family: Helvetica, Arial, sans-serif;
+   font-size: 16px;
+   font-weight: bold;
+   color : #FFFFE6;
+}
+
+.newloginText
+{
+   font-family: Helvetica, Arial, sans-serif;
+   font-size: 16px;
+   font-weight: bold;
+   color : #7C0F1D;
+   text-decoration : none;
+   text-hover: #FFFFE6;
+}
+
+.yellowText
+{
+   font-family: Helvetica, Arial, sans-serif;
+   font-size: 12px;
+   font-weight: bold;
+   color : #FAB913;
+   text-decoration : none;
+   text-hover: #FFFFE6;
+}
+
+.topMenuText {
+
+	font-family: Helvetica, Arial, sans-serif;
+	font-size: 14px;
+    font-weight: bold;
+	color : #7C0F1D;
+	text-decoration: none;   
+}
+
+.topMenuMono {
+
+	font-family: "Courier New", Courier, monospace;
+	font-size: 9pt;
+	color : #7C0F1D;
+	text-decoration: none;   
+}
+
+.topMenuTextHigh {
+
+	font-family: Helvetica, Arial, sans-serif;
+	font-size: 14px;
+    font-weight: bold;
+	color : #FFFFE6;
+	text-decoration: none;
+   
+}
+
+.tabsText 
+{
+	font-family: Helvetica, Arial, sans-serif;
+	font-size: 12px;
+    font-weight: bold;
+	color : #7C0F1D;
+	text-decoration: none;
+   
+}  
+.tabsTextBig 
+{
+	font-family: Helvetica, Arial, sans-serif;
+	font-size: 13px;
+    font-weight: bold;
+	color : #7C0F1D;
+	text-decoration: none;
+   
+}
+
+.tabsTextAlt 
+{
+	font-family: Helvetica, Arial, sans-serif;
+	font-size: 12px;
+    font-weight: bold;
+	color : #FFFFE6;
+	text-decoration: none;
+   
+}
+
+.IPGatewayText
+{
+   font-family: Helvetica, Arial, sans-serif;
+   font-size: 11px;
+   font-weight: bold;
+   color : #7C0F1D;
+}
+
+.smallTitle
+{
+	font-family: Helvetica, Arial, sans-serif;
+	font-size: 12px;
+	font-weight: normal;
+	color: #7C0F1D;
+}
+
+.helpText
+{
+   font-family: Helvetica, Arial, sans-serif;
+   font-size: 12px;
+   font-weight: bold;
+   color : #7C0F1D;
+   text-decoration : none;
+   text-hover: #FFFFE6;
+}
+
+.menuButton
+{
+   position: absolute;
+   visibility: hidden;
+}
+
+.menuText
+{
+   font-family: Helvetica, Arial, sans-serif;
+   font-size: 12px;
+   font-weight: bold;
+   color : #ffffff;
+   text-decoration : none;
+   padding-top: 2;
+   padding-left: 5;
+/*   vertical-align: super; */
+}
+
+.submenuText
+{
+   font-family: Helvetica, Arial, sans-serif;
+   font-size: 12px;
+   font-weight: normal;
+   color : #ffffff;
+   text-decoration : none;
+   padding-top: 2;
+   padding-left: 5;
+/*   vertical-align: super; */
+}  
+
+.menuTextSelected
+{
+   font-family: Helvetica, Arial, sans-serif;
+   font-size: 12px;
+   font-weight: bold;
+   color : #780B20;
+   text-decoration : none;
+   padding-top: 2;
+   padding-left: 5;
+/*   vertical-align: super; */
+}
+
+.submenuTextSelected
+{
+   font-family: Helvetica, Arial, sans-serif;
+   font-size: 12px;
+   font-weight: normal;
+   color : #780B20;
+   text-decoration : none;
+   padding-top: 2;
+   padding-left: 5;
+/*   vertical-align: super; */
+}
+
+.loginError
+{
+	font-family: Helvetica, Arial, sans-serif;
+	font-size: 12px;
+	color : #ffffff;
+	text-decoration: none;
+   
+}
+
+.hidden 
+{ 
+   position: relative; 
+   visibility:hidden; 
+   }
+
+.visible { 
+   position: relative; 
+   visibility:visible; 
+   } 
+   
+.bodyHelp {
+    margin : 0px;
+    margin-bottom : 0px;
+    margin-left : 0px;
+    margin-right : 15px;
+    margin-top : 0px;
+	background-attachment: scroll;
+	background-color: #FFFFE6;
+	background-image: url(Images/leftHelp.gif);
+	background-repeat: repeat-y;
+	background-position: left top;
+}
+
+.textHelp
+{
+	font-family: Helvetica, Arial, sans-serif;
+	font-size: 13px;
+	color : #000000;
+	background-color: #ffffe6;
+	vertical-align : middle;
+	text-align: justify;
+}
+
+.paragHelp 
+{
+	font-family: Helvetica, Arial, sans-serif;
+	font-size: 13px;
+	font-weight: bold;
+	color : #993300;
+	background-color: #ffffe6;
+	text-decoration: none;
+	text-align: left;
+	vertical-align: middle;
+}	
+
+.titleHelp 
+{
+	font-family: Helvetica, Arial, sans-serif;
+	font-size: 14px;
+	font-weight: bold;
+	color : #993300;
+	text-decoration: none;
+	background-color: #ffffe6;
+	text-align: center;
+	vertical-align: middle;
+}
+
+.lightButton
+{
+	font-family: Helvetica, Arial, sans-serif;
+	font-size: 12px;
+	color: #a85820;
+	vertical-align: middle;
+	text-decoration: none;
+	border: 1px ridge transparent;
+	font-weight: bold;
+	-moz-resizer: none;
+	background-color: #FFFFE6;
+}
+
+.yellowButton
+{
+	font-family: Helvetica, Arial, sans-serif;
+	font-size: 12px;
+	color: #7A0E20;
+	vertical-align: middle;
+	text-decoration: none;
+	border: 1px solid #7A0E20;
+	font-weight: bold;
+	-moz-resizer: none;
+	background-color: #FAB913;
+}
+
+.lightPorts
+{
+	font-family: Helvetica, Arial, sans-serif;
+	font-size: 12px;
+	color: #FFFFE6;
+	vertical-align: middle;
+	text-decoration: none;
+	font-weight: bold;
+}
+
+.mainButtons
+{
+	font-family: Helvetica, Arial, sans-serif;
+	font-size: 13px;
+	font-weight: bold;
+	color : #7C0F1D;
+	text-decoration: none;
+	border: 1px solid #7c0f1d;
+	background: #fab913;
+	line-height: 25px;
+}
+
+.tableButtons
+{
+	font-family: Helvetica, Arial, sans-serif;
+	font-size: 10px;
+	font-weight: bold;
+	color : #7C0F1D;
+	text-decoration: none;
+	border: 1px solid #7c0f1d;
+	background: #fab913;
+	line-height: 16px;
+}
+
+#container
+{
+        width: 100%;
+        height: 100%;
+	display: none;
+	background: #FFFFE6;
+	z-index:1000000;
+
+}
+
+#loading
+{
+	position:absolute;
+	left:32%;
+	top:16%;
+}
+
+#fwstatus
+{
+	display: none;
+}
+

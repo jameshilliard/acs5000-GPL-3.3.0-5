@@ -1,0 +1,22 @@
+#!/bin/sh
+
+mount -o remount,rw /dev/root / -t root 2>/dev/null
+mount -t cycfs none /mnt/flash
+mount -a 2>/dev/null
+
+#Restore configuration from Flash
+/bin/restoreconf 1>/dev/null 2>&1
+
+#Check first boot and name ports
+/bin/check1stBoot
+
+#
+# Upgrade. Just copy webui
+#
+if ! grep -q SSLCIPHER /etc/daemon.d/webui.conf ; then
+  cp /etc/daemon.d/webui.conf.save /etc/daemon.d/webui.conf
+  /bin/saveconf
+fi
+
+#Keep the same HW console speed throughout Linux execution
+/bin/setConSpeed

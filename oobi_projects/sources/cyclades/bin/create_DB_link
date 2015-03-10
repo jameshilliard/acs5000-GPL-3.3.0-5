@@ -1,0 +1,49 @@
+#!/bin/sh
+
+action=create
+
+case $1 in
+  CF)
+    LOC=`mount | grep "mnt/ide"`
+    if [ -n "$LOC" ] ; then
+      action=link
+	  link=/mnt/ide/DB
+      if [ ! -d $link ] ; then
+        rm -rf $link
+		mkdir $link
+      fi
+    else
+      LOC=`mount | grep "mnt/RamDB"`
+      if [ -n "$LOC" ] ; then
+        action=link
+	    link=/mnt/RamDB
+	  fi
+	fi
+  ;;
+  LOCAL)
+    LOC=`mount | grep "mnt/RamDB"`
+    if [ -n "$LOC" ] ; then
+      action=link
+	  link=/mnt/RamDB
+	fi
+  ;;
+  *)
+    # Fanning - shouldn't be here
+  ;;
+esac
+
+#echo Parm1 "[ $1 ]" action "[ $action ]" LOC "[ $LOC ]"
+
+case $action in
+  link)
+	rm -rf /var/run/DB
+    ln -s $link /var/run/DB
+  ;;
+  create)
+    if [ ! -d /var/run/DB -o -L /var/run/DB ] ; then
+		rm -rf /var/run/DB
+		mkdir /var/run/DB
+	fi
+  ;;
+esac
+

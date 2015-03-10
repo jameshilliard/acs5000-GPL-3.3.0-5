@@ -1,0 +1,102 @@
+===============================================================================
+                       UPGRADE to Version 2.1.1
+===============================================================================
+
+REMARKS
+=======
+      . For more information about new features, please read the most 
+        recently dated Release Notes.
+
+      . For those who are new to Linux/Unix, we recommend reading appendix A
+        in the Cyclades KVM User's Guide.
+
+NOTE: Cyclades strongly recommends that users read the latest User's
+Guide available from the Cyclades' FTP site before using this new firmware.
+
+
+UPGRADING OVERVIEW
+==================
+
+The KVM packages may be updated from an existing version to a later version. 
+Special care should be taken regarding the configuration if you are running 
+an earlier version of KVM.
+
+In most cases, the Firmware Upgrade process, started from the web interface, 
+should be sufficient for updating the configuration. If this process fails, 
+a warning advising how to proceed will be displayed.  
+
+After running the new version, you can choose to start the configuration 
+from scratch using the following commands:
+
+    restoreconf factory_default
+    reboot
+
+As an alternative, you must perform all steps from all "Upgrading from 
+<version> actions", using version numbers equal to, or greater than, 
+the original version of their KVM.
+
+To run a new configuration, execute the following command:
+
+    daemon.sh 
+
+To backup a new configuration into flash, execute the following command:
+
+    saveconf
+
+Double check that all files that have changed are listed in the
+file /etc/config_files.
+
+If any of the files /etc/inittab, /etc/rc.sysinit, or any user's shell script 
+executed by /etc/rc.sysinit were changed, the KVM must be rebooted for the 
+changes to take effect.
+
+IMPORTANT: Remember that KVM/net Plus has its file system in flash. 
+Running 'saveconf' will create a backup of the current configuration files. 
+To restore a previously-saved configuration, run 'restoreconf' immediately 
+after a reboot, then run 'daemon.sh' to restart the processes.  
+
+The release_notes.html file available in the Cyclades Web site brings the
+microcontrolers compatibility. Please refer to that document and upgrade
+the microcode accordingly right after upgrading the KVM opcode itself.
+Using the Web interface, navigate to Management:Microcode Upgrade to upgrade
+the microcontroles.
+
+
+Upgrading from 2.1.0 (or its patches) Actions
+=============================================
+
+- IMPORTANT NOTE: Before you start the upgrade process from the Web interface 
+  or even if you prefer commanding the upgrade process from a root session
+  it will be required to download the file "patch_kvmp_v210.gz" to the /tmp 
+  directory and extract it in the KVM/net Plus. That file is available in the 
+  very same place the KVM/net Plus firmware is stored in the Cyclades Web Site. 
+  The steps below includes an example how to do it from a KVM root session
+  . download the file to /tmp using FTP or SCP:
+    [root@KVM tmp]# scp user@server:/path/patch_kvmp_v210.gz /tmp
+  . extract the file contents:
+    [root@KVM tmp]# tar xzvf /tmp/patch_kvmp_v210.gz
+  . run the shell script to patch the files properly:
+    [root@KVM tmp]# /tmp/patch_kvmp_v210.sh
+  . Proceed with the normal upgrage process using the Web interface.
+
+- The file /etc/daemon.d/webui.conf was changed:
+  . the upgrade process running from Web interface will display a WARNING 
+    message advising the configuration update failed.
+  . if you did never change that file you can just overwrite it with the
+    new file: cp /tmp/hdPart/etc/daemon.d/webui.conf /etc/daemon.d/
+    otherwise update the new file (/tmp/hdPart/etc/daemon.d/webui.conf) with 
+    all your changes then copy it over the current file:
+    cp /tmp/hdPart/etc/daemon.d/webui.conf /etc/daemon.d/
+
+- Once all configuration files have being properly patched, reboot the KVM.
+
+
+Upgrading from 2.0.0 Actions
+============================
+
+- the /etc/config_files was changed
+  . some files were included (/etc/online_help, /etc/onlineHelp/*, ...)
+  . if you had modified the /etc/config_files file, include your changes in
+    the /etc/config_files.save and copy the file to /etc/config_files. Save
+    in CF only if you want to keep a backup of such configuration.
+

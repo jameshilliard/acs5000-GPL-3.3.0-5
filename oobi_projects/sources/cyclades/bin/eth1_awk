@@ -1,0 +1,28 @@
+BEGIN {
+  FS = " "
+  ETH1="no"
+}
+$1 ~ /^$/ {
+  next
+}
+$1 == "iface" && $2 == "eth1" && $3 == "inet" {
+  ETH1="yes"
+}
+$1 == "iface" && $2 != "eth1" && $3 == "inet" {
+  if ( ETH1 == "yes" ) {
+    ETH1="no"
+  }
+}
+$1 == "address" {
+  if ( ETH1 == "yes" ) {
+    ETH1=$2
+  }
+}
+
+END {
+  if ( ETH1 != "no" && ETH1 != "yes" ) {
+    print ETH1
+  } else {
+    print "none"
+  }
+}

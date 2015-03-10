@@ -1,0 +1,11 @@
+--- libpcap-0.8.3/configure.orig	2004-03-28 18:44:06.000000000 -0300
++++ libpcap-0.8.3/configure	2007-09-14 17:41:38.000000000 -0300
+@@ -4267,7 +4267,7 @@ fi
+  	fi
+ 	echo "$as_me:$LINENO: result: $ac_cv_linux_vers" >&5
+ echo "${ECHO_T}$ac_cv_linux_vers" >&6
+- 	if test $ac_cv_linux_vers = unknown ; then
++ 	if test $ac_cv_linux_vers = _ ; then
+  		{ { echo "$as_me:$LINENO: error: cannot determine linux version when cross-compiling" >&5
+ echo "$as_me: error: cannot determine linux version when cross-compiling" >&2;}
+    { (exit 1); exit 1; }; }

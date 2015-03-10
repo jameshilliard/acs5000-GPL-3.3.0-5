@@ -1,0 +1,43 @@
+#
+#  Makefile for cyclades projects.
+#
+
+#
+# Addtional compiler and/or link options may be defined here
+#
+CFLAGS += -DPAM_STRERROR_NEEDS_TWO_ARGS -DUSE_PAM -I$(CONFIG_TOOL_DIR)/include -I$(my_prefix)/usr/include -I$(BUILD_DIR)/$(ras)/src
+#LDFLAGS += ...
+
+#
+# Command line parameters for configure must be defined here
+#
+#CONFIGURE_PARMS := ...
+
+#CONFIGURE_ENV := ...
+
+MAKE_ENV:=\
+	PATH=$(CROSS_PATH) \
+	$(CROSS_ENV_TOOLS) \
+ 	CFLAGS="$(CFLAGS)" \
+	LDFLAGS="$(LDFLAGS)" \
+	LIBRARIES="-lcrypt -L$(my_prefix)/lib -L$(my_prefix)/lib/security -lpam -lpam_misc -L$(BUILD_DIR)/$(ras)/src -lrad"
+
+MAKE_PARMS:=\
+	CROSS_COMPILE=$(CROSS_PREFIX) \
+	PREFIX=$(my_prefix) \
+
+#
+#  more ac_variables for configure may be defined here
+#
+#CROSS_ENV_AC += ...
+
+############################################################################
+
+$(CFG_COOKIE):
+	rm -f tinylogin.links
+	date > $@
+
+$(BLD_COOKIE): $(CFG_COOKIE)
+	$(MAKE_ENV) \
+	$(MAKE) $(MAKE_PARMS) all install
+

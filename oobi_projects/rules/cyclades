@@ -1,0 +1,73 @@
+#
+#  Makefile for cyclades projects.
+#
+
+#
+# Addtional compiler and/or link options may be defined here
+#
+#LDFLAGS += ...
+#CPPFLAGS += ...
+#CFLAGS += ...
+
+DO_POST_SRC_COOKIE:=no
+
+#
+# Command line parameters for configure must be defined here
+#
+CONFIGURE_PARMS:=
+
+CONFIG_ENV:=\
+	ACS=ACS \
+	TYPE=acs \
+	CYC_HEADER=$(CURR_DST)/bin/manageService.sh.cyc-header \
+	COMPANY=cyclades \
+	DSVIEW=dsview \
+	DSVIEW_CAP=DSView
+
+ifeq ($(TARG),apc)
+CONFIG_ENV:=\
+	ACS=CPS \
+	TYPE=cps \
+	CYC_HEADER=/dev/null \
+	COMPANY=apc \
+	DSVIEW=avworks \
+	DSVIEW_CAP=AVWorks
+endif 
+
+ifeq ($(TARG),kvmapc)
+CONFIG_ENV:=\
+	ACS=KVM \
+	TYPE=kvm \
+	CYC_HEADER=$(CURR_DST)/bin/manageService.sh.cyc-header \
+	COMPANY=apc \
+	DSVIEW=dsview \
+	DSVIEW_CAP=DSView
+endif
+
+MAKE_ENV:=
+
+MAKE_PARMS:=
+
+#
+#  more ac_variables for configure may be defined here
+#
+#CROSS_ENV_AC +=
+
+$(PRE_CFG_COOKIE): $(SRC_COOKIE)
+	date > $@
+
+$(CFG_COOKIE): $(PRE_CFG_COOKIE) 
+	-rm -f config.cache configure config.status
+	autoconf
+	$(CONFIG_ENV) $(CROSS_ENV_AC) \
+	./configure $(CONFIGURE_PARMS)
+	date > $@
+
+$(BLD_COOKIE):
+	# install cyclades files
+	TARG=$(TARGET_PRODUCT) \
+	CYCLADES_FILES=$(CYCLADES_FILES) \
+	TARGET_DIR=$(WORK_DIR)/$(TARGET) \
+	SYSTEM_DIR=$(CURR_DST) \
+	$(ROOT_PROJ)/$(TOOLS)/install_cyc_files
+

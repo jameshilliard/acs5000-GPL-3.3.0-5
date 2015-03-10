@@ -1,0 +1,17 @@
+#
+# The PAM configuration file for the `nisdownlocal' service
+#
+auth	requisite	pam_securetty.so
+auth    optional  	pam_auth_srv.so 
+auth    \
+[ success=done new_authtok_reqd=done authinfo_unavail=ignore default=die ] \
+	pam_unix2.so
+auth    required	pam_redirect.so service=s_local	
+account \
+ [ success=done new_authtok_reqd=done authinfo_unavail=ignore default=die ] \
+ 	pam_unix2.so
+account sufficient      pam_unix2.so
+session \
+ [ success=done new_authtok_reqd=done session_err=ignore authinfo_unavail=ignore default=die ] \
+ 	pam_unix2.so
+session sufficient      pam_unix2.so

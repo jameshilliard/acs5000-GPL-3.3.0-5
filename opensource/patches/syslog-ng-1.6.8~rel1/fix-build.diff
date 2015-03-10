@@ -1,0 +1,13 @@
+Index: syslog-ng-1.6.8/configure.in
+===================================================================
+--- syslog-ng-1.6.8.orig/configure.in
++++ syslog-ng-1.6.8/configure.in
+@@ -330,7 +330,7 @@ else
+ 	LIBOL_VERSION=`$with_libol/libol-config --version`
+ 	LIBOL_CFLAGS=`$with_libol/libol-config --local-cflags`
+ 	LIBOL_LIBS=`$with_libol/libol-config --local-static-libs`
+-	MAKE_CLASS="$with_libol/utils/make_class"
++	MAKE_CLASS="$with_libol/make_class"
+ fi
+ 
+ 

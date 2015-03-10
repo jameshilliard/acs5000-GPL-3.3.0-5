@@ -1,0 +1,39 @@
+#!/bin/sh
+#
+# This script is run by the pppd/ipppd after the link is authenticated.
+#
+# This script is called with the following arguments:
+#    Arg  Name                          Example
+#    $1   Interface name                ippp0
+#    $2   Authentication user name      mary 
+#    $3   Username of ipppd		root
+#    $4   Device name			/dev/ippp0
+#    $5   Speed				64000
+#    $6   Remote number			"8358662"
+#    $7	  Call direction		incoming
+
+PPP_IFACE="$1"
+PPP_PEERNAME="$2"
+PPP_USERNAME="$3"
+PPP_DEVICE="$4"
+PPP_SPEED="$5"
+PPP_REMOTE="$6"
+PPP_DIRECTION="$7"
+
+
+# Callback for ISDN: There are 2 modes to setup the unit to callback clients.
+# The first mode is to set the CALLBACK="in" in /etc/pcmcia/isdn.opts. 
+# This will cause callback to happen at D-Channel level.
+# The second mode is to use the /etc/ppp/auth-up file. Using the
+# /etc/ppp/auth-up script has the advantage of the the unit calling back
+# only after authentication is successful. If you want to use the 
+# second mode, please set the CALLBACK="off" in /etc/pcmcia/isdn.opts
+# and uncomment the lines below.
+#
+#if [ x"$PPP_IFACE" = x"ippp0" ] ; then
+#if [ x"$PPP_DIRECTION" = x"incoming" ] ; then
+#    isdnctrl hangup ippp0
+#    sleep 1
+#    isdnctrl dial ippp0
+#fi
+#fi

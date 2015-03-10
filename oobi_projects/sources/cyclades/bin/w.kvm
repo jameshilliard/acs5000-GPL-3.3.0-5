@@ -1,0 +1,6 @@
+#!/bin/sh
+w_ori
+w_cas
+echo
+kvm w
+

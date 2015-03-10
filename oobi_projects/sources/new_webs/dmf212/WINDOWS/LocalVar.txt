@@ -1,0 +1,3 @@
+_goofus=whacky
+_language=en
+_banana=_banana

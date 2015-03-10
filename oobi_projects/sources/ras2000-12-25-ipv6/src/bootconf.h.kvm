@@ -1,0 +1,17 @@
+#ifndef __bootconf_h
+#define __bootconf_h
+
+/*
+ *  Define those default values which may differ
+ *  depending on the compiled target
+ */
+
+#define FLASH_BLOCK	(64*1024)
+#define DEFAULT_TFTP_PATH	"zvmppckvm.bin"
+#define DEFAULT_WDT_OPT	1
+
+#define BOOT_ORI_FILE	"/proc/flash/boot_ori"
+#define BOOT_OM_FILE	"/proc/flash/.info"
+#define BOOT_CONF_FILE	"/proc/flash/config"
+
+#endif	/* __bootconf_h */

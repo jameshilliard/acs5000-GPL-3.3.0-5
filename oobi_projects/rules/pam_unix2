@@ -1,0 +1,62 @@
+#
+#  Makefile for cyclades projects.
+#
+
+#
+# Addtional compiler and/or link options may be defined here
+#
+#CFLAGS += ...
+#LDFLAGS += ...
+
+#
+# Command line parameters for configure must be defined here
+#
+CONFIGURE_PARMS:=\
+	--prefix=$(my_prefix) \
+	--build=x86 \
+	--host=powerpc \
+	--sysconfdir=/etc
+
+CROSS_NM += -B
+
+CONFIGURE_ENV :=\
+	CROSS_COMPILE=$(CROSS_PREFIX) \
+	PATH=$(CROSS_PATH) \
+	$(CROSS_ENV_TOOLS) \
+	LN_S="$(CROSS_LD) -sf" \
+	CFLAGS="$(CFLAGS) -I$(BUILTIN_DIST)/$(libxcrypt)/include" \
+	CPPFLAGS="$(CPPFLAGS) -I$(BUILD_DIR)/$(Linux-PAM)/libpam/include" \
+	MAKE=$(MAKE) \
+	LDFLAGS="$(LDFLAGS)"  \
+	LIBS="-L$(BUILTIN_DIST)/$(libxcrypt)/lib -lxcrypt"
+	DLLTOOL= 
+
+MAKE_ENV:=\
+	PATH=$(CROSS_PATH)
+
+MAKE_PARMS:= \
+	CROSS_COMPILE=$(CROSS_PREFIX) 
+
+#
+#  more ac_variables for configure may be defined here
+#
+#CROSS_ENV_AC += ...
+
+############################################################################
+
+$(CFG_COOKIE):
+	#touch aclocal.m4
+	#aclocal
+	rm -f config.cache
+	$(CONFIGURE_ENV) \
+	$(CROSS_ENV_AC) \
+	./configure $(CONFIGURE_PARMS)
+	date > $@
+
+$(BLD_COOKIE): $(CFG_COOKIE)
+	$(MAKE_ENV) \
+	$(MAKE) $(MAKE_PARMS) all
+	PATH=$(CROSS_PATH) \
+	install -s -m 755 src/pam_unix2.so $(my_prefix)/lib/security
+	cd $(my_prefix)/lib/security && ln -sf pam_unix2.so pam_unix.so
+

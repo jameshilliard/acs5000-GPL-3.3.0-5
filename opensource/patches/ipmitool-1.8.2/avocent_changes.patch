@@ -1,0 +1,15 @@
+--- ipmitool-1.8.2/src/Makefile.am.orig	2007-11-05 16:19:05.000000000 -0200
++++ ipmitool-1.8.2/src/Makefile.am	2007-11-05 16:22:06.000000000 -0200
+@@ -40,8 +40,9 @@ MAINTAINERCLEANFILES	= Makefile.in
+ ipmitool_SOURCES	= ipmitool.c ipmishell.c
+ ipmitool_LDADD		= $(top_builddir)/lib/libipmitool.la plugins/libintf.la
+ 
+-ipmievd_SOURCES		= ipmievd.c
+-ipmievd_LDADD		= $(top_builddir)/lib/libipmitool.la plugins/libintf.la
++#ipmievd_SOURCES	= ipmievd.c
++#ipmievd_LDADD		= $(top_builddir)/lib/libipmitool.la plugins/libintf.la
+ 
+ bin_PROGRAMS		= ipmitool
+-sbin_PROGRAMS		= ipmievd
++#sbin_PROGRAMS		= ipmievd
++sbin_PROGRAMS		= 

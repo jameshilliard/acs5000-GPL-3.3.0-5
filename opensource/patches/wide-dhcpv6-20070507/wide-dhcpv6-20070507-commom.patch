@@ -1,0 +1,19 @@
+--- wide-dhcpv6-20070507/common.c.orig	2007-09-04 15:30:20.000000000 -0300
++++ wide-dhcpv6-20070507/common.c	2007-09-04 15:31:18.000000000 -0300
+@@ -1287,12 +1287,12 @@ gethwid(buf, len, ifname, hwtypep)
+ 		l = sdl->sdl_alen; /* sdl will soon be freed */
+ #endif
+ #ifdef __linux__
+-		if (ifa->ifa_addr->sa_family != AF_PACKET)
+-			continue;
++		//if (ifa->ifa_addr->sa_family != AF_PACKET)
++		//	continue;
+ 
+ 		sll = (struct sockaddr_ll *)ifa->ifa_addr;
+-		if (sll->sll_hatype != ARPHRD_ETHER)
+-			continue;
++		//if (sll->sll_hatype != ARPHRD_ETHER)
++		//	continue;
+ 		*hwtypep = ARPHRD_ETHER;
+ 		dprintf(LOG_DEBUG, FNAME, "found an interface %s for DUID",
+ 		    ifa->ifa_name);

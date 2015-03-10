@@ -1,0 +1,54 @@
+#!/bin/sh
+# Device Menu Shell for Terminal Server Application
+
+MENUSH_CFG_FILE=/bin/menush.cfg
+
+do_exit ()
+{
+    echo "*** ERROR: script interrupted."
+    sleep 1
+    exit 2
+}
+
+# Trap signals so that this application is not interrupted
+trap do_exit SIGTERM SIGINT SIGQUIT SIGHUP
+
+. $MENUSH_CFG_FILE
+
+while true
+do
+	echo -e "\n\n"
+	echo "$MENU_TITLE"
+	echo -e "\n"
+
+	COUNT=1
+	QUIT=`expr $MENU_NBR + 1`
+	while [ "$COUNT" -le "$MENU_NBR" ]
+	do
+		eval MENU_OPTION=\$MENU_OPT$COUNT
+		MENU_NAME=`echo "$MENU_OPTION" | cut -d'%' -f1`
+		echo "$COUNT) $MENU_NAME"
+		COUNT=`expr $COUNT + 1`
+	done
+	echo -e "$COUNT) Quit\n\n"
+	echo -e "Option ==> \c"
+	read OPTION
+
+	if [ "$OPTION" = "" ]; then
+		## Do nothing
+		sleep 1
+	elif [ "$OPTION" -gt "$QUIT" ]; then
+		## Do nothing
+		sleep 1
+	elif [ "$OPTION" = "$QUIT" ]; then
+		echo -e "\n*** Disconnecting ..."
+		sleep 1
+		exit
+	else
+		eval MENU_OPTION=\$MENU_OPT$OPTION
+		MENU_CMD=`echo "$MENU_OPTION" | cut -d'%' -f2`
+		$MENU_CMD
+	fi
+done
+exit
+

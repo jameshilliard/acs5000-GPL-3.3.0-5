@@ -1,0 +1,7 @@
+small=petit
+medium=moyen
+large=grand
+h1=essai de langue
+h2=essai local
+h3=essai très simple
+

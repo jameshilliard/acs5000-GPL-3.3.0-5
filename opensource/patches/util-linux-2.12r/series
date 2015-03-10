@@ -1,0 +1,3 @@
+./util-linux-2.12r-cramfs-1.patch
+./util-linux-2.12r-gcc4_fixes-1.patch
+./util-linux-2.12r.patch

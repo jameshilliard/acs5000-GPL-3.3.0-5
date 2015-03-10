@@ -1,0 +1,128 @@
+diff -u -r libbgrab-1.6/bgrab.c libbgrab-1.6+/bgrab.c
+--- libbgrab-1.6/bgrab.c	1999-08-25 01:35:51.000000000 -0700
++++ libbgrab-1.6+/bgrab.c	2006-03-13 17:04:46.000000000 -0800
+@@ -208,6 +208,10 @@
+   return(-1);
+  } else {
+   switch (which_setting) {
++   case SETTING_DEPTH:
++	video_pict.depth=value;
++   case SETTING_PALETTE:
++	video_pict.palette=value;
+    case SETTING_BRIGHTNESS:
+     video_pict.brightness=value;
+     break;
+@@ -251,6 +255,10 @@
+ 
+  /* Set channel number */
+  video_chan.channel=channel; 
++ if (ioctl (fg->video_dev, VIDIOCGCHAN, &video_chan) == -1) {
++  perror ("ioctl (VIDIOCGCHAN)");
++ }
++ video_chan.norm=VIDEO_MODE_NTSC;
+  if (ioctl (fg->video_dev, VIDIOCSCHAN, &video_chan) == -1) {
+   perror ("ioctl (VIDIOCSCHAN)");
+   return(-1);
+@@ -258,6 +266,21 @@
+  return(0);
+ }
+ 
++/* Set the input channel on card */
++int fg_set_mode(struct fgdevice *fg, int mode)
++{
++ struct video_tuner tuner;
++
++ /* Set tuner mode */
++ tuner.tuner=0;
++ tuner.mode=mode;
++ if (ioctl (fg->video_dev, VIDIOCSTUNER, &tuner) == -1) {
++  perror ("ioctl (VIDIOCSTUNER)");
++ }
++
++ return(0);
++}
++
+ /* Self running thread that grabbs all images */
+ void * grab_images_thread (struct fgdevice *fg)
+ {
+@@ -331,6 +354,9 @@
+   case VIDEO_PALETTE_RGB565:
+    depth=2;
+    break;
++  case VIDEO_PALETTE_RGB555:
++   depth=2;
++   break;
+   case VIDEO_PALETTE_RGB32:
+    depth=4;
+    break;
+diff -u -r libbgrab-1.6/bgrab.h libbgrab-1.6+/bgrab.h
+--- libbgrab-1.6/bgrab.h	1999-08-25 01:35:51.000000000 -0700
++++ libbgrab-1.6+/bgrab.h	2006-03-13 17:04:46.000000000 -0800
+@@ -21,15 +21,23 @@
+ #define SETTING_HUE		1
+ #define SETTING_COLOUR		2
+ #define SETTING_CONTRAST	3
++#define SETTING_PALETTE     4
++#define SETTING_DEPTH		5 
+ 
+ #define FORMAT_GREY		VIDEO_PALETTE_GREY
+ #define FORMAT_RGB565		VIDEO_PALETTE_RGB565
++#define FORMAT_RGB555		VIDEO_PALETTE_RGB555
+ #define FORMAT_RGB32		VIDEO_PALETTE_RGB32
+ 
+ #define IMAGE_BUFFER_EMPTY	0
+ #define IMAGE_BUFFER_FULL	1
+ #define IMAGE_BUFFER_INUSE	2
+ 
++#define VIDEOMODE_AUTO          VIDEO_MODE_AUTO
++#define VIDEOMODE_PAL           VIDEO_MODE_PAL
++#define VIDEOMODE_NTSC          VIDEO_MODE_NTSC
++#define VIDEOMODE_SECAM         VIDEO_MODE_SECAM
++
+ static const int error_exit_status = -1; 
+ 
+ struct fgdevice {
+@@ -72,10 +80,10 @@
+ int fg_get_setting(struct fgdevice *fg, int which_setting);
+ int fg_set_setting(struct fgdevice *fg, int which_setting, int value);
+ int fg_set_channel(struct fgdevice *fg, int channel);
++int fg_set_mode(struct fgdevice *fg, int mode);
+ 
+ int fg_start_grab_image (struct fgdevice *fg, int width, int height, int format);
+ int fg_stop_grab_image (struct fgdevice *fg);
+ void * fg_get_next_image(struct fgdevice *fg);
+ 
+ double timeGet(void);
+- 
+\ No newline at end of file
+Only in libbgrab-1.6+: COOKIE_TAR
+diff -u -r libbgrab-1.6/Makefile libbgrab-1.6+/Makefile
+--- libbgrab-1.6/Makefile	1999-08-29 02:30:50.000000000 -0700
++++ libbgrab-1.6+/Makefile	2006-03-13 17:22:36.677388776 -0800
+@@ -9,20 +9,20 @@
+ CFLAGS = -O2 -Wall -D_REENTRANT -I/usr/include/glide -DUSEAUDIO
+ LIBS = -L/usr/X11R6/lib -lXext -lX11 -lm -lpthread
+ 
+-OBJS = bgrab.o xutil.o
++OBJS = bgrab.o
+ 
+ # Remove zoomgrab and artcam if you don not have glide (Voodoo) drivers installed
+ 
+-default: libbgrab.a testgrab asciigrab zoomgrab artcam
++default: libbgrab.a
+ 
+-libbgrab.a: Makefile bgrab.o xutil.o
++libbgrab.a: Makefile bgrab.o
+ 	$(AR) r libbgrab.a $(OBJS)
+ 	$(RANLIB) libbgrab.a 
+ 
+-testgrab: Makefile testgrab.o
++testgrab: Makefile testgrab.o libbgrab.a
+ 	$(CC) testgrab.o -o testgrab -L. -lbgrab $(LIBS)
+ 
+-asciigrab: Makefile asciigrab.o
++asciigrab: Makefile asciigrab.o libbgrab.a
+ 	$(CC) asciigrab.o -o asciigrab -L. -lbgrab $(LIBS)
+ 
+ zoomgrab: Makefile zoomgrab.o spline.o
+Only in libbgrab-1.6+: .pc

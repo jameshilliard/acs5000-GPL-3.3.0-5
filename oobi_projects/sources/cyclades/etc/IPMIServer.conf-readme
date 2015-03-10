@@ -1,0 +1,15 @@
+# This is a sample IPMI Device configuration file.
+# The parameters are as follows:
+#        IP Address      IP address of the IPMI device
+#        auth method     Specify none, password, md5, or md2
+#        privilege       Specify user or operator or admin
+#        username        IPMI username
+#        password        IPMI password
+#        alias           alias for IPMI device 
+# The format is:
+# <id>:<IP Address>:<auth method>:<privilege>:[username]:[password]:[alias]:
+# Note that username and password are not required for an auth method
+# of type "none".  The <id> is an arbitrary number specifying a unique
+# server.
+#
+1:192.168.160.137:none:admin:::Example:

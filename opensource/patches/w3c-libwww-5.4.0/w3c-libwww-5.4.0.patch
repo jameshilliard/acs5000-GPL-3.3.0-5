@@ -1,0 +1,142 @@
+diff -u -r w3c-libwww-5.4.0/configure w3c-libwww-5.4.0-/configure
+--- w3c-libwww-5.4.0/configure	2002-06-12 02:31:31.000000000 -0700
++++ w3c-libwww-5.4.0-/configure	2004-02-27 00:47:39.000000000 -0800
+@@ -2356,8 +2356,6 @@
+     /usr/x386/include         \
+     /usr/XFree86/include/X11  \
+                               \
+-    /usr/include              \
+-    /usr/local/include        \
+     /usr/unsupported/include  \
+     /usr/athena/include       \
+     /usr/local/x11r5/include  \
+@@ -5724,7 +5722,7 @@
+   echo $ac_n "(cached) $ac_c" 1>&6
+ else
+   if test "$cross_compiling" = yes; then
+-    { echo "configure: error: can not run test program while cross compiling" 1>&2; exit 1; }
++    ac_cv_sizeof_char_p=4
+ else
+   cat > conftest.$ac_ext <<EOF
+ #line 5731 "configure"
+@@ -5841,7 +5839,7 @@
+   echo $ac_n "(cached) $ac_c" 1>&6
+ else
+   if test "$cross_compiling" = yes; then
+-    { echo "configure: error: can not run test program while cross compiling" 1>&2; exit 1; }
++	ac_cv_c_long_time_t=yes
+ else
+   cat > conftest.$ac_ext <<EOF
+ #line 5848 "configure"
+@@ -5879,7 +5877,7 @@
+   echo $ac_n "(cached) $ac_c" 1>&6
+ else
+   if test "$cross_compiling" = yes; then
+-    { echo "configure: error: can not run test program while cross compiling" 1>&2; exit 1; }
++	ac_cv_c_long_size_t=yes
+ else
+   cat > conftest.$ac_ext <<EOF
+ #line 5886 "configure"
+@@ -7577,24 +7575,11 @@
+ 
+ echo $ac_n "checking whether we can find OpenSSL""... $ac_c" 1>&6
+ echo "configure:7580: checking whether we can find OpenSSL" >&5
+-if test -d '/usr/local/ssl/lib'; then
+-  ssllib="-L/usr/local/ssl/lib -lssl -lcrypto"
+-else
+-  ssllib="-L/usr/lib -lssl -lcrypto"
+-fi
+-if test -d '/usr/local/ssl/include'; then
+-  sslinc="-I/usr/local/ssl/include"
+-elif test -d '/usr/local/openssl/include'; then
+-  sslinc="-I/usr/local/openssl/include"
+-elif test -d '/usr/local/include/openssl'; then
+-  sslinc="-I/usr/local/include/openssl"
+-elif test -d '/usr/include/ssl'; then
+-  sslinc="-I/usr/include/ssl"
+-elif test -d '/usr/include/openssl'; then
+-  sslinc="-I/usr/include/openssl"
+-else
+-  sslinc=""
+-fi
++# Begin modifications by Erik Lotspeich <erik.lotspeich@cyclades.com>
++# Changed so that cross-compiling works properly
++ssllib="-L$OPEN_SSL_DIR/lib -lssl -lcrypto"
++sslinc="-I$OPEN_SSL_DIR/include"
++# End modifications by Erik
+ WWWSSL=""
+ SSLINC=""
+ LIBSSL=""
+diff -u -r w3c-libwww-5.4.0/Library/src/SSL/HTSSL.c w3c-libwww-5.4.0-/Library/src/SSL/HTSSL.c
+--- w3c-libwww-5.4.0/Library/src/SSL/HTSSL.c	2000-08-03 09:17:20.000000000 -0700
++++ w3c-libwww-5.4.0-/Library/src/SSL/HTSSL.c	2004-02-27 00:47:39.000000000 -0800
+@@ -29,8 +29,8 @@
+ #include "wwwsys.h"
+ 
+ /* SSL includes */
+-#include <ssl.h>
+-#include <rand.h>
++#include <openssl/ssl.h>
++#include <openssl/rand.h>
+ 
+ /* Library include files */
+ #include "WWWUtil.h"
+diff -u -r w3c-libwww-5.4.0/Library/src/SSL/HTSSLReader.c w3c-libwww-5.4.0-/Library/src/SSL/HTSSLReader.c
+--- w3c-libwww-5.4.0/Library/src/SSL/HTSSLReader.c	2000-07-31 03:39:23.000000000 -0700
++++ w3c-libwww-5.4.0-/Library/src/SSL/HTSSLReader.c	2004-02-27 00:47:39.000000000 -0800
+@@ -24,7 +24,7 @@
+ #include "wwwsys.h"
+ 
+ /* SSL include files */
+-#include <ssl.h>
++#include <openssl/ssl.h>
+ 
+ /* Library include files */
+ #include "WWWUtil.h"
+diff -u -r w3c-libwww-5.4.0/Library/src/SSL/HTSSLWriter.c w3c-libwww-5.4.0-/Library/src/SSL/HTSSLWriter.c
+--- w3c-libwww-5.4.0/Library/src/SSL/HTSSLWriter.c	2000-07-31 03:39:23.000000000 -0700
++++ w3c-libwww-5.4.0-/Library/src/SSL/HTSSLWriter.c	2004-02-27 00:47:39.000000000 -0800
+@@ -24,7 +24,7 @@
+ #include "wwwsys.h"
+ 
+ /* SSL include files */
+-#include <ssl.h>
++#include <openssl/ssl.h>
+ 
+ /* Library include files */
+ #include "WWWUtil.h"
+--- w3c-libwww-5.4.0/Library/src/Makefile.in-	2002-06-12 02:34:26.000000000 -0700
++++ w3c-libwww-5.4.0/Library/src/Makefile.in	2004-03-25 14:20:28.000000000 -0800
+@@ -232,7 +232,7 @@
+ 
+ libwwwsql_la_LDFLAGS = -rpath $(libdir)
+ 
+-INCLUDES =  	-I/usr/local/include 	-I${top_srcdir}/modules/md5 	-I${top_srcdir}/modules/expat/xmlparse
++INCLUDES =-I${top_srcdir}/modules/md5 	-I${top_srcdir}/modules/expat/xmlparse
+ 
+ 
+ BUILT_SOURCES =  	wwwsys.h 	HTAABrow.h 	HTAAUtil.h 	HTANSI.h 	HTAccess.h 	HTAlert.h 	HTAncMan.h 	HTAnchor.h 	HTArray.h 	HTAssoc.h 	HTAtom.h 	HTBInit.h 	HTBTree.h 	HTBind.h 	HTBind.h 	HTBound.h 	HTBufWrt.h 	HTCache.h 	HTChannl.h 	HTChunk.h 	HTConLen.h 	HTCookie.h 	HTDNS.h 	HTDemux.h 	HTDescpt.h 	HTDialog.h 	HTDigest.h 	HTDir.h 	HTEPtoCl.h 	HTError.h 	HTEscape.h 	HTEvent.h 	HTEvtLst.h 	HTFSave.h 	HTFTP.h 	HTFTPDir.h 	HTFWrite.h 	HTFile.h 	HTFilter.h 	HTFormat.h 	HTGopher.h 	HTGuess.h 	HTHInit.h 	HTHash.h 	HTHeader.h 	HTHist.h 	HTHome.h 	HTHost.h 	HTHstMan.h 	HTIOStream.h 	HTIcons.h 	HTInet.h 	HTInit.h 	HTLib.h 	HTLink.h 	HTList.h 	HTLocal.h 	HTLog.h 	HTMIME.h 	HTMIMERq.h 	HTMIMImp.h 	HTMIMPrs.h 	HTML.h 	HTMLGen.h 	HTMLPDTD.h 	HTMemLog.h 	HTMemory.h 	HTMerge.h 	HTMethod.h 	HTMulpar.h 	HTMulti.h 	HTMuxCh.h 	HTMuxHeader.h 	HTMuxTx.h 	HTNDir.h 	HTNet.h 	HTNetMan.h 	HTNetTxt.h 	HTNews.h 	HTNewsLs.h 	HTNewsRq.h 	HTNoFree.h 	HTPEP.h 	HTParse.h 	HTPlain.h 	HTProfil.h 	HTProt.h 	HTProxy.h 	HTRDF.h 	HTReader.h 	HTReq.h 	HTReqMan.h 	HTResMan.h 	HTResponse.h 	HTRules.h 	HTSChunk.h 	HTSQL.h 	HTSQLLog.h 	HTSocket.h 	HTStream.h 	HTString.h 	HTStruct.h 	HTStyle.h 	HTTCP.h 	HTTChunk.h 	HTTP.h 	HTTPGen.h 	HTTPReq.h 	HTTPRes.h 	HTTPServ.h 	HTTPUtil.h 	HTTeXGen.h 	HTTee.h 	HTTelnet.h 	HTTimer.h 	HTTrans.h 	HTUTree.h 	HTUU.h 	HTUser.h 	HTUtils.h 	HTWAIS.h 	HTWSRC.h 	HTWWWStr.h 	HTWriter.h 	HTXML.h 	HTXParse.h 	HTZip.h 	HText.h 	HTextImp.h         HTDAV.h 	SGML.h 	WWWApp.h 	WWWCache.h 	WWWCore.h 	WWWDir.h 	WWWFTP.h 	WWWFile.h 	WWWGophe.h 	WWWHTML.h 	WWWHTTP.h 	WWWInit.h 	WWWLib.h 	WWWMIME.h 	WWWMux.h 	WWWNews.h 	WWWSQL.h 	WWWStream.h 	WWWTelnt.h 	WWWTrans.h 	WWWUtil.h 	WWWWAIS.h 	WWWXML.h 	WWWZip.h
+--- w3c-libwww-5.4.0/Library/src/SSL/Makefile.in-	2002-06-12 02:34:27.000000000 -0700
++++ w3c-libwww-5.4.0/Library/src/SSL/Makefile.in	2004-03-25 14:23:53.000000000 -0800
+@@ -155,7 +155,7 @@
+ LDADD =  	libwwwssl.la
+ 
+ 
+-INCLUDES =  	-I/usr/local/include 	-I${top_srcdir}/modules/md5 	-I${top_srcdir}/modules/expat/xmlparse 	-I$(top_srcdir)/Library/src 	@SSLINC@
++INCLUDES = -I${top_srcdir}/modules/md5 	-I${top_srcdir}/modules/expat/xmlparse 	-I$(top_srcdir)/Library/src 	@SSLINC@
+ 
+ 
+ BUILT_SOURCES =  	WWWSSL.h 	HTSSL.h 	HTSSLMan.h 	HTSSLReader.h 	HTSSLWriter.h 	HTSSLhttps.h
+diff -u -r w3c-libwww-5.4.0-/Library/src/HTFilter.c w3c-libwww-5.4.0/Library/src/HTFilter.c
+--- w3c-libwww-5.4.0-/Library/src/HTFilter.c	1999-03-30 16:53:31.000000000 -0800
++++ w3c-libwww-5.4.0/Library/src/HTFilter.c	2004-11-05 14:10:31.227802149 -0800
+@@ -249,9 +249,6 @@
+ 	}
+     }
+ 
+-    /* Delete any auth credendials as they get regenerated */
+-    HTRequest_deleteCredentialsAll(request);
+-
+     /*
+     **  Start new request with the redirect anchor found in the headers.
+     **	Note that we reuse the same request object which means that we must

@@ -1,0 +1,103 @@
+#
+#  Makefile for cyclades projects.
+#
+
+#
+# Addtional compiler and/or link options may be defined here
+#
+
+RAS_DIR:=$(BUILD_DIR)/$(ras)
+LIBADSAP2_DIR:=$(BUILD_DIR)/$(libadsap2)
+PMCLIB_DIR:=$(BUILD_DIR)/$(pmclib)
+
+LDFLAGS += -L$(LIBADSAP2_DIR) -ladsap2 -L$(RAS_DIR)/src -lrad -L$(my_prefix)/lib -lpam -lpam_misc -L$(BUILTIN_DIST)/$(openssl)/lib -lssl -lcrypto -L$(PMCLIB_DIR) -lpmc
+
+ifeq ($(IPMIenable),yes)
+LDFLAGS += -lrasipmi
+CFLAGS += -DIPMI
+endif
+
+ifeq ($(RADIUS2FACTORenable),yes)
+OS_CFLAGS += -DRADIUS2FACTORenable
+endif
+
+CFLAGS += -DDB_ENH
+
+CPPFLAGS:=-DPAM_STRERROR_NEEDS_TWO_ARGS -DUSE_PAM -I$(RAS_DIR) -I$(my_prefix)/usr/include -I$(LIBADSAP2_DIR) -D__GNUC__
+
+CROSS_LD:=$(CROSS_CC)
+
+#
+# Command line parameters for configure must be defined here
+#
+CONFIGURE_PARMS := \
+	--host=$(HOST) \
+	--build=i386 \
+	--sbindir=/bin \
+	--sysconfdir=/etc/ssh \
+	--with-ssl-dir=$(BUILTIN_DIST)/$(openssl) \
+	--with-openssl-dir=$(BUILTIN_DIST)/$(openssl) \
+	--with-zlib=$(BUILTIN_DIST)/$(zlib) \
+	--disable-strip \
+	--with-pam \
+	--with-tcp-wrappers=no \
+	--disable-utmpx --disable-wtmpx \
+	--disable-lastlog \
+	--build=i386 \
+	--with-cflags="$(CFLAGS)" \
+	--with-ldflags="$(LDFLAGS)" \
+	--with-cppflags="$(CPPFLAGS)" \
+	--with-random=/dev/urandom \
+	--enable-strip \
+	--prefix=
+
+ifdef kerberos
+	CONFIGURE_PARMS+=--with-kerberos5=$(BUILTIN_DIST)/$(kerberos)/usr
+endif
+
+CONFIG_ENV:=\
+	PATH=$(CROSS_PATH) \
+	HOST_CC=cc \
+	$(CROSS_ENV_TOOLS)
+
+MAKE_ENV:=\
+	PATH=$(CROSS_PATH)
+
+MAKE_PARMS:=\
+	DESTDIR=$(my_prefix)
+
+#
+#  more ac_variables for configure may be defined here
+#
+CROSS_ENV_AC +=  bash_cv_have_mbstate_t=yes \
+	ac_cv_have_control_in_msghdr=yes \
+	ac_cv_have_accrights_in_msghdr=no
+
+$(PRE_CFG_COOKIE): $(SRC_COOKIE)
+	rm -f sshd_config ssh_config
+ifeq ($(TARGET_PRODUCT),ts1h)
+	cp sshd_config.ts1h sshd_config
+	cp ssh_config.ts1h ssh_config
+else
+ifdef kerberos
+	cp sshd_config.krb5 sshd_config
+	cp ssh_config.krb5 ssh_config
+else
+	cp sshd_config.nokrb5 sshd_config
+	cp ssh_config.nokrb5 ssh_config
+endif
+endif
+	date > $@
+
+$(CFG_COOKIE): $(PRE_CFG_COOKIE)
+	-rm -f config.cache config.h configure
+	autoheader
+	/usr/bin/autoconf
+	$(CONFIG_ENV) $(CROSS_ENV_AC) ./configure $(CONFIGURE_PARMS)
+	date > $@
+
+$(BLD_COOKIE):
+	$(MAKE_ENV) $(MAKE) $(MAKE_PARMS) all install-nokeys
+	PATH=$(CROSS_PATH) \
+	install -s -m 755 ./contrib/ssh-copy-id   $(my_prefix)/bin/ssh-copy-id
+

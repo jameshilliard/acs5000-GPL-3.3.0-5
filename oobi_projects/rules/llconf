@@ -1,0 +1,45 @@
+#
+#  Makefile for cyclades projects.
+#
+
+#
+# Addtional compiler and/or link options may be defined here
+#
+#CFLAGS += ...
+#LDFLAGS += ...
+
+#
+# Command line parameters for configure must be defined here
+#
+CONFIGURE_PARMS:=\
+	--prefix=/usr/ \
+	--host=ppc
+
+CONFIGURE_ENV:=\
+	CROSS_COMPILE=$(CROSS_PREFIX) \
+	CC=$(CROSS_COMPILE)gcc
+
+MAKE_ENV:=
+
+MAKE_PARMS:= \
+	CROSS_COMPILE=$(CROSS_PREFIX)
+
+#
+#  more ac_variables for configure may be defined here
+#
+#CROSS_ENV_AC += ...
+
+############################################################################
+
+$(CFG_COOKIE):
+	$(CONFIGURE_ENV) \
+	./configure $(CONFIGURE_PARMS)
+	# autoconf magic sucks:
+	touch config.h.in
+	date > $@
+
+$(BLD_COOKIE): $(CFG_COOKIE)
+	$(MAKE_ENV) \
+	$(MAKE) $(MAKE_PARMS)
+	$(CROSS_COMPILE)strip src/llconf -o $(my_prefix)/usr/bin/llconf
+

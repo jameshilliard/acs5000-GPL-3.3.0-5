@@ -1,0 +1,694 @@
+diff -ur krb5-1.3.6/src/appl/telnet/telnetd/sys_term.c krb5-1.3.6_dla.patch/src/appl/telnet/telnetd/sys_term.c
+--- krb5-1.3.6/src/appl/telnet/telnetd/sys_term.c	2002-11-15 12:21:51.000000000 -0800
++++ krb5-1.3.6_dla.patch/src/appl/telnet/telnetd/sys_term.c	2006-05-09 15:16:25.499230332 -0700
+@@ -492,7 +492,13 @@
+ 
+ #endif	/* convex */
+ 
++#ifdef CY_DLA_ALERT
++pid_t slavepid = 0;
++extern int dla_log_pipe;
++extern int dla_alert_pipe;
++#else //CY_DLA_ALERT
+ static pid_t slavepid = 0;
++#endif //CY_DLA_ALERT
+ 
+ #ifdef	LINEMODE
+ /*
+@@ -1465,6 +1471,17 @@
+ 	kerberos5_cleanup();
+ #endif
+     
++#ifdef CY_DLA_ALERT
++	if (dla_log_pipe != -1) {
++		close(dla_log_pipe);
++		dla_log_pipe = -1;
++	}
++	if (dla_alert_pipe != -1) {
++		close(dla_alert_pipe);
++		dla_alert_pipe = -1;
++	}
++#endif // CY_DLA_ALERT
++ 
+ 	(void) shutdown(net, 2);
+ 	exit(1);
+ }
+diff -ur krb5-1.3.6/src/appl/telnet/telnetd/telnetd.c krb5-1.3.6_dla.patch/src/appl/telnet/telnetd/telnetd.c
+--- krb5-1.3.6/src/appl/telnet/telnetd/telnetd.c	2003-01-09 16:14:14.000000000 -0800
++++ krb5-1.3.6_dla.patch/src/appl/telnet/telnetd/telnetd.c	2006-05-09 15:17:21.753070131 -0700
+@@ -155,6 +155,13 @@
+ 
+ extern void usage (void);
+ 
++#ifdef CY_DLA_ALERT
++int dla_loglen = 0;
++int dla_alert = 0;
++char *dla_alertstr = NULL;
++char *dla_file = NULL;
++#endif //CY_DLA_ALERT
++
+ /*
+  * The string to pass to getopt().  We do it this way so
+  * that only the actual options that we support will be
+@@ -190,6 +197,9 @@
+ #ifdef KRB5
+ 	'R', ':', 't', ':',
+ #endif
++#ifdef CY_DLA_ALERT
++	'-', ':',
++#endif //CY_DLA_ALERT
+ 	'\0'
+ };
+ 
+@@ -475,6 +485,40 @@
+ 				}
+ 			}
+ 			break;
++#ifdef CY_DLA_ALERT
++		case '-':
++			if (!strncmp(optarg, "dla", 4)) {
++				if (sscanf(argv[optind++], "%d", &dla_loglen) != 1) {
++					if (debug) 
++						fprintf(stderr, "Invalid arg: --dla %d \n", dla_loglen);
++				}
++				break;
++			}
++			if (!strncmp(optarg, "dla_alert", 10)) {
++				if (sscanf(argv[optind++], "%d", &dla_alert) != 1) {
++					if (debug) 
++						fprintf(stderr, "Invalid arg: --dla_alert %d \n", 
++									dla_alert);
++				}
++				break;
++			}
++			if (!strncmp(optarg, "dla_alert_str", 14)) {
++				if (argv[optind] && (!(dla_alertstr = strdup(argv[optind++])))) {
++					if (debug) 
++						fprintf(stderr, "Invalid arg: --dla_alert_str %s\n", 
++									dla_alertstr);
++				}
++				break;
++			}
++			if (!strncmp(optarg, "dla_file", 9)) {
++				if (argv[optind] && (!(dla_file = strdup(argv[optind++])))) {
++					if (debug) 
++						fprintf(stderr, "Invalid arg: --dla_file %s\n", 
++									dla_file);
++				}
++				break;
++			}
++#endif //CY_DLA_ALERT
+ 		default:
+ 			fprintf(stderr, "telnetd: %c: unknown option\n", ch);
+ 			/* FALLTHROUGH */
+--- krb5-1.3.6/src/appl/telnet/telnetd/utility.c	2002-11-15 12:21:51.000000000 -0800
++++ krb5-1.3.6+/src/appl/telnet/telnetd/utility.c	2006-07-10 17:24:31.454157270 -0700
+@@ -48,6 +48,16 @@
+ #include <libtelnet/encrypt.h>
+ #endif
+ 
++#ifdef CY_DLA_ALERT
++#include <utmp.h>
++void cy_dla_alert(char *Buf, int n);
++#include <sys/ioctl.h>
++#include <sys/socket.h>
++#include <netinet/in.h>
++#include <arpa/inet.h>
++#include <net/if.h>
++#endif //CY_DLA_ALERT
++
+ /*
+  * utility functions performing io related tasks
+  */
+@@ -297,6 +307,11 @@
+ 	(void)signal(SIGCHLD, SIG_DFL);
+ 	cleanup(0);
+     }
++
++#ifdef CY_DLA_ALERT
++	cy_dla_alert(nbackp, n);
++#endif //CY_DLA_ALERT
++
+     nbackp += n;
+ #ifdef	ENCRYPTION
+     if (nbackp > nclearto)
+@@ -1237,3 +1252,559 @@
+ 	} 
+ }
+ #endif /* DIAGNOSTICS */
++
++
++#ifdef CY_DLA_ALERT
++
++extern int debug;
++
++#ifndef debug2
++#define debug2(M, P...)	if (debug) fprintf(stderr, M, ##P)
++#endif
++
++#ifndef error
++#define error debug2
++#endif
++
++// Ported from openssh[version]/buffer.[ch]
++
++typedef struct {
++	unsigned char  *buf;       /* Buffer for data. */
++	unsigned int    alloc;     /* Number of bytes allocated for data. */
++	unsigned int    offset;    /* Offset of first byte containing data. */
++	unsigned int    end;       /* Offset of last byte containing data. */
++}	Buffer;
++#define BUFFER_MAX_CHUNK    0x100000
++#define BUFFER_MAX_LEN      0xa00000
++
++/* Initializes the buffer structure. */
++
++static void
++buffer_init(Buffer *buffer)
++{
++	const unsigned int len = 4096;
++
++	buffer->alloc = 0;
++	buffer->buf = malloc(len);
++	buffer->alloc = len;
++	buffer->offset = 0;
++	buffer->end = 0;
++}
++
++/* Frees any memory used for the buffer. */
++
++static void
++buffer_free(Buffer *buffer)
++{
++	if (buffer->alloc > 0) {
++		memset(buffer->buf, 0, buffer->alloc);
++		buffer->alloc = 0;
++		free(buffer->buf);
++	}
++}
++
++/*
++ * Clears any data from the buffer, making it empty.  This does not actually
++ * zero the memory.
++ */
++
++static void
++buffer_clear(Buffer *buffer)
++{
++	buffer->offset = 0;
++	buffer->end = 0;
++}
++
++/* Returns the number of bytes of data in the buffer. */
++
++static unsigned int
++buffer_len(Buffer *buffer)
++{
++	return buffer->end - buffer->offset;
++}
++
++/*
++ * Appends space to the buffer, expanding the buffer if necessary. This does
++ * not actually copy the data into the buffer, but instead returns a pointer
++ * to the allocated region.
++ */
++
++static void *
++buffer_append_space(Buffer *buffer, unsigned int len)
++{
++	unsigned int newlen;
++	void *p;
++
++	if (len > BUFFER_MAX_CHUNK)
++		fatal((int)stderr, "buffer_append_space: len not supported");
++
++	/* If the buffer is empty, start using it from the beginning. */
++	if (buffer->offset == buffer->end) {
++		buffer->offset = 0;
++		buffer->end = 0;
++	}
++restart:
++	/* If there is enough space to store all data, store it now. */
++	if (buffer->end + len < buffer->alloc) {
++		p = buffer->buf + buffer->end;
++		buffer->end += len;
++		return p;
++	}
++	/*
++	 * If the buffer is quite empty, but all data is at the end, move the
++	 * data to the beginning and retry.
++	 */
++	if (buffer->offset > MIN(buffer->alloc, BUFFER_MAX_CHUNK)) {
++		memmove(buffer->buf, buffer->buf + buffer->offset,
++			buffer->end - buffer->offset);
++		buffer->end -= buffer->offset;
++		buffer->offset = 0;
++		goto restart;
++	}
++	/* Increase the size of the buffer and retry. */
++
++	newlen = buffer->alloc + len + 32768;
++	if (newlen > BUFFER_MAX_LEN)
++		fatal((int)stderr, "buffer_append_space: alloc not supported");
++	buffer->buf = realloc(buffer->buf, newlen);
++	buffer->alloc = newlen;
++	goto restart;
++	/* NOTREACHED */
++}
++
++/* Appends data to the buffer, expanding it if necessary. */
++
++static void
++buffer_append(Buffer *buffer, const void *data, unsigned int len)
++{
++	void *p;
++	p = buffer_append_space(buffer, len);
++	memcpy(p, data, len);
++}
++
++
++/* Gets data from the beginning of the buffer. */
++
++static int
++buffer_get_ret(Buffer *buffer, void *buf, unsigned int len)
++{
++	if (len > buffer->end - buffer->offset) {
++		error("buffer_get_ret: trying to get more bytes %d than in buffer %d",
++		    len, buffer->end - buffer->offset);
++		return (-1);
++	}
++	memcpy(buf, buffer->buf + buffer->offset, len);
++	buffer->offset += len;
++	return (0);
++}
++
++static void
++buffer_get(Buffer *buffer, void *buf, unsigned int len)
++{
++	if (buffer_get_ret(buffer, buf, len) == -1)
++		fatal((int)stderr, "buffer_get: buffer error");
++}
++
++/* Consumes the given number of bytes from the beginning of the buffer. */
++
++static int
++buffer_consume_ret(Buffer *buffer, unsigned int bytes)
++{
++	if (bytes > buffer->end - buffer->offset) {
++		error("buffer_consume_ret: trying to get more bytes than in buffer");
++		return (-1);
++	}
++	buffer->offset += bytes;
++	return (0);
++}
++
++static void
++buffer_consume(Buffer *buffer, unsigned int bytes)
++{
++	if (buffer_consume_ret(buffer, bytes) == -1)
++		fatal((int)stderr, "buffer_consume: buffer error");
++}
++
++/* Consumes the given number of bytes from the end of the buffer. */
++
++static int
++buffer_consume_end_ret(Buffer *buffer, unsigned int bytes)
++{
++	if (bytes > buffer->end - buffer->offset)
++		return (-1);
++	buffer->end -= bytes;
++	return (0);
++}
++
++static void
++buffer_consume_end(Buffer *buffer, unsigned int bytes)
++{
++	if (buffer_consume_end_ret(buffer, bytes) == -1)
++		fatal((int)stderr, "buffer_consume_end: trying to get more bytes than in buffer");
++}
++
++/* Returns a pointer to the first used byte in the buffer. */
++
++static void *
++buffer_ptr(Buffer *buffer)
++{
++	return buffer->buf + buffer->offset;
++}
++
++/* Copied from ras/src/lib.c */
++char *dotted(unsigned int a);
++char *dotted(unsigned int a)
++{
++        struct in_addr ia;
++
++        ia.s_addr = a;
++        return inet_ntoa(ia);
++}
++
++/* Get IP address of eth0 */
++#define MAX_STR_LEN 255
++static const char *iface_get_ip(const char *);
++
++static const char *iface_get_ip(const char *ifname)
++{
++        struct ifreq ifr;
++        struct sockaddr_in *sin;
++        int fd;
++        char *ip_addr_str=NULL;
++        char debug_str[MAX_STR_LEN];
++
++	if (ifname == NULL) return(NULL);
++
++        if ((fd = socket(PF_INET,SOCK_DGRAM,IPPROTO_IP)) < 0) {
++                perror("iface_get_ip");
++                return(NULL);
++        }
++
++        strncpy(ifr.ifr_name, ifname, IFNAMSIZ);
++        ifr.ifr_name[IFNAMSIZ-1] = '\0';
++        ifr.ifr_addr.sa_family = AF_INET;  
++        if (ioctl(fd, SIOCGIFADDR, &ifr) == 0) {
++                sin=(struct sockaddr_in *)&ifr.ifr_addr;
++                ip_addr_str = inet_ntoa(sin->sin_addr);
++        }
++        close(fd);
++
++        if (ip_addr_str == NULL) return(NULL);
++
++        return(ip_addr_str);
++}
++
++// Also defined in openssh[version]/pslave.c
++#define MAX_STR_LOG_LEN 1024
++static Buffer outgoing_pipe = {NULL, 0,0,0};
++static int dla_lost_data = 0;
++
++static int dla_init_sock_ip = 0;
++static char *dla_ip_local_str[16];
++
++#define MAX_TIMESTAMP_STR 21
++#define MAX_DLA_ALERT_STRINGS 10
++#define MAX_DLA_ALERT_LENGTH 40
++
++#define DLA_PIPE_NAME "/var/run/DB/dla_pipe"
++#define ALERT_PIPE_NAME "/var/run/snmp_pipe"
++
++static int dla_init_alert = 0;
++static int dla_num_alerts = 0;
++static char *dla_alert_string[MAX_DLA_ALERT_STRINGS];
++static char *dla_user = NULL;
++int dla_log_pipe = -1;
++int dla_alert_pipe = -1;
++
++static unsigned char *dla_log_data = NULL;
++static unsigned int dla_log_max = 0;
++
++extern int dla_loglen;
++extern int dla_alert;
++extern char *dla_alertstr;
++extern char *dla_file;
++
++extern pid_t slavepid;
++
++void cy_dla_alert(char *Buf, int n)
++{
++	unsigned char *pipe_offset, *buf_offset = Buf;
++	int pipe_len, buf_len = n;
++	unsigned int rlen, wlen, elen, ix, sx;
++	unsigned char *pt_pipe, dla_eol = 0;
++	int dla_pid = (int)getpid();
++	unsigned char timestamp[MAX_TIMESTAMP_STR+1] = "0000-00-00T00:00:00Z";
++	time_t evt_time;
++	struct tm evt_gmtime, *gmt;
++	char *LogPipeName = NULL;
++	char *AlertPipeName = NULL;
++
++// Since the login process run in a child process the parent has no access
++// to its environ variables, so we cannot run getenv("USER");
++// When telnetd forks to start the login process the child side sets the 
++// utmp.ut_type with LOGIN_PROCESS, and login will update with USER_PROCESS
++// at successful  authentication completion.
++	if (dla_user == NULL) {
++		struct utmp *dla_utmp;
++
++		setutent();
++		while (dla_utmp = getutent()) {
++			if (dla_utmp->ut_pid == slavepid && 
++				dla_utmp->ut_type == USER_PROCESS) {
++				debug2("Login OK: %s on %s, pid %d \r\n", 
++					dla_utmp->ut_user, dla_utmp->ut_line, dla_utmp->ut_pid);
++				dla_user = strdup(dla_utmp->ut_user);
++				break;
++			}
++		}
++	}
++
++// Can start logging only after login process success.
++	if (dla_user == NULL) return;
++
++// Parse the alert strings
++	if (dla_init_alert == 0 && dla_alert && dla_alertstr) {
++		char *alerts = strdup(dla_alertstr);
++		char *tok, *as, *tokptr, *comma_ptr, *comma_r_ptr;  //[GY]2006/Jul/07  BUG#7553
++               int cnt;  //[GY]2006/Jul/07  BUG#7553
++
++		if (alerts) {
++			for (dla_num_alerts = 0, as = alerts; 
++					dla_num_alerts < MAX_DLA_ALERT_STRINGS;
++					as = NULL) {
++				if (tok = strtok_r(as, "\"", &tokptr)) {
++// Check if string has only comma or spaces, and discard it.
++					if (strspn(tok, ", ") == strlen(tok)) {  //[GY]2006/Jul/07  BUG#7553
++                                          comma_ptr = strchr(tok, ',');
++                                          comma_r_ptr = strrchr(tok, ',');
++                                          for( cnt = 0; comma_ptr && comma_ptr <= comma_r_ptr; comma_ptr++ ) {
++                                             if( *comma_ptr == ',' ) cnt++;
++                                          }
++                                          if( dla_num_alerts == 0 ) dla_num_alerts = cnt;
++                                          else if( cnt > 1 ) dla_num_alerts = dla_num_alerts + cnt - 1;
++                                          continue;
++                                       }
++					debug2("DLA alert string [%d]: %.100s\r\n",
++							dla_num_alerts+1, tok);
++					dla_alert_string[dla_num_alerts++] = 
++								strndup(tok, MAX_DLA_ALERT_LENGTH);
++				} else {
++					break;
++				} 
++			}
++		}
++		if (alerts) {
++			free(alerts);
++			alerts = NULL;
++		}
++		dla_init_alert = 1;
++	}
++
++	if (!dla_loglen && !dla_num_alerts) return; //DLA not configured.
++
++// Alloc memory to log lines
++	if (dla_log_data == NULL) {
++		dla_log_max = (MAX_STR_LOG_LEN > dla_loglen)?
++						MAX_STR_LOG_LEN:dla_loglen;
++		dla_log_max += 160; // Add max header lenght in the logged string
++		if (!(dla_log_data = malloc(dla_log_max))) {
++			debug2("DLA alloc dla_log_data fail: %d bytes.\r\n", dla_log_max);
++			return;
++		}
++	}
++
++// Open the logging pipe. Ported from ras/src/cy_buffering.c
++	if (dla_log_pipe < 0) {
++		if (dla_file) {
++			if (dla_alert_pipe >= 0) {
++				dla_log_pipe = dla_alert_pipe;
++			} else {
++				LogPipeName = strdup(dla_file);
++			}
++		} else {
++			LogPipeName = strdup(DLA_PIPE_NAME);
++		}
++
++		if (dla_log_pipe < 0) {
++//			if (access(LogPipeName, F_OK) && mkfifo(LogPipeName, 0666)) {
++//				debug2("Unable to create FIFO special file (%s): %.100s \r\n", 
++//						LogPipeName, strerror(errno));
++//			} 
++			if ((dla_log_pipe = open(LogPipeName, 
++					O_RDWR | O_NONBLOCK | O_NOCTTY)) < 0) {
++				debug2("Unable to open FIFO special file (%s): %.100s \r\n", 
++						LogPipeName, strerror(errno));
++//It is not 100% correct to open a pipe as O_RDWR, but doing this
++//we can open a O_NONBLOCKing pipe even while it is not being read yet.
++//This is useful for process synchronization...
++			}
++		}
++		if (dla_log_pipe < 0) {
++			debug2("DLA log pipe create/open fail: %s \r\n", LogPipeName);
++		}
++		if (LogPipeName) {
++			free(LogPipeName);
++			LogPipeName = NULL;
++		}
++	}
++
++	if (dla_alert_pipe < 0) {
++		if (dla_file) {
++			if (dla_log_pipe >= 0) {
++				dla_alert_pipe = dla_log_pipe;
++			} else {
++				AlertPipeName = strdup(dla_file);
++			}
++		} else {
++			AlertPipeName = strdup(ALERT_PIPE_NAME);
++		}
++
++		if (dla_alert_pipe < 0) {
++//			if (access(AlertPipeName, F_OK) && mkfifo(AlertPipeName, 0666)) {
++//				debug2("Unable to create FIFO special file (%s): %.100s \r\n", 
++//						AlertPipeName, strerror(errno));
++//			}
++			if ((dla_alert_pipe = open(AlertPipeName, 
++						O_RDWR | O_NONBLOCK | O_NOCTTY)) < 0) {
++				debug2("Unable to open FIFO special file (%s): %.100s \r\n", 
++						AlertPipeName, strerror(errno));
++			}
++		}
++		if (dla_alert_pipe < 0) {
++			debug2("DLA alert pipe create/open fail: %s \r\n", AlertPipeName);
++		}
++		if (AlertPipeName) {
++			free(AlertPipeName);
++			AlertPipeName = NULL;
++		}
++	}
++
++	if (dla_log_pipe < 0 && dla_alert_pipe < 0) return; // No pipe to write
++
++// Get Socket local IP address (only once), just to log later.
++	if (dla_init_sock_ip == 0) {
++		strncpy(dla_ip_local_str, iface_get_ip("eth0"), 16);
++		dla_ip_local_str[15] = '\0';
++		dla_init_sock_ip = 1;
++	}
++
++	if (outgoing_pipe.buf == NULL) {
++	    buffer_init(&outgoing_pipe);
++    	debug2("outgoing_pipe init\r\n");
++	}
++
++// Save buffer length before appending.
++	pipe_len = buffer_len(&outgoing_pipe);
++
++// Append the received buffer to the "log" buffer
++	buffer_append(&outgoing_pipe, buf_offset, buf_len);
++	debug2("Appended %d bytes to the DLA buffer\r\n", buf_len);
++
++// pipe points to the newly appended data in the buffer, 
++// the part of the buffer that was not checked for EOL yet.
++	pipe_offset = (unsigned char *)buffer_ptr(&outgoing_pipe);
++	pt_pipe = pipe_offset + pipe_len;
++
++// "read" length, will be written to the destination (pt_pipe).
++	rlen = pipe_len;
++
++	time(&evt_time);
++	gmt = gmtime_r(&evt_time, &evt_gmtime);
++	if (gmt) strftime(timestamp, MAX_TIMESTAMP_STR, "%FT%TZ" , &evt_gmtime);
++
++// Search the EOL only the appended data
++	for (ix = 0, wlen = 0; ix < buf_len; ix++) {
++
++// Increase reader counter.
++		rlen++;
++
++// Check if char is EOL or reached the max dla line size.
++		if (pt_pipe[ix] == '\r' || pt_pipe[ix] == '\n' || 
++			(dla_loglen && rlen >= dla_loglen)) {
++
++// All EOL chars set to 0 because the application taht will receive them
++// does not accept such chars
++			if (!dla_file &&
++				(pt_pipe[ix] == '\r' || pt_pipe[ix] == '\n')) {
++				pt_pipe[ix] = 0;
++			}
++
++// Continue until next not EOL char
++			if ((ix+1 < buf_len) && 
++				(pt_pipe[ix+1] == '\r' || pt_pipe[ix+1] == '\n')) {
++				continue;
++			}
++
++// Make sure the pipe_offset can be treated as string.
++			dla_eol = *(pipe_offset+rlen);
++			*(pipe_offset+rlen) = 0;
++
++			if (dla_loglen && dla_log_pipe >= 0) {
++				elen = snprintf(dla_log_data, dla_log_max,
++							"<166> %.20s %.15s DLA[%d]: %.50s: %s \n",
++							timestamp, dla_ip_local_str,
++							dla_pid, dla_user, pipe_offset);
++				debug2("DLA found EOL, writting %d bytes (%d total) to pipe\r\n", rlen, elen);
++				debug2("DLA log: %s \r\n", dla_log_data);
++				wlen = write(dla_log_pipe, dla_log_data, elen);
++				if (wlen == elen) {
++					dla_lost_data = 0;
++				} else {
++					if (!dla_lost_data) dla_lost_data = 1;
++					debug2("DLA data lost: written %d of %d bytes to pipe\r\n", 
++							wlen, rlen);
++				}
++
++//If previous logging failed, send the data lost event.
++				if (dla_alert_pipe >= 0 && dla_lost_data == 1) {
++					dla_lost_data = 2;
++					elen = snprintf(dla_log_data, dla_log_max,
++									"EVT21 %d %d %d %.50s \n",
++									(int)evt_time, dla_pid, 
++									strlen(dla_user), dla_user); 
++					debug2("DLA data lost warning sent\r\n");
++					if (write(dla_alert_pipe, dla_log_data, elen) != elen) {
++						debug2("Error to write EVT21 to DLA alert pipe\r\n");
++					}
++				}
++			}
++
++			for (sx = 0; (dla_alert_pipe >= 0) && (sx < dla_num_alerts); sx++) {
++				if (dla_alert_string[sx] && *dla_alert_string[sx] &&
++					strstr(pipe_offset, dla_alert_string[sx])) {
++					/* Avoid recursive events [EL] */
++					if (strstr(pipe_offset, "EVT") ||
++					    strstr(pipe_offset, "Alert string:")) {
++						continue;
++					}
++//Alert string match. Send event.
++					debug2("DLA alert match [%d]: %s \r\n", 
++							sx, dla_alert_string[sx]);
++					elen = snprintf(dla_log_data, dla_log_max,
++							"EVT29 %d %d %.50s %d %d %.40s %d %s \n",
++									(int)evt_time, strlen(dla_user), dla_user,
++									sx+1, strlen(dla_alert_string[sx]),
++									dla_alert_string[sx],
++									strlen(pipe_offset), pipe_offset);
++					debug2("DLA alert: %s \r\n", dla_log_data);
++					if (write(dla_alert_pipe, dla_log_data, elen) != elen) {
++						debug2("Error to write EVT29 to DLA alert pipe\r\n");
++					}
++				}
++			}
++
++// Recover saved byte in the end of pipe_offset
++			*(pipe_offset+rlen) = dla_eol;
++
++// Update buffer pointers
++			debug2("DLA data consumed %d of %d bytes\r\n", 
++					rlen, buffer_len(&outgoing_pipe));
++			buffer_consume(&outgoing_pipe, rlen);
++// Restart initial search point
++			pipe_offset = (unsigned char *)buffer_ptr(&outgoing_pipe);
++			rlen = 0; 
++		}
++	}
++}
++
++#endif //CY_DLA_ALERT

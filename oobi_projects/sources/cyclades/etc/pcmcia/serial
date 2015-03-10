@@ -1,0 +1,146 @@
+#!/bin/sh
+#
+# serial 1.40 2001/08/23 03:40:04 (David Hinds)
+#
+# Initialize or shutdown a PCMCIA serial device
+#
+# The first argument should be either 'start' or 'stop'.  The second
+# argument is the base name for the device.
+#
+# The script passes an extended device address to 'serial.opts' in the 
+# ADDRESS variable, to retrieve device-specific configuration options.
+# The address format is "scheme,socket,instance" where "scheme" is the
+# PCMCIA configuration scheme, "socket" is the socket number, and
+# "instance" is used to number multiple ports on a single card.  
+#
+
+if [ -r ./shared ] ; then . ./shared ; else . /etc/pcmcia/shared ; fi
+
+CHAT=/usr/local/sbin/chat
+
+# Get device attributes
+get_info $DEVICE
+
+# Load site-specific settings
+ADDRESS="$SCHEME,$SOCKET,$INSTANCE"
+start_fn () { return; }
+stop_fn () { return; }
+. $0.opts
+
+# Newer kernels deprecate use of "cua" devices, but we need to
+# keep track of them anyway, if the device files are present
+NR=`expr $MINOR - 64`
+if [ -c /dev/cua1 ] ; then
+    CALLOUT=cua$NR
+else
+    CALLOUT=$DEVICE
+fi
+
+# --------------------------------------------------------------------------
+# Protection against concurrent execution of this script in order to prevent
+# simultaneous writes to the tile /etc/inittab_pcmcia.
+#
+lockfile="/var/run/pcmcia_serial.lock"
+while ! (set -C; echo "$$" > "$lockfile") 2>/dev/null; do
+	sleep 1
+done
+trap "rm -f $lockfile" INT TERM EXIT
+# --------------------------------------------------------------------------
+
+case "$ACTION" in
+
+'start')
+    [ -n "$VERBOSE" -a -n "$INFO" ] && echo "$INFO"
+    if [ ! -c /dev/$DEVICE ] ; then
+	cd /dev ; log ./MAKEDEV $DEVICE
+    fi
+    if [ -n "$LINK" ] ; then
+	if [ -L $LINK ] ; then rm $LINK ; fi
+	if uname -r | grep -q '^2\.[2345]' ; then
+	    ln -s /dev/$DEVICE $LINK
+	else
+	    ln -s /dev/$CALLOUT $LINK
+	fi
+    fi
+    # Bug in setserial? setserial seems to convert irq 9 returned by driver to irq 2. Removing calls to setserial... (fanny 23-Sep-2002) 
+    ## Workaround for serial driver bug
+    #IRQ=`setserial /dev/$DEVICE | sed -e 's/.*IRQ: //'`
+    #setserial /dev/$DEVICE irq 0 ; setserial /dev/$DEVICE irq $IRQ
+    #if [ -n "$SERIAL_OPTS" ] ; then
+    #	log setserial /dev/$DEVICE $SERIAL_OPTS
+    #fi
+    if [ -n "$INITCHAT" ] ; then
+        $CHAT -v $INITCHAT < /dev/$DEVICE > /dev/$DEVICE
+    fi
+    if [ -n "$INITTAB" ] ; then
+	#Change inittab syntax slightly for busybox init
+	#echo "S$NR:12345:respawn:$INITTAB $DEVICE" >> /etc/inittab_pcmcia
+	if [ -a /etc/inittab_pcmcia ]; then
+		grep "$DEVICE" /etc/inittab_pcmcia || echo "$DEVICE::respawn:$INITTAB $DEVICE" >> /etc/inittab_pcmcia
+	else
+		echo "$DEVICE::respawn:$INITTAB $DEVICE" > /etc/inittab_pcmcia
+	fi
+	#telinit replaced because not supported by busybox init
+	#telinit q
+	kill -HUP 1
+    fi
+    start_fn $DEVICE
+    ;;
+
+'check')
+    is_true $NO_CHECK && exit 0
+    if [ -n "$INITTAB" ] ; then
+	do_fuser -v /dev/$DEVICE /dev/$CALLOUT $LINK | grep -v getty \
+	    | grep -q /dev/$DEVICE && exit 1
+    else
+	do_fuser -s /dev/$DEVICE /dev/$CALLOUT $LINK && exit 1
+    fi
+    ;;
+
+'cksum')
+    chk_simple "$NEW_SCHEME,$SOCKET,$INSTANCE" || exit 1
+    ;;
+    
+'stop')
+    #if [ -n "$INITTAB" ] ; then
+	grep -v $DEVICE /etc/inittab_pcmcia > /etc/inittab_pcmcia.new
+	mv /etc/inittab_pcmcia.new /etc/inittab_pcmcia
+	#telinit replaced because not supported by busybox init
+	#telinit q
+	kill -hup 1
+    #fi
+    do_fuser -k /dev/$DEVICE /dev/$CALLOUT $LINK > /dev/null
+    if [ -L "$LINK" ] ; then rm $LINK ; fi
+    stop_fn $DEVICE
+    ;;
+
+'suspend')
+    grep -v $DEVICE /etc/inittab_pcmcia > /etc/inittab_pcmcia.new
+    mv /etc/inittab_pcmcia.new /etc/inittab_pcmcia
+    kill -hup 1
+    do_fuser -k /dev/$DEVICE /dev/$CALLOUT > /dev/null
+    stop_fn $DEVICE
+    ;;
+
+'resume')
+    if [ -n "$INITCHAT" ] ; then
+        $CHAT -v $INITCHAT < /dev/$DEVICE > /dev/$DEVICE
+    fi
+    if [ -n "$INITTAB" ] ; then
+	if [ -a /etc/inittab_pcmcia ]; then
+		grep "$DEVICE" /etc/inittab_pcmcia || echo "$DEVICE::respawn:$INITTAB $DEVICE" >> /etc/inittab_pcmcia
+	else
+		echo "$DEVICE::respawn:$INITTAB $DEVICE" > /etc/inittab_pcmcia
+	fi
+	kill -HUP 1
+    fi
+    start_fn $DEVICE
+    ;;
+
+*)
+    usage
+    ;;
+
+esac
+
+exit 0

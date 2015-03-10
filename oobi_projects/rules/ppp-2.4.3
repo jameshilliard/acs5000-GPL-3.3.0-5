@@ -1,0 +1,82 @@
+#
+#  Makefile for cyclades projects.
+#
+ifeq "$(CBCPenable)" "yes"
+CBCP := y
+CBCP_SERVER := -DCBCP_SERVER_SUPPORT
+else
+CBCP := n
+CBCP_SERVER :=
+endif
+
+ifeq "$(EAPenable)" "yes"
+CURL:=$(curl)/usr
+EAP := y
+EAP_CFLAGS := -I$(BUILTIN_DIST)/$(openssl)/include -I$(BUILTIN_DIST)/$(srp)/libsrp -I$(BUILTIN_DIST)/$(CURL)/include
+EAP_LIBS := -L$(BUILTIN_DIST)/$(srp)/libsrp -lsrp -L$(BUILTIN_DIST)/$(openssl)/lib -lcrypto -lssl -L$(BUILTIN_DIST)/$(CURL)/lib -lcurl
+else
+EAP := n
+EAP_LIBS :=
+EAP_FLAGS :=
+endif
+
+ifeq "$(IPv6enable)" "yes"
+HAVE_IPV6 := HAVE_INET6=y
+else
+HAVE_IPV6 :=
+endif
+
+#
+# Addtional compiler and/or link options may be defined here
+#
+#CFLAGS += ...
+#LDFLAGS += ...
+
+#
+# Command line parameters for configure must be defined here
+#
+CONFIGURE_PARMS := \
+	CROSS_COMPILE=$(CROSS_PREFIX) \
+	--prefix=$(my_prefix) \
+	--sysconfdir=$(my_prefix)/etc
+	
+
+CONFIGURE_ENV := \
+	PATH=$(CROSS_PATH) \
+	$(CROSS_ENV_TOOLS)
+
+MAKE_ENV:=\
+	PATH=$(CROSS_PATH) \
+	$(CROSS_ENV_TOOLS) \
+	LDFLAGS="$(LDFLAGS)" \
+	$(HAVE_IPV6)
+
+MAKE_PARMS:=\
+	CROSS_COMPILE=$(CROSS_PREFIX) \
+	BINDIR=$(my_prefix)/usr/local/sbin \
+	COPTS="$(CFLAGS) $(CBCP_SERVER)" \
+	USE_PAM=y CBCP=$(CBCP) USE_SRP=$(EAP) CHAPMS=n MPPE=n FILTER=n \
+	INCLUDE_DIRS="-I$(CONFIG_TOOL_DIR)/include -I$(BUILD_DIR)/$(pppd)/include -I$(BUILD_DIR)/$(Linux-PAM)/usr/include $(EAP_CFLAGS)" \
+	LIBS="-L$(my_prefix)/lib -lpam -ldl -lcrypt $(EAP_LIBS)"
+
+#
+#  more ac_variables for configure may be defined here
+#
+#CROSS_ENV_AC += ...
+
+############################################################################
+
+$(CFG_COOKIE):
+	$(CONFIGURE_ENV) \
+	$(CROSS_ENV_AC) \
+	./configure $(CONFIGURE_PARMS)
+	date > $@
+
+$(BLD_COOKIE): $(CFG_COOKIE)
+	$(MAKE_ENV) $(MAKE) -C pppd $(MAKE_PARMS)
+	$(MAKE_ENV) $(MAKE) -C pppd $(MAKE_PARMS) install
+	$(MAKE_ENV) $(MAKE) -C chat $(MAKE_PARMS)
+	$(MAKE_ENV) $(MAKE) -C chat $(MAKE_PARMS) install
+	cd $(my_prefix)/usr/local/sbin && ln -fs pppd pppd-radius
+	rm -rf $(my_prefix)/share
+

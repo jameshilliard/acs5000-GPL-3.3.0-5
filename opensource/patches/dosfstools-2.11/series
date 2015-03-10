@@ -1,0 +1,3 @@
+./dosfstools-2.11-assumeKernel26.patch
+./dosfstools-2.11-lseek.patch
+./dosfstools-2.7-argfix.patch

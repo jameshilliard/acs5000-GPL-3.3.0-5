@@ -1,0 +1,21 @@
+[ req ]
+default_bits            = 1024
+distinguished_name      = avocent
+prompt                  = no
+x509_extensions         = x509v3
+
+[ avocent ]
+C               = US
+ST              = CA
+L               = Fremont
+O               = Avocent Corporation
+OU              = MSD
+CN              = www.avocent.com
+emailAddress    = support@avocent.com
+
+[ x509v3 ]
+subjectKeyIdentifier    = hash
+authorityKeyIdentifier  = keyid:always,issuer:always
+basicConstraints        = CA:true
+nsComment               = "This is just a TEST certificate. Don't use it for real secure conections. Create your own certificate instead."
+nsCertType              = server, sslCA

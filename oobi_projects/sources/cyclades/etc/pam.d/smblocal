@@ -1,0 +1,10 @@
+#
+# The PAM configuration file for the `smblocal' service
+#
+auth    [success=1 new_authtok_reqd=1 default=ignore]	pam_smb_auth.so
+auth    required	pam_redirect.so service=s_local
+auth	optional	pam_auth_srv.so
+account sufficient 	pam_smb_auth.so
+account sufficient      pam_unix2.so
+session sufficient 	pam_smb_auth.so
+session sufficient      pam_unix2.so

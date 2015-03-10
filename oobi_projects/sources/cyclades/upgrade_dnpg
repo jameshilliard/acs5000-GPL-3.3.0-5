@@ -1,0 +1,401 @@
+===============================================================================
+                       UPGRADE to Version 2.6.0
+===============================================================================
+
+REMARKS
+=======
+      . For more information about new features, please read the up-to-date
+        Release Notes.
+
+      . For those who are new to Linux/Unix, we recommend reading appendix A
+        in the DNPG CServer User's Guide.
+
+NOTE: DNPG strongly recommends that the user has read the latest User's
+Guide available in DNPG's ftp site before using this new firmware.
+
+
+UPGRADING OVERVIEW
+==================
+
+The CServer packages may be updated from one version to another. So, if the user
+has an CServer running an earlier version, special care should be taken 
+regarding configuration.
+
+The user can choose to start the configuration from scratch by simply doing:
+
+    echo 0 > /mnt/flash/config.tgz
+    reboot
+
+or, the user must perform all steps from all "Upgrading from <version> actions"
+with version numbers equal to or greater than the original version of his 
+CServer.
+
+In case the option is for upgrading from an earlier version keeping the current
+configuration (not start from scratch), please really do ALL upgrade actions
+listed for ALL versions equal and newer then the current one.
+
+To run a new configuration and save it into flash the user must execute
+the following commands:
+
+    runconf
+    saveconf
+
+The command "saveconf" is equivalent to the Linux command:
+
+"tar -czf /mnt/flash/config.tgz  -T /etc/config_files"
+
+so, double check that all files which have been changed have their names in the
+file /etc/config_files.
+
+If any of the files /etc/inittab, /etc/rc.sysinit, or any user's shell script
+executed by /etc/rc.sysinit were changed, the CServer must be rebooted for them 
+to take effect.
+
+Upgrading from 2.3.1 Actions
+============================
+
+- new directory was created : /etc/daemon.d. This directory contains all files 
+  that are used by daemon.sh utility. The upgrade of the old version is done
+  by upgrade260.sh program that runs in the first boot with the 2.6.0 version. 
+  Verify your configuration after the first boot.
+
+- the /etc/config_files was changed
+  . some files was included (/etc/shadow, ...)
+  . some files was removed (/etc/TIMEZONE, /etc/getty_ttyS0, ...)
+  . include your changes in the /etc/config_files.save and copy it to 
+    /etc/config_files and save in CF.
+
+- Upgrade of the Linux Kernel to 2.6.11
+  . the Compact Flash directory was changed from "/proc/flash" to "/mnt/flash"
+  . the name of the configuration file in Compact Flash was changed from 
+    "scripts" to "config.tgz"
+  . command for reset to factory default is :"# echo 0 > /mnt/flash/config.tgz"
+  . the file with modules configuration was changed from '/etc/modules.conf" 
+    to "/etc/modprobe.conf"
+    .. include your changes in the new file 
+    .. add the new file in the /etc/config_files
+  . the /etc/ipsec.conf was changed :
+    .. copy the /etc/ipsec.conf.save to /etc/ipsec.conf 
+    .. include your changes 
+
+- Upgrade of OpenSSH 4.2p1 :
+  . if you use the PuTTY, you need to upgrade it to 0.58 version (The PuTTY 
+    had one bug that was fixed in the current version).
+
+- Upgrade of PAM-LDAP - if you use the Secure LDAP, you need to change the
+  configuration :
+  . in /etc/ldap.conf, at least one of the following parameters are required 
+    if the tls_checkpeer is "yes" :
+    .. tls_cacertfile
+    .. tls_cacertdir
+
+- TIMEZONE :
+  . This feature uses now the /etc/localtime file.
+  . The old /etc/TIMEZONE is erased if you configure this new feature.
+  . The image comes with no /etc/localtime file, but it will be created and 
+    replace the TIMEZONE file if you use any of the ways of configure timezone.
+    
+- Authentication Enhancement
+  . the /etc/pam.conf was removed and the /etc/pam.d directory was created
+  . the Radius and TACACS+ servers need to be reconfigured by WebUI or CLI 
+    (the configuration of these servers in PortSlave configuration was removed).
+    
+- the /bin/build_DB_ramdisk was changed to use ramdisk type "tmpfs" instead 
+  of "ramfs" that has a problem with maxsize.
+  
+- the name of the PCMCIA modem devices was changed from "/dev/ttySxx" to 
+  "/dev/ttyMy". Two dedicated device files (ttyM1 and ttyM2) have been created 
+   for the PCMCIA modem devices.
+   . if the PCMCIA modem card has already been configured, the user should 
+     rename the existing file /etc/ppp/options.ttySxx to /etc/ppp/options.ttyM1
+
+
+Upgrading from 2.3.0 Actions
+============================
+
+- The files "cert.pem" and "server.pem" were moved to "/etc/CA".
+  So, in case old "/new_web/Locale/cert.pem" or "/new_web/Locale/server.pem"
+  were added to the "/etc/config_files", the files itself (cert.pem and
+  server.pem) must be copied to the new location (/etc/CA) and config_files
+  must be corrected to remove the old references and include the new ones
+  (/etc/CA/cert.pem and /etc/CA/server.pem). Also, run "saveconf" again to
+  correctly update the files in flash memory.
+
+- The driver xirc2ps_cs is configured to make pcmcia card Xircom XE2000 10/100
+  Network PC Card Adaptor work in 100Mbps. This configuration was made in
+  /etc/modules.conf file by the following line:
+  options xirc2ps_cs if_port=4
+
+  If the card Xircom XEM5600 10/100BT Ethernet and 56k V.90 modem combination
+  will be used, the above configuration must be commented or deleted.
+  So, the following procedure must be executed in order to use XEM5600 card:
+
+  1. edit /etc/modules.conf file; comment the following line:
+  #options xirc2ps_cs if_port=4
+  2. execute touch command on /lib/modules/2.4.17_mvl21-linuxplanet/modules.dep
+     file:
+  # touch /lib/modules/2.4.17_mvl21-linuxplanet/modules.dep
+  3. edit /etc/config_files to include /etc/modules.conf and
+     /lib/modules/2.4.17_mvl21-linuxplanet/modules.dep files:
+  /etc/modules.conf
+  /lib/modules/2.4.17_mvl21-linuxplanet/modules.dep files
+  4. save configuration executing saveconf command
+  # saveconf
+
+  If the configuration was changed to use XEM5600 card and XE2000 card will be
+  used instead, then the following procedure must be executed:
+
+  1. edit /etc/modules.conf file; uncomment the following line:
+  options xirc2ps_cs if_port=4
+  2. execute steps 2 and 4 as described above
+
+
+Upgrading from 2.2.0 Actions
+============================
+
+- The OpenSSH was upgraded from 3.7.1.p2 to 3.8.1p1. The new version does 
+  not accept authentication method "gssapi", but accepts the new method
+  "gssapi-with-mic". If you use Kerberos TGT, please check if your ssh
+  client accepts the authentication method "gssapi-with-mic".
+  If you use NIS to do the authentication, you need to configure the parameter
+  UseLogin as YES in the /etc/ssh/sshd_config file.
+
+- The file /etc/snmpd.conf was renamed to /etc/snmpd.sh. If you had modified
+  /etc/snmpd.conf, apply the same changes to /etc/snmpd.sh.
+
+- The /etc/config_files contains a list of files that are saved to flash
+  when you run "saveconf". If you had run "saveconf" with release 2.2.0,
+  your /etc/config_files is loaded from the flash and you will not have
+  the latest list. 
+  Please edit /etc/config_files and do the following actions :
+  1) rename the file /etc/snmpd.conf to /etc/snmpd.sh
+  2) rename the file /etc/ppp/options to /etc/ppp/options*
+  3) run saveconf
+
+- The pmusers group has removed. The following files were changed :
+  1) file /etc/rc.sysinit.If there is one saved in flash it must be 
+     replaced/merged with /etc/rc.sysinit.save.
+  2) file /etc/group. If the file was not changed just replace it with the 
+     file /etc/group.save.
+
+- This version does not have support to Sentry's IPDU nor RPC's IPDU. 
+  The files /etc/pm.sentry and /etc/pm.rpc22 were deleted.
+  The file /etc/pmd.sh was changed. If there is one saved in flash it
+  must be edit :
+      old line - ConfigFiles="/etc/pm.dnpg /etc/pm.rpc22 /etc/pm.sentry"
+      new line - ConfigFiles="/etc/pm.dnpg"
+
+Upgrading from 2.1.6 Actions
+============================
+
+- The WebUi was changed. The following actions must be taken :
+  1) The server.pem and the cert.pem are in /new_web/Locale directory. If the 
+    files were changed, copy the file to the new directory.
+  2) The file /etc/group was changed, the "admin" group and "biouser" group 
+     was inserted. 
+     If the file were not changed just replace it with the file /etc/group.save.
+     Otherwise the administrator need to edit the file and insert the following
+     lines:
+		admin::104:root<enter>
+		biouser::105:<enter>
+  3) The WebUi authentication is done by PAM/local. The users that can use 
+     the WebUI need to be included in the local database (/etc/passwd).
+     Use the following command to add Admin User :
+          #adduser -G admin <username> <enter>
+     Use the following command to add Regular User :
+          #adduser <username> <enter>
+
+     The new WebUI authentication method through PAM  requires the  service
+     "web" in the file "/etc/pam.conf".
+
+    #
+    # The PAM configuration file for the `web' service
+    #
+    web auth       required   pam_unix2.so
+    web account    required   pam_unix2.so
+    web password   required   pam_unix2.so md5
+    web session    required   pam_unix2.so
+
+  4) To configure the HTTP/HTTPS, you need to edit the file /etc/webui.conf.
+     By default, HTTP and HTTPS are enabled.
+     To disable HTTP service, change the line "HTTP=YES" to "HTTP=NO".
+     To disable HTTPS service, change the line "HTTPS=YES" to "HTTPS=NO".
+     To change the TCP ports or security level see the manual.    
+  5) The bio users need to be a member of the new group biouser. 
+     To include the old users in this group, the administrator need to 
+     edit the file /etc/group and to add the usernames in the biouser line
+     as in the example :
+		biouser::105:userbio1,userbio2,userbio3
+     To add new users the following command must be used :
+	#adduser -G biouser <username> <enter>
+
+- This version allows the ssh's users to be authenticated by Kerberos TGT.
+  The ssh_config and sshd_config files were changed. 
+  If these files were not changed just replace it with the files *.save.  
+  Otherwise the user should merge these files.
+
+- The dhcpd_cmd was changed, was included the option '-Y' to fix one bug 
+  when the CServer has NIS and DHCP configured.
+
+- The sshd was changed. The default file with the authorized keys is 
+  ~/.ssh/authorized_keys and the parameter AuthorizedKeysFile is 
+  commented in the sshd_config file.
+  If the sshd_config file was not changed just replace it with the file 
+  sshd_config.save. Otherwise the user should merge these files.
+  
+Upgrading from 2.1.5 Actions
+============================
+
+- The file /etc/TIMEZONE was changed. If there is one saved in flash
+  it must be replaced/merged with /etc/TIMEZONE.save
+
+- The sshd program was upgraded to version 3.7.1p2 and it needs a new 
+  configuration file.
+  If the file /etc/ssh/sshd_config was not changed just replace it with
+  the file /etc/ssh/sshd_config.save.  Otherwise the user should merge
+  these files.
+
+- The file /etc/rc.sysinit was changed.If there is one saved in flash 
+  it must be replaced/merged with /etc/rc.sysinit.save.
+
+- The file /etc/group was changed. It was included the group "pam" and 
+  "pmusers".If the file was not changed just replace it with the 
+  file /etc/group.save.
+  Otherwise the user need to do the following commands : 
+       #addgroup pam <enter>
+       #addgroup pmusers<enter>
+       #chgrp pmusers /bin/pm <enter>
+
+Upgrading from 2.1.4 Actions
+============================
+
+- The file /etc/rc.sysinit was changed. It was removed the activation of
+  inetd. If there is one saved in flash it must be replaced/merged with
+  /etc/rc.sysinit.save.
+
+- The file /etc/inittab was changed. The activation of the services snmpd,
+  sshd, ntpclient, pmd, cy_buffering, and syslog-ng were removed. Their
+  activation are done by the shell script daemon.sh. If there is one saved
+  in flash it must be replaced/merged with /etc/inittab.save.
+
+- The file ntpclient.sh was removed. The ntpclient now is started by the shell
+  script "daemon.sh", if it's enabled in the file /etc/ntpclient.conf
+
+- The file /etc/ntpclient.conf was changed. If there is one saved in flash
+  it must be replaced/merged with /etc/ntpclient.save
+
+- The file /bin/build_DB_ramdisk was changed. If there is one saved in flash
+  it must be replaced/merged with /bin/build_DB_ramdisk.save
+
+- The f_kernel and f_alerts in /etc/syslog-ng/syslog-ng.conf were changed.
+  Please verify the change in /etc/syslog-ng/syslog-ng.save file.
+
+Upgrading from 2.1.2 Actions
+============================
+
+- The file /etc/inetd.conf was changed. If there is one saved in flash
+  it must be replaced/merged with /etc/inetd.conf.save.
+
+- The shell script /etc/rc.sysinit was changed. If there is one saved in flash
+  it must be merged with /etc/rc.sysinit.save.
+
+- The script shell /etc/portslave/cb_script was changed, because the path of
+  the command chat was changed from "/bin/chat" to "/usr/local/sbin/chat".
+  If you use callback feature, you need to change the path of the command chat
+  in the script shell /etc/portslave/cb_script and save the changed file.
+
+- The example about snmptrap in /etc/syslog-ng/syslog-ng.conf was changed.
+  Please verify the change in /etc/syslog-ng/syslog-ng.save file.
+
+- /etc/portslave/pslave.conf has new parameters. Merge or copy
+  /etc/portslave/pslave.save over /etc/portslave/pslave.conf.
+ 
+- /etc/nsswitch.conf and /etc/pam.conf has new services. If they were changed, 
+	you should merge these files.
+
+- The shell script /bin/handle_dhcp was changed. If there is one saved in flash
+  it must be removed from flash.
+
+- The shell script /etc/network/dhcpcd_cmd was changed. If there is one saved
+  in flash, it must be merged with /etc/network/dhcpcd_cmd.save.
+ 
+- The shell script /etc/network/st_routes was changed. The parameter "metric 3"
+  was inserted in the route add of the default route.
+
+- The file /etc/pm.dnpg was changed to be compatible with the AlterPath-PM
+  version 1.0.8. If an older version of the AlterPath-PM is used, the user
+  should save the /etc/pm.dnpg from the 2.1.2 version before the
+  upgrade:
+     >echo /etc/pm.dnpg>>/etc/config_files
+     >saveconf
+
+
+Upgrading from 2.1.1 Actions
+============================
+
+- The meaning of the parameter DTR_reset in pslave.conf file was changed.
+  Please, read the documentation to set it to the proper value.
+
+- The sshd program needs a new configuration file to fix a problem with sftp.
+  If the file /etc/ssh/sshd_config was not changed, just replace it with
+  the file /etc/ssh/sshd_config.save.  Otherwise the user should merge
+  these files.
+
+- The telnet program was moved from /bin to /usr/bin. If you use the protocol
+  telnet in PortSlave, you need to change the parameter conf.telnet. 
+ 
+- The /etc/pcmcia/isdn.opts was changed. Copy /etc/pcmcia/isdn.opts.save 
+  over /etc/pcmcia/isdn.opts and re-apply your changes, if any. Run 
+  "saveconf".  
+
+- The /etc/config_files contains a list of files that are saved to flash
+  when you run "saveconf". If you had run "saveconf" with release 2.1.1,
+  your /etc/config_files is loaded from the flash and you will not have
+  the latest list. Please edit /etc/config_files, add the file listed
+  below and run "saveconf":
+  /etc/ppp/auth-up
+
+
+Upgrading from 2.1.0 Actions
+============================
+
+- The web user management has changed, and because of that, the file
+  /etc/websum.conf has changed. In order to make the web server work, the
+  user must do the following steps:
+      From the prompt, type
+          #cp /etc/websum.conf.save /etc/websum.conf
+          #saveconf
+          #reboot
+      After the reboot, open a browser and point to the CServer IP address. Log
+        in as root (password = tslinux).
+      Go to the link Web User Management->Users, change the root password and
+        create the users, classifying according to the privilege allowed to
+        them (root, admin, monitor or user).
+      Go to the link Web User Management->Load/Save Web Configuration and click
+        the "Save Configuration" button.
+      Go to the link Administration->Load/Save Configuration and click the
+        "Save to Flash" button.
+
+- The syslog-ng.conf file (syslog-ng configuration) was changed.
+  This configuration allows syslog-ng to receive syslog messages from the
+  Kernel. The user must copy /etc/syslog-ng/syslog-ng.save over
+  /etc/syslog-ng/syslog-ng.conf and make his own changes again, if any.
+
+- The /etc/wireless.opts was changed. Copy /etc/wireless.opts.save over
+  /etc/wireless.opts and re-apply your changes, if any. Please also 
+  change the file permission of wireless.opts by executing 
+  "chmod 600 /etc/pcmcia/wireless.opts". Run "saveconf".
+
+- The /etc/config_files contains a list of files that are saved to flash
+  when you run "saveconf". If you had run "saveconf" with release 2.1.0,
+  your /etc/config_files is loaded from the flash and you will not have
+  the latest list. Please edit /etc/config_files, add the files listed
+  below and run "saveconf":
+  /etc/pcmcia/isdn.opts
+  /etc/mgetty/login.config
+  /etc/ppp/auth-up
+  /etc/ppp/chap-secrets
+  /etc/ppp/pap-secrets
+  /etc/ppp/ioptions
+  /etc/ppp/options
+

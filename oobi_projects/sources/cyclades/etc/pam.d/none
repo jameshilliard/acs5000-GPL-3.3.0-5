@@ -1,0 +1,19 @@
+
+# ---------------------------------------------------------------------------#
+# /etc/pam.conf                                                              #
+#                                                                            #
+# Last modified by Andrew G. Morgan <morgan@kernel.org>                      #
+# ---------------------------------------------------------------------------#
+# $Id: none,v 1.1 2008/09/04 21:18:08 edson Exp $
+# ---------------------------------------------------------------------------#
+# serv.	module	   ctrl	      module [path]	...[args..]                  #
+# name	type	   flag                                                      #
+# ---------------------------------------------------------------------------#
+
+#
+# The PAM configuration file for authentication type none
+#
+auth       required  pam_permit.so
+account    required  pam_permit.so
+password   required  pam_permit.so
+session    required  pam_permit.so

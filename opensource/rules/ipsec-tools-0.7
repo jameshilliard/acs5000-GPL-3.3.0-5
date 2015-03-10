@@ -1,0 +1,67 @@
+#
+#  Makefile for cyclades projects.
+#
+
+#
+# Addtional compiler and/or link options may be defined here
+#
+#CFLAGS += ...
+LDFLAGS += -L$(DIST_DIR)/$(ZLIB)/lib -L$(DIST_DIR)/$(OPENSSL)/lib
+
+ifeq ($(IPv6Enable), yes)
+LDFLAGS +=-L$(DIST_DIR)/$(KERBEROS)/usr/lib -lkrb5support
+endif
+
+#
+# Command line parameters for configure must be defined here
+#
+CONFIGURE_PARMS := \
+	--prefix=$(my_prefix) \
+	--host=$(HOST) \
+	--with-kernel-headers=$(KERNEL_SRC_DIR)/include \
+	--with-openssl=$(DIST_DIR)/$(OPENSSL) \
+	--with-flexlib=$(DIST_DIR)/$(FLEX)/lib/libfl.a \
+	--with-krb5=$(DIST_DIR)/$(KERBEROS)/usr \
+	--disable-adminport \
+	--enable-gssapi \
+	--disable-hybrid \
+	--disable-dpd \
+	--disable-frag \
+	--enable-natt
+
+
+CONFIG_ENV := \
+	PATH=$(CROSS_PATH) \
+	HOST_CC=cc \
+	$(CROSS_ENV_TOOLS) \
+	CFLAGS="$(CFLAGS)" \
+	LDFLAGS="$(LDFLAGS)" \
+	DLLTOOL= \
+	LIBOBJS= \
+	LIBS=
+
+MAKE_ENV := \
+	PATH=$(CROSS_PATH)
+
+MAKE_PARMS :=
+
+#
+#  more ac_variables for configure may be defined here
+#
+CROSS_ENV_AC += ac_cv_va_copy=no \
+ac_cv___va_copy=no
+
+$(CFG_COOKIE):
+	-rm -f config.cache
+	./bootstrap && \
+	$(CONFIG_ENV) $(CROSS_ENV_AC) ./configure $(CONFIGURE_PARMS)
+	date > $@
+
+$(BLD_COOKIE):
+	$(MAKE_ENV) $(MAKE) $(MAKE_PARMS)
+	date > $@
+
+$(INST_COOKIE):
+	$(MAKE_ENV) $(MAKE) install $(MAKE_PARMS)
+	date > $@
+

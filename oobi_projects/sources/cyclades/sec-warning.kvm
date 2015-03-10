@@ -1,0 +1,22 @@
+                IMPORTANT - Security Advisory!
+               --------------------------------
+KVM connection provides critical access to management features of attached 
+equipment. Please take the required precautions to understand the potential 
+impacts this device may have to your SECURITY policies.  
+From factory, this device is configured as follows:
+   - single password for admin and ROOT users;
+   - all KVM Ports DISABLED for regular users access;
+   - DHCP, Telnet, SSHv1 & SSHv2 and HTTP & HTTPS enabled.  
+The following actions are STRONGLY recommended: 
+1. To change the password of admin and ROOT users before setting up the device.
+2. That you SELECT A SECURITY PROFILE to complete the INITIAL SETUP. 
+   Security is dependent on Policy and is Configurable to fit in environments 
+   with varying levels of Security. This device provides three pre-set 
+   Security Levels: SECURED, MODERATE and OPEN, and in addition, the ability 
+   to set a CUSTOM Security Profile.
+3. Do not leave the equipment idle WITHOUT selecting a SECURITY PROFILE.
+4. To ENABLE KVM Ports and CONFIGURE them using Web UI or OSD.
+
+Refer to the Quick Start Guide or the User's Guide for Security Profile 
+selection details and KVM Ports configuration.
+

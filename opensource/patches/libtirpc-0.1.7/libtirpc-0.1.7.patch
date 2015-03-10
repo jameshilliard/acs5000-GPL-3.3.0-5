@@ -1,0 +1,13 @@
+--- libtirpc-0.1.7/Makefile.in.orig	2007-10-10 08:51:30.000000000 -0300
++++ libtirpc-0.1.7/Makefile.in	2007-10-10 08:51:43.000000000 -0300
+@@ -667,8 +667,8 @@ uninstall-info: uninstall-info-recursive
+ 
+ 
+ install-exec-local:
+-	cp -p ./doc/etc_netconfig /etc/netconfig
+-	chmod 0644 /etc/netconfig
++#	cp -p ./doc/etc_netconfig /etc/netconfig
++#	chmod 0644 /etc/netconfig
+ # Tell versions [3.59,3.63) of GNU make to not export all variables.
+ # Otherwise a system limit (for SysV at least) may be exceeded.
+ .NOEXPORT:

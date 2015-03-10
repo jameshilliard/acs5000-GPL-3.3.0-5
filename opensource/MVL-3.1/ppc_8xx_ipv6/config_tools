@@ -1,0 +1,58 @@
+# Montavista ppc-8xx
+TOOL_KIT_DIR := /opt/montavista/pro/devkit
+KERNEL_SRC_DIR := $(OPENSOURCE_DIR)/sources/linux-2.6.22.1
+CROSS_DIR := $(TOOL_KIT_DIR)/ppc/8xx
+CROSS_BIN := $(CROSS_DIR)/bin
+CROSS_TARGET := $(CROSS_DIR)/target
+CROSS_PREFIX := ppc_8xx-
+CROSS_COMPILE := $(CROSS_BIN)/$(CROSS_PREFIX)
+
+#
+# set debug flags if needed
+#
+ifeq ($(APPL_DEBUG),1)
+CFLAGS:=-ggdb3 -Wall -Os -fomit-frame-pointer -D_GNU_SOURCE -I$(OPENSOURCE_DIR)/MVL-3.1/ppc_8xx_ipv6/include 
+LDFLAGS:=
+else
+CFLAGS:=-Wall -Os -fomit-frame-pointer -D_GNU_SOURCE -I$(OPENSOURCE_DIR)/MVL-3.1/ppc_8xx_ipv6/include 
+LDFLAGS:=-s
+endif
+
+ARCH := ppc
+HOST:=powerpc-hardhat-linux
+
+CROSS_ENV_AC:=
+
+CROSS_PATH:=$(CROSS_BIN):$(OPENSOURCE_DIR)/dummy:$(PATH)
+CROSS_CC:=$(CROSS_PREFIX)gcc
+CROSS_CPP:=$(CROSS_PREFIX)gcc -E
+CROSS_LD:=$(CROSS_PREFIX)ld
+CROSS_LDD:=$(CROSS_PREFIX)ldd
+CROSS_AR:=$(CROSS_PREFIX)ar
+CROSS_STRIP:=$(CROSS_PREFIX)strip
+CROSS_RANLIB:=$(CROSS_PREFIX)ranlib
+CROSS_CXX:=$(CROSS_PREFIX)g++
+CROSS_AS:=$(CROSS_PREFIX)as
+CROSS_NM:=$(CROSS_PREFIX)nm
+CROSS_OBJCOPY:=$(CROSS_PREFIX)objcopy
+CROSS_OBJDUMP:=$(CROSS_PREFIX)objdump 
+
+CROSS_ENV_TOOLS = \
+CC="$(CROSS_CC)" \
+CPP="$(CROSS_CPP)" \
+LD="$(CROSS_LD)" \
+LDD="$(CROSS_LDD)" \
+AR="$(CROSS_AR)" \
+STRIP="$(CROSS_STRIP)" \
+RANLIB="$(CROSS_RANLIB)" \
+CXX="$(CROSS_CXX)" \
+AS="$(CROSS_AS)" \
+NM="$(CROSS_NM)" \
+OBJCOPY="$(CROSS_OBJCOPY)" \
+OBJDUMP="$(CROSS_OBJDUMP)"
+
+#
+# Other flags
+#
+
+IPv6Enable := yes

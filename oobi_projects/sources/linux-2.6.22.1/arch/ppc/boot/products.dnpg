@@ -1,0 +1,55 @@
+static char PROD_LINE0[] = "CServer";
+static char PROD_NAME0[] = " Communications Server";
+
+#define PROD_LINE1			PROD_LINE0
+#define PROD_NAME1          PROD_NAME0
+
+#define PROD_LINE2			PROD_LINE1
+#define PROD_NAME2          PROD_NAME0
+
+#define PROD_LINE3			PROD_LINE1
+#define PROD_NAME3          PROD_NAME0
+
+#define PROD_LINE4			PROD_LINE1
+#define PROD_NAME4          PROD_NAME0
+
+#define PROD_LINE5			PROD_LINE1
+#define PROD_NAME5          PROD_NAME0
+
+#define PROD_LINE6          PROD_LINE1
+#define PROD_NAME6          PROD_NAME0
+
+#define PROD_LINE7          PROD_LINE1
+#define PROD_NAME7          PROD_NAME0
+
+static char CYCLADES_TXT[] = "CServer";
+static char CYCLADES_BANNER[] = "Linux ";
+
+#define CYCLADES_VERSION	(CYCLADES_WHAT+4)
+
+static char machine_txt[23][10] = {
+	"PR3000",
+	"PR+000",
+	"PR=000",
+	"PR1000",
+	"TS1000",
+	"TS2000",
+	"TS400",
+	"TS800",
+	"TS3000",
+	"Tx1000",
+	"Tx2000",
+	"PL1000",
+	"TS100",
+	"NL1000",
+	"CServer16",
+	"CServer32",
+	"SM100",
+	"PR3500",
+	"TS110",
+	"CServer48",
+	"CServer4",
+	"CServer8",
+	"CServer1"
+};
+

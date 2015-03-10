@@ -1,0 +1,1 @@
+/sbin/dhcp6c -s "/bin/handle_dhcpv6"

@@ -1,0 +1,45 @@
+#!/bin/sh
+
+#DEBUG=yes; export DEBUG
+
+cd /etc/hotplug
+. ./hotplug.functions
+. ./cardmgr.functions
+
+if [ "$ACTION" = "" ]; then
+	mesg "Bad PCMCIA agent invocation, no action"
+	exit 1
+fi
+
+[ "$ACTION" = "add" -o "$ACTION" = "remove" ] || exit 2
+
+debug_mesg $SOCKET_NO $DEVICE_NO $MODALIAS $DEVPATH
+
+# Determine socket and device numbers:
+get_socket "${DEVPATH##*/}" socket_no device_no
+
+#
+# Translate the parameters in order to call the cardmgr script.
+#
+if [ "$ACTION" = "add" ]; then
+	drv_name=$(alias2modname "$MODALIAS")
+
+	[ "$drv_name" = "avma1_cs" -o "$drv_name" = "sedlbauer_cs" ] || exit 3
+
+	MGR_ACTION="start"
+	MGR_DEVICE=""
+	MGR_NEW_SCHEME="default"
+	MGR_SOCKET="$socket_no"
+	MGR_INSTANCE="$device_no"
+	MGR_MAJOR=""
+	MGR_MINOR=""
+	MGR_DRIVER="$drv_name"
+	MGR_SCRIPT="isdn"
+else
+	# Load previously saved parameters from file:
+	cardmgr_load_params "isdn" "$socket_no" "$device_no" || exit 3
+
+	MGR_ACTION="stop"
+fi
+
+cardmgr_run_script

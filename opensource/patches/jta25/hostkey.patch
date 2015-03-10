@@ -1,0 +1,68 @@
+Index: jta25/jsch-0.1.14_mod/src/com/jcraft/jsch/KnownHosts.java
+===================================================================
+--- jta25.orig/jsch-0.1.14_mod/src/com/jcraft/jsch/KnownHosts.java
++++ jta25/jsch-0.1.14_mod/src/com/jcraft/jsch/KnownHosts.java
+@@ -151,6 +151,18 @@ loop:
+     hk=new HostKey(host, type, key);
+     pool.addElement(hk);
+   }
++
++  void replace(String host, byte[] key){
++    HostKey hk;
++    for(int i=0; i<pool.size(); i++){
++      hk=(HostKey)(pool.elementAt(i));
++      if(hk.host.equals(host)){
++        hk.key=key;
++        pool.setElementAt(hk, i);
++        return;
++      }
++    }
++  }
+   void sync() throws IOException { sync(known_hosts); }
+   void sync(String foo) throws IOException {
+     if(foo==null) return;
+Index: jta25/jsch-0.1.14_mod/src/com/jcraft/jsch/Session.java
+===================================================================
+--- jta25.orig/jsch-0.1.14_mod/src/com/jcraft/jsch/Session.java
++++ jta25/jsch-0.1.14_mod/src/com/jcraft/jsch/Session.java
+@@ -475,21 +475,25 @@ System.out.println(e);
+     int i=jsch.getKnownHosts().check(host, K_S);
+     if((shkc.equals("ask") || shkc.equals("yes")) &&
+        i==KnownHosts.CHANGED){
+-      String message=
+-"@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n"+
+-"@    WARNING: REMOTE HOST IDENTIFICATION HAS CHANGED!     @\n"+
+-"@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n"+
+-"IT IS POSSIBLE THAT SOMEONE IS DOING SOMETHING NASTY!      \n"+
+-"Someone could be eavesdropping on you right now (man-in-the-middle attack)!\n"+
+-"It is also possible that the "+kex.getKeyType()+" host key has just been changed.\n"+
+-"The fingerprint for the "+kex.getKeyType()+" key sent by the remote host is\n"+
+-	  kex.getFingerPrint()+".\n"+
+-"Please contact your system administrator.\n"+
+-"Add correct host key in "+jsch.getKnownHosts().getKnownHostsFile()+" to get rid of this message.";
+-      if(userinfo!=null){
+-	userinfo.showMessage(message);
+-      }
+-      throw new JSchException("HostKey has been changed");
++//      String message=
++//"@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n"+
++//"@    WARNING: REMOTE HOST IDENTIFICATION HAS CHANGED!     @\n"+
++//"@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n"+
++//"IT IS POSSIBLE THAT SOMEONE IS DOING SOMETHING NASTY!      \n"+
++//"Someone could be eavesdropping on you right now (man-in-the-middle attack)!\n"+
++//"It is also possible that the "+kex.getKeyType()+" host key has just been changed.\n"+
++//"The fingerprint for the "+kex.getKeyType()+" key sent by the remote host is\n"+
++//	  kex.getFingerPrint()+".\n"+
++//"Please contact your system administrator.\n"+
++//"Add correct host key in "+jsch.getKnownHosts().getKnownHostsFile()+" to get rid of this message.";
++//      if(userinfo!=null){
++//	userinfo.showMessage(message);
++//      }
++//      throw new JSchException("HostKey has been changed");
++
++// Instead, just replace the host key
++      jsch.getKnownHosts().replace(host, K_S);
++      i = jsch.getKnownHosts().check(host, K_S);
+     }
+ 
+     boolean insert=false;

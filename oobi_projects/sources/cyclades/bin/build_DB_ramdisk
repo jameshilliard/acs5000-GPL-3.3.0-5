@@ -1,0 +1,20 @@
+#!/bin/sh
+
+RD_SIZE=49152000
+
+#
+# creates an extra ramdisk for units with 128M minimum
+#
+
+if [ ! -d /mnt/RamDB ] ; then
+  mkdir /mnt/RamDB
+fi
+
+mount -t tmpfs none  /mnt/RamDB -o size=$RD_SIZE >/dev/null 2>&1
+
+if [ -d /var/run/DB -o -f /var/run/DB ] ; then
+  rm -rf /var/run/DB
+fi
+
+ln -s /mnt/RamDB /var/run/DB
+

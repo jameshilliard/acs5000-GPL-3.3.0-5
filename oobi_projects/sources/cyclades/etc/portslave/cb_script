@@ -1,0 +1,22 @@
+#!/bin/sh
+#
+/usr/local/sbin/chat -v					\
+	TIMEOUT		3				\
+	ABORT		'\nBUSY\r'			\
+	ABORT		'\nNO ANSWER\r'			\
+	ABORT		'\nRINGING\r\n\r\nRINGING\r'	\
+	''		'\nAT'				\
+	'OK-+++\c-OK'	'ATS0=0H1'			\
+	'OK-+++\c-OK'   'ATS8=2'                        \
+	'OK-+++\c-OK'	''	
+sleep $2 s
+/usr/local/sbin/chat -v					\
+	TIMEOUT		3				\
+	ABORT		'\nBUSY\r'			\
+	ABORT		'\nNO ANSWER\r'			\
+	ABORT		'\nRINGING\r\n\r\nRINGING\r'	\
+	''		'\nAT'				\
+	'OK-+++\c-OK'	'ATH0'				\
+	TIMEOUT		60				\
+	OK		ATDT,,$1			\
+	CONNECT		''

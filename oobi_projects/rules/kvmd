@@ -1,0 +1,51 @@
+#
+#  Makefile for cyclades projects.
+#
+
+#
+# Addtional compiler and/or link options may be defined here
+#
+CFLAGS += -DPAM_STRERROR_NEEDS_TWO_ARGS -DUSE_PAM -I. -I$(BUILD_KERNEL)/include -I$(my_prefix)/usr/include -I$(BUILD_DIR)/$(llconf)/src -I$(BUILD_DIR)/$(ras) -I$(BUILD_DIR)/$(ras)/src -I$(BUILD_DIR)/$(CLI) -I$(BUILD_DIR)/$(webApi) -I$(BUILD_DIR)/$(new_webs)/Server -I$(BUILD_DIR)/$(new_webs)/dmf212/AlFrame -I$(BUILD_DIR)/$(libcyc)/include -I$(CONFIG_TOOL_DIR)/include
+
+LDFLAGS += -L$(my_prefix)/lib  -L$(my_prefix)/usr/lib -lpam -lpam_misc -lcrypt -Wl,-Map,kvmd.map -lm -lllconf
+
+#
+# Command line parameters for configure must be defined here
+#
+#CONFIGURE_PARMS := ...
+
+#CONFIGURE_ENV := ...
+
+MAKE_ENV:=\
+	PATH=$(CROSS_PATH) \
+	$(CROSS_ENV_TOOLS) \
+	CFLAGS="$(CFLAGS)" \
+	LDFLAGS="$(LDFLAGS)" \
+	ZIMAGE=$(ZIMAGE) \
+	DEFTARG=$(DEFTARG) \
+	TARG=$(TARGET_PRODUCT)
+
+MAKE_PARMS:=\
+	webApi_DIR=$(BUILD_DIR)/$(webApi) \
+	llconf_DIR=$(BUILD_DIR)/$(llconf2) \
+	RAS_DIR=$(BUILD_DIR)/$(ras) \
+	PMD_DIR=$(BUILD_DIR)/$(pmd) \
+	WEBAPI_DIR=$(BUILD_DIR)/$(webApi) \
+	KVMNET_UTIL_DIR=$(BUILD_DIR)/$(kvmnet_util) \
+	CYC__DIR=$(BUILD_DIR)/$(libcyc) \
+	UBOOT_DIR=$(BUILD_DIR)/$(u-boot) \
+	TARGET_DIR=$(my_prefix) \
+
+#
+#  more ac_variables for configure may be defined here
+#
+#CROSS_ENV_AC += ...
+
+############################################################################
+
+$(CFG_COOKIE):
+	date > $@
+
+$(BLD_COOKIE): $(CFG_COOKIE)
+	$(MAKE_ENV) \
+	$(MAKE) $(MAKE_PARMS) all install

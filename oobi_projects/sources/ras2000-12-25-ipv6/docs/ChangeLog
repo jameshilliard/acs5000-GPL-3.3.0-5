@@ -1,0 +1,246 @@
+31_Dec_1999-1 (Unofficial)
+  * Removed unnecessary warning for users that disconnect without having
+    been logged in.
+  * Replaced all calls to sprintf() with calls to snprintf()
+
+03_Dec_1999-1 (Unofficial)
+  * Updated changelog for 24_Nov_1999-2
+  * Added two new options to pppd-radius:
+    ip-up-script - specifies pathname of ip-up script
+    ip-down-script - specifies pathname of ip-down script
+  * Fixed a bug in radius accounting which caused portslave sometimes to
+    send logout packets for users that were not logged in.
+
+24_Nov_1999-2 (Unofficial)
+  * Included missing errno.h which broke compile on some machines.
+
+24_Nov_1999-1 (Unofficial)
+  * Now ip_up_hook() is called when IP protocol goes up.
+
+23_Nov_1999-3 (Unofficial)
+  * Updated Portslave to pppd-2.3.10.
+
+18_Nov_1999-2 (Unofficial)
+  * Dropped select() support. We use poll() instead.
+  * Changed semantics of STATUS chat keyword. Now it does not update the
+    wtmp logfile. Also now sysutmp and syswtmp config items do not have
+    effect on the result of the STATUS keyword.
+
+16_Nov_1999-2 (Unofficial)
+  * Applied Josh Green's patch that fixed bug in portslave logging.
+  * Fixed a bug which effectively always allowed local logins even if they
+    were disabled in the config file.
+  * Some cleanups of the syslog code.
+
+17_Sep_1999-5 (Unofficial)
+  * Changed the name of my development snapshots, so they are not confused
+    with the official stable/pre versions.
+  * Added new chat keywords:
+     TIMEOUT N - Sets chat timeout to N. 0 means infinite timeout.
+     WAIT DCD  - Waits for modem carrier. Affected by chat timeout.
+     STATUS login_format from_format - Updates utmp/wtmp files
+
+     Best reference for the time being is the new pslave.conf.
+
+  * Removed lots of config items:
+     waitfor, aa, stripnames, answer, checktime, checkchat
+  * Minimum loglevel fixed in libpsr (LOG_DEBUG and LOG_INFO messages were
+    not logged).
+  * Send accounting start request only once per user login.
+  * Lots of code cleanup here and there.
+
+1.2.0pre13beta2 (Unofficial)
+  * You need to run ./configure before calling "make". Just use
+
+     make clean
+     ./configure
+     make
+     make install
+
+     to compile and install portslave
+
+  * all.radnullpass config item - whether to accept "" passwords.
+  * Configurable utmp/wtmp strings - uses printf-like format strings.
+  * Some minor code cleanups.
+
+1.2.0pre12
+  * Fixed update_framed_route(). Changed operation to staircase order.
+    (FIFO/LIFO) IE Last entry to be added is the first to be deleted.
+    (Fixes possible dependency problems)
+  * update_filter_id tested with PPP and AutoPPP. Fixed command line.
+    Changed operation to staircase order. (FIFO/LIFO) IE Last entry to
+    be added is the first to be deleted. (Fixes possible dependency
+    problems)
+  * Reply-Message fixed. (I think. Seeing extra output but think it's the
+    RADIUS server. Reports please.)
+  * Cleaned some log output.
+  * Merged Vesselin's  pre10 poll patch
+
+1.2.0pre11
+
+  * Portslave now toggles the DTR line when opening the serial port.
+    It previously relied on the externally spawned program to close
+    the connection. PPPD would close the line fine. SLIP, Rlogin,
+    or a non-autoppp password failure would NOT. (Bug IMHO)
+  * Search services file for radius and radacct ports.
+  * Session-Timeout support, to limit the maximum connection time.
+  * New 'big utmp' format (when using libc6 or similar)
+  	Entire IP stored in utmp, as well as connect string.
+  * Update utmp with:
+		user:'Incoming'  status:'HANKSHAKE' (modem answer)
+		user:'Connected' status:connect string (speed)
+  * Changed ctlportslave to work with utmp 'status' messages.
+  * Changed ctlportslave to report actual type when called as 'finger' 
+    instead of just 'Network'.
+  * New ctlportslave view, 'detailed'
+  * New password option for ctlportslave as fingerd.
+  * New reset ports option for ctlportslave as fingerd.
+  * New 'UPTIME' compile option for ctlportslave as fingerd.
+  * Byte accounting fixed for non-AUTOPPP.
+  * Byte accounting added for SLIP and CSLIP. (Portslave now forks)
+  * Filter ID patch added.
+  * SSH service patch added.
+  * Realms support patch added. UUCPHACK code removed.
+  * Portslave no longer depends on the external program stty.
+  * Operate on stdin option. (Backend mgetty)
+  * Modem checking feature.
+  * Compiler routines optimized. (No debug. Binaries now smaller)
+  * Various minor bug fixes.
+  * Various buffer overflow fixes.
+  * PPPD 2.3.8 (ppp 2.2 support purged)
+  * Many more things forgotten...
+
+portslave (1.17) cistron; urgency=low
+
+   * Added ppp 2.3.5 support.
+   * Change names of pppd, /etc/ppp, and rlogin to *-radius
+   * Change default paths of binaries and config file
+   * Updated install.sh	
+
+-- Dave Cinege <dcinege@psychosis.com>  Tue, 03 Nov 1998 07:57:00 -0500
+
+portslave (1.16) cistron; urgency=low
+
+   * Build autoppp part of portslave as shared lib, linked in on-demand
+     by ppp-2.2.0f.
+   * Added MD5 auth for accounting packets;
+     thanks to Eric Stern <estern@squall.mgl.ca>
+   * Fixed bug in Reply-Message handling. Or actually, string handling
+     in general. Thanks to Jens Glaser <jens@regio.net>
+   * Now logs everything after CONNECT to radius with Connect-Info.
+   * Added "porttype" configuration variable, based on a suggestion
+     from Carl Privitt <cprivitt@granite.sage.net>.
+   * Check for Framed-Protocol = PPP after authentication in pppd
+   * Fix comment handling of config file parser
+   * Added RADIUS logging of sent/recv octets for PPP
+     This should now work reliably minus 1 or 2 seconds before hangup.
+   * Added ctlportslave utility. Can be used as shell for `!root', adds
+     portmaster-like command line admin interface. Very simplistic
+     but useful for packages like pmmon.
+   * Fixed length field of IP address / integer (was 6 instead of 4)
+     Do not include trailing '\0' in strings.
+   * Now also compiles with GNU libc (aka libc6). Diffs submitted by
+     <chuck@innet.com>.
+   * Added conf.stripnames option
+
+ -- Miquel van Smoorenburg <miquels@cistron.nl>  Thu, 22 Jan 1998 12:13:46 +0100
+
+portslave (1.15) cistron; urgency=low
+
+   * lib.c:getline() now accepts \r, \r\n, \n as end-of-line.
+   * getty:login() turns off input CRNL translation
+   * Added new feature: portslave can now emulate a modem. Set
+     "sXX.emumodem 1" to enable this feature.
+   * Add support for updating local utmp and wtmp files.
+   * Add support for radius Idle-Timeout attribute
+
+ -- Miquel van Smoorenburg <miquels@cistron.nl>  Thu, 5 Jun 1997 20:49:21 +0200
+
+portslave (1.14) cistron; urgency=low
+
+   * Added copyright notice to README (GPL)
+   * Add note about ripd to README
+   * Change default MTU in sample server.cfg to 1500 - some PPP implementations
+     have trouble with fragmentation.
+
+ -- Miquel van Smoorenburg <miquels@cistron.nl>  Wed, 7 May 1997 13:57:32 +0200
+
+portslave (1.13) cistron; urgency=low
+
+   * Added CREAD to the c_cflag initialization. This should fix the digiboards.
+     (Fix by Jean-Francois Micouleau <Jean-Francois.Micouleau@utc.fr>)
+   * Added telnet support. Maybe also pass username if known?
+
+ -- Miquel van Smoorenburg <miquels@cistron.nl>  Thu, 24 Apr 1997 21:36:16 +0200
+
+portslave (1.12) cistron; urgency=high
+
+   * Now sends accounting requests to the radius accounting port (1646)
+     instead of the authentication port (1645) - funny that nobody found
+     this obvious bug yet (and that it actually _worked_ ..)
+   * Some extra info added to server.cfg
+   * Remove MRU settings; use MTU for both MTU and MRU
+   * Fix '-' argument
+
+  -- Miquel van Smoorenburg <miquels@cistron.nl> Thu, 6 Feb 1997 22:22:16 +0100
+
+portslave (1.11) cistron; urgency=low
+
+  * Added comment in server.cfg about "stuck in negotation" loop that
+    ppp-2.2.0f can get into with leased lines, with a workaround. It
+    seems to work for a lot of people except me :(. Under investigation.
+  * Fix for syslog() not working on port 0: Jens Glaser <jens@glaser.com>
+
+  -- Miquel van Smoorenburg <miquels@cistron.nl> Thu, 14 Nov 1996 13:45:53 +0100
+
+portslave (1.10) cistron; urgency=high
+
+  * Fixed SLIP/CSLIP support that I broke in 1.0.8 or so.
+
+ -- Miquel van Smoorenburg <miquels@cistron.nl>  Mon, 29 Oct 1996 15:41:32 +0100
+
+portslave (1.09) cistron; urgency=low
+
+  * Fixed leased-line support (again; must have misplaced a part of
+    some previous changes)
+
+ -- Miquel van Smoorenburg <miquels@cistron.nl>  Mon, 22 Oct 1996 11:59:21 +0200
+
+portslave (1.08) cistron; urgency=low
+
+  * Fixed local syslog logging
+  * Fixed portslave-over-telnet
+  * Added debug option, standard turned off.
+
+ -- Miquel van Smoorenburg <miquels@cistron.nl>  Mon, 14 Oct 1996 18:12:57 +0200
+
+portslave (1.07a) cistron; urgency=low
+
+  * Removed the nonsense about pap-secrets.
+
+ -- Miquel van Smoorenburg <miquels@cistron.nl>  Mon, 08 Oct 1996 18:02:16 +0200
+
+portslave (1.07) cistron; urgency=low
+
+  * Fixed the sample server.cfg file; it had a few typos and missing
+    features (esp. the leased-line example)
+  * Fixed leased-line support
+  * Note about /etc/ppp/pap-secrets in README
+
+ -- Miquel van Smoorenburg <miquels@cistron.nl>  Mon, 07 Oct 1996 13:28:21 +0200
+
+portslave (1.06) cistron; urgency=low
+
+  * Added support for portslave - over - telnetd. portslave now checks if
+    the first argument starts with '-'. If so, it uses ttyname(0) to find
+    the right entry in the server.cfg file.
+
+ -- Miquel van Smoorenburg <miquels@cistron.nl>  Wed, 02 Oct 1996 16:54:29 +0200
+
+portslave (1.05) cistron; urgency=high
+
+  * Fixed CLOCAL stuff (only ever set if port.dcd is 0). This works around
+    a bug in the Comtrol Rocketport driver.
+  * Added ChangeLog file.
+
+ -- Miquel van Smoorenburg <miquels@cistron.nl>  Tue, 01 Oct 1996 17:06:40 +0200

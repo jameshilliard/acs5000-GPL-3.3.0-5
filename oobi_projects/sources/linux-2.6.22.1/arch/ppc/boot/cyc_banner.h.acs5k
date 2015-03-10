@@ -1,0 +1,3 @@
+#include "products.cyc"
+static char CYCLADES_WHAT[] = "@(#)V_3.3.0-5 (Jul/23/2010)";
+static char CYCLADES_DSVIEW_PLUGIN[] = "3.3.2";

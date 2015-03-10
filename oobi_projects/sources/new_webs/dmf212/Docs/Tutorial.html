@@ -1,0 +1,2988 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.2.8: http://docutils.sourceforge.net/" />
+<title>Device Management Framework Tutorial</title>
+<link rel="stylesheet" href="default.css" type="text/css" />
+</head>
+<body>
+<div class="document" id="device-management-framework-tutorial">
+<h1 class="title">Device Management Framework Tutorial</h1>
+<!-- (c) 2002 Art & Logic, Inc. All Rights Reserved -->
+<!-- $Id: Tutorial.html,v 1.2 2006/01/10 23:51:52 erik Exp $ -->
+<div class="contents topic" id="contents">
+<p class="topic-title"><a name="contents">Contents</a></p>
+<ul class="simple">
+<li><a class="reference" href="#chapter-1-introduction" id="id2" name="id2">Chapter 1: Introduction</a><ul>
+<li><a class="reference" href="#organization" id="id3" name="id3">Organization</a></li>
+<li><a class="reference" href="#building-the-tutorial" id="id4" name="id4">Building the Tutorial</a></li>
+<li><a class="reference" href="#a-peek-at-the-end" id="id5" name="id5">A Peek at the End</a></li>
+</ul>
+</li>
+<li><a class="reference" href="#chapter-2-the-parameter-tree" id="id6" name="id6">Chapter 2: The Parameter Tree</a><ul>
+<li><a class="reference" href="#the-param-structure" id="id7" name="id7">The <tt class="literal"><span class="pre">Param</span></tt> Structure</a></li>
+</ul>
+</li>
+<li><a class="reference" href="#chapter-3-adding-simple-parameters" id="id8" name="id8">Chapter 3: Adding Simple Parameters</a><ul>
+<li><a class="reference" href="#creating-a-data-structure" id="id9" name="id9">Creating a Data Structure</a></li>
+<li><a class="reference" href="#the-parameter-tree" id="id10" name="id10">The Parameter Tree</a></li>
+<li><a class="reference" href="#adding-entries-to-the-parameter-tree" id="id11" name="id11">Adding Entries to the Parameter Tree</a></li>
+<li><a class="reference" href="#creating-an-asp-page" id="id12" name="id12">Creating an ASP Page</a></li>
+<li><a class="reference" href="#building-the-server-and-viewing-the-page" id="id13" name="id13">Building the Server and Viewing the Page</a></li>
+</ul>
+</li>
+<li><a class="reference" href="#chapter-4-making-the-parameters-editable" id="id14" name="id14">Chapter 4: Making the Parameters Editable</a><ul>
+<li><a class="reference" href="#modifying-the-parameter-tree" id="id15" name="id15">Modifying the Parameter Tree</a></li>
+<li><a class="reference" href="#modifying-the-asp-file" id="id16" name="id16">Modifying the ASP File</a></li>
+<li><a class="reference" href="#displaying-errors" id="id17" name="id17">Displaying Errors</a></li>
+</ul>
+</li>
+<li><a class="reference" href="#chapter-5-table-display" id="id18" name="id18">Chapter 5: Table Display</a><ul>
+<li><a class="reference" href="#id1" id="id19" name="id19">Modifying the Parameter Tree</a></li>
+<li><a class="reference" href="#displaying-the-table-of-values" id="id20" name="id20">Displaying the Table of Values</a></li>
+<li><a class="reference" href="#viewing-the-values-page" id="id21" name="id21">Viewing the Values Page</a></li>
+</ul>
+</li>
+<li><a class="reference" href="#chapter-6-user-management" id="id22" name="id22">Chapter 6: User Management</a><ul>
+<li><a class="reference" href="#users-groups-and-access-levels" id="id23" name="id23">Users, Groups, and Access Levels</a></li>
+<li><a class="reference" href="#creating-access-control-groups" id="id24" name="id24">Creating Access Control Groups</a></li>
+<li><a class="reference" href="#creating-an-admin-user" id="id25" name="id25">Creating an <tt class="literal"><span class="pre">admin</span></tt> User</a></li>
+<li><a class="reference" href="#configuring-paths" id="id26" name="id26">Configuring Paths</a></li>
+<li><a class="reference" href="#creating-the-userlist-asp-page" id="id27" name="id27">Creating the <tt class="literal"><span class="pre">UserList.asp</span></tt> Page</a></li>
+<li><a class="reference" href="#creating-the-edituser-asp-page" id="id28" name="id28">Creating the <tt class="literal"><span class="pre">EditUser.asp</span></tt> Page</a></li>
+<li><a class="reference" href="#adding-test-users" id="id29" name="id29">Adding Test Users</a></li>
+</ul>
+</li>
+<li><a class="reference" href="#chapter-7-adding-a-configuration-page" id="id30" name="id30">Chapter 7: Adding a Configuration Page</a><ul>
+<li><a class="reference" href="#create-the-configvalues-asp-page" id="id31" name="id31">Create the <tt class="literal"><span class="pre">ConfigValues.asp</span></tt> Page</a></li>
+<li><a class="reference" href="#set-access-levels-in-the-parameter-tree" id="id32" name="id32">Set Access Levels in the Parameter Tree</a></li>
+</ul>
+</li>
+<li><a class="reference" href="#chapter-8-localization" id="id33" name="id33">Chapter 8: Localization</a><ul>
+<li><a class="reference" href="#remove-literal-text" id="id34" name="id34">Remove Literal Text</a></li>
+<li><a class="reference" href="#create-the-english-language-database" id="id35" name="id35">Create the English Language Database</a></li>
+<li><a class="reference" href="#create-translated-language-databases" id="id36" name="id36">Create Translated Language Databases</a></li>
+<li><a class="reference" href="#create-a-page-to-select-the-language-at-runtime" id="id37" name="id37">Create a Page to Select the Language at Runtime</a></li>
+</ul>
+</li>
+<li><a class="reference" href="#chapter-9-customization" id="id38" name="id38">Chapter 9: Customization</a><ul>
+<li><a class="reference" href="#creating-the-customization-form" id="id39" name="id39">Creating the Customization Form</a></li>
+<li><a class="reference" href="#updating-the-interface" id="id40" name="id40">Updating the Interface</a></li>
+</ul>
+</li>
+<li><a class="reference" href="#chapter-10-error-pages" id="id41" name="id41">Chapter 10: Error Pages</a><ul>
+<li><a class="reference" href="#error-page-names" id="id42" name="id42">Error Page Names</a></li>
+<li><a class="reference" href="#error-variables" id="id43" name="id43">Error Variables</a></li>
+<li><a class="reference" href="#example-error-page" id="id44" name="id44">Example Error Page</a></li>
+<li><a class="reference" href="#testing-the-error-pages" id="id45" name="id45">Testing the Error Pages</a></li>
+</ul>
+</li>
+<li><a class="reference" href="#chapter-11-custom-get-and-set-functions" id="id46" name="id46">Chapter 11: Custom <tt class="literal"><span class="pre">get()</span></tt> and <tt class="literal"><span class="pre">set()</span></tt> Functions</a><ul>
+<li><a class="reference" href="#write-the-function" id="id47" name="id47">Write the Function</a></li>
+<li><a class="reference" href="#modify-the-parameter-tree" id="id48" name="id48">Modify the Parameter Tree</a></li>
+<li><a class="reference" href="#modify-the-asp-file" id="id49" name="id49">Modify the <tt class="literal"><span class="pre">.asp</span></tt> File</a></li>
+</ul>
+</li>
+<li><a class="reference" href="#chapter-12-custom-ejscript-functions" id="id50" name="id50">Chapter 12: Custom ejScript Functions</a><ul>
+<li><a class="reference" href="#writing-the-function" id="id51" name="id51">Writing the Function</a></li>
+<li><a class="reference" href="#registering-the-function-with-the-framework" id="id52" name="id52">Registering the Function With the Framework</a></li>
+<li><a class="reference" href="#testing-the-function" id="id53" name="id53">Testing the Function</a></li>
+</ul>
+</li>
+<li><a class="reference" href="#chapter-13-xml-rpc" id="id54" name="id54">Chapter 13: XML-RPC</a><ul>
+<li><a class="reference" href="#the-dmf-xml-rpc-api" id="id55" name="id55">The DMF XML-RPC API</a></li>
+<li><a class="reference" href="#a-standalone-application" id="id56" name="id56">A Standalone Application</a></li>
+<li><a class="reference" href="#testing-the-application" id="id57" name="id57">Testing the Application</a></li>
+<li><a class="reference" href="#xml-rpc-in-java" id="id58" name="id58">XML-RPC in Java</a></li>
+<li><a class="reference" href="#using-other-languages" id="id59" name="id59">Using Other Languages</a></li>
+</ul>
+</li>
+<li><a class="reference" href="#chapter-14-soap" id="id60" name="id60">Chapter 14: SOAP</a><ul>
+<li><a class="reference" href="#the-dmf-soap-api" id="id61" name="id61">The DMF SOAP API</a></li>
+</ul>
+</li>
+<li><a class="reference" href="#chapter-15-flash-interface" id="id62" name="id62">Chapter 15: Flash Interface</a><ul>
+<li><a class="reference" href="#installing-the-charting-components" id="id63" name="id63">Installing The Charting Components</a></li>
+<li><a class="reference" href="#chart-setup" id="id64" name="id64">Chart Setup</a></li>
+<li><a class="reference" href="#chart-programming-in-actionscript" id="id65" name="id65">Chart Programming in ActionScript</a></li>
+<li><a class="reference" href="#publishing-and-viewing-your-flash-movie" id="id66" name="id66">Publishing and Viewing Your Flash Movie</a></li>
+</ul>
+</li>
+<li><a class="reference" href="#chapter-16-art-logic-user-interface" id="id67" name="id67">Chapter 16: Art &amp; Logic User Interface</a></li>
+<li><a class="reference" href="#copyright-information" id="id68" name="id68">Copyright Information</a></li>
+</ul>
+</div>
+<div class="section" id="chapter-1-introduction">
+<h1><a class="toc-backref" href="#id2" name="chapter-1-introduction">Chapter 1: Introduction</a></h1>
+<!-- Copyright (c) 2002 Art & Logic, Inc. All Rights Reserved. -->
+<!-- $Id: Tutorial.html,v 1.2 2006/01/10 23:51:52 erik Exp $ -->
+<p>This document provides a task-oriented introduction to developing
+an embedded web application with the Art &amp; Logic Device Management
+Framework. It is meant to accompany, not replace, the DMF User Guide
+and other documentation.</p>
+<p>The sample application developed in the tutorial monitors and controls
+an &quot;Imaginary Pseudo-Device&quot;. The DMF is used in a wide variety of
+industries; rather than show an application that might be like a finished
+product in one of those industries but not make sense to developers
+unfamiliar with that industry, we have chosen instead to demonstrate
+the DMF using a completely generic device. The &quot;Imaginary Pseudo-Device&quot;
+has a small set of parameters that may be monitored and controlled using
+the interface developed in the tutorial.</p>
+<p>The tutorial shows how to expose parameters using the parameter tree,
+how to use the ejScript language to build rich interfaces, how to use
+the user management and access control facilities of the DMF, how to
+create localizable and customizable pages, and several other advanced
+tasks. The DMF is designed to support both common and unusual tasks in
+web applications.</p>
+<div class="section" id="organization">
+<h2><a class="toc-backref" href="#id3" name="organization">Organization</a></h2>
+<p>The tutorial is organized into sixteen chapters, each covering a single
+concept that you will need to understand when creating an embedded web
+application with the DMF.  While this document is full of code, you don't
+need to copy/paste or type any of it; all the code is included on disk.</p>
+<p>The <tt class="literal"><span class="pre">Tutorial</span></tt> directory contains separate subdirectories for the C
+code that builds the server itself, and for the <tt class="literal"><span class="pre">.ASP</span></tt> and other files
+that make up the web interface portion of the tutorial. Each of these
+is further subdivided into a directory per chapter, numbered <tt class="literal"><span class="pre">ch01</span></tt>
+through <tt class="literal"><span class="pre">ch16</span></tt>. The web file directories are further subdivided into
+three directories containing files specific to a user access level
+(<tt class="literal"><span class="pre">user</span></tt>, <tt class="literal"><span class="pre">tech</span></tt>, and <tt class="literal"><span class="pre">admin</span></tt>).</p>
+</div>
+<div class="section" id="building-the-tutorial">
+<h2><a class="toc-backref" href="#id4" name="building-the-tutorial">Building the Tutorial</a></h2>
+<p>The tutorial comes with project/makefiles to build it under Windows (using Microsoft 
+Visual C++ 6) and Linux (using gcc).</p>
+<div class="section" id="windows">
+<h3><a name="windows">Windows</a></h3>
+<p>To build the server using Visual C++, open the file
+<tt class="literal"><span class="pre">Tutorial\Server\tutorial.dsw</span></tt> in the IDE. There is a single project
+named <tt class="literal"><span class="pre">Tutorial</span></tt> in the workspace, and each chapter that requires a
+different version of the server is built by selecting the appropriate
+project configuration. For example, when reading chapter 3 of the
+tutorial, select the configuration <tt class="literal"><span class="pre">Win</span> <span class="pre">32</span> <span class="pre">Ch03</span></tt>, and select the menu
+item <tt class="literal"><span class="pre">Build|Rebuild</span> <span class="pre">All</span></tt> to compile and link the DMF.</p>
+<p>Once the server is built, press <tt class="literal"><span class="pre">F5</span></tt> to run the executable. Then,
+you may point your browser to the address <tt class="literal"><span class="pre">http://localhost:8080</span></tt> to
+view the interface for that chapter--each chapter's server automatically
+uses the web files from the appropriate directory.</p>
+</div>
+<div class="section" id="linux-and-other-unix-like-operating-systems">
+<h3><a name="linux-and-other-unix-like-operating-systems">Linux (and other Unix-like Operating Systems)</a></h3>
+<p>To build the tutorial server using Linux, use the provided
+<tt class="literal"><span class="pre">Makefile</span></tt>. This makefile uses a separate build target for each
+chapter in the tutorial. For example, change to the <tt class="literal"><span class="pre">/Tutorial/Server</span></tt>
+directory, and enter the command line:</p>
+<pre class="literal-block">
+make Tutorial CHAP=ch03
+</pre>
+<p>to build the version of the Tutorial server that is discussed in chapter
+3 of the tutorial. Substitute the appropriate chapter number (<tt class="literal"><span class="pre">ch03</span></tt>
+through <tt class="literal"><span class="pre">ch16</span></tt>) to build the corresponding version of the server.</p>
+<p>To execute the server, also in the <tt class="literal"><span class="pre">/Tutorial/Server</span></tt> directory, enter the command 
+line:</p>
+<pre class="literal-block">
+./Tutorial
+</pre>
+<p>and the DMF tutorial server you just built will be ready to serve pages.</p>
+<div class="note">
+<p class="admonition-title">Note</p>
+<p>To avoid encountering odd problems when moving between chapters, we
+recommend performing the following actions when moving to a new chapter:</p>
+<ul class="simple">
+<li>Perform a clean build of the server. On Windows, select the &quot;Rebuild
+All&quot; option from the Visual C++ menu. On other operating systems, issue
+a <tt class="literal"><span class="pre">make</span> <span class="pre">clean</span></tt> command before rebuilding the new chapter's server.</li>
+<li>When first browsing the new chapter's server, make sure that you do
+whatever is required by your browser to force a full refresh to avoid
+any caching anomalies.</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="section" id="a-peek-at-the-end">
+<h2><a class="toc-backref" href="#id5" name="a-peek-at-the-end">A Peek at the End</a></h2>
+<p>The tutorial builds a very rudimentary interface that is meant to
+illustrate the steps required to use each of the DMF's features, not
+to illustrate state-of-the-art web design. The HTML was written with an
+eye toward clarity.</p>
+<p>The last chapter of the tutorial is a version of the interface that's
+been redesigned and 'beautified' by Art &amp; Logic's Embedded Web group. If
+you'd like to see where the tutorial ends up, build and run the version
+of the server for Chapter 16, and view it in your browser by viewing the URL
+<a class="reference" href="http://localhost:8080">http://localhost:8080</a> . When prompted for a username and password, enter
+<tt class="literal"><span class="pre">adminUser</span></tt> as the username, and <tt class="literal"><span class="pre">changeThisPassword</span></tt> as the password.</p>
+</div>
+</div>
+<div class="section" id="chapter-2-the-parameter-tree">
+<h1><a class="toc-backref" href="#id6" name="chapter-2-the-parameter-tree">Chapter 2: The Parameter Tree</a></h1>
+<!-- Copyright (c) 2002 Art & Logic, Inc. All Rights Reserved. -->
+<!-- $Id: Tutorial.html,v 1.2 2006/01/10 23:51:52 erik Exp $ -->
+<p>The core of the DMF is the parameter tree. Whether you are accessing your device 
+with a web browser, or with a standalone application using one of the RPC protocols, 
+every request for parameter values moves through the parameter tree.</p>
+<p>It's useful to think of the DMF's view of your device as having a list of named 
+parameters that can be queried or updated. The current value of each parameter can 
+be retrieved or updated. Each parameter may have a separate access control setting, 
+so that certain users may be allowed to view a value but not change it, while others 
+may have full read/write access, and others may be prohibited from any access to the 
+parameter value at all. Each parameter may have an associated upper and lower limit 
+value that the framework uses to validate any attempt to update the parameter.</p>
+<p>Each entry in the parameter tree also tells the DMF how to request the current value 
+of a parameter and how to update the device with a new parameter value. The 
+parameter tree encourages (but does not require) you to group related parameters 
+together so that parameter values that are going to be displayed together are 
+communicated to and from your device code in a single transaction. Since the DMF is 
+almost always compiled as a process separate from your main device code, some sort 
+of Inter-Process Communication must be used for this communication; IPC is typically 
+fairly slow, and reducing the number of IPC transactions leads to a faster web 
+interface.</p>
+<p>You can also specify how each parameter is formatted for output and parsed on input. 
+The DMF comes with a set of standard formatting and parsing functions that handle 
+all the basic data types, but it's easy to extend those with your own functions (see 
+<a class="reference" href="#chapter-11-custom-get-and-set-functions">Chapter 11: Custom get() and set() Functions</a>).</p>
+<div class="section" id="the-param-structure">
+<h2><a class="toc-backref" href="#id7" name="the-param-structure">The <tt class="literal"><span class="pre">Param</span></tt> Structure</a></h2>
+<p>In the file <tt class="literal"><span class="pre">AlFrame/Param.h</span></tt>, you'll find the structure definition for each entry 
+in the parameter table. You can find full documentation of the structure in that 
+file. The most significant structure members are:</p>
+<dl>
+<dt><tt class="literal"><span class="pre">const</span> <span class="pre">char_t*</span> <span class="pre">const</span> <span class="pre">key;</span></tt></dt>
+<dd>The name of this parameter, as it will be accessed in ejScript or using
+one of the RPC get/set functions. If your parameter tree is hierarchical
+(i.e., <tt class="literal"><span class="pre">section1.section2.parameterName</span></tt>), this key should be the name
+after the rightmost dot (i.e., <tt class="literal"><span class="pre">parameterName</span></tt>).</dd>
+<dt><tt class="literal"><span class="pre">enum</span> <span class="pre">RpcDataType</span> <span class="pre">dataType;</span></tt></dt>
+<dd><p class="first">Enumerated type indicating this parameter's data type. There are also
+'pseudo data types' used to indicate the start or end of a section
+in the tree's hierarchy.</p>
+<p>The datatypes that may be used are:</p>
+<ul class="last simple">
+<li>Integer</li>
+<li>Boolean</li>
+<li>String</li>
+<li>Double (floating point)</li>
+<li>Begin Section</li>
+<li>End Section</li>
+</ul>
+</dd>
+</dl>
+<p><tt class="literal"><span class="pre">int</span>&nbsp;&nbsp; <span class="pre">readAccess;</span></tt></p>
+<dl>
+<dt><tt class="literal"><span class="pre">int</span>&nbsp;&nbsp; <span class="pre">writeAccess;</span></tt></dt>
+<dd>integer code indicating the minimum access level required to read 
+or modify this parameter. If the value is zero, then the parameter 
+may be accessed without limit. If it is '-1', it inherits its 
+access control from its parent.</dd>
+<dt><tt class="literal"><span class="pre">GetFunc</span> <span class="pre">getFunc;</span></tt></dt>
+<dd><p class="first">standard or custom function to convert this parameter to its string 
+representation. If NULL, this parameter is write only.</p>
+<p class="last"><tt class="literal"><span class="pre">SetFunc</span> <span class="pre">setFunc;</span></tt>
+standard or custom function to convert this parameter from string to 
+its real value. If NULL, this parameter is read only.</p>
+</dd>
+<dt><tt class="literal"><span class="pre">QueryFunc</span> <span class="pre">queryFunc;</span></tt></dt>
+<dd>Function to retrieve current data from the device code. If NULL, the
+framework looks upward in the parameter tree for a <tt class="literal"><span class="pre">queryFunc</span></tt> that can
+fulfill the request.</dd>
+<dt><tt class="literal"><span class="pre">CommitFunc</span> <span class="pre">commitFunc;</span></tt></dt>
+<dd>Function to write updated values to the device code. If this is NULL, the
+framework looks upward in the parameter tree for a <tt class="literal"><span class="pre">commitFunc</span></tt> that can
+fulfill the request.</dd>
+<dt><tt class="literal"><span class="pre">void*</span> <span class="pre">dataStart;</span></tt></dt>
+<dd>If not NULL, the location of this parameter in memory.</dd>
+<dt><tt class="literal"><span class="pre">unsigned</span> <span class="pre">int</span> <span class="pre">offset;</span></tt></dt>
+<dd>If != 0, the data is in an array, and this indicates the offset
+between successive instances of this data type.</dd>
+<dt><tt class="literal"><span class="pre">const</span> <span class="pre">int*</span> <span class="pre">startIndex;</span></tt></dt>
+<dd>Points to an integer containing the first valid index number for
+this parameter, or NULL if not indexed.</dd>
+<dt>const int* endIndex;</dt>
+<dd>Points to an integer containing one after the last valid index
+number for this parameter (allowing for  a simple '&lt;' test to validate
+index ranges), or NULL if the parameter is not indexed.</dd>
+</dl>
+<p><tt class="literal"><span class="pre">int</span> <span class="pre">lowerLimit;</span></tt></p>
+<dl>
+<dt><tt class="literal"><span class="pre">int</span> <span class="pre">upperLimit;</span></tt></dt>
+<dd>If lowerLimit &lt; upperLimit, the built-in <tt class="literal"><span class="pre">set()</span></tt> function will
+perform a range check before doing the set operation (where
+possible). On numeric values, used to indicate valid values; on
+string values, indicates valid string lengths. If lowerLimit &gt;=
+upperLimit, no range checking is performed.</dd>
+</dl>
+</div>
+</div>
+<div class="section" id="chapter-3-adding-simple-parameters">
+<h1><a class="toc-backref" href="#id8" name="chapter-3-adding-simple-parameters">Chapter 3: Adding Simple Parameters</a></h1>
+<!-- Copyright (c) 2002 Art & Logic, Inc. All Rights Reserved. -->
+<!-- $Id: Tutorial.html,v 1.2 2006/01/10 23:51:52 erik Exp $ -->
+<p>As a first step in building the tutorial server, we will start by
+creating the first section of our parameter tree and a very simple
+<tt class="literal"><span class="pre">.ASP</span></tt> page that will display some data.</p>
+<div class="section" id="creating-a-data-structure">
+<h2><a class="toc-backref" href="#id9" name="creating-a-data-structure">Creating a Data Structure</a></h2>
+<p>The first thing we need to do is define a data structure that will hold
+the values for this subsection of the parameter tree in memory. In a
+real device, when a user requests the value of one of these parameters,
+the query function associated with this data structure would make an
+IPC call to the device to obtain the current values. Then, the framework
+would fulfill requests for the members of that data structure by looking
+them up in the structure instead of making additional IPC calls.</p>
+<p>When setting new values for these parameters, the framework will update
+the data in- memory data structure, then after all of the parameters
+have been updated, call the associated commit function to write all of
+the new variables to the device code over the IPC link.</p>
+<p>In this simulation, there is no 'real' device, so all our changes are
+made to the in-memory data structure alone.</p>
+<p>The data structure we will create holds some basic information about
+the Pseudo Device:</p>
+<blockquote>
+<ul class="simple">
+<li>its name</li>
+<li>a description of the device</li>
+<li>the number of seconds the device has been running</li>
+</ul>
+</blockquote>
+<pre class="literal-block">
+#define kInfoStringLength 80
+typedef struct SystemInfoTAG
+{
+   char_t   name[kInfoStringLength+1];
+   char_t   description[kInfoStringLength+1];
+   int      uptime;
+} SystemInfo;
+</pre>
+<p>There are also several functions that we need to create to work with this structure.</p>
+<p>In a 'real' project using the DMF, the <tt class="literal"><span class="pre">SystemInfo</span></tt> structure would
+be populated at run time by requesting current data from the device
+code using a custom Query function for the structure. Since we are not
+connected to a real device, we have written an initialization function
+to set the <tt class="literal"><span class="pre">SystemInfo</span></tt> structure to a known- good state.</p>
+<p>First, we declare a global <tt class="literal"><span class="pre">SystemInfo</span></tt> variable, then add the
+initialization function. This initialization function is called by the
+<tt class="literal"><span class="pre">dmfUserPreInit()</span></tt> function that is called by the DMF as part of its
+startup code. The <tt class="literal"><span class="pre">InitSystemInfo()</span></tt> function copies default strings
+into the <tt class="literal"><span class="pre">name</span></tt> and <tt class="literal"><span class="pre">description</span></tt> fields and sets the <tt class="literal"><span class="pre">uptime</span></tt> field
+to zero, after storing the current time in the file-scope <tt class="literal"><span class="pre">sStartTime</span></tt>
+variable.</p>
+<pre class="literal-block">
+/*
+ * CH03: Adding system.info.* parameters...
+ */
+
+SystemInfo gSystemInfo;
+
+#define kDefaultName T(&quot;DMF Tutorial&quot;)
+#define kDefaultDescription T(&quot;Imaginary Pseudo Device&quot;)
+
+static int sStartTime = 0;
+
+static void InitSystemInfo(void)
+{
+   if (0 == sStartTime)
+   {
+      sStartTime = time(NULL);
+   }
+   gstrcpy(gSystemInfo.name, kDefaultName);
+   gstrcpy(gSystemInfo.description, kDefaultDescription);
+   gSystemInfo.uptime = 0;
+}
+</pre>
+<p>Then, we create a custom DMF Query function that is called when the DMF
+needs to request current data from the device. Since we have no real
+device, all that is done in this simulated Query function is that the
+<tt class="literal"><span class="pre">uptime</span></tt> field of the <tt class="literal"><span class="pre">gSystemInfo</span></tt> structure is updated:</p>
+<pre class="literal-block">
+extern int SystemInfoQuery(Param* param, int request)
+{
+   /*
+    * CH03: In a real implementation, the Query function would retrieve
+    * current data from the device using some sort of inter-process
+    * communication. Since we're just simulating here, we leave the 'name' and
+    * 'description' fields alone, and update the 'uptime' field.
+    */
+   gSystemInfo.uptime = time(NULL) - sStartTime;
+
+   return kDmfSuccess;
+}
+</pre>
+</div>
+<div class="section" id="the-parameter-tree">
+<h2><a class="toc-backref" href="#id10" name="the-parameter-tree">The Parameter Tree</a></h2>
+<p>The parameter tree is represented in source as a one-dimensional array
+of <tt class="literal"><span class="pre">Param</span></tt> structures. At initialization time, the DMF converts this
+array into a tree structure.</p>
+<p>We'll expose the three values stored in the SystemInfo structure as</p>
+<ul class="simple">
+<li><tt class="literal"><span class="pre">system.info.name</span></tt></li>
+<li><tt class="literal"><span class="pre">system.info.description</span></tt></li>
+<li><tt class="literal"><span class="pre">system.info.uptime</span></tt></li>
+</ul>
+<p>To create the entries in the parameter tree, we need to add instances
+of <tt class="literal"><span class="pre">Param</span></tt> structures to represent both the nodes and leaves in the
+parameter tree.</p>
+<p>The structure that we want to create looks like:</p>
+<pre class="literal-block">
+system
+   info
+      name
+      description
+      uptime
+</pre>
+<p>At this point, the advantage of arranging our parameters into a hierarchy
+may not be apparent--why not just create three parameters named <tt class="literal"><span class="pre">name</span></tt>,
+<tt class="literal"><span class="pre">description</span></tt>, and <tt class="literal"><span class="pre">uptime</span></tt>? There are at least three benefits to
+designing our system this way:</p>
+<p>1. <strong>Organization</strong> We can logically group sets of parameters together
+at an appropriate level of abstraction. We also avoid issues of name
+clashes--if some other part of the system also requires a parameter
+named <tt class="literal"><span class="pre">description</span></tt>, we can disambiguate it by placing it inside of a
+<tt class="literal"><span class="pre">system.someOtherBranch</span></tt> section of the tree.</p>
+<p>2. <strong>Efficiency</strong> The DMF is designed so that communication between
+the server and your device can easily be minimized. By designing your
+parameter tree and the associated data structures that cache your
+device's parameter values to align with the API exposed by your device,
+you can ensure that the DMF will make as few calls as possible into your
+device's process.</p>
+<p>3. <strong>RPC</strong> Parameters grouped together in the parameter tree may be
+retrieved as a single structure when accessing the DMF server using
+either of the RPC protocols that it supports (XML-RPC and SOAP).</p>
+</div>
+<div class="section" id="adding-entries-to-the-parameter-tree">
+<h2><a class="toc-backref" href="#id11" name="adding-entries-to-the-parameter-tree">Adding Entries to the Parameter Tree</a></h2>
+<p>The parameter tree is contained in the file <tt class="literal"><span class="pre">Param.c</span></tt>. Near the top
+of this file is a boilerplate copy of the <tt class="literal"><span class="pre">Param</span></tt> structure that you
+can copy and paste when designing your own parameter trees. The copy of
+<tt class="literal"><span class="pre">Param.c</span></tt> that's located in the <tt class="literal"><span class="pre">Tutorial/Server/ch03</span></tt> directory
+already contains all of the code needed for this chapter.</p>
+<pre class="literal-block">
+/*
+ * each entry in the parameter table needs to have the following fields:
+ */
+
+#if 0
+   {
+      T(&quot;&quot;),               /* key */
+      kNoType,             /* dataType */
+      -1,                  /* read access level */
+      -1,                  /* write access level */
+      NULL,                /* getFunc */
+      NULL,                /* setFunc */
+      NULL,                /* queryFunc */
+      0,                   /* lastQuery */
+      NULL,                /* commitFunc */
+      0,                   /* last commit */
+      NULL,                /* dataStart */
+      0,                   /* offset */
+      NULL,                /* startIndex */
+      NULL,                /* endIndex */
+      0,                   /* lowerLimit */
+      0,                   /* upperLimit */
+      -1,                  /* parent -- keep this -1 */
+   },
+#endif
+</pre>
+<p>The <tt class="literal"><span class="pre">Param.c</span></tt> file that is in the <tt class="literal"><span class="pre">Tutorial/Server/ch03/</span></tt> directory
+already has the entries for the three parameters that we will add in
+this chapter. We will add seven table entries; four to define the tree
+structure and three to contain information about the actual parameters.</p>
+<p>In the source, note that fields in the structure that have been changed
+from their defaults are called out by including <tt class="literal"><span class="pre">!!!</span></tt> in the comments,
+like:</p>
+<pre class="literal-block">
+/* 
+ * CH03: add system.info parameters.
+ */
+{
+   T(&quot;system&quot;),         /* !!! key */
+   kBeginSection,       /* !!! dataType */
+</pre>
+<div class="section" id="create-the-system-tree-node">
+<h3><a name="create-the-system-tree-node">Create the <tt class="literal"><span class="pre">system</span></tt> tree node</a></h3>
+<pre class="literal-block">
+{
+   T(&quot;system&quot;),         /* !!! key */
+   kBeginSection,       /* !!! dataType */
+</pre>
+<p>This is the beginning of a section named <tt class="literal"><span class="pre">system</span></tt>.</p>
+<pre class="literal-block">
+0,                   /* !!! read access level */``
+0,                   /* !!! write access level */``
+</pre>
+<p>The value of the Read and Write access level fields will be inherited by
+children of this node, unless they are explicitly set to use a different
+access level. Access level zero means that any user of the system may
+read or write a parameter.</p>
+<pre class="literal-block">
+   NULL,                /* getFunc */
+   NULL,                /* setFunc */
+   NULL,                /* queryFunc */
+   0,                   /* last query */
+   NULL,                /* commitFunc */
+   0,                   /* last commit */
+   NULL,                /* dataStart */
+   0,                   /* offset */
+   NULL,                /* startIndex */
+   NULL,                /* endIndex */
+   0,                   /* lowerLimit */
+   0,                   /* upperLimit */
+   -1,                  /* parent -- keep this -1 */
+},
+</pre>
+<p>All the other members of this <tt class="literal"><span class="pre">Param</span></tt> structure retain their default values.</p>
+</div>
+<div class="section" id="create-the-info-tree-node">
+<h3><a name="create-the-info-tree-node">Create the <tt class="literal"><span class="pre">info</span></tt> tree node</a></h3>
+<pre class="literal-block">
+{
+   T(&quot;info&quot;),           /* !!! key */
+   kBeginSection,       /* !!! dataType */
+</pre>
+<p>This is the beginning of a new section called <tt class="literal"><span class="pre">info</span></tt>, that is a child
+of the <tt class="literal"><span class="pre">system</span></tt> branch of the parameter tree. Parameters contained in
+this section are all accessed using names that begin <tt class="literal"><span class="pre">system.info</span></tt>.</p>
+<pre class="literal-block">
+-1,                  /* read access level */
+-1,                  /* write access level */
+</pre>
+<p>We keep the default read and write access levels of <tt class="literal"><span class="pre">-1</span></tt>.  When the framework 
+finds a -1 read or write access level for a parameter at runtime, it will look 
+upwards in the parameter tree and use the first valid access level setting that it 
+finds. In this case, the parent node <tt class="literal"><span class="pre">system</span></tt> has valid access levels of zero for 
+both read and write permissions.</p>
+<pre class="literal-block">
+NULL,                /* getFunc */
+NULL,                /* setFunc */
+SystemInfoQuery,     /* !!! queryFunc */
+</pre>
+<p>The <tt class="literal"><span class="pre">SystemInfoQuery</span></tt> function will be called by the DMF whenever a user
+requests current data for this node in the parameter tree. If the children of
+this node do not define their own query functions, they will use the query
+function defined in their parent node, or if no query function is found there,
+continue looking upward in the tree until one is found, or the search ends at
+the root of the tree without finding a query function. The query function will
+only be called one time per web page request, so placing the query function at
+a node point corresponding to a structure that may be retrieved from the
+device in a single call allows you to reduce the frequency of IPC calls into
+your device code from the DMF.</p>
+<pre class="literal-block">
+   0,                   /* lastQuery */
+   NULL,                /* commitFunc */
+   0,                   /* last commit */
+   NULL,                /* dataStart */
+   0,                   /* offset */
+   NULL,                /* startIndex */
+   NULL,                /* endIndex */
+   0,                   /* lowerLimit */
+   0,                   /* upperLimit */
+   -1,                  /* parent -- keep this -1 */
+},
+</pre>
+</div>
+<div class="section" id="create-the-name-parameter">
+<h3><a name="create-the-name-parameter">Create the <tt class="literal"><span class="pre">name</span></tt> parameter</a></h3>
+<pre class="literal-block">
+{
+   T(&quot;name&quot;),           /* !!! key */
+   kString,             /* !!! dataType */
+   -1,                  /* read access level */
+   -1,                  /* write access level */
+   dmfGetString,        /* !!! getFunc */
+   dmfSetStringFixed,   /* !!! setFunc */
+   NULL,                /* queryFunc */
+   0,                   /* lastQuery */
+   NULL,                /* commitFunc */
+   0,                   /* last commit */
+   &amp;(gSystemInfo.name), /* !!! dataStart */
+   0,                   /* offset */
+   NULL,                /* startIndex */
+   NULL,                /* endIndex */
+   0,                   /* lowerLimit */
+   kInfoStringLength,   /* !!! upperLimit */
+   -1,                  /* parent -- keep this -1 */
+},
+</pre>
+</div>
+<div class="section" id="create-the-description-parameter">
+<h3><a name="create-the-description-parameter">Create the <tt class="literal"><span class="pre">description</span></tt> parameter</a></h3>
+<pre class="literal-block">
+{
+   T(&quot;description&quot;),    /* !!! key */
+   kString,             /* !!! dataType */
+   -1,                  /* read access level */
+   -1,                  /* write access level */
+   dmfGetString,        /* !!! getFunc */
+   dmfSetStringFixed,   /* !!! setFunc */
+   NULL,                /* queryFunc */
+   0,                   /* lastQuery */
+   NULL,                /* commitFunc */
+   0,                   /* last commit */
+   &amp;(gSystemInfo.name), /* !!! dataStart */
+   0,                   /* offset */
+   NULL,                /* startIndex */
+   NULL,                /* endIndex */
+   0,                   /* lowerLimit */
+   kInfoStringLength,   /* !!! upperLimit */
+   -1,                  /* parent -- keep this -1 */
+},
+</pre>
+</div>
+<div class="section" id="create-the-uptime-parameter">
+<h3><a name="create-the-uptime-parameter">Create the <tt class="literal"><span class="pre">uptime</span></tt> parameter</a></h3>
+<pre class="literal-block">
+{
+   T(&quot;uptime&quot;),         /* !!! key */
+   kInteger,            /* !!! dataType */
+   -1,                  /* read access level */
+   -1,                  /* write access level */
+   dmfGetInt32,         /* !!! getFunc */
+   NULL,                /* setFunc */
+   NULL,                /* queryFunc */
+   0,                   /* lastQuery */
+   NULL,                /* commitFunc */
+   0,                   /* last commit */
+   &amp;(gSystemInfo.uptime),  /* !!! dataStart */
+   0,                   /* offset */
+   NULL,                /* startIndex */
+   NULL,                /* endIndex */
+   0,                   /* lowerLimit */
+   0,                   /* upperLimit */
+   -1,                  /* parent -- keep this -1 */
+},
+</pre>
+</div>
+<div class="section" id="close-the-info-node">
+<h3><a name="close-the-info-node">Close the <tt class="literal"><span class="pre">info</span></tt> node</a></h3>
+<pre class="literal-block">
+{
+   T(&quot;info&quot;),           /* !!! key */
+   kEndSection,         /* !!! dataType */
+   -1,                  /* read access level */
+   -1,                  /* write access level */
+   NULL,                /* getFunc */
+   NULL,                /* setFunc */
+   NULL,                /* queryFunc */
+   0,                   /* lastQuery */
+   NULL,                /* commitFunc */
+   0,                   /* last commit */
+   NULL,                /* dataStart */
+   0,                   /* offset */
+   NULL,                /* startIndex */
+   NULL,                /* endIndex */
+   0,                   /* lowerLimit */
+   0,                   /* upperLimit */
+   -1,                  /* parent -- keep this -1 */
+},
+</pre>
+</div>
+<div class="section" id="close-the-system-node">
+<h3><a name="close-the-system-node">Close the <tt class="literal"><span class="pre">system</span></tt> node</a></h3>
+<pre class="literal-block">
+{
+   T(&quot;system&quot;),         /* !!! key */
+   kEndSection,         /* !!! dataType */
+   -1,                  /* read access level */
+   -1,                  /* write access level */
+   NULL,                /* getFunc */
+   NULL,                /* setFunc */
+   NULL,                /* queryFunc */
+   0,                   /* lastQuery */
+   NULL,                /* commitFunc */
+   0,                   /* last commit */
+   NULL,                /* dataStart */
+   0,                   /* offset */
+   NULL,                /* startIndex */
+   NULL,                /* endIndex */
+   0,                   /* lowerLimit */
+   0,                   /* upperLimit */
+   -1,                  /* parent -- keep this -1 */
+}
+</pre>
+</div>
+</div>
+<div class="section" id="creating-an-asp-page">
+<h2><a class="toc-backref" href="#id12" name="creating-an-asp-page">Creating an ASP Page</a></h2>
+<p>The following simple <tt class="literal"><span class="pre">.ASP</span></tt> page</p>
+<pre class="literal-block">
+&lt;html&gt;
+&lt;head&gt;
+&lt;%language=javascript%&gt;
+&lt;title&gt;DMF Tutorial - System Information&lt;/title&gt;
+&lt;/head&gt;
+
+&lt;h1&gt;System Information&lt;/h1&gt;
+System Name:   &lt;%get(&quot;system.info.name&quot;);%&gt;&lt;br /&gt;
+Description:   &lt;%get(&quot;system.info.description&quot;);%&gt;&lt;br /&gt;
+Uptime:        &lt;%get(&quot;system.info.uptime&quot;);%&gt; seconds&lt;br /&gt;
+
+&lt;/html&gt;
+</pre>
+<p>displays the current value of the <tt class="literal"><span class="pre">name</span></tt>, <tt class="literal"><span class="pre">description</span></tt>, and <tt class="literal"><span class="pre">uptime</span></tt> 
+parameters, passing their fully qualified names to the DMF <tt class="literal"><span class="pre">get()</span></tt> function. 
+Calling <tt class="literal"><span class="pre">get()</span></tt> from code tells the DMF to write the value of the requested 
+parameter directly into the user's browser. Occasionally, it's more useful to 
+retrieve the value of a parameter into a variable in the ejScript code; in those 
+cases, the DMF's <tt class="literal"><span class="pre">getVal()</span></tt> function is used.</p>
+</div>
+<div class="section" id="building-the-server-and-viewing-the-page">
+<h2><a class="toc-backref" href="#id13" name="building-the-server-and-viewing-the-page">Building the Server and Viewing the Page</a></h2>
+<p>Follow the instructions in <span class="interpreted">Chapter 1: Introduction</span> to select and build the 
+<tt class="literal"><span class="pre">CH03</span></tt> version of the DMF Tutorial server, and run it. Point your browser to  
+<a class="reference" href="http://localhost:8080/user/SystemInfo.asp">http://localhost:8080/user/SystemInfo.asp</a> to view the page with the current values 
+displayed. If you force your browser to reload the page, note that the value of the 
+<tt class="literal"><span class="pre">uptime</span></tt> parameter changes.</p>
+</div>
+</div>
+<div class="section" id="chapter-4-making-the-parameters-editable">
+<h1><a class="toc-backref" href="#id14" name="chapter-4-making-the-parameters-editable">Chapter 4: Making the Parameters Editable</a></h1>
+<!-- Copyright (c) 2002 Art & Logic, Inc. All Rights Reserved. -->
+<!-- $Id: Tutorial.html,v 1.2 2006/01/10 23:51:52 erik Exp $ -->
+<p>Viewing parameters is necessary, but not sufficient, for a useful web-based device 
+management system. Obviously, users must be able to change the value of parameters 
+on the device. In this chapter, we still haven't added any user access control to 
+the device, so any user connecting to the server will be able to change parameter 
+values.</p>
+<div class="section" id="modifying-the-parameter-tree">
+<h2><a class="toc-backref" href="#id15" name="modifying-the-parameter-tree">Modifying the Parameter Tree</a></h2>
+<p>The first step is to make two of the existing parameters writable by modifying their 
+entries in the parameter tree. Both <tt class="literal"><span class="pre">system.info.name</span></tt> and 
+<tt class="literal"><span class="pre">system.info.description</span></tt> are parameters that a user might want to change.</p>
+<p>As before, the source for this chapter's version of the device is located in 
+<tt class="literal"><span class="pre">Server/ch04</span></tt> and <tt class="literal"><span class="pre">Web/ch04</span></tt>, and in the code samples any code that has been 
+added for this chapter is identified by including three exclamation points <tt class="literal"><span class="pre">!!!</span></tt> 
+in nearby comments.</p>
+<p>In <tt class="literal"><span class="pre">Param.c</span></tt>, we make edits as follows:</p>
+<pre class="literal-block">
+{
+   T(&quot;name&quot;),           /*  key */
+   kString,             /*  dataType */
+   -1,                  /* read access level */
+   -1,                  /* write access level */
+   dmfGetString,        /*  getFunc */
+   dmfSetStringFixed,   /* !!! setFunc */
+</pre>
+<p>When an attempt is made to update the value of this parameter, the DMF will call the 
+function <tt class="literal"><span class="pre">dmfSetStringFixed()</span></tt> which will validate the input and store any valid 
+input into our cached local copy of the parameter.</p>
+<pre class="literal-block">
+NULL,                /* queryFunc */
+0,                   /* lastQuery */
+NULL,                /* commitFunc */
+0,                   /* last commit */
+&amp;(gSystemInfo.name), /*  dataStart */
+0,                   /* offset */
+NULL,                /* startIndex */
+NULL,                /* endIndex */
+0,                   /* lowerLimit */
+kInfoStringLength,   /* !!! upperLimit */
+</pre>
+<p>The <tt class="literal"><span class="pre">upperLimit</span></tt> for the parameter is set to the compile-time constant value 
+<tt class="literal"><span class="pre">kInfoStringLength</span></tt>. The <tt class="literal"><span class="pre">dmfSetStringFixed()</span></tt> function will use this setting to 
+make sure that the new value for this parameter is not outside its acceptable range. 
+If the new string value is too long, the DMF will report a data range error to the 
+user.</p>
+<pre class="literal-block">
+   -1,                  /* parent -- keep this -1 */
+},
+</pre>
+<p>We then make the same two edits to the entry for the <tt class="literal"><span class="pre">system.info.description</span></tt> 
+parameter:</p>
+<pre class="literal-block">
+{
+   T(&quot;description&quot;),    /*  key */
+   kString,             /*  dataType */
+   -1,                  /* read access level */
+   -1,                  /* write access level */
+   dmfGetString,        /*  getFunc */
+   dmfSetStringFixed,   /* !!! setFunc */
+   NULL,                /* queryFunc */
+   0,                   /* lastQuery */
+   NULL,                /* commitFunc */
+   0,                   /* last commit */
+   &amp;(gSystemInfo.description), /*  dataStart */
+   0,                   /* offset */
+   NULL,                /* startIndex */
+   NULL,                /* endIndex */
+   0,                   /* lowerLimit */
+   kInfoStringLength,   /* !!! upperLimit */
+   -1,                  /* parent -- keep this -1 */
+},
+</pre>
+<p>We also make a change to the <tt class="literal"><span class="pre">system.info</span></tt> node:</p>
+<pre class="literal-block">
+{
+   T(&quot;info&quot;),           /*  key */
+   kBeginSection,       /*  dataType */
+   -1,                  /* read access level */
+   -1,                  /* write access level */
+   NULL,                /* getFunc */
+   NULL,                /* setFunc */
+   SystemInfoQuery,     /*  queryFunc */
+   0,                   /* lastQuery */
+   SystemInfoCommit,    /* !!! commitFunc */
+</pre>
+<p>When a user changes the value of either the <tt class="literal"><span class="pre">system.info.name</span></tt> or 
+<tt class="literal"><span class="pre">system.info.description</span></tt> parameters, after validating and storing the updated 
+value, the DMF will use the function pointed to by the <tt class="literal"><span class="pre">commitFunc</span></tt> field in their 
+parameter tree entries. If there is no <tt class="literal"><span class="pre">commitFunc</span></tt> in a parameter's entry, the 
+DMF will look upward in the parameter tree until it finds a node that does have a 
+suitable <tt class="literal"><span class="pre">commitFunc</span></tt>.   By sharing a <tt class="literal"><span class="pre">commmitFunc</span></tt> between the name and 
+description parameters, a 'real' system would send the updated value for both 
+parameters to the device  together, using only one IPC call to do it.</p>
+<pre class="literal-block">
+   0,                   /* last commit */
+   NULL,                /* dataStart */
+   0,                   /* offset */
+   NULL,                /* startIndex */
+   NULL,                /* endIndex */
+   0,                   /* lowerLimit */
+   0,                   /* upperLimit */
+   -1,                  /* parent -- keep this -1 */
+},
+</pre>
+</div>
+<div class="section" id="modifying-the-asp-file">
+<h2><a class="toc-backref" href="#id16" name="modifying-the-asp-file">Modifying the ASP File</a></h2>
+<p>The next step in making the name and description parameters editable is to change 
+the <tt class="literal"><span class="pre">user/SystemInfo.asp</span></tt> file to contain an HTML form. As in all forms written to 
+work with the DMF, the action for the form must be <tt class="literal"><span class="pre">/goform/Dmf</span></tt>, which tells the 
+server to route the form data to the DMF's universal form handler.</p>
+<pre class="literal-block">
+&lt;form method=&quot;POST&quot; action=&quot;/goform/Dmf&quot;&gt;
+</pre>
+<p>Then, we change the formerly read-only display of the name and description 
+parameters into text input fields, as follows. The name of the input must match the 
+name of the parameter, and we use the DMF's <tt class="literal"><span class="pre">get()</span></tt> function to populate the input 
+control with the current value of each parameter.</p>
+<pre class="literal-block">
+System Name:   &lt;input size=&quot;40&quot; name = &quot;system.info.name&quot;
+ value=&quot;&lt;%get(&quot;system.info.name&quot;);%&gt;&quot;&gt;&lt;br /&gt;
+
+Description:   &lt;input size=&quot;40&quot; name=&quot;system.info.description&quot;
+ value=&quot;&lt;%get(&quot;system.info.description&quot;);%&gt;&quot;&gt;&lt;br /&gt;
+</pre>
+<p>The <tt class="literal"><span class="pre">uptime</span></tt> parameter is not editable, so it's left as a read-only display.</p>
+<pre class="literal-block">
+Uptime:        &lt;%get(&quot;system.info.uptime&quot;);%&gt; seconds&lt;br /&gt;
+</pre>
+<p>Several hidden controls are used to control how the DMF responds to this form 
+submission:</p>
+<p>If the form is submitted without encountering any errors, the server will redirect 
+the user's browser to the URL specified by the <tt class="literal"><span class="pre">urlOk</span></tt> hidden control:</p>
+<pre class="literal-block">
+&lt;input type=&quot;hidden&quot; name=&quot;urlOk&quot; value=&quot;/user/SystemInfo.asp&quot;&gt;
+</pre>
+<p>If there are errors in this form submission, the user's browser will be sent to 
+<tt class="literal"><span class="pre">urlError</span></tt>, where the list of errors should be displayed:</p>
+<pre class="literal-block">
+&lt;input type=&quot;hidden&quot; name=&quot;urlError&quot; value=&quot;/user/SystemInfo.asp&quot;&gt;
+</pre>
+<p>The <tt class="literal"><span class="pre">request</span></tt> hidden control is how the DMF detects and responds to a situation 
+known as a 'user collision' -- two users request and submit the same form at more or 
+less the same time. When the DMF determines that a form has been submitted by 
+another user since you requested the form, it discards your input and redirects your 
+browser to the <tt class="literal"><span class="pre">urlError</span></tt> address. You can test this by viewing the 
+<tt class="literal"><span class="pre">SystemInfo.asp</span></tt> page from two browsers at the same time and experimenting with 
+the order in which you request, and then submit the form from each browser:</p>
+<pre class="literal-block">
+&lt;input type=&quot;hidden&quot; name=&quot;request&quot; value=&lt;%write(getRequestNumber());%&gt;&gt;
+</pre>
+<p>Finally, the form includes a button that submits the form when it's pressed:</p>
+<pre class="literal-block">
+&lt;input type=&quot;submit&quot; name=&quot;Submit&quot; value=&quot;Ok&quot;&gt;
+&lt;/form&gt;
+</pre>
+</div>
+<div class="section" id="displaying-errors">
+<h2><a class="toc-backref" href="#id17" name="displaying-errors">Displaying Errors</a></h2>
+<p>At the top of the <tt class="literal"><span class="pre">SystemInfo.asp</span></tt> file, we include the following block of 
+ejScript to display any errors that may have been detected when this form was last 
+submitted:</p>
+<pre class="literal-block">
+&lt;%
+count = getErrorCount();
+if (count &gt; 0)
+{
+   write(&quot;&lt;h2&gt;&quot;);
+   write('&lt;font color=&quot;red&quot;&gt;Errors&lt;/font&gt;');
+   write(&quot;&lt;/h2&gt;\n&quot;);
+   write(&quot;&lt;p&gt;&quot;);
+   write(&quot;Please correct the following error(s) and resubmit the form.&quot;);
+   write(&quot;&lt;/p&gt;\n&quot;);
+   for (i = 0; i &lt; count; i++)
+   {
+      if (count &gt; 1)
+      {
+         write((i + 1) + &quot;: &quot;);
+      }
+      write(getErrorMessage(i) + &quot;&lt;br /&gt;\n&quot;);
+   }
+}
+%&gt;
+</pre>
+<p>As you can see, the code checks with the DMF to see if there are any outstanding 
+errors. If there are, it loops through them and displays them all in the user's 
+browser.</p>
+<p>Also, this file demonstrates a common practice for DMF development -- any page with 
+a form on it includes code to display any errors and includes itself as its own 
+<tt class="literal"><span class="pre">urlError</span></tt>. This gives the user a chance to immediately correct their errors and 
+resubmit the form with correct data.</p>
+</div>
+</div>
+<div class="section" id="chapter-5-table-display">
+<h1><a class="toc-backref" href="#id18" name="chapter-5-table-display">Chapter 5: Table Display</a></h1>
+<!-- Copyright (c) 2002 Art & Logic, Inc. All Rights Reserved. -->
+<!-- $Id: Tutorial.html,v 1.2 2006/01/10 23:51:52 erik Exp $ -->
+<p>The DMF includes facilities to display and edit tables of related data easily. In 
+this chapter, we will add a new subsection of the parameter tree containing a table 
+of data values and associated information.</p>
+<div class="section" id="id1">
+<h2><a class="toc-backref" href="#id19" name="id1">Modifying the Parameter Tree</a></h2>
+<p>As in Chapter 3, the first step is to create a C data structure that will hold the 
+parameters we'll be dealing with in this chapter:</p>
+<pre class="literal-block">
+#define kMaxValueIndex  16
+#define kMaxValueLabelLength  32
+typedef char_t ValueLabel[kMaxValueLabelLength+1];
+typedef struct ValuesTAG
+{
+   /* We keep a variable that tells how many values there are in the value
+    * arrays that follow.
+    */
+   int endIndex;
+   int value[kMaxValueIndex];
+   int upperAlarm[kMaxValueIndex];
+   int lowerAlarm[kMaxValueIndex];
+   ValueLabel  label[kMaxValueIndex];
+} Values;
+</pre>
+<p>In the file <tt class="literal"><span class="pre">Turorial/Server/ch05/UserFunc.c</span></tt>, a global Values variable named 
+<tt class="literal"><span class="pre">gValues</span></tt> is declared, and this is used as the local cache for all of the 
+parameters we are about to add.</p>
+<p>A simple Query function is added to generate new data values whenever a user makes a 
+request for any of the data values. This function performs a random walk around the 
+random values generated in the simulator's initialization code:</p>
+<pre class="literal-block">
+extern int ValuesQuery(Param* param, int request)
+{
+   /*
+    * CH05: In a real implementation, the Query function would retrieve
+    * current data from the device using some sort of inter-process
+    * communication.  Here, we create fresh random data for each of the
+    * 'value' points in the structure.
+    */
+   int i = 0;
+   for (i = 0; i &lt; kMaxValueIndex; ++i)
+   {
+      gValues.value[i] = RandomWalker(gValues.value[i]);
+   }
+
+   return kDmfSuccess;
+}
+</pre>
+<p>In the file <tt class="literal"><span class="pre">Tutorial/Server/ch05/Param.c</span></tt>, you'll see the parameter tree entries 
+for the new parts of the tree immediately after the <tt class="literal"><span class="pre">info</span></tt> section is closed:</p>
+<pre class="literal-block">
+/* !!! CH05: Adding the 'values' subtree... */
+{
+   T(&quot;values&quot;),         /* !!! key */
+   kBeginSection,       /* !!! dataType */
+   -1,                  /* read access level */
+   -1,                  /* write access level */
+   NULL,                /* getFunc */
+   NULL,                /* setFunc */
+   ValuesQuery,         /* !!! queryFunc */
+   0,                   /* lastQuery */
+   ValuesCommit,        /* !!! commitFunc */
+   0,                   /* last commit */
+   NULL,                /* dataStart */
+   0,                   /* offset */
+   NULL,                /* startIndex */
+   NULL,                /* endIndex */
+   0,                   /* lowerLimit */
+   0,                   /* upperLimit */
+   -1,                  /* parent -- keep this -1 */
+},
+</pre>
+<p>Looking at each field with <tt class="literal"><span class="pre">!!!</span></tt> marks in the comments, we see that we are adding 
+a new section (<tt class="literal"><span class="pre">kBeginSection</span></tt>) named <tt class="literal"><span class="pre">values</span></tt>, and at the node level we are 
+naming both a commit and query function to handle all of the parameters beneath this 
+node. As before, the commit function for this simulator is a simple placeholder.</p>
+<p>Beneath this node, we add the parameters <tt class="literal"><span class="pre">system.values.value</span></tt>, 
+<tt class="literal"><span class="pre">system.values.lowerAlarm</span></tt>, <tt class="literal"><span class="pre">system.values.upperAlarm</span></tt>, and 
+<tt class="literal"><span class="pre">system.values.label</span></tt>.</p>
+<p><tt class="literal"><span class="pre">system.values.value</span></tt> is an array of read-only integer data values:</p>
+<pre class="literal-block">
+{
+   T(&quot;value&quot;),          /* !!! key */
+   kInteger,            /* !!! dataType */
+   -1,                  /* read access level */
+   -1,                  /* write access level */
+   dmfGetInt32,         /* !!! getFunc */
+   NULL,                /* setFunc */
+   NULL,                /* queryFunc */
+   0,                   /* lastQuery */
+   NULL,                /* commitFunc */
+   0,                   /* last commit */
+   &amp;(gValues.value),    /* !!! dataStart */
+   sizeof(int),         /* !!! offset */
+   &amp;kZeroIndex,         /* !!! startIndex */
+   &amp;(gValues.endIndex), /* !!! endIndex */
+   0,                   /* lowerLimit */
+   0,                   /* upperLimit */
+   -1,                  /* parent -- keep this -1 */
+},
+</pre>
+<p>It uses the standard <tt class="literal"><span class="pre">dmfGetInt32()</span></tt> function to convert its value to a string for 
+display. The DMF will use the memory address <tt class="literal"><span class="pre">&amp;gValues.value</span></tt> as the starting 
+location for the array (the <tt class="literal"><span class="pre">dataStart</span></tt> field), and will use the offset setting of 
+<tt class="literal"><span class="pre">sizeof(int)</span></tt> to determine where each entry in the array begins, using the 
+calculation <tt class="literal"><span class="pre">dataStart</span> <span class="pre">+</span> <span class="pre">(index</span> <span class="pre">*</span> <span class="pre">offset)</span></tt>. The DMF will use the values pointed to 
+by the <tt class="literal"><span class="pre">startIndex</span></tt> and <tt class="literal"><span class="pre">endIndex</span></tt> fields to ensure that valid indexes are 
+requested.</p>
+<p><tt class="literal"><span class="pre">system.values.lowerAlarm</span></tt> and <tt class="literal"><span class="pre">system.values.upperAlarm</span></tt> are arrays of  
+read/write integer values that use the built-in function <tt class="literal"><span class="pre">dmfSetInt32()</span></tt> to 
+convert text input values into the format used internally. The indexing is 
+configured the same as for the <tt class="literal"><span class="pre">system.values.value</span></tt> parameter. These parameters 
+also make use of the <tt class="literal"><span class="pre">lowerLimit</span></tt> and <tt class="literal"><span class="pre">upperLimit</span></tt> fields of the <tt class="literal"><span class="pre">Param</span></tt> 
+structure; at runtime, the DMF will only allow users to set the value of these 
+parameters between these limits:</p>
+<pre class="literal-block">
+{
+   T(&quot;lowerAlarm&quot;),     /* !!! key */
+   kInteger,            /* !!! dataType */
+   -1,                  /* read access level */
+   -1,                  /* write access level */
+   dmfGetInt32,         /* !!! getFunc */
+   dmfSetInt32,         /* !!! setFunc */
+   NULL,                /* queryFunc */
+   0,                   /* lastQuery */
+   NULL,                /* commitFunc */
+   0,                   /* last commit */
+   &amp;(gValues.lowerAlarm), /* !!! dataStart */
+   sizeof(int),         /* !!! offset */
+   &amp;kZeroIndex,         /* !!! startIndex */
+   &amp;(gValues.endIndex), /* !!! endIndex */
+   -1000,               /* !!! lowerLimit */
+   1000,                /* !!! upperLimit */
+   -1,                  /* parent -- keep this -1 */
+},
+{
+   T(&quot;upperAlarm&quot;),     /* !!! key */
+   kInteger,            /* !!! dataType */
+   -1,                  /* read access level */
+   -1,                  /* write access level */
+   dmfGetInt32,         /* !!! getFunc */
+   dmfSetInt32,         /* !!! setFunc */
+   NULL,                /* queryFunc */
+   0,                   /* lastQuery */
+   NULL,                /* commitFunc */
+   0,                   /* last commit */
+   &amp;(gValues.upperAlarm), /* !!! dataStart */
+   sizeof(int),         /* !!! offset */
+   &amp;kZeroIndex,         /* !!! startIndex */
+   &amp;(gValues.endIndex), /* !!! endIndex */
+   -1000,               /* !!! lowerLimit */
+   1000,                /* !!! upperLimit */
+   -1,                  /* parent -- keep this -1 */
+},
+</pre>
+<p>Finally, the <tt class="literal"><span class="pre">system.values.label</span></tt> parameter is an array of text strings, using 
+the <tt class="literal"><span class="pre">dmfGetString()</span></tt> and <tt class="literal"><span class="pre">dmfSetStringFixed()</span></tt> functions for I/O conversion. The 
+DMF will ensure that new values for this parameter are less than 
+<tt class="literal"><span class="pre">kMaxValuelabelLength</span></tt> characters long:</p>
+<pre class="literal-block">
+{
+   T(&quot;label&quot;),          /* !!! key */
+   kString,             /* !!! dataType */
+   -1,                  /* read access level */
+   -1,                  /* write access level */
+   dmfGetString,        /* !!! getFunc */
+   dmfSetStringFixed,   /* !!! setFunc */
+   NULL,                /* queryFunc */
+   0,                   /* lastQuery */
+   NULL,                /* commitFunc */
+   0,                   /* last commit */
+   &amp;(gValues.label), /* !!! dataStart */
+   kMaxValueLabelLength+1, /* !!! offset */
+   &amp;kZeroIndex,         /* !!! startIndex */
+   &amp;(gValues.endIndex), /* !!! endIndex */
+   0,                   /* lowerLimit */
+   kMaxValueLabelLength,/* !!! upperLimit */
+   -1,                  /* parent -- keep this -1 */
+},
+</pre>
+</div>
+<div class="section" id="displaying-the-table-of-values">
+<h2><a class="toc-backref" href="#id20" name="displaying-the-table-of-values">Displaying the Table of Values</a></h2>
+<p>To display all the values, we will create an ASP page
+(<tt class="literal"><span class="pre">Tutorial/web/ch05/user/Values.asp</span></tt>) that:</p>
+<ul class="simple">
+<li>displays a user-definable number of rows from the table (default number of
+rows = 8)</li>
+<li>shows the label, upper/lower alarms, and the current data value for each
+row</li>
+<li>displays data values less than or equal to the lower alarm color in a
+user-definable color (default color = blue)</li>
+<li>displays data values greater than or equal to the upper alarm color in a
+user-definable color (default color = red)</li>
+<li>displays clickable links for pages of previous values or next values if
+appropriate</li>
+</ul>
+<p>First, before any of the ejScript code that generates the rows of the table, we 
+include a simple block of HTML to define the table layout:</p>
+<pre class="literal-block">
+&lt;table border&gt;
+&lt;tr&gt;
+   &lt;td&gt;Label&lt;/td&gt;
+   &lt;td&gt;Value&lt;/td&gt;
+   &lt;td&gt;Lower Alarm&lt;/td&gt;
+   &lt;td&gt;Upper Alarm&lt;/td&gt;
+&lt;/td&gt;
+</pre>
+<p>Then, we retrieve the value of several variables that tell the page how to display 
+the table. First, we look for a CGI query string named <tt class="literal"><span class="pre">start</span></tt>. If this query 
+value was passed to the server (using an URL like <tt class="literal"><span class="pre">user/Values.asp?start=8</span></tt>, the 
+table will display values beginning with the <tt class="literal"><span class="pre">start</span></tt> index. If no query string was 
+passed, the table displays starting with index zero.</p>
+<pre class="literal-block">
+&lt;%
+   // see where we're supposed to start listing values...
+   startPos = getQueryVal(&quot;start&quot;, 0);
+</pre>
+<p>Then, we look up the value of several 'server variables.' The DMF stores any 
+parameter that begins with a leading underscore in a file that is reloaded whenever 
+the DMF starts up. This lets us save configuration data between runs of the server. 
+For this table, we use three server variables:</p>
+<ul class="simple">
+<li><tt class="literal"><span class="pre">_rowCount</span></tt> sets the number of table rows that are displayed on a single
+page. If there is no entry for this variable, we set it to 8 as a default.</li>
+<li><tt class="literal"><span class="pre">_upperAlarmColor</span></tt> sets the HTML color name that will be used to display
+data values when they hit or exceed the upper alarm value. If there is no
+entry for this variable, we set it to &quot;red&quot;.</li>
+<li><tt class="literal"><span class="pre">_lowerAlarmColor</span></tt> sets the HTML color name that will be used to display
+data values when they are less than or equal to the lower alarm value. If
+there is no entry for this variable, we set it to blue.</li>
+</ul>
+<p>We detect whether a server variable already has a value by checking the DMF 
+<tt class="literal"><span class="pre">__error__</span></tt> value; if it is set to the error code <tt class="literal"><span class="pre">ParameterName</span></tt>, there is no 
+existing value for this server variable.</p>
+<p>The DMF <tt class="literal"><span class="pre">set()</span></tt> function writes the updated value of a server variable to file 
+immediately; all server variables will be restored from disk when the DMF is 
+restarted.</p>
+<pre class="literal-block">
+// see how many we're supposed to show at one time.
+count = getVal(&quot;_rowCount&quot;);
+if (!__success__)
+{
+   /* The server hasn't been configured with a number of rows to
+    * show on a single page. We'll set a default.
+    */
+   count = 8;
+   set(&quot;_rowCount&quot;, count);
+}
+endPos = startPos + count;
+upperAlarmColor = getVal(&quot;_upperAlarmColor&quot;);
+if (!__success__)
+{
+   /* The upper Alarm color hasn;t been set. We'll set it to a
+    * default value of red here.
+    */
+    upperAlarmColor = &quot;red&quot;;
+    set(&quot;_upperAlarmColor&quot;, upperAlarmColor);
+ }
+lowerAlarmColor = getVal(&quot;_lowerAlarmColor&quot;);
+if (__error__ == &quot;ParameterName&quot;)
+{
+   /* The lower Alarm color hasn;t been set. We'll set it to a
+    * default value of red here.
+    */
+    lowerAlarmColor = &quot;blue&quot;;
+    set(&quot;_lowerAlarmColor&quot;, lowerAlarmColor);
+ }
+</pre>
+<p>Then, we loop through the indexes, creating an HTML table row for each entry. The 
+code below detects when it has attempted to access a table row that's past the end 
+of the internal array by checking the DMF <tt class="literal"><span class="pre">__success__</span></tt> variable, which will be 
+set to 0 (logical FALSE) when the <tt class="literal"><span class="pre">getVal()</span></tt> call requests an index that's outside 
+the valid range. We request the current value for each index, along with the 
+corresponding upper and lower alarms as ejScript variables using the DMF 
+<tt class="literal"><span class="pre">getVal()</span></tt> function. We use those variables to decide how to display the current 
+value -- if it is outside the valid range defined by the alarm values, we set the 
+font color for that value entry before writing it to the browser.</p>
+<pre class="literal-block">
+for (i = startPos; __success__ &amp;&amp; (i &lt; endPos); i++)
+{
+   label = getVal(&quot;system.values.label&quot;, i);
+   if (__success__)
+   {
+      value = getVal(&quot;system.values.value&quot;, i);
+      upperAlarm = getVal(&quot;system.values.upperAlarm&quot;, i);
+      lowerAlarm = getVal(&quot;system.values.lowerAlarm&quot;, i);
+      write(&quot;&lt;tr&gt;\n&quot;);
+      write(&quot;&lt;td&gt;&quot; + label + &quot;&lt;/td&gt;\n&quot;);
+      isAlarm = 0
+      write(&quot;&lt;td&gt;&quot;);
+      if (value &gt;= upperAlarm)
+      {
+         write(&quot;&lt;font color=\&quot;&quot; + upperAlarmColor + &quot;\&quot;&gt;&quot;);
+         isAlarm = 1
+      }
+      else if (value &lt;= lowerAlarm)
+      {
+         write(&quot;&lt;font color=\&quot;&quot; + lowerAlarmColor + &quot;\&quot;&gt;&quot;);
+         isAlarm = 1
+      }
+
+      write(value);
+      if (isAlarm)
+      {
+         write(&quot;&lt;/font&gt;&quot;);
+      }
+      write(&quot;&lt;/td&gt;\n&quot;);
+      write(&quot;&lt;td&gt;&quot;+ lowerAlarm + &quot;&lt;/td&gt;\n&quot;);
+      write(&quot;&lt;td&gt;&quot;+ upperAlarm + &quot;&lt;/td&gt;\n&lt;/tr&gt;\n&quot;);
+   }
+}
+write(&quot;&lt;/table&gt;\n&quot;);
+</pre>
+<p>After the table, the following code decides if there are table entries before or 
+after those displayed on the current page. If there are, it calculates the starting 
+index to be used on the page of previous or next values, and writes a hyperlink that 
+reloads the current page, starting on the calculated index when clicked.</p>
+<pre class="literal-block">
+   /*
+    * see if we need to display a 'previous' link.
+    */
+   if (startPos &gt;= count)
+   {
+      write('&lt;a href=&quot;/user/');
+      write(&quot;/Values.asp?start=&quot; + (startPos - count) + '&quot;&gt;');
+      write(&quot;Previous values...&lt;/a&gt;&lt;br /&gt;\n&quot;);
+   }
+
+   /* test to see if there are any items after what we've just displayed...*/
+   value = getVal(&quot;system.values.value&quot;, endPos);
+   if (__success__)
+   {
+      // we successfully got a value past what we've already displayed --
+      // display a link to show the next page of values.
+      write('&lt;br /&gt;\n&lt;a href=&quot;/user/');
+      write(&quot;/Values.asp?start=&quot; + endPos + '&quot;&gt;More values...&lt;/a&gt;');
+   }
+%&gt;
+</pre>
+</div>
+<div class="section" id="viewing-the-values-page">
+<h2><a class="toc-backref" href="#id21" name="viewing-the-values-page">Viewing the Values Page</a></h2>
+<p>Select the <tt class="literal"><span class="pre">ch05</span></tt> configuration of the tutorial project and rebuild the 
+executable. After starting the DMF server, point your browser at 
+<a class="reference" href="http://localhost:8080/user/Values.asp">http://localhost:8080/user/Values.asp</a> to view the table of values. The page is a 
+static snapshot of the actual values; press the Reload button on your browser to 
+view updated values.</p>
+</div>
+</div>
+<div class="section" id="chapter-6-user-management">
+<h1><a class="toc-backref" href="#id22" name="chapter-6-user-management">Chapter 6: User Management</a></h1>
+<!-- Copyright (c) 2002 Art & Logic, Inc. All Rights Reserved. -->
+<!-- $Id: Tutorial.html,v 1.2 2006/01/10 23:51:52 erik Exp $ -->
+<p>Up to this point, the interface that we've been developing is accessible to anyone 
+who can point a web browser to it. In the real world, we need to be able to control 
+access to the device, allowing some users to view certain pages but not others, or 
+perhaps even control access to each parameter available in the system.</p>
+<div class="section" id="users-groups-and-access-levels">
+<h2><a class="toc-backref" href="#id23" name="users-groups-and-access-levels">Users, Groups, and Access Levels</a></h2>
+<p>Once the DMF is set to enable access control, anyone wishing to access a controlled 
+resource, whether that resource is a page, an image, or an entry in the parameter 
+tree, must be a valid user. A &quot;valid user&quot; is anyone with knowledge of the current 
+name and password for an active user account on the device.</p>
+<p>Every user account is a member of a single user group; group membership defines the 
+privileges that users in each group have. Each group is assigned an 'access level' 
+that indicates to the DMF what operations members of that group may perform. This 
+access level is an integer between 0 and 255; more than one group may be given the 
+same access level.</p>
+<p>When you assign an access level to a resource on the server, users in groups with 
+the that access level, or a higher access level, may access that resource.</p>
+</div>
+<div class="section" id="creating-access-control-groups">
+<h2><a class="toc-backref" href="#id24" name="creating-access-control-groups">Creating Access Control Groups</a></h2>
+<p>For this tutorial, we will add three access control groups to the server:</p>
+<ul class="simple">
+<li><tt class="literal"><span class="pre">users</span></tt> have basic, read-only access to the device. Any attempt to
+retrieve a page they are not authorized to retrieve will be denied, and any
+attempt to change the value of a parameter will result in a DMF error.</li>
+<li><tt class="literal"><span class="pre">tech</span></tt> users will be given the ability to change the labels and alarm
+values in the device, but they will not have the ability to manage user
+accounts.</li>
+<li><tt class="literal"><span class="pre">admin</span></tt> users will have full access to the device.</li>
+</ul>
+<p>In the file <tt class="literal"><span class="pre">Tutorial/Server/ch06/UserFunc.c</span></tt>, the code listed below opens the 
+user access database (which is stored in a file named <tt class="literal"><span class="pre">users.txt</span></tt>), then adds the 
+three user groups using the DMF <tt class="literal"><span class="pre">dmfAddGroup()</span></tt> API function (see the DMF source 
+file <tt class="literal"><span class="pre">Access.c</span></tt> in the <tt class="literal"><span class="pre">AlFrame</span></tt> directory for details on this and other DMF API 
+functions). Note that on subsequent runs of the device code, the three access 
+control groups will already be present in the <tt class="literal"><span class="pre">users.txt</span></tt> database, and the calls 
+to <tt class="literal"><span class="pre">dmfAddGroup()</span></tt> will have no effect.</p>
+<pre class="literal-block">
+/* CH06: Open the user database...*/
+dmfInitAccess(T(&quot;users.txt&quot;));
+/* CH06: Add the three access control groups that our application will use:
+ *    - users (lowest level of access, access level = 1)
+ *    - tech  (medium access, access level = 5)
+ *    - admin (full access, access level = 10)
+ */
+
+dmfAddGroup(NULL, T(&quot;users&quot;), PRIV_READ | PRIV_WRITE, 
+ AM_BASIC, 1, 1, 1);
+
+dmfAddGroup(NULL, T(&quot;tech&quot;), PRIV_READ | PRIV_WRITE, 
+ AM_BASIC, 1, 1, 5);
+
+dmfAddGroup(NULL, T(&quot;admin&quot;), PRIV_READ | PRIV_WRITE | PRIV_ADMIN, 
+ AM_BASIC, 1, 1, 10);
+</pre>
+</div>
+<div class="section" id="creating-an-admin-user">
+<h2><a class="toc-backref" href="#id25" name="creating-an-admin-user">Creating an <tt class="literal"><span class="pre">admin</span></tt> User</a></h2>
+<p>Since only an <tt class="literal"><span class="pre">admin</span></tt> user may create new user accounts, the device is useless 
+unless it boots for the first time with a default <tt class="literal"><span class="pre">admin</span></tt> account.</p>
+<pre class="literal-block">
+/*
+ * TODO: Create a default admin account on the server. You may want to
+ * choose a different name for the default admin account, and you will
+ * definitely want to change the password.
+ */
+
+/* CH06: Add a predefined user with 'admin' access. This user will be able
+ * to add regular user accounts to the system.
+ */
+dmfAddUser(NULL, T(&quot;adminUser&quot;), T(&quot;changeThisPassword&quot;), 
+ T(&quot;admin&quot;), 1, 1);
+</pre>
+</div>
+<div class="section" id="configuring-paths">
+<h2><a class="toc-backref" href="#id26" name="configuring-paths">Configuring Paths</a></h2>
+<p>We define three top-level directory paths that are under access control. To simplify 
+things, we create directories that exactly correspond to the  three user groups that 
+our system uses.</p>
+<p>Any resources located under the <tt class="literal"><span class="pre">/user</span></tt> directory will be accessible to members of 
+the <tt class="literal"><span class="pre">users</span></tt>, <tt class="literal"><span class="pre">tech</span></tt>, and <tt class="literal"><span class="pre">admin</span></tt> groups.</p>
+<p>Any resources located under the <tt class="literal"><span class="pre">tech</span></tt> directory are accessible to <tt class="literal"><span class="pre">tech</span></tt> and 
+<tt class="literal"><span class="pre">admin</span></tt> users. The ASP page that configures the labels and alarm settings for the 
+data values is placed in the <tt class="literal"><span class="pre">/tech</span></tt> directory.</p>
+<p>Any resources placed in the <tt class="literal"><span class="pre">/admin</span></tt> directory will only be accessible to members 
+of the <tt class="literal"><span class="pre">admin</span></tt> group. Our user management ASP pages will be placed in this 
+directory.</p>
+<pre class="literal-block">
+/*
+ * TODO: Configure access permissions for paths on the device as needed.
+ */
+
+/* CH06: Our server has four areas that use varying levels of access
+ * control:
+ *    - the root '/' directory (and any other directory not otherwise
+ *    controlled are accessible to any client.
+ *    - the /user/ directory and its subdirectories are accessible by any
+ *    logged-in user from the group 'users' or a group with a higher level
+ *    of access control.
+ *    - the /tech/ directory and its subdirectories are accessible by any
+ *    logged-in user from the group 'tech' or 'admin'.
+ *    - the /admin/ directory and its subdirectories are accessible by any
+ *    logged-in user belonging to the 'admin' group.
+ */
+umAddAccessLimit(T(&quot;/user/&quot;), AM_BASIC, 0, T(&quot;users&quot;));
+umAddAccessLimit(T(&quot;/tech/&quot;), AM_BASIC, 0, T(&quot;tech&quot;));
+umAddAccessLimit(T(&quot;/admin/&quot;), AM_BASIC, 0, T(&quot;admin&quot;));
+</pre>
+</div>
+<div class="section" id="creating-the-userlist-asp-page">
+<h2><a class="toc-backref" href="#id27" name="creating-the-userlist-asp-page">Creating the <tt class="literal"><span class="pre">UserList.asp</span></tt> Page</a></h2>
+<p>The file <tt class="literal"><span class="pre">Tutorial/Web/ch06/admin/UserList.asp</span></tt> provides mechanisms to:</p>
+<ul class="simple">
+<li>Add a new user account</li>
+<li>Edit an existing user account</li>
+<li>Delete a user account</li>
+</ul>
+<p>The following code creates an HTML table filled with the current contents of the 
+user database. Clicking on a user name sends the browser to the <tt class="literal"><span class="pre">EditUser.asp</span></tt> 
+page, passing in the name of the selected user as a CGI query string:</p>
+<pre class="literal-block">
+&lt;table border&gt;
+   &lt;tr&gt;
+      &lt;td&gt;User Name&lt;/td&gt;
+      &lt;td&gt;Password&lt;/td&gt;
+      &lt;td&gt;Group&lt;/td&gt;
+      &lt;td&gt;Enabled&lt;/td&gt;
+      &lt;td /&gt;
+   &lt;/tr&gt;
+   &lt;%
+      for (name = getNextUser(); __success__; name = getNextUser(name))
+      {
+         write('&lt;tr&gt;&lt;td&gt;&lt;a href=&quot;/admin');
+         write('/EditUser.asp?name=' + name + '&quot;&gt;');
+         write( name + '&lt;/a&gt;&lt;/td&gt;\n');
+         password = getUserDetail(name, &quot;password&quot;);
+         write('&lt;td&gt;' + password + '&lt;/td&gt;\n');
+         group = getUserDetail(name, &quot;group&quot;);
+         write('&lt;td&gt;' + group + '&lt;/td&gt;\n');
+         enabled = getUserDetail(name, &quot;enabled&quot;);
+         write(&quot;&lt;td&gt;&quot;);
+         if (enabled)
+         {
+            write(&quot;*&quot;);
+         }
+         write(&quot;&lt;/td&gt;\n&quot;);
+         write(&quot;&lt;td&gt;&quot;);
+         write('&lt;a href=&quot;#&quot; onClick=&quot;deleteUser(\'' + name + '\'); return false;&quot;&gt;');
+         write(&quot;Delete&lt;/a&gt;&lt;/td&gt;\n&quot;);
+         write(&quot;&lt;/tr&gt;\n&quot;);
+      }
+   %&gt;
+</pre>
+<p>Each row in the table also includes a link that will delete a user account when it 
+is clicked. Two separate pieces of code are required to make this happen. First, 
+when the user clicks the &quot;Delete&quot; link, this client-side JavaScript function is 
+executed in the user's browser:</p>
+<pre class="literal-block">
+&lt;script language=&quot;JavaScript&quot;&gt;
+&lt;!-- hide me
+function deleteUser(name)
+{
+   if (confirm(&quot;Really delete &quot; + name + &quot;'s account?&quot;))
+   {
+      window.document.deleteForm.name.value = name;
+      window.document.deleteForm.submit();
+   }
+}
+// --&gt;
+&lt;/script&gt;
+</pre>
+<p>The following hidden HTML form is used to actually perform the deletion:</p>
+<pre class="literal-block">
+&lt;!-- a hidden form to delete a user - works with clientside JavaScript --&gt;
+&lt;form name=&quot;deleteForm&quot; method=&quot;POST&quot; action=&quot;/goform/Dmf&quot;&gt;
+&lt;input type=&quot;hidden&quot; name=&quot;name&quot; value=&quot;&quot;&gt;
+&lt;input type=&quot;hidden&quot; name=&quot;command&quot; value=&quot;DELETEUSER&quot;&gt;
+&lt;input type=&quot;hidden&quot; name=&quot;urlOk&quot; value=&quot;/admin/UserList.asp&quot;&gt;
+&lt;input type=&quot;hidden&quot; name=&quot;urlError&quot; value=&quot;/admin/UserList.asp&quot;&gt;
+&lt;/form&gt;
+</pre>
+<p>The JavaScript function displays a dialog box to make sure that the user really 
+wants to delete the account. If the user selects &quot;Ok&quot; from the Dialog box, the 
+<tt class="literal"><span class="pre">name</span></tt> control on the hidden form is set to the selected user's name, and the form 
+is submitted to the server. In the event of either success or error, the 
+<tt class="literal"><span class="pre">UserList.asp</span></tt> page will be displayed with the resulting list of users.</p>
+<p>The userlist page also has a hyperlink to the <tt class="literal"><span class="pre">/admin/EditUser.asp</span></tt> page.  When 
+this page is requested without a query string, it is used to add a new user to the 
+database.</p>
+</div>
+<div class="section" id="creating-the-edituser-asp-page">
+<h2><a class="toc-backref" href="#id28" name="creating-the-edituser-asp-page">Creating the <tt class="literal"><span class="pre">EditUser.asp</span></tt> Page</a></h2>
+<p>After a block of ejScript code (omitted here) to display any errors, we look for the 
+presence of the 'name' query string. If it exists, we are attempting to edit an 
+existing user; otherwise we are adding a new user to the system. The code below sets 
+a boolean variable named <tt class="literal"><span class="pre">editing</span></tt> to indicate which action we are performing, and 
+we also set the value of the <tt class="literal"><span class="pre">command</span></tt> that will tell the DMF user management code 
+how to handle this submission:</p>
+<pre class="literal-block">
+&lt;%
+   name = getQueryVal(&quot;name&quot;, &quot;&quot;);
+   editing = (name != &quot;&quot;);
+
+   write(&quot;&lt;h2&gt;&quot;);
+   if (editing)
+   {
+      write(&quot;Edit User&quot;);
+      userCommand = &quot;MODIFYUSER&quot;;
+   }
+   else
+   {
+      write(&quot;Add User&quot;);
+      userCommand = &quot;ADDUSER&quot;;
+   }
+   write(&quot;&lt;/h2&gt;&quot;);
+</pre>
+<p>Then, we create an HTML form that will submit the information entered by the user to 
+the DMF. If we are editing an existing user, we display the user name as a read-only 
+display and request the current password, group, whether or not this user is enabled 
+from the server. Otherwise, we set default values for the password, group, and 
+enabled/disabled state and display the rest of the form:</p>
+<pre class="literal-block">
+write('&lt;form method=&quot;POST&quot; action=&quot;/goform/Dmf&quot;&gt;\n');
+if (editing)
+{
+   write(&quot;&lt;h2&gt;&quot; + name + &quot;&lt;/h2&gt;\n&quot;);
+   password = getUserDetail(name, &quot;password&quot;);
+   group = getUserDetail(name, &quot;group&quot;);
+   enabled = getUserDetail(name, &quot;enabled&quot;);
+
+}
+else
+{
+   write(&quot;User name:&quot;);
+   password = &quot;&quot;;
+   group = &quot;users&quot;;
+   enabled = &quot;1&quot;;
+}
+write('&lt;input type=&quot;');
+if (editing)
+{
+   write('hidden&quot; value=&quot;' + name);
+}
+else
+{
+   write(&quot;text&quot;);
+}
+write('&quot; name=&quot;name&quot;&gt;&lt;br /&gt;\n');
+write('Password: &lt;input type=&quot;password&quot; name=&quot;password&quot; value=&quot;');
+write(password + '&quot;&gt;&lt;br /&gt;\n');
+write('Group: &lt;select name=&quot;group&quot;&gt;\n');
+</pre>
+<p>The code below enumerates the user groups that are available on the server, and 
+displays them all in an HTML <tt class="literal"><span class="pre">&lt;select&gt;</span></tt> control, with the current group displayed 
+as the default value:</p>
+<pre class="literal-block">
+/* get the group names, and set the selected one... */
+for (groupName = getNextGroup(); __success__;\
+ groupName = getNextGroup(groupName))
+{
+   write(&quot;&lt;option&quot;);
+   if (group == groupName)
+   {
+      write(&quot; selected&quot;);
+   }
+   write(&quot;&gt;&quot; + groupName + &quot;&lt;/option&gt;\n&quot;);
+}
+write(&quot;&lt;/select&gt;&lt;br /&gt;\n&quot;);
+/* set whether the user is enabled or not...*/
+write(&quot;Enabled: &lt;input name=\&quot;enabled\&quot; type=\&quot;checkbox\&quot;&quot;);
+if (enabled)
+{
+   write(&quot; checked &quot;);
+}
+write(&quot;&gt;&lt;br /&gt;\n&quot;);
+</pre>
+<p>Finally, we include several hidden controls, including the <tt class="literal"><span class="pre">command</span></tt>, that tells 
+the DMF user management code whether it is supposed to be adding a new user or 
+modifying an existing user:</p>
+<pre class="literal-block">
+   write('&lt;input type=&quot;hidden&quot; name=&quot;command&quot; value=&quot;');
+   write(userCommand + '&quot;&gt;\n');
+   write('&lt;input type=&quot;hidden&quot; name=&quot;urlOk&quot; value=&quot;');
+   write('/admin/UserList.asp&quot;&gt;\n');
+   write('&lt;input type=&quot;hidden&quot; name=&quot;urlError&quot; value=&quot;');
+   write('/admin/EditUser.asp&quot;&gt;\n');
+   write('&lt;input type=&quot;submit&quot; name=&quot;submit&quot; value=&quot;Ok&quot;&gt;\n');
+   write(&quot;&lt;/form&gt;&quot;);
+%&gt;
+</pre>
+</div>
+<div class="section" id="adding-test-users">
+<h2><a class="toc-backref" href="#id29" name="adding-test-users">Adding Test Users</a></h2>
+<p>As in the other chapters, build the Ch06 version of the DMF tutorial, and point a 
+browser at <a class="reference" href="http://localhost:8080">http://localhost:8080</a> . Log in as the administrator, name=``adminUser``, 
+password = <tt class="literal"><span class="pre">changeThisPassword</span></tt>.</p>
+<p>From the main page, select the &quot;User Management&quot; link, then click on the 'Add new 
+user' link to add a new account in the 'users' group, name = <tt class="literal"><span class="pre">usersUser</span></tt>, password 
+= <tt class="literal"><span class="pre">usersPass</span></tt>. Then add a test user from the &quot;tech&quot; group by clicking the 'Add new 
+user' link again, and creating a new user, name = <tt class="literal"><span class="pre">techUser</span></tt>, password = 
+<tt class="literal"><span class="pre">techPass</span></tt>, making sure to select the <tt class="literal"><span class="pre">tech</span></tt> group before pressing &quot;Ok&quot;.</p>
+<p>Close your browser, then reopen it, logging in as <tt class="literal"><span class="pre">usersUser</span></tt>. Navigate to the 
+&quot;System Information&quot; page at <tt class="literal"><span class="pre">/user/SystemInfo.asp</span></tt>. The page has been recoded so 
+that any users viewing it with an access level lower than <tt class="literal"><span class="pre">tech</span></tt> will see a read-
+only display of the system information, but <tt class="literal"><span class="pre">tech</span></tt> users or higher will see an 
+editable form. We use the DMF ejScript function <tt class="literal"><span class="pre">userCanAccess()</span></tt> function to 
+determine which interface to display:</p>
+<pre class="literal-block">
+&lt;%
+   editing = 0;
+   if (userCanAccess(&quot;tech&quot;))
+   {
+      editing = 1;
+   }
+   if (editing)
+   {
+      write('&lt;form method=&quot;POST&quot; action=&quot;/goform/Dmf&quot;&gt;\n');
+   }
+   write(&quot;System Name:   &quot;);
+   if (editing)
+   {
+      write('&lt;input size=&quot;40&quot; name = &quot;system.info.name&quot;  value=&quot;');
+   }
+   get(&quot;system.info.name&quot;);
+   if (editing)
+   {
+      write('&quot;&gt;');
+   }
+   write(&quot;&lt;br /&gt;\nDescription:   &quot;);
+   if (editing)
+   {
+      write('&lt;input size=&quot;40&quot; name=&quot;system.info.description&quot;  value=&quot;');
+   }
+   get(&quot;system.info.description&quot;);
+   if (editing)
+   {
+      write('&quot;&gt;');
+   }
+   write(&quot;&lt;br /&gt;\nUptime:        &quot; + getVal(&quot;system.info.uptime&quot;) + &quot; seconds&lt;br /&gt;\n&quot;);
+
+   if (editing)
+   {
+      write('&lt;input type=&quot;hidden&quot; name=&quot;urlOk&quot; value=&quot;/user/SystemInfo.asp&quot;&gt;\n');
+      write('&lt;input type=&quot;hidden&quot; name=&quot;urlError&quot; value=&quot;/user/SystemInfo.asp&quot;&gt;\n');
+      write('&lt;input type=&quot;hidden&quot; name=&quot;request&quot; value=&quot;');
+      write(getRequestNumber() + '&quot;&gt;\n');
+      write('&lt;input type=&quot;submit&quot; name=&quot;Submit&quot; value=&quot;Ok&quot;&gt;\n');
+      write('&lt;/form&gt;\n');
+   }
+%&gt;
+</pre>
+</div>
+</div>
+<div class="section" id="chapter-7-adding-a-configuration-page">
+<h1><a class="toc-backref" href="#id30" name="chapter-7-adding-a-configuration-page">Chapter 7: Adding a Configuration Page</a></h1>
+<!-- Copyright (c) 2002 Art & Logic, Inc. All Rights Reserved. -->
+<!-- $Id: Tutorial.html,v 1.2 2006/01/10 23:51:52 erik Exp $ -->
+<p>Until this point, the <tt class="literal"><span class="pre">Values.asp</span></tt> page has only displayed the default values for 
+the label and alarm settings. In this chapter, we build a page to edit these 
+settings.</p>
+<div class="section" id="create-the-configvalues-asp-page">
+<h2><a class="toc-backref" href="#id31" name="create-the-configvalues-asp-page">Create the <tt class="literal"><span class="pre">ConfigValues.asp</span></tt> Page</a></h2>
+<p>The file <tt class="literal"><span class="pre">Tutorial/Web/ch07/ConfigValues.asp</span></tt> contains ejScript code that creates 
+an HTML form by walking through the arrays of labels and alarm values, allowing 
+users to edit these parameters. The useful thing to note here is how we identify 
+indexed parameters on a form submission--the parameter name has the index number 
+appended to it after an underscore. To change the value of 
+<tt class="literal"><span class="pre">system.values.label[2]</span></tt>, for example, we would place a form element on the page 
+like:</p>
+<pre class="literal-block">
+&lt;input type=&quot;text&quot; name = &quot;system.values.label_2&quot;
+   value =&quot;&lt;%get(&quot;system.values.label&quot;, 2);%&gt;&quot;&gt;
+</pre>
+<p>The entire form looks like:</p>
+<pre class="literal-block">
+&lt;form method=&quot;POST&quot; action=&quot;/goform/Dmf&quot;&gt;
+&lt;table border&gt;
+&lt;tr&gt;
+   &lt;td /&gt; &lt;!-- we'll add the item # here... --&gt;
+   &lt;td&gt;Label&lt;/td&gt;
+   &lt;td&gt;Lower Alarm&lt;/td&gt;
+   &lt;td&gt;Upper Alarm&lt;/td&gt;
+&lt;/tr&gt;
+&lt;%
+   // create the rows of the table, containing all of the values.
+
+   for (i = 0; __success__; i++)
+   {
+      label = getVal(&quot;system.values.label&quot;, i);
+      if (__success__)
+      {
+         write('&lt;tr&gt;\n&lt;td&gt;' + (i + 1) + '&lt;/td&gt;\n');
+         write(' &lt;td&gt;&lt;input name=&quot;system.values.label_' + i + '&quot; ');
+         write('value=&quot;' + label + '&quot; size=&quot;32&quot;&gt;&lt;/td&gt;\n');
+
+         write(' &lt;td&gt;&lt;input name=&quot;system.values.lowerAlarm_' + i + '&quot; ');
+         write('value=&quot;' + getVal(&quot;system.values.lowerAlarm&quot;, i) + '&quot; ');
+         write('size=&quot;3&quot;&gt;&lt;/td&gt;\n');
+
+         write(' &lt;td&gt;&lt;input name=&quot;system.values.upperAlarm_' + i + '&quot; ');
+         write('value=&quot;' + getVal(&quot;system.values.upperAlarm&quot;, i) + '&quot; ');
+         write('size=&quot;3&quot;&gt;&lt;/td&gt;\n&lt;/tr&gt;\n');
+      }
+   }
+%&gt;
+&lt;/table&gt;
+
+&lt;input type=&quot;hidden&quot; name=&quot;urlOk&quot; value=&quot;/user/Values.asp&quot;&gt;
+&lt;input type=&quot;hidden&quot; name=&quot;urlError&quot; value=&quot;/tech/ConfigValues.asp&quot;&gt;
+&lt;input type=&quot;hidden&quot; name=&quot;request&quot; value=&quot;&lt;%write(getRequestNumber());%&gt;&quot;&gt;
+&lt;input type=&quot;submit&quot; name=&quot;Submit&quot; value=&quot;Ok&quot;&gt;
+&lt;/form&gt;
+</pre>
+</div>
+<div class="section" id="set-access-levels-in-the-parameter-tree">
+<h2><a class="toc-backref" href="#id32" name="set-access-levels-in-the-parameter-tree">Set Access Levels in the Parameter Tree</a></h2>
+<p>Each entry in the parameter tree has a field to indicate the access level that is 
+required to either read or write the parameter. Like several of the other fields in 
+the <tt class="literal"><span class="pre">Param</span></tt> structure, an entry may be set to 'inherit' the access control setting 
+of its parent in the tree -- any parameter with a read or write access level of <tt class="literal"><span class="pre">-</span>
+<span class="pre">1</span></tt> will use the same access control setting as the next higher node in the tree 
+with a valid access control setting (where &quot;valid&quot; is an integer between 0 and 255). 
+In previous chapters, the top <tt class="literal"><span class="pre">system</span></tt> node was defined with access levels of zero 
+(anyone can access) for both read and write access, and all other entries in the 
+tree 'inherited' that level of access control.</p>
+<p>Starting with this chapter, we change both the <tt class="literal"><span class="pre">system.info</span></tt> and <tt class="literal"><span class="pre">system.values</span></tt> 
+nodes so that they look like:</p>
+<pre class="literal-block">
+{
+   T(&quot;info&quot;),           /*  key */
+   kBeginSection,       /*  dataType */
+   1,                   /* !!! read access level */
+   5,                   /* !!! write access level */
+   NULL,                /* getFunc */
+   NULL,                /* setFunc */
+   SystemInfoQuery,     /*  queryFunc */
+   0,                   /* lastQuery */
+   SystemInfoCommit,    /* commitFunc */
+   0,                   /* last commit */
+   NULL,                /* dataStart */
+   0,                   /* offset */
+   NULL,                /* startIndex */
+   NULL,                /* endIndex */
+   0,                   /* lowerLimit */
+   0,                   /* upperLimit */
+   -1,                  /* parent -- keep this -1 */
+},
+</pre>
+<p>requiring membership in the <tt class="literal"><span class="pre">users</span></tt> group (or higher) to view any of the 
+parameters under those nodes, and in the <tt class="literal"><span class="pre">tech</span></tt> group or higher to modify any of 
+the parameters under those nodes.</p>
+<p>Since it's possible to have both page-level access control and parameter-level 
+access control, it's important to be careful when mixing them.  To prevent errors 
+from appearing in your interface, you should use the DMF's <tt class="literal"><span class="pre">userCanAccess()</span></tt> 
+function when writing code that may need to respond differently to different user 
+access levels.</p>
+</div>
+</div>
+<div class="section" id="chapter-8-localization">
+<h1><a class="toc-backref" href="#id33" name="chapter-8-localization">Chapter 8: Localization</a></h1>
+<!-- Copyright (c) 2002 Art & Logic, Inc. All Rights Reserved. -->
+<!-- $Id: Tutorial.html,v 1.2 2006/01/10 23:51:52 erik Exp $ -->
+<p>The DMF includes facilities to generate language-specific pages at runtime by 
+substituting words or phrases from a user-selectable language database file. This 
+simplifies development and maintenance, as the web files are developed once and 
+maintained in a single form. Compare this to an alternate technique where the web 
+files are developed in one language, and then those files are translated into 
+several languages, creating multiple language-specific source trees. When changes to 
+the interface are required in the future, each of the language-specific files will 
+need to be modified in exactly the same ways to update the interface in each 
+language.</p>
+<p>The DMF includes three functions that are used in ejScript code to implement 
+localization:</p>
+<ul class="simple">
+<li><tt class="literal"><span class="pre">getLabel(parameterName</span> <span class="pre">[,</span> <span class="pre">default])</span></tt> looks for the text string
+identified by <tt class="literal"><span class="pre">parameterName</span></tt> and displays that string in the user's
+browser. If there is no entry in the language database for
+<tt class="literal"><span class="pre">parameterName</span></tt> and the optional <tt class="literal"><span class="pre">default</span></tt> parameter is provided, that
+default string is displayed in the user's browser.</li>
+<li><tt class="literal"><span class="pre">getLabelVal(parameterName</span> <span class="pre">[,</span> <span class="pre">default])</span></tt> works similarly to
+<tt class="literal"><span class="pre">getLabel()</span></tt>, except that the string value is returned as a variable to
+the ejScript interpreter.</li>
+<li><tt class="literal"><span class="pre">getLanguage([defaultLanguage</span> <span class="pre">[,</span> <span class="pre">suffix]])</span></tt> returns the two-letter code
+of the currently selected language to the ejScript interpreter. If
+a value is provided for the optional <tt class="literal"><span class="pre">defaultLanguage</span></tt> parameter,
+and the current language is the same as the defaultLanguage, returns an
+empty string to the ejScript interpreter.</li>
+</ul>
+<div class="section" id="remove-literal-text">
+<h2><a class="toc-backref" href="#id34" name="remove-literal-text">Remove Literal Text</a></h2>
+<p>The first step when localizing your web files is to replace all literal text that's 
+in your web files with calls to either <tt class="literal"><span class="pre">getLabel()</span></tt> or <tt class="literal"><span class="pre">getLabelVal()</span></tt>, as 
+appropriate.</p>
+<p>For example, every web file we've developed for the tutorial so far has started like 
+this:</p>
+<pre class="literal-block">
+&lt;html&gt;
+&lt;head&gt;
+&lt;title&gt;DMF Tutorial: &lt;%get(&quot;_chapter_&quot;);%&gt;&lt;/title&gt;
+&lt;/head&gt;
+</pre>
+<p>The first step in localizing the interface is to  replace the literal text &quot;DMF 
+Tutorial&quot;, like:</p>
+<pre class="literal-block">
+&lt;html&gt;
+&lt;head&gt;
+&lt;title&gt;&lt;%getLabel(&quot;page.title&quot;); get(&quot;_chapter_&quot;);%&gt;&lt;/title&gt;
+&lt;/head&gt;
+</pre>
+<p>and do similar replacements everywhere else there is literal text in your interface. 
+In an interface with a large amount of text, it's a good idea to plan for 
+localization by using the <tt class="literal"><span class="pre">getLabel()</span></tt> coding approach from the start.</p>
+</div>
+<div class="section" id="create-the-english-language-database">
+<h2><a class="toc-backref" href="#id35" name="create-the-english-language-database">Create the English Language Database</a></h2>
+<p>The other main component in creating a localized interface is the creation of the 
+language database files. These files are plain text, with one entry per line, like:</p>
+<pre class="literal-block">
+key=value
+</pre>
+<p>The value may be up to 1024 bytes long (but keep in mind that the language database 
+is read into RAM when it is loaded, so you may need to balance the memory 
+constraints of your device with your interface design).</p>
+<p>The <tt class="literal"><span class="pre">language.en</span></tt> file provided with this tutorial begins like:</p>
+<pre class="literal-block">
+add.user=Add new user
+configure.device=Configure Device
+configure.values=Configure Values
+data.values=Data Values
+delete=Delete
+description=Description
+edit.parameter=Edit Parameter Configuration
+edit.user=Edit User
+enabled=Enabled
+</pre>
+</div>
+<div class="section" id="create-translated-language-databases">
+<h2><a class="toc-backref" href="#id36" name="create-translated-language-databases">Create Translated Language Databases</a></h2>
+<p>Once your interface is developed in your primary language (we've been assuming that 
+it's English in this tutorial), have it translated into each language that you plan 
+to support in your device. Each language must be stored in its own file, named 
+<tt class="literal"><span class="pre">language.&lt;&lt;code&gt;&gt;</span></tt>, where <tt class="literal"><span class="pre">&lt;&lt;code&gt;&gt;</span></tt> is one of the two letter codes listed in 
+ISO 639 (<a class="reference" href="http://ftp.ics.uci.edu/pub/ietf/http/related/iso639.txt">http://ftp.ics.uci.edu/pub/ietf/http/related/iso639.txt</a>).</p>
+<p>Note that the <tt class="literal"><span class="pre">key</span></tt> on the left side of the equal sign on each line must <strong>not</strong> 
+be translated.</p>
+</div>
+<div class="section" id="create-a-page-to-select-the-language-at-runtime">
+<h2><a class="toc-backref" href="#id37" name="create-a-page-to-select-the-language-at-runtime">Create a Page to Select the Language at Runtime</a></h2>
+<p>If you want users of your device to be able to select the correct language at 
+runtime, create a customization page that lets them choose from the available 
+languages. The current language is stored in the DMF using a server variable named 
+<tt class="literal"><span class="pre">_language</span></tt>. When the value of this server variable changes to a new two-letter 
+language code, the DMF looks for a matching language database file and attempts to 
+load it into memory. If successful, all pages served from that point on will be 
+localized into the selected language.</p>
+<p>The file <tt class="literal"><span class="pre">Tutorial/Web/ch08/admin/Config.asp</span></tt> uses the following form to change 
+the language at runtime:</p>
+<pre class="literal-block">
+&lt;form method=&quot;POST&quot; action=&quot;/goform/Dmf&quot;&gt;
+&lt;%getLabel(&quot;select.language&quot;); write(&quot;:&quot;);%&gt;
+&lt;select name=&quot;_language&quot;&gt;
+&lt;option selected value=&quot;en&quot;&gt;English
+&lt;option value=&quot;es&quot; &gt;Spanish
+&lt;/select&gt;&lt;br&gt;
+
+&lt;input type=&quot;hidden&quot; name=&quot;request&quot; value=&quot;&lt;%getRequestNumber();%&gt;&quot;&gt;
+&lt;input type=&quot;submit&quot; name=&quot;submit&quot; value=&quot;Ok&quot;&gt;
+&lt;input type=&quot;hidden&quot; name=&quot;urlOk&quot; value=&quot;/user/home.asp&quot;&gt;
+&lt;input type=&quot;hidden&quot; name=&quot;urlError&quot; value=&quot;/admin/Config.asp&quot;&gt;
+</pre>
+<p>If you do not wish to make language selection this easy, there's a much more obscure 
+way to perform the operation. One reason you might wish to use this approach would 
+be if you need to select the language once, at manufacturing time. To change the 
+language without writing an ASP page, log into the device using a browser, then 
+manually enter the address:</p>
+<pre class="literal-block">
+http://&lt;&lt;device address&gt;&gt;/goform/Dmf?_language=&lt;&lt;code&gt;&gt;
+</pre>
+<p>where <tt class="literal"><span class="pre">&lt;&lt;device</span> <span class="pre">address&gt;&gt;</span></tt> is the IP address of the DMF, and <tt class="literal"><span class="pre">&lt;&lt;code&gt;&gt;</span></tt> is the 
+two-letter code.</p>
+</div>
+</div>
+<div class="section" id="chapter-9-customization">
+<h1><a class="toc-backref" href="#id38" name="chapter-9-customization">Chapter 9: Customization</a></h1>
+<!-- Copyright (c) 2002 Art & Logic, Inc. All Rights Reserved. -->
+<!-- $Id: Tutorial.html,v 1.2 2006/01/10 23:51:52 erik Exp $ -->
+<p>It's often convenient to allow customers to select different appearance options for 
+their devices. Not only end-users, but also OEM customers who will resell your 
+device under their own name will benefit from this capability as they are given an 
+easy way to swap in their own look and feel elements.</p>
+<p>In this chapter, we will add to the configuration page 
+(<tt class="literal"><span class="pre">Tutorial/Web/ch09/admin/Config.asp</span></tt>) that was created in the last chapter to 
+select the current language. We will add configuration options for:</p>
+<ul class="simple">
+<li>page background color</li>
+<li>graphic logo</li>
+<li>number of rows to display on table displays (like the <tt class="literal"><span class="pre">Values.asp</span></tt> page)</li>
+</ul>
+<div class="section" id="creating-the-customization-form">
+<h2><a class="toc-backref" href="#id39" name="creating-the-customization-form">Creating the Customization Form</a></h2>
+<p>The updated form with the additional configuration options looks like this:</p>
+<pre class="literal-block">
+&lt;form method=&quot;POST&quot; action=&quot;/goform/Dmf&quot;&gt;
+&lt;%getLabel(&quot;configure.language&quot;); write(&quot;:&quot;);%&gt;
+&lt;select name=&quot;_language&quot;&gt;
+&lt;!-- add additional language options here as they are translated...--&gt;
+&lt;option selected value=&quot;en&quot;&gt;English
+&lt;option value=&quot;es&quot; &gt;Spanish
+&lt;/select&gt;&lt;br&gt;
+
+&lt;%getLabel(&quot;configure.bgcolor&quot;);write(&quot;:&quot;);%&gt;
+&lt;select name=&quot;_bgcolor&quot;&gt;
+
+&lt;!-- we use the color names as defined by HTML to specify a color, 
+   (the 'value' attribute of each option)
+   but use translated names in the interface.
+--&gt;
+&lt;option selected value=&quot;White&quot;&gt;&lt;%getLabel(&quot;color.white&quot;);%&gt;
+&lt;option value=&quot;Red&quot;&gt;&lt;%getLabel(&quot;color.red&quot;);%&gt;
+&lt;option value=&quot;Purple&quot;&gt;&lt;%getLabel(&quot;color.purple&quot;);%&gt;
+&lt;option value=&quot;Lime&quot;&gt;&lt;%getLabel(&quot;color.lime&quot;);%&gt;
+&lt;option value=&quot;Green&quot;&gt;&lt;%getLabel(&quot;color.green&quot;);%&gt;
+&lt;option value=&quot;Navy&quot;&gt;&lt;%getLabel(&quot;color.navy&quot;);%&gt;
+&lt;option value=&quot;Teal&quot;&gt;&lt;%getLabel(&quot;color.teal&quot;);%&gt;
+&lt;/select&gt;&lt;br&gt;
+
+&lt;%getLabel(&quot;configure.logo&quot;); write(&quot;:&quot;);%&gt; 
+&lt;input type=text name=&quot;_logo&quot; value=&quot;&lt;%get(&quot;_logo&quot;);%&gt;&quot;&gt;&lt;br&gt;
+
+&lt;%getLabel(&quot;configure.rowcount1&quot;);%&gt;
+&lt;input type=text name=&quot;_rowCount&quot; value=&quot;&lt;%get(&quot;_rowCount&quot;);%&gt;&quot;&gt;
+&lt;%getLabel(&quot;configure.rowcount2&quot;);%&gt;&lt;br&gt;
+
+&lt;input type=&quot;hidden&quot; name=&quot;request&quot; value=&quot;&lt;%getRequestNumber();%&gt;&quot;&gt; 
+&lt;input type=&quot;submit&quot; name=&quot;submit&quot; value=&quot;Ok&quot;&gt;
+&lt;input type=&quot;hidden&quot; name=&quot;urlOk&quot; value=&quot;/user/home.asp&quot;&gt;
+&lt;input type=&quot;hidden&quot; name=&quot;urlError&quot; value=&quot;/admin/Config.asp&quot;&gt;
+
+&lt;/form&gt;
+</pre>
+<p>When submitted, this form will set new values for the server variables:</p>
+<ul class="simple">
+<li><tt class="literal"><span class="pre">_language</span></tt></li>
+<li><tt class="literal"><span class="pre">_bgcolor</span></tt></li>
+<li><tt class="literal"><span class="pre">_logo</span></tt></li>
+<li><tt class="literal"><span class="pre">_rowcount</span></tt></li>
+</ul>
+<p>Since we've been using the <tt class="literal"><span class="pre">_rowcount</span></tt> server variable on the <tt class="literal"><span class="pre">Values.asp</span></tt> page 
+since it was created, an easy way to test this form is to build the <tt class="literal"><span class="pre">Ch09</span></tt> 
+configuration of the DMF Tutorial and submit the form on the configuration page with 
+a much smaller or larger number than the default value of 8 rows per table, then 
+navigate to the <tt class="literal"><span class="pre">Values.asp</span></tt> page and verify that the size of the table display 
+has changed.</p>
+<p>Another issue that must be dealt with is setting default values for server 
+variables. Looking back at the code in <tt class="literal"><span class="pre">Values.asp</span></tt>, for example, we used what 
+might be described as a &quot;look before you leap&quot; strategy:</p>
+<pre class="literal-block">
+&lt;%
+   count = getVal(&quot;_rowCount&quot;);
+   if (!__success__)
+   {
+      /* The server hasn't been configured with a number of rows to 
+       * show on a single page. We'll set a default.
+       */
+      count = 8;
+      set(&quot;_rowCount&quot;, count);
+   }
+%&gt;
+</pre>
+<p>We use the <tt class="literal"><span class="pre">getVal()</span></tt> function to find out what the current setting of the 
+<tt class="literal"><span class="pre">_rowCount</span></tt> server variable is. Immediately, we test to see if that operation 
+completed successfully by checking the value of <tt class="literal"><span class="pre">__success__</span></tt>. If there was an 
+error because <tt class="literal"><span class="pre">_rowCount</span></tt> doesn't yet have a value assigned to it, we set our 
+<tt class="literal"><span class="pre">count</span></tt> variable to a default value of 8, and call <tt class="literal"><span class="pre">set(&quot;_rowcount&quot;,</span> <span class="pre">count);</span></tt> to 
+save that default value on the server.</p>
+<p>If the same server variable is going to be needed on several pages, this approach 
+would require repeated code on each page that uses that server variable; this is not 
+only tedious, it's a long-term maintenance problem.</p>
+<p>Another approach (that we have taken in this tutorial with several of the server 
+variables) is to bundle up all of the defaults on a single page that we know will be 
+executed before those values are needed.</p>
+<p>In this tutorial, the default page of the device is <tt class="literal"><span class="pre">/home.asp</span></tt>. Until now, all 
+that page has done was execute a line of client-side JavaScript code that redirects 
+the user's browser to the 'real' home page, located at <tt class="literal"><span class="pre">/user/home.asp</span></tt>. Starting 
+with this chapter, we add server-side ejScript code that uses the &quot;look before you 
+leap&quot; idiom to ensure that reasonable defaults are in place for the server variables 
+that will be used:</p>
+<pre class="literal-block">
+&lt;%
+   // if the server variables we need to use are not sensibly initialized, 
+   // guarantee that they've got good values before we might need them...
+   getVal(&quot;_bgcolor&quot;);
+   if (__error__ == &quot;ParameterName&quot;)
+   {
+      set(&quot;_bgcolor&quot;, &quot;White&quot;);
+   }
+
+   getVal(&quot;_logo&quot;);
+   if (__error__ == &quot;ParameterName&quot;)
+   {
+      set(&quot;_logo&quot;, &quot;dmf_logo.png&quot;);
+   }
+
+   getVal(&quot;_rowcount&quot;);
+   if (__error__ == &quot;ParameterName&quot;)
+   {
+      set(&quot;_rowcount&quot;, 8);
+   }
+%&gt;
+</pre>
+<p>The resulting server variables are written by the DMF into a text file named 
+<tt class="literal"><span class="pre">LocalVar.txt</span></tt> that is located in the same directory as the DMF executable. You 
+may also decide to create this file manually (see the DMF User Guide or the DMF 
+source code for file format details) and place it in the appropriate location as 
+part of your manufacturing process; this approach may be useful in cases where a 
+single manufacturing facility needs to create OEM versions of the same device that 
+are differentiated solely by the contents of their <tt class="literal"><span class="pre">LocalVar.txt</span></tt> file.</p>
+</div>
+<div class="section" id="updating-the-interface">
+<h2><a class="toc-backref" href="#id40" name="updating-the-interface">Updating the Interface</a></h2>
+<p>To make the interface use the user-selected color and logo file, add the following 
+two lines to each <tt class="literal"><span class="pre">ASP</span></tt> file in the project, immediately following the <tt class="literal"><span class="pre">&lt;/head&gt;</span></tt> 
+tag:</p>
+<pre class="literal-block">
+&lt;body bgcolor=&lt;%get(&quot;_bgcolor&quot;);%&gt;&gt;
+&lt;img src=&quot;/images/&lt;%get(&quot;_logo&quot;);%&gt;&quot; alt=&quot;logo image&quot;&gt;
+</pre>
+<p>Build the <tt class="literal"><span class="pre">Ch09</span></tt> version of the DMF tutorial server, and log into the server as 
+the admin user. Navigate to the <tt class="literal"><span class="pre">Config.asp</span></tt> page, and select a different color 
+than the default white, and type either <tt class="literal"><span class="pre">dmf_logo.png</span></tt> or <tt class="literal"><span class="pre">anl_logo.png</span></tt> into 
+the logo edit box. Press the <tt class="literal"><span class="pre">Ok</span></tt> button, and the server will redirect your 
+browser to the device's home page, using the newly selected background color and 
+logo image.</p>
+</div>
+</div>
+<div class="section" id="chapter-10-error-pages">
+<h1><a class="toc-backref" href="#id41" name="chapter-10-error-pages">Chapter 10: Error Pages</a></h1>
+<!-- Copyright (c) 2002 Art & Logic, Inc. All Rights Reserved. -->
+<!-- $Id: Tutorial.html,v 1.2 2006/01/10 23:51:52 erik Exp $ -->
+<p>The DMF's Rich Error Page facility gives the web designer a way to
+communicate HTTP errors to users in the same look and feel that you've
+designed for the rest of your device's interface.  You can design pages
+to handle a single error code each, or a single page that handles all
+error codes. If the DMF finds both error-specific pages and generic
+error pages, it will use the most appropriate page for the current error.</p>
+<div class="section" id="error-page-names">
+<h2><a class="toc-backref" href="#id42" name="error-page-names">Error Page Names</a></h2>
+<p>When responding to an HTTP error, the DMF first looks in its root web
+directory for a file named <tt class="literal"><span class="pre">error&lt;&lt;code&gt;&gt;.asp</span></tt> (where <tt class="literal"><span class="pre">&lt;&lt;code&gt;&gt;</span></tt>
+is the three digit error code. If no file by that name exists, it then
+looks for a file in its root web directory named <tt class="literal"><span class="pre">error.asp</span></tt>. If that
+page is not found, the DMF will display a rather plain error page.</p>
+</div>
+<div class="section" id="error-variables">
+<h2><a class="toc-backref" href="#id43" name="error-variables">Error Variables</a></h2>
+<p>The DMF defines the following server variables that are only available
+during the display of the error page:</p>
+<dl>
+<dt><tt class="literal"><span class="pre">_errorCode_</span></tt></dt>
+<dd>The three-digit HTTP error code being reported.</dd>
+<dt><tt class="literal"><span class="pre">_errorText_</span></tt></dt>
+<dd>Brief description of the error, like &quot;Site or Page Not Found&quot;.</dd>
+<dt><tt class="literal"><span class="pre">_errorMessage_</span></tt></dt>
+<dd>Longer description of the error.</dd>
+<dt><tt class="literal"><span class="pre">_errorUrl_</span></tt></dt>
+<dd>URL being accessed that generated the error condition. The DMF replaces any
+<tt class="literal"><span class="pre">&lt;</span></tt> and <tt class="literal"><span class="pre">&gt;</span></tt> characters in that URL with the HTML entities <tt class="literal"><span class="pre">&amp;lt;</span></tt> and
+<tt class="literal"><span class="pre">&amp;gt;</span></tt> to prevent a cross-site scripting exploit.</dd>
+</dl>
+</div>
+<div class="section" id="example-error-page">
+<h2><a class="toc-backref" href="#id44" name="example-error-page">Example Error Page</a></h2>
+<p>A very simple Error Page that can be used to respond to any HTTP error code is 
+listed below in its entirety:</p>
+<pre class="literal-block">
+&lt;html&gt;
+&lt;head&gt;
+&lt;%language=javascript%&gt;
+&lt;title&gt;Rich Error Page&lt;/title&gt;
+&lt;/head&gt;
+
+&lt;body bgcolor=&lt;%get(&quot;_bgcolor&quot;);%&gt;&gt;
+&lt;img src=&quot;/images/&lt;%get(&quot;_logo&quot;);%&gt;&quot; alt=&quot;logo image&quot;&gt;
+&lt;h1&gt;Generic Error&lt;/h1&gt;
+
+&lt;p&gt;
+   This page is served when the server encounters an otherwise unhandled error code.
+&lt;/p&gt;
+
+&lt;%   now = getTime();
+   timeString = formatTime(now, &quot;%c&quot;);
+   write(&quot;Current time = &quot; + timeString + &quot;&lt;br /&gt;&quot;);
+   write(&quot;Error Code = &quot; + getVal(&quot;_errorCode_&quot;) + &quot;&lt;br /&gt;&quot;);
+   write(&quot;Error Text = &quot; + getVal(&quot;_errorText_&quot;) + &quot;&lt;br /&gt;&quot;);
+   write(&quot;Error Message = &quot; + getVal(&quot;_errorMessage_&quot;) + &quot;&lt;br /&gt;&quot;);
+   write(&quot;Error URL = &quot; + getVal(&quot;_errorUrl_&quot;) + &quot;&lt;br /&gt;&quot;);
+%&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</pre>
+<p>and this page (saved as <tt class="literal"><span class="pre">error404.asp</span></tt>) will respond to HTTP error 404:</p>
+<pre class="literal-block">
+&lt;html&gt;
+&lt;head&gt;
+&lt;%language=javascript%&gt;
+&lt;title&gt;Rich Error page&lt;/title&gt;
+&lt;/head&gt;
+
+&lt;body bgcolor=&lt;%get(&quot;_bgcolor&quot;);%&gt;&gt;
+&lt;img src=&quot;/images/&lt;%get(&quot;_logo&quot;);%&gt;&quot; alt=&quot;logo image&quot;&gt;
+&lt;h1&gt;404 Error&lt;/h1&gt;
+
+&lt;p&gt;
+   This page is served when the server encounters error code 404 (Page or Site Not Found).
+&lt;/p&gt;
+
+&lt;%   now = getTime();
+   timeString = formatTime(now, &quot;%c&quot;);
+   write(&quot;Current time = &quot; + timeString + &quot;&lt;br /&gt;&quot;);
+   write(&quot;Error Code = &quot; + getVal(&quot;_errorCode_&quot;) + &quot;&lt;br /&gt;&quot;);
+   write(&quot;Error Text = &quot; + getVal(&quot;_errorText_&quot;) + &quot;&lt;br /&gt;&quot;);
+   write(&quot;Error Message = &quot; + getVal(&quot;_errorMessage_&quot;) + &quot;&lt;br /&gt;&quot;);
+   write(&quot;Error URL = &quot; + getVal(&quot;_errorUrl_&quot;) + &quot;&lt;br /&gt;&quot;);
+%&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</pre>
+</div>
+<div class="section" id="testing-the-error-pages">
+<h2><a class="toc-backref" href="#id45" name="testing-the-error-pages">Testing the Error Pages</a></h2>
+<p>Build the <tt class="literal"><span class="pre">Ch10</span></tt> version of the DMF tutorial, and log into the
+device. Manually enter an URL that does not exist on the device, like:
+<a class="reference" href="http://localhost:8080/DoesNotExist.asp">http://localhost:8080/DoesNotExist.asp</a>.</p>
+<p>The DMF will display the <tt class="literal"><span class="pre">error404.asp</span></tt> page with the correct values
+for all of the pertinent server variables.</p>
+</div>
+</div>
+<div class="section" id="chapter-11-custom-get-and-set-functions">
+<h1><a class="toc-backref" href="#id46" name="chapter-11-custom-get-and-set-functions">Chapter 11: Custom <tt class="literal"><span class="pre">get()</span></tt> and <tt class="literal"><span class="pre">set()</span></tt> Functions</a></h1>
+<!-- Copyright (c) 2002 Art & Logic, Inc. All Rights Reserved. -->
+<!-- $Id: Tutorial.html,v 1.2 2006/01/10 23:51:52 erik Exp $ -->
+<p>The DMF comes with a library of functions that convert between text and binary 
+formats for a number of standard data types (various sizes of integers, floating 
+point, and string values).  You can easily augment the list of functions by writing 
+your own <tt class="literal"><span class="pre">getFunc()</span></tt> and <tt class="literal"><span class="pre">setFunc()</span></tt> functions.</p>
+<p>Common uses for this capability are when the internal representation of a piece of 
+data is sufficiently different from its desired text representation that a custom 
+conversion layer is needed.</p>
+<p>The DMF User Guide gives as an example of this a pair of functions that convert 
+between a dotted-quad IP address (<tt class="literal"><span class="pre">192.168.0.1</span></tt>) and  a 32-bit unsigned integer. 
+For this tutorial, we will write a custom <tt class="literal"><span class="pre">getFunc()</span></tt> that will be used to display 
+the parameter <tt class="literal"><span class="pre">system.info.uptime</span></tt> in terms of days/hours/minutes/seconds instead 
+of using raw seconds.</p>
+<p>While we'll only write a <tt class="literal"><span class="pre">GetFunc()</span></tt> for this tutorial, the same techniques and 
+concepts apply to writing a <tt class="literal"><span class="pre">SetFunc()</span></tt>.</p>
+<div class="section" id="write-the-function">
+<h2><a class="toc-backref" href="#id47" name="write-the-function">Write the Function</a></h2>
+<p>All <tt class="literal"><span class="pre">GetFunc()</span></tt> functions used by the DMF must use the following function 
+prototype:</p>
+<pre class="literal-block">
+int GetFunc(const char_t* key, const char_t* index,
+ char_t** value, void* rawData, struct ParamTAG* param,
+ int request);
+</pre>
+<p>where:</p>
+<dl>
+<dt><tt class="literal"><span class="pre">key</span></tt></dt>
+<dd>The full name of the parameter that is being accessed.</dd>
+<dt><tt class="literal"><span class="pre">index</span></tt></dt>
+<dd>String containing the desired index (NULL, if no index is being used).</dd>
+<dt><tt class="literal"><span class="pre">value</span></tt></dt>
+<dd>On return, the parameter's value should be copied into the memory at
+<tt class="literal"><span class="pre">*value</span></tt>. Calling code will free the memory.</dd>
+<dt><tt class="literal"><span class="pre">rawData</span></tt></dt>
+<dd>Address of the parameter's data, as indicated in the parameter tree.</dd>
+<dt><tt class="literal"><span class="pre">param</span></tt></dt>
+<dd>Pointer to this parameter's entry in the parameter tree.</dd>
+<dt><tt class="literal"><span class="pre">request</span></tt></dt>
+<dd>DMF request number for this transaction; this allows custom
+<tt class="literal"><span class="pre">GetFunc()</span></tt> functions to implement their own caching logic.</dd>
+</dl>
+<p>So, our new <tt class="literal"><span class="pre">GetUptime()</span></tt> function looks at the data pointed to by the <tt class="literal"><span class="pre">rawData</span></tt> 
+parameter after casting it to an integer, then uses a chain of division and modulo 
+operations to pull out the individual day, hour, minute, and second counts. The 
+function formats a string with the resulting values and returns it through the 
+<tt class="literal"><span class="pre">value</span></tt> argument:</p>
+<pre class="literal-block">
+#define kSecondsPerMinute  60
+#define kSecondsPerHour    (60 * kSecondsPerMinute)
+#define kSecondsPerDay     (24 * kSecondsPerHour)
+
+extern int GetUptime(const char_t* key, const char_t* index,
+ char_t** value, void* rawData, struct ParamTAG* param,
+ int request)
+{
+   int retval = kDmfDataLowerRange;
+   int days = 0;
+   int hours = 0;
+   int minutes = 0;
+   int seconds = 0;
+   int rawTime = *((int*)(rawData));
+
+   if (rawTime &gt;= 0)
+   {
+      retval = kDmfSuccess;
+
+      days = rawTime / kSecondsPerDay;
+      rawTime %= kSecondsPerDay;
+
+      hours = rawTime / kSecondsPerHour;
+      rawTime %= kSecondsPerHour;
+
+      minutes = rawTime / kSecondsPerMinute;
+      seconds = rawTime % kSecondsPerMinute;
+
+      fmtAlloc(value, BUF_MAX, T(&quot;%d days %d hours %d minutes %d seconds&quot;),
+       days, hours, minutes, seconds);
+   }
+
+   return retval;
+}
+</pre>
+</div>
+<div class="section" id="modify-the-parameter-tree">
+<h2><a class="toc-backref" href="#id48" name="modify-the-parameter-tree">Modify the Parameter Tree</a></h2>
+<p>To connect this function to the <tt class="literal"><span class="pre">system.info.uptime</span></tt> parameter, we need to update 
+the entry in the parameter tree:</p>
+<pre class="literal-block">
+{
+   T(&quot;uptime&quot;),         /*  key */
+   kInteger,            /*  dataType */
+   -1,                  /* read access level */
+   -1,                  /* write access level */
+   GetUptime,           /* !!! getFunc */
+   NULL,                /* setFunc */
+   NULL,                /* queryFunc */
+   0,                   /* lastQuery */
+   NULL,                /* commitFunc */
+   0,                   /* last commit */
+   &amp;(gSystemInfo.uptime),  /*  dataStart */
+   0,                   /* offset */
+   NULL,                /* startIndex */
+   NULL,                /* endIndex */
+   0,                   /* lowerLimit */
+   0,                   /* upperLimit */
+   -1,                  /* parent -- keep this -1 */
+},
+</pre>
+<p>Setting the value of the <tt class="literal"><span class="pre">getFunc</span></tt> field to our new <tt class="literal"><span class="pre">GetUptime()</span></tt> function is 
+all that's needed to change to our custom formatting routine. Build the <tt class="literal"><span class="pre">Ch11</span></tt> 
+version of the DMF tutorial, and point your browser to 
+<a class="reference" href="http://localhost:8080/user/SystemInfo.asp">http://localhost:8080/user/SystemInfo.asp</a> to view the newly-formatted uptime value. 
+Everything looks fine, except that the word &quot;seconds&quot; is repeated; once by our 
+<tt class="literal"><span class="pre">GetUptime()</span></tt> function's output, once in the <tt class="literal"><span class="pre">SystemInfo.asp</span></tt> source code. So, 
+we need to do a simple edit on that file.</p>
+</div>
+<div class="section" id="modify-the-asp-file">
+<h2><a class="toc-backref" href="#id49" name="modify-the-asp-file">Modify the <tt class="literal"><span class="pre">.asp</span></tt> File</a></h2>
+<p>Edit the file <tt class="literal"><span class="pre">Tutorial/Web/ch11/user/SystemInfo.asp</span></tt>, and delete the word 
+<tt class="literal"><span class="pre">seconds</span></tt> after the call to <tt class="literal"><span class="pre">get(&quot;system.info.uptime&quot;);</span></tt>. View the page again to 
+verify that the display is now correct.</p>
+</div>
+</div>
+<div class="section" id="chapter-12-custom-ejscript-functions">
+<h1><a class="toc-backref" href="#id50" name="chapter-12-custom-ejscript-functions">Chapter 12: Custom ejScript Functions</a></h1>
+<!-- Copyright (c) 2002 Art & Logic, Inc. All Rights Reserved. -->
+<!-- $Id: Tutorial.html,v 1.2 2006/01/10 23:51:52 erik Exp $ -->
+<p>Occasionally, it's useful to extend the capabilities of the DMF by adding new 
+ejScript functions that will execute on the server. Unlike client-side JavaScript, 
+however, ejScript functions may not be written in ejScript. All ejScript functions 
+are written in C and are compiled into the DMF executable. This reduces the 
+complexity of the ejScript interpreter while increasing the speed with which 
+ejScript functions execute.</p>
+<div class="section" id="writing-the-function">
+<h2><a class="toc-backref" href="#id51" name="writing-the-function">Writing the Function</a></h2>
+<p>As an example, we will write a simple function that creates an HTML text input field 
+that automatically populates itself with the correct value. The usual approach to 
+this is to write code in your <tt class="literal"><span class="pre">ASP</span></tt> file like:</p>
+<pre class="literal-block">
+&lt;input size=&quot;40&quot; name = &quot;system.info.name&quot; value=&quot;&lt;%get(&quot;system.info.name&quot;);%&gt;&quot;&gt;
+</pre>
+<p>A common bug introduced with this idiom happens when web designers build their forms 
+by copying and pasting text; if the name of the control does not match the parameter 
+name that was used to populate it (using the <tt class="literal"><span class="pre">get()</span></tt> function), the system will 
+not behave as intended.</p>
+<p>So, we'll write a simple ejScript function that drops a text input that will always 
+populate itself correctly:</p>
+<pre class="literal-block">
+textInput(size, parameterName [, index]);
+</pre>
+<p>If the optional <tt class="literal"><span class="pre">size</span></tt> argument is provided, the function will append it to the 
+parameter name in the format required to identify indexed parameters to the DMF form 
+handler.</p>
+<p>All C implementations of ejScript functions must use the following function 
+prototype:</p>
+<pre class="literal-block">
+typedef int (*AspFunc)(int ejid, void* wp, int argc, char_t **argv);
+</pre>
+<dl>
+<dt>where:</dt>
+<dd><dl class="first last">
+<dt>ejid</dt>
+<dd>Integer handle value, used internally by the ejScript interpreter.</dd>
+<dt>wp</dt>
+<dd>Pointer to <tt class="literal"><span class="pre">webs_t</span></tt> structure.</dd>
+<dt>argc</dt>
+<dd>Integer count of arguments presented to the ejScript function.</dd>
+<dt>argv</dt>
+<dd>Pointer to array of argument values. Use the <tt class="literal"><span class="pre">ejArgs()</span></tt> function to
+extract the arguments from the array.</dd>
+</dl>
+</dd>
+</dl>
+<p>The C implementation of our <tt class="literal"><span class="pre">textInput</span></tt> function (as in 
+<tt class="literal"><span class="pre">Tutorial/Server/ch12/UserFunc.c</span></tt>) follows:</p>
+<pre class="literal-block">
+extern int TextInput(int eid, webs_t wp, int argc, char_t **argv)
+{
+   char_t* parameter = NULL;
+   char_t* value = NULL;
+   char_t* index = NULL;
+   int size = 0;
+   int retval = kDmfError;
+   int argCount = 0;
+   int accessLevel = dmfUserAccessLevel(wp-&gt;userName);
+
+   /*
+    * the ejArgs() function pulls the individual arguments out of the 'argv'
+    * array using scanf()-like syntax, returning the number of arguments that
+    * were actually provided.
+    */
+   argCount = ejArgs(argc, argv, T(&quot;%d %s %s&quot;), &amp;size, &amp;parameter, &amp;index);
+   /*
+    * we need at least two parameters.
+    */
+   if (argCount &gt;= 2)
+   {
+      /*
+       * before we attempt to write anything to the browser, let's make sure
+       * that the parameter is valid, and that the current user has adequate
+       * access privileges...
+       */
+      retval = dmfGetParam(parameter, index, &amp;value, accessLevel);
+      if (kDmfSuccess == retval)
+      {
+         /*
+          * we successfully retrieved the parameter value, so let's write the
+          * input control into the user's browser...
+          */
+         websWrite(wp, T(&quot;&lt;input type=\&quot;text\&quot; size=\&quot;%d\&quot; name=\&quot;%s&quot;), size, parameter);
+         if (3 == argCount)
+         {
+            /* an index was provided, so we must append it to the parameter
+             * name to make the form setting code know how to handle the
+             * parameter....*/
+            websWrite(wp, T(&quot;_%s&quot;), index);
+         }
+         /*
+          * write the current value of this parameter into the input control
+          */
+         websWrite(wp, T(&quot;\&quot; value=\&quot;%s\&quot;&gt;&quot;), value);
+      }
+      /*
+       * The dmfGetParam() call above returned allocated memory, so we must
+       * free it before we leave the function.
+       */
+      bfreeSafe(B_L, value);
+   }
+   else
+   {
+      /* there weren't enough arguments made to the function call.
+       */
+      retval = kDmfArgCount;
+   }
+   /*
+    * set the error code in the DMF, and return zero (success) to the ejScript
+    * interpreter.
+    */
+   dmfSetErrorCode(eid, retval);
+   return 0;
+}
+</pre>
+</div>
+<div class="section" id="registering-the-function-with-the-framework">
+<h2><a class="toc-backref" href="#id52" name="registering-the-function-with-the-framework">Registering the Function With the Framework</a></h2>
+<p>Before you can call this ejScript function, you must register the function with the 
+framework. To do this, we add the following code to the end of our 
+<tt class="literal"><span class="pre">dmfUserPostInit()</span></tt> function in <tt class="literal"><span class="pre">UserFunc.c</span></tt>:</p>
+<pre class="literal-block">
+/*
+ * CH12: Register the new 'textInput' ejScript function with the framework:
+ */
+websAspDefine(T(&quot;textInput&quot;), (AspFunc) TextInput);
+</pre>
+<p>When this initialization function executes at DMF boot-time, the ejScript function 
+name <tt class="literal"><span class="pre">textInput</span></tt> will be associated with our C <tt class="literal"><span class="pre">TextInput()</span></tt> function.</p>
+</div>
+<div class="section" id="testing-the-function">
+<h2><a class="toc-backref" href="#id53" name="testing-the-function">Testing the Function</a></h2>
+<p>To test the new function, we will replace two of the manually-created text input 
+fields on the <tt class="literal"><span class="pre">/user/SystemInfo.asp</span></tt> page with inputs generated and populated with 
+a call to <tt class="literal"><span class="pre">textInput()</span></tt>:</p>
+<pre class="literal-block">
+&lt;form method=&quot;POST&quot; action=&quot;/goform/Dmf&quot;&gt;
+&lt;!-- CH12: using new textInput() ejScript function... --&gt;
+&lt;%getLabel(&quot;system.name&quot;);%&gt;:   &lt;%textInput(40, &quot;system.info.name&quot;);%&gt;&lt;br /&gt;
+
+&lt;%getLabel(&quot;description&quot;);%&gt;:   &lt;%textInput(40, &quot;system.info.description&quot;);%&gt;&lt;br /&gt;
+</pre>
+<p>After building and running the <tt class="literal"><span class="pre">Ch12</span></tt> configuration of the DMF tutorial, point 
+your browser at <a class="reference" href="http://localhost:8080/user/SystemInfo.asp">http://localhost:8080/user/SystemInfo.asp</a> as an admin or tech user, 
+and verify that the calls to <tt class="literal"><span class="pre">textInput()</span></tt> are being expanded correctly, like:</p>
+<pre class="literal-block">
+&lt;!-- CH12: using new textInput() ejScript function... --&gt;
+System Name:   &lt;input type=&quot;text&quot; size=&quot;40&quot; name=&quot;system.info.name&quot; value=&quot;DMF Tutorial&quot;&gt;&lt;br /&gt;
+
+Description:   &lt;input type=&quot;text&quot; size=&quot;40&quot; name=&quot;system.info.description&quot; value=&quot;Imaginary Pseudo Device&quot;&gt;&lt;br /&gt;
+</pre>
+</div>
+</div>
+<div class="section" id="chapter-13-xml-rpc">
+<h1><a class="toc-backref" href="#id54" name="chapter-13-xml-rpc">Chapter 13: XML-RPC</a></h1>
+<!-- Copyright (c) 2002 Art & Logic, Inc. All Rights Reserved. -->
+<!-- $Id: Tutorial.html,v 1.2 2006/01/10 23:51:52 erik Exp $ -->
+<p>XML-RPC is a lightweight remote procedure call protocol that packages function calls 
+and function returns into XML messages that are carried inside HTTP messages. The 
+specification is concise and easy to understand; you can read it at www.xmlrpc.com.</p>
+<p>More interesting than the specification itself is the fact that there are freely 
+available libraries that make it easy to implement an XML-RPC client.</p>
+<div class="section" id="the-dmf-xml-rpc-api">
+<h2><a class="toc-backref" href="#id55" name="the-dmf-xml-rpc-api">The DMF XML-RPC API</a></h2>
+<p>The DMF makes four functions available over XML-RPC; each of them exposes the 
+functionality of the similarly-named ejScript function:</p>
+<dl>
+<dt><tt class="literal"><span class="pre">value</span> <span class="pre">=</span> <span class="pre">get(key</span> <span class="pre">[,</span> <span class="pre">index])</span></tt></dt>
+<dd><p class="first">Retrieve the value of the specified parameter. If the <tt class="literal"><span class="pre">key</span></tt> is a node in
+the parameter tree, the DMF will return all the parameters underneath that
+node as an XML-RPC structure. Otherwise, the DMF will return the value of
+the single parameter that was requested.</p>
+<p class="last">If the DMF encounters an error while processing this request, it will send
+back an XML-RPC Fault structure.</p>
+</dd>
+<dt><tt class="literal"><span class="pre">set(key,</span> <span class="pre">[index,</span> <span class="pre">]</span> <span class="pre">value)</span></tt></dt>
+<dd>Change the value of <tt class="literal"><span class="pre">key</span></tt> to <tt class="literal"><span class="pre">value</span></tt>. If the <tt class="literal"><span class="pre">key</span></tt> parameter is
+indexed, then the optional <tt class="literal"><span class="pre">index</span></tt> value must be provided. Unlike the
+<tt class="literal"><span class="pre">get()</span></tt> function, the <tt class="literal"><span class="pre">set()</span></tt> function only works on individual values,
+not subsections of the parameter tree.</dd>
+<dt><tt class="literal"><span class="pre">label</span> <span class="pre">=</span> <span class="pre">getLabel(key)</span></tt></dt>
+<dd>Look up the translated word or phrase associated with <tt class="literal"><span class="pre">key</span></tt> in the
+currently loaded language database.</dd>
+<dt><tt class="literal"><span class="pre">errorList</span> <span class="pre">=</span> <span class="pre">getErrors()</span></tt></dt>
+<dd>Return the list of errors resulting from the last XML-RPC call. This
+function is only needed when the DMF returns the Fault code &quot;RpcErrors&quot; as
+the response to an XML-RPC function call.</dd>
+</dl>
+</div>
+<div class="section" id="a-standalone-application">
+<h2><a class="toc-backref" href="#id56" name="a-standalone-application">A Standalone Application</a></h2>
+<p>To demonstrate the XML-RPC interface in action, we have included a simple GUI 
+application written in Python that lets users view and modify the table of values, 
+labels, and limits.</p>
+<p>To use the application, you must install Python on your machine (freely downloadable 
+from <a class="reference" href="http://www.python.org">http://www.python.org</a>). The interface for the <tt class="literal"><span class="pre">RpcDemo</span></tt> application is 
+written using the Python <tt class="literal"><span class="pre">Tkinter</span></tt> module, which is a  cross-platform GUI library 
+that runs on all common platforms (UNIX/Linux, Windows, and Macintosh).</p>
+<p>XML-RPC support is a standard module in the Python distribution, and the flexibility 
+of the Python language makes using it simple, as XML-RPC functions are available to 
+clients by the act of calling them -- there's no stub or proxy code to write on the 
+client end, as the following interactive Python session shows:</p>
+<pre class="literal-block">
+ActivePython 2.2.2 Build 224 (ActiveState Corp.) based on
+Python 2.2.2 (#37, Nov 26 2002, 10:24:37) [MSC 32 bit (Intel)] on win32
+Type &quot;help&quot;, &quot;copyright&quot;, &quot;credits&quot; or &quot;license&quot; for more information.
+&gt;&gt;&gt; import xmlrpclib
+&gt;&gt;&gt; server = xmlrpclib.ServerProxy(&quot;http://localhost:8080/goform/RPC2&quot;)
+&gt;&gt;&gt; server.get(&quot;system.info.name&quot;)
+'DMF Tutorial'
+&gt;&gt;&gt; server.set(&quot;system.info.name&quot;, &quot;Python test&quot;)
+'Success'
+&gt;&gt;&gt; server.get(&quot;system.info.name&quot;)
+'Python test'
+&gt;&gt;&gt;
+</pre>
+<p>Two Python classes are used to abstract the remote device in the client we will 
+develop. The main class, &quot;Device&quot; (see <tt class="literal"><span class="pre">Tutorial/Web/ch13/xmlrpc/Device.py</span></tt>), 
+provides three major API functions:</p>
+<p><tt class="literal"><span class="pre">value</span> <span class="pre">=</span> <span class="pre">Query(parameterName</span> <span class="pre">[,</span> <span class="pre">index])</span></tt> performs an XML-RPC call to the device 
+and caches the returned value(s) in a ValueTree object (more later about the 
+ValueTree). This cache gives us an easy mechanism to request a snapshot of some 
+subsection of the parameter tree from the device, then pull out the individual 
+parameters one at a time later.</p>
+<p><tt class="literal"><span class="pre">value</span> <span class="pre">=</span> <span class="pre">GetValue(parameterName</span> <span class="pre">[,</span> <span class="pre">index])</span></tt> retrieves the requested parameter from 
+the ValueTree cache; if the parameter is not found, it raises an exception. No XML-
+RPC calls are made to the device.</p>
+<p><tt class="literal"><span class="pre">SetValue(parameterName,</span> <span class="pre">value,</span> <span class="pre">[index])</span></tt> sends a new parameter value to the 
+device using an XML-RPC call. If the set() operation succeeds, the new value is 
+cached in the device's ValueTree, and calling GetValue() will return this new value 
+(without performing another XML-RPC call).</p>
+<p>The ValueTree (<tt class="literal"><span class="pre">Tutorial/Web/ch13/xmlrpc/ValueTree.py</span></tt>) class stores data from the 
+device in the same nested dictionary data structure that is used by the xmlrpclib. 
+Doing this lets us swap in new subtrees in a single step. The main API functions 
+exposed by the ValueTree class are:</p>
+<p><tt class="literal"><span class="pre">value</span> <span class="pre">=</span> <span class="pre">GetValue(parameterName</span> <span class="pre">[,index])</span></tt></p>
+<p>and</p>
+<p><tt class="literal"><span class="pre">SetValue(parameterName,</span> <span class="pre">value</span> <span class="pre">[,</span> <span class="pre">index])</span></tt></p>
+<p>which retrieve or set the requested value in the ValueTree's set of nested 
+dictionaries. The Device class' <tt class="literal"><span class="pre">GetValue()</span></tt> function just delegates to the 
+implementation of ValueTree's <tt class="literal"><span class="pre">GetValue()</span></tt> function.</p>
+</div>
+<div class="section" id="testing-the-application">
+<h2><a class="toc-backref" href="#id57" name="testing-the-application">Testing the Application</a></h2>
+<p>Start the chapter 12 version of the Tutorial server.
+Change to the directory containing the Python source code
+(<tt class="literal"><span class="pre">Tutorial/Web/ch13/Python</span></tt>), and from a command prompt, type:</p>
+<pre class="literal-block">
+python RpcDemo.py
+</pre>
+<p>The application interface will display on the screen, showing slots for all 16 data 
+labels, limits, and values. Select the <tt class="literal"><span class="pre">Connect...</span></tt> option on the <tt class="literal"><span class="pre">File</span></tt> menu. 
+To connect to a DMF server running on the same machine, you may just press <tt class="literal"><span class="pre">Ok</span></tt> to 
+accept a default server address value of <tt class="literal"><span class="pre">http://localhost:8080/goform/RPC2</span></tt>, or 
+enter the full address, port, and path of a DMF running elsewhere into the edit box, 
+and press <tt class="literal"><span class="pre">Ok</span></tt>. If the DMF is running at the specified address, the interface will 
+populate itself with the current values from the DMF, and update itself once a 
+second with new data values. To change a label or limit setting, place the cursor in 
+the appropriate field and enter a new setting. When the cursor leaves the field, the 
+application will send it to the DMF.</p>
+<p>You can further test the application by running two instances of it and verifying 
+that changes made in one copy of the application are quickly displayed in the other.</p>
+</div>
+<div class="section" id="xml-rpc-in-java">
+<h2><a class="toc-backref" href="#id58" name="xml-rpc-in-java">XML-RPC in Java</a></h2>
+<p>The XML-RPC support in the DMF has also been tested using the Apache XML-RPC library 
+for Java. A binary version of this library may be downloaded from 
+<a class="reference" href="http://xml.apache.org/dist/xmlrpc/release/v1.1/">http://xml.apache.org/dist/xmlrpc/release/v1.1/</a>. Use of this library also requires a 
+fairly recent Java Virtual Machine, for example the JVM provided with the Java 2 
+JDK.</p>
+<p>The Apache XML-RPC library includes a simple command-line test application, as shown 
+below:</p>
+<pre class="literal-block">
+public static void main(String args[]) throws Exception
+{
+    //XmlRpc.setDebug(true);
+    // XmlRpc.setKeepAlive(true);
+    try
+    {
+        String url = args[0];
+        String method = args[1];
+        Vector v = new Vector();
+        for (int i = 2; i &lt; args.length; i++)
+        {
+            try
+            {
+                v.addElement(
+                        new Integer(Integer.parseInt(args[i])));
+            }
+            catch(NumberFormatException nfx)
+            {
+                v.addElement(args[i]);
+            }
+        }
+        XmlRpcClient client = new XmlRpcClientLite(url);
+        try
+        {
+            System.err.println(client.execute(method, v));
+        }
+        catch(Exception ex)
+        {
+            System.err.println(&quot;Error: &quot; + ex.getMessage());
+        }
+    }
+    catch(Exception x)
+    {
+        System.err.println(x);
+        System.err.println(&quot;Usage: java org.apache.xmlrpc.XmlRpcClient &lt;url&gt; &lt;method&gt; &lt;arg&gt; ....&quot;);
+        System.err.println(&quot;Arguments are sent as integers or strings.&quot;);
+    }
+}
+</pre>
+<p>You may use this test by creating a shell script or batch file like this Windows 
+batch file <tt class="literal"><span class="pre">test.bat</span></tt>:</p>
+<pre class="literal-block">
+set XMLRPC_HOME=..\xmlrpc-1.1
+set JAVABIN=c:\Program Files\j2sdk1.4.0_01\bin
+set JAVACLASSES=%JAVABIN%\..\jre\lib\rt.jar
+set XMLRPC_LIB=%XMLRPC_HOME%\bin\xmlrpc-1.1.jar
+
+&quot;%JAVABIN%\java&quot; -classpath &quot;%JAVACLASSES%;%XMLRPC_LIB%&quot; org.apache.xmlrpc.XmlRpcClient http://localhost:8080/goform/RPC2 %1 %2
+</pre>
+<p>After making any path changes that may be required to match your local installation, 
+enter the command line:</p>
+<pre class="literal-block">
+test get system.info
+</pre>
+<p>which will print output like the following to the console:</p>
+<pre class="literal-block">
+{uptime: 39, name:DMF Tutorial, description:Imaginary Pseudo Device}
+</pre>
+</div>
+<div class="section" id="using-other-languages">
+<h2><a class="toc-backref" href="#id59" name="using-other-languages">Using Other Languages</a></h2>
+<p>Once you understand how to access the DMF using XML-RPC in general, it should be 
+easy to extend that knowledge to any of the 40 or 50 other languages that have XML-
+RPC support. Chapter 15 of this tutorial shows an example of this, using XML-RPC to 
+communicate between the DMF and an interface written in Macromedia Flash.</p>
+</div>
+</div>
+<div class="section" id="chapter-14-soap">
+<h1><a class="toc-backref" href="#id60" name="chapter-14-soap">Chapter 14: SOAP</a></h1>
+<!-- Copyright (c) 2002 Art & Logic, Inc. All Rights Reserved. -->
+<!-- $Id: Tutorial.html,v 1.2 2006/01/10 23:51:52 erik Exp $ -->
+<p>Like XML-RPC, SOAP is a protocol to perform Remote Procedure Calls over HTTP using 
+XML encodings for the function call and response messages. The early design of the 
+SOAP protocol was done by the same small group of engineers that designed the XML-
+RPC specification. Since that early work, SOAP has been taken up by the W3C as a 
+standard; it's also the basis for a large part of Microsoft's <tt class="literal"><span class="pre">.NET</span></tt> initiative. 
+Languages from Microsoft like VB.NET, C#, and Visual J# (as well as other languages 
+that work with the <tt class="literal"><span class="pre">.NET</span></tt> Common Language Runtime) work natively with the SOAP 
+protocol.</p>
+<p>The main difference one notices between XML-RPC and SOAP is that the SOAP 
+specification is significantly more complex than the XML-RPC spec. There are several 
+possible techniques for performing data encoding, SOAP messages may be carried over 
+messaging layers other than HTTP, there are more complex semantics that are possible 
+with SOAP messages, and so on.</p>
+<p>The complexity is readily visible by a quick glance at equivalent messages in each 
+encoding. A call to the DMF <tt class="literal"><span class="pre">get()</span></tt> function made over XML-RPC is encoded as:</p>
+<pre class="literal-block">
+&lt;?xml version=&quot;1.0&quot; ?&gt;
+  &lt;methodCall&gt;
+     &lt;methodName&gt;get&lt;/methodName&gt;
+      &lt;params&gt;
+         &lt;param&gt;
+            &lt;value&gt;&lt;string&gt;test.struct.char&lt;/string&gt;&lt;/value&gt;
+         &lt;/param&gt;
+     &lt;/params&gt;
+ &lt;/methodCall&gt;
+</pre>
+<p>The same call made over SOAP looks like:</p>
+<pre class="literal-block">
+&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF8&quot; standalone=&quot;no&quot; ?&gt;
+&lt;SOAP-ENV:Envelope xmlns:SOAPSDK1=&quot;http://www.w3.org/2001/XMLSchema&quot;
+xmlns:SOAPSDK2=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+xmlns:SOAPSDK3=&quot;http://schemas.xmlsoap.org/soap/encoding/&quot;
+xmlns:SOAP-ENV=&quot;http://schemas.xmlsoap.org/soap/envelope/&quot;&gt;
+  &lt;SOAP-ENV:Body&gt;
+     &lt;d:get xmlns:d=&quot;http://www.artlogic.com/dmf/&quot;&gt;
+        &lt;key&gt;test.struct.char&lt;/key&gt;
+     &lt;/d:get&gt;
+  &lt;/SOAPENV:Body&gt;
+&lt;/SOAPENV:Envelope&gt;
+</pre>
+<p>Another difference that becomes apparent is that XML-RPC function arguments are 
+positional, while SOAP arguments are identified by name. This means that the 
+argument names listed below must be used exactly as shown here.</p>
+<div class="section" id="the-dmf-soap-api">
+<h2><a class="toc-backref" href="#id61" name="the-dmf-soap-api">The DMF SOAP API</a></h2>
+<p>The DMF exposes the same API over SOAP that it exposes over XML-RPC, but because of 
+the different calling conventions used by various SOAP libraries, you may need to 
+approach SOAP differently than XML-RPC.</p>
+<p>Below is a short example using the COM-based Microsoft SOAP Toolkit 3.0, which may 
+be used on Windows from any language or environment that permits calling functions 
+in COM components.</p>
+<p>This example is written in Python for clarity, but the techniques shown are 
+applicable to any language that can call the SOAP Toolkit. The Python code below 
+uses the <tt class="literal"><span class="pre">__getattr__</span></tt> mechanism of Python classes to intercept calls made to 
+arbitrary SOAP methods on the server, and convert them into instances of the inner 
+helper <tt class="literal"><span class="pre">_SoapMethod</span></tt> class, which formats the SOAP message by calling functions in 
+the SOAP toolkit (see the <tt class="literal"><span class="pre">__call__</span></tt> method in the inner <tt class="literal"><span class="pre">_SoapMethod</span></tt> class).</p>
+<pre class="literal-block">
+import win32com.client
+
+kDmfNs = &quot;http://www.artlogic.com/dmf/&quot;
+kDefaultUrl = &quot;http://linuxdev.artlogic.com:8080/goform/SOAP&quot;
+
+kAction = &quot;http://tempuri.org/Dmf&quot;
+kEncoding = &quot;NONE&quot; ## or 'STANDARD'
+
+class MsSoapClient:
+    class _SoapMethod:
+        def __init__(self, fn, client):
+            self.fFunction = fn
+            self.fClient = client
+
+        def __call__(self, *args, **kwArgs):
+            client = self.fClient
+            soapClient =  win32com.client.Dispatch(&quot;MSSOAP.SoapClient30&quot;)
+            connector = win32com.client.Dispatch(&quot;MSSOAP.HttpConnector30&quot;)
+
+            connector.SetProperty(&quot;EndPointURL&quot;, client.fUrl)
+            connector.Connect()
+            connector.SetProperty(&quot;SoapAction&quot;, client.fAction)
+
+            serializer = win32com.client.Dispatch(&quot;MSSOAP.SoapSerializer30&quot;)
+            #self.fSerializer.Init(self.fConnector.InputStream)
+
+            reader = win32com.client.Dispatch(&quot;MSSOAP.SoapReader30&quot;)
+
+            connector.BeginMessage()
+
+            serializer.Init(connector.InputStream)
+            serializer.StartEnvelope()
+            serializer.StartBody(client.fEncoding)
+            # &lt;fn&gt;
+            serializer.StartElement(self.fFunction, client.fNs, client.fEncoding,
+             &quot;d&quot;)
+            if args and len(args[0]):
+                #   &lt;key&gt;
+                serializer.StartElement(&quot;key&quot;, &quot;&quot;, client.fEncoding)
+                serializer.WriteString(args[0])
+                serializer.EndElement()
+                #   &lt;/key&gt;
+            for key in kwArgs:
+                # &lt;keywordtag&gt;
+                serializer.StartElement(str(key))
+                serializer.WriteString(str(kwArgs[key]))
+                serializer.EndElement()
+                # &lt;/keywordtag&gt;
+
+            serializer.EndElement()
+            #&lt;/fn&gt;
+            serializer.EndBody()
+            serializer.EndEnvelope()
+            # finish the message and receive the response
+            connector.EndMessage()
+
+            # read the response
+            #reader = win32com.client.Dispatch(&quot;MSSOAP.SoapReader30&quot;)
+            reader.Load(connector.OutputStream)
+            if reader.Fault:
+                print reader.FaultString.Text
+
+            #print reader.Body.xml
+            print reader.RpcResult.text
+
+    def __init__(self, url = kDefaultUrl, ns = kDmfNs, action = kAction,
+     encoding = kEncoding):
+        self.fUrl = url
+        self.fNs = ns
+        self.fAction = action
+        self.fEncoding = encoding
+
+    def __getattr__(self, name):
+        return MsSoapClient._SoapMethod(name, self)
+
+if __name__ == &quot;__main__&quot;:
+
+    c = MsSoapClient()
+    c.get(&quot;test.struct.char&quot;)
+    c.set(&quot;test.struct.char&quot;, value=42)
+    c.set(&quot;test.struct.bytes&quot;, index=3, value=11)
+    c.get(&quot;test.struct&quot;)
+    # set a value that's out of range.
+    c.set(&quot;test.struct.char&quot;, value=10101)
+
+    # get the label in the current language (whatever that may be)
+    c.getLabel(&quot;h1&quot;)
+
+    c.set(&quot;_language&quot;, &quot;fr&quot;)
+    c.getLabel(&quot;h1&quot;)
+    c.set(&quot;_language&quot;, &quot;es&quot;)
+    c.getLabel(&quot;h1&quot;)
+    c.set(&quot;_language&quot;, &quot;en&quot;)
+    c.getLabel(&quot;h1&quot;)
+
+    c.getErrors()
+</pre>
+</div>
+</div>
+<div class="section" id="chapter-15-flash-interface">
+<h1><a class="toc-backref" href="#id62" name="chapter-15-flash-interface">Chapter 15: Flash Interface</a></h1>
+<p>This chapter describes how to create a Macromedia Flash-based interface
+that communicates with your device over XML-RPC. More specifically, we
+will expand on the &quot;data values&quot; page created in chapter 5 by displaying
+the data in a line graph.  The user  will be able to view any of the
+16 data values (including their localized labels and limits)  as a
+graph. The graph will be created using a Flash MX charting component
+and  ActionScript (the programming language within Flash).</p>
+<p>Flash is an ideal technology for embedded systems. Flash movies are
+vector-based, making them smaller and faster than similar interfaces
+created using other technologies.  Another advantage of Flash is that
+it runs consistently across multiple platforms,  browsers, and handheld
+computers. According to Macromedia, 98% of web users have  some version
+of Flash installed on their computer.</p>
+<p>You will need the Flash MX (or later) development studio to use
+the included XML-RPC library. Flash MX is available from Macromedia
+(<a class="reference" href="http://www.macromedia.com">http://www.macromedia.com</a>) for about $500.</p>
+<p>You'll also need to learn to use Flash and ActionScript in order to
+complete this tutorial.  See the tutorials included with Flash MX, as well
+as your local bookstore for a wide range of books on the subject. This
+tutorial assumes previous experience with Flash  development.</p>
+<p>Flash has a reputation for being used for humorous web animations, games,
+and advertisements. Don't be fooled -- Flash MX is an object-oriented
+development environment and can be used to create arbitrarily complex
+user interfaces.</p>
+<div class="section" id="installing-the-charting-components">
+<h2><a class="toc-backref" href="#id63" name="installing-the-charting-components">Installing The Charting Components</a></h2>
+<p>Your copy of the DMF may include a collection of components
+that are useful for device  management interfaces. Search
+your DMF directory for <tt class="literal"><span class="pre">*.mxp</span></tt> files. If you don't find  them,
+you can download the &quot;Charting Components&quot; <tt class="literal"><span class="pre">.mxp</span></tt> file from
+the Macromedia Exchange pages. Currently this is at:
+<a class="reference" href="http://dynamic.macromedia.com/bin/MM/exchange/extension_detail.jsp?extOid=377283">http://dynamic.macromedia.com/bin/MM/exchange/extension_detail.jsp?extOid=377283</a></p>
+<p>Install the new components using Macromedia Extension Manager (you probably  
+installed this program when you installed Flash).</p>
+<p>Start Flash MX. In the Components window, you should see &quot;Flash UI Components&quot;,  
+&quot;Flash Charting Components&quot;, plus any previously installed components.</p>
+<p>Note that the FLineChart methods are documented in the Reference window. Browse  
+through this documentation for an overview.</p>
+</div>
+<div class="section" id="chart-setup">
+<h2><a class="toc-backref" href="#id64" name="chart-setup">Chart Setup</a></h2>
+<p>Create a new Flash file (<tt class="literal"><span class="pre">*.fla</span></tt>). In the Components window, select the Line Chart  
+component and drag it onto the stage.</p>
+<p>Next, we need to set the default properties for the line chart. Select the line 
+chart on the  stage. In the Properties window, select the Parameters tab. We want to 
+clear most of the  default parameters because we'll set them programmatically within 
+ActionScript.</p>
+<p>Under Layout Options, ChartTitle, XAxisTitle and YAxisTitle should have values of &quot; &quot; 
+(a space). LineColor, LineWeight, and ShowHighlights should be left blank. Margin 
+and  XLabelMaxHeight can be left at their preset values. Chart Event Handlers should 
+be left  as their default values. All of the Category Values and Data Values should 
+be cleared.</p>
+<p>Don't forget to give this instance of LineChart a name. Let's call it &quot;myChart0&quot;. 
+This name  will be used when we call Line Chart methods from ActionScript.</p>
+<p>The default instance of LineChart displays a small diamond-shaped indicator at each  
+datapoint. This can be edited by navigating to the FLineChart Skins inside the 
+Library  window. To delete the diamond-shaped indicator (as we did), open the 
+flchrt_linemarker  item from the Library window and delete it on the stage.</p>
+<p>To add the ListBox, drag a ListBox onto the stage and name it myListBox0.</p>
+<p>To add fields for the alarms, add two &quot;dynamic&quot; text fields. For the first text 
+field, set the  &quot;Var&quot; to &quot;lowerAlarm&quot;. For the second text field, set the &quot;Var&quot; to 
+&quot;upperAlarm&quot;. Later,  the values you assign to these variables will appear in the 
+text fields.</p>
+<p>The chart is now ready to be programmed using ActionScript.</p>
+</div>
+<div class="section" id="chart-programming-in-actionscript">
+<h2><a class="toc-backref" href="#id65" name="chart-programming-in-actionscript">Chart Programming in ActionScript</a></h2>
+<p>A variety of things can be done using the LineChart component. The example in this  
+tutorial includes one line chart (myChart0) plus a ListBox component. The ListBox  
+component is pre-installed in Flash (see the Flash UI Components in the Components  
+window). Both components will be used inside our movie.</p>
+<p>The Actions window contains the ActionScript which controls myChart0. Make sure  
+you're in advanced mode and viewing the actions for the correct frame and layer.</p>
+<p>In order to make our ActionScript files visible to people who don't have Flash MX, 
+we  have simply included them as text files (rather than saving them inside the 
+<tt class="literal"><span class="pre">*.fla</span></tt> file). This  also makes it easier to work with a version control system such 
+as CVS.</p>
+<pre class="literal-block">
+#include &quot;xml-rpc.as&quot;
+#include &quot;graphs.as&quot;
+</pre>
+<p><tt class="literal"><span class="pre">Xml-rpc.as</span></tt> is the XML-RPC library. Graphs.as contains the code for our movie.</p>
+<p>See the DMF user guide for more detailed information about using XML-RPC.</p>
+<p>Let's begin programming. The first thing you need to know is the location of your 
+XML- RPC server. In other words, you need the location of the server that served the 
+movie.</p>
+<pre class="literal-block">
+myURL = _root._url;
+myURLArray = myURL.split(&quot;/user/graphs.swf&quot;);
+myServer = myURLArray[0] + &quot;/goform/RPC2&quot;;
+</pre>
+<p>For local viewing, it might be convenient to hard-code the server location. This is  
+necessary if you want to preview the movie within Flash MX (instead of requesting 
+the <tt class="literal"><span class="pre">.swf</span></tt> file from the DMF server). Temporarily add the following line:</p>
+<p><tt class="literal"><span class="pre">myServer</span> <span class="pre">=</span> <span class="pre">&quot;http://localhost:8080/goform/RPC2&quot;;</span></tt></p>
+<p>Be sure to remove (or comment-out) this line before you serve the movie from another  
+location!</p>
+<p>The next thing we need is the localized text strings to be displayed in the movie. 
+Since we  already know how to get localized strings in ejScript, we simply load an 
+ASP file which  assigns the correct values to the Flash variables.</p>
+<pre class="literal-block">
+loadVariablesNum(&quot;FlashText.asp&quot;,0);
+</pre>
+<p>The contents of the ASP file are as follows:</p>
+<pre class="literal-block">
+lowerAlarmText=&lt;%getLabel(&quot;lower.alarm&quot;);%&gt;:&amp;upperAlarmText=&lt; %getLabel(&quot;upper.alarm&quot;);%&gt;:&amp;yAxisLabel=&lt;%getLabel(&quot;value&quot;);% &gt;&amp;xAxisLabel=&lt;%getLabel(&quot;time&quot;);%&gt;
+</pre>
+<p>Next, we need to populate the ListBox with blank entries:</p>
+<pre class="literal-block">
+for (i=0; i&lt;16; i++)
+{
+   myListBox0.addItemAt(i,&quot; &quot;,i);
+}
+</pre>
+<p>When the user chooses a different item from the ListBox, a change handler function 
+is  called. We need to define what that function is:</p>
+<pre class="literal-block">
+myListBox0.setChangeHandler(&quot;listBoxChangeHandler0&quot;);
+</pre>
+<p>Finally, we initialize the chart:</p>
+<pre class="literal-block">
+myChart0.setLineWeight(1);
+myChart0.setLineColor(0x000000);
+myChart0.setXAxisTitle(&quot; &quot;); // left blank for now
+myChart0.setYAxisTitle(&quot; &quot;); // left blank for now
+myListBox0.setSelectedIndex(0);
+</pre>
+<p>Now that the chart is initialized, we begin polling via XML-RPC. The interval is set 
+in  milliseconds:</p>
+<pre class="literal-block">
+polling(true,750);
+</pre>
+<p>This causes the data to be polled every 750 milliseconds.</p>
+<p>The XML-RPC polling is done as follows:</p>
+<pre class="literal-block">
+rpc = new xmlrpc(server);
+params = rpc.setParameter(&quot;system.values&quot;);
+rpc.callBack = getValuesCallback;
+rpc.send(&quot;get&quot;,[params]);
+</pre>
+<p>Each time the data is returned, <tt class="literal"><span class="pre">getValuesCallback()</span></tt> is called. This is where we 
+update the  chart's data points, title, and x-y axis labels.</p>
+<p>You may be wondering what the <tt class="literal"><span class="pre">hideChart()</span></tt> function is for. This is a simple cosmetic  
+enhancement to hide the chart's drawing. The LineChart component automatically 
+decides  what the range of the y-axis should be, depending on the values you give 
+it. Generally, the  first two values cause a significant amount of (unpleasant) 
+movement, so we created a  large gray square which hides the chart whenever there 
+are less than 2 data points. When  there are two data points, the chart's y axis is 
+(usually) stable, so we remove the gray box:</p>
+<pre class="literal-block">
+_root.grad.removeMovieClip();
+</pre>
+</div>
+<div class="section" id="publishing-and-viewing-your-flash-movie">
+<h2><a class="toc-backref" href="#id66" name="publishing-and-viewing-your-flash-movie">Publishing and Viewing Your Flash Movie</a></h2>
+<p>Your Flash movie can be published using the &quot;Publish Settings&quot; and &quot;Publish&quot; menu 
+items  under the File menu. There's no special trick to it – just make sure your 
+HTML file  checks for Flash 6 (or higher) and displays an appropriate error message 
+(and Flash  Player 6 download link) for users who are using an older version.</p>
+<p>The DMF is preconfigured with the ability to serve <tt class="literal"><span class="pre">.swf</span></tt> files. Simply publish your  
+Flash-related files in the <tt class="literal"><span class="pre">/web</span></tt> (in this case, <tt class="literal"><span class="pre">/web/ch15</span></tt>) directory, and they'll be 
+accessible  just like any other HTML file.</p>
+<p>To view your HTML file including the Flash movie, run the DMF server for chapter 15  
+and point your browser to <tt class="literal"><span class="pre">Graphs.asp</span></tt>.</p>
+</div>
+</div>
+<div class="section" id="chapter-16-art-logic-user-interface">
+<h1><a class="toc-backref" href="#id67" name="chapter-16-art-logic-user-interface">Chapter 16: Art &amp; Logic User Interface</a></h1>
+<!-- Copyright (c) 2002 Art & Logic, Inc. All Rights Reserved. -->
+<!-- $Id: Tutorial.html,v 1.2 2006/01/10 23:51:52 erik Exp $ -->
+<p>Build and run the chapter 16 user interface. Art &amp; Logic designed this interface as 
+a simple example of how the tutorial example might be beautified. Functionally, this 
+user interface is identical to that in previous chapters.</p>
+<p>One of the things that sets the DMF apart from competing solutions is that the 
+embedded code and web code are completely separate. This separation makes 
+beautification possible without modifying the server code.</p>
+<p>Beautification is a process that generally requires some combination of the 
+following skills:</p>
+<ul class="simple">
+<li>user interface design</li>
+<li>Flash design and ActionScript programming</li>
+<li>HTML, JavaScript, and Java programming</li>
+<li>usability expertise</li>
+</ul>
+<p>Art &amp; Logic is the quickest and best way to design and implement your web-based 
+management system. We have been creating web-based management interfaces since 1996 
+for companies like Hewlett-Packard, Broadcom, Motorola, and Nortel. Our experience 
+ranges from low-level driver development to user interface design and usability 
+testing.</p>
+<p>Art &amp; Logic can help your project in several ways:</p>
+<ol class="arabic simple">
+<li>We can help you with your overall software strategy. Whether you
+require a browser-based web interface, or a multi-platform unified
+device management system, our experience will help you to choose the
+strategy to get the job done right.</li>
+<li>We can design and implement your device management software. Our
+DMF experts have the right combination of embedded and web skills to
+help you get it done right the first time.</li>
+<li>We can develop your real-time embedded software.</li>
+<li>We can provide support services for your DMF project.</li>
+</ol>
+<p>For examples of our user interfaces, project stories, and related articles, visit: 
+<a class="reference" href="http://www.artlogic.com/embedded/">http://www.artlogic.com/embedded/</a></p>
+</div>
+<div class="section" id="copyright-information">
+<h1><a class="toc-backref" href="#id68" name="copyright-information">Copyright Information</a></h1>
+<p>The Art &amp; Logic Device Management Framework is copyright (c) 2000-2002 Art
+&amp; Logic, Inc. All Rights Reserved.</p>
+<!-- $Log: Tutorial.html,v $
+<!-- Revision 1.2  2006/01/10 23:51:52  erik
+<!-- Update to merge in V_2.1 files
+<!--
+<!-- Revision 1.1.1.1  2003/11/13 16:25:47  edson
+<!-- temporary creation
+<!-- -->
+<!-- Revision 1.1  2003/01/15 22:31:46  bporter -->
+<!-- Changing to be packaged as a single, large HTML file - - removed inter-chapter links, $Log: Tutorial.html,v $
+<!-- Changing to be packaged as a single, large HTML file - - removed inter-chapter links, Revision 1.2  2006/01/10 23:51:52  erik
+<!-- Changing to be packaged as a single, large HTML file - - removed inter-chapter links, Update to merge in V_2.1 files
+<!-- Changing to be packaged as a single, large HTML file - - removed inter-chapter links,
+<!-- Changing to be packaged as a single, large HTML file - - removed inter-chapter links, Revision 1.1.1.1  2003/11/13 16:25:47  edson
+<!-- Changing to be packaged as a single, large HTML file - - removed inter-chapter links, temporary creation
+<!-- Changing to be packaged as a single, large HTML file - - removed inter-chapter links, -->
+<!--  -->
+</div>
+</div>
+</body>
+</html>

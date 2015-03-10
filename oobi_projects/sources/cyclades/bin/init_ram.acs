@@ -1,0 +1,35 @@
+#!/bin/sh
+
+mount -o remount,rw /dev/root / -t root 2>/dev/null
+mount -t cycfs none /mnt/flash
+mount -a 2>/dev/null
+
+[ -x /sbin/depmod ] && /sbin/depmod -a
+
+KVER="$(uname -r)"
+# Mount sysfs to enable the handling of hotplug events.
+if [[ "$KVER" == 2.6.* ]] ; then
+        mkdir /sys
+        mount -t sysfs none /sys
+fi
+
+#Restore configuration from Flash
+/bin/restoreconf 1>/dev/null 2>&1
+
+#if (first boot with v2.3.1+) && (old configuration saved)
+#then (assume custom security profile and run pwconv)
+/bin/check1stBoot 
+
+#upgrade the daemon configuration from 2.3.0 to new directory
+#and update some configuration files
+/bin/upgrade.sh
+
+#Keep the same HW console speed throughout Linux execution
+/bin/setConSpeed
+
+# Make sure pcmcia is started before checking /mnt/...
+/etc/init.d/pcmcia start
+sleep 35
+
+SD_CFG="/mnt/ide/proc/flash/storageOptions"
+[ -e $SD_CFG -a "`grep -s DEFAULT $SD_CFG`" ] && restoreconf

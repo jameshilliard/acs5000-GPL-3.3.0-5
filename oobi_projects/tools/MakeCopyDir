@@ -1,0 +1,81 @@
+#
+#  Makefile for Cyclades projects.
+#
+# Copy files from builtin packages (bin, etc, lib, etc) into the RD image.
+#
+
+include $(ROOT_PROJ)/$(TOOLS)/MakeChecks
+
+$(call check_vars,SUBDIR TARGET_DIR)
+
+CP:=cp -a
+#CP:=cp -dR --preserve=mode
+CHOWN:=chown $(ID_UN):$(ID_GN)
+
+define CopyFiles
+	@echo Copying '$(shell pwd)/$@'
+	@( \
+		cd $@ ; \
+		install -d -o $(ID_UN) -g $(ID_GN) $(TARGET_DIR)$(SUBDIR)$@ ; \
+		LOCAL_FILES=$$(ls $(1) ); \
+		for file in $$LOCAL_FILES ; do \
+			if [ -d $$file ] ; then \
+				$(MAKE) -f $(firstword $(MAKEFILE_LIST)) $$file \
+					TARGET_DIR=$(TARGET_DIR) \
+					SUBDIR=$(SUBDIR)$@/ ; \
+			else \
+				file $$file | grep "not stripped" ; \
+				if [ "x$$?" = "x0" ] ; then \
+					$(STRIP) -o $(TARGET_DIR)$(SUBDIR)$@/$$file $$file ; \
+				else \
+					$(CP) $$file $(TARGET_DIR)$(SUBDIR)$@/$$file ; \
+				fi ; \
+				$(CHOWN) $(TARGET_DIR)$(SUBDIR)$@/$$file ; \
+			fi \
+		done \
+	)
+endef
+
+FILES := $(shell ls)
+
+all: $(FILES)
+
+etc: force
+	$(CP) $@ $(TARGET_DIR)$(SUBDIR)
+	$(CHOWN) -R $(TARGET_DIR)$(SUBDIR)/etc
+
+usr local : force
+	@[ -d $@ ] && \
+	$(MAKE) -C $@ -f $(firstword $(MAKEFILE_LIST)) \
+		TARGET_DIR=$(TARGET_DIR) \
+		SUBDIR=$(SUBDIR)$@/
+
+bin sbin: force
+	$(call CopyFiles,)
+
+lib libexec: force
+	$(call CopyFiles, -I "*.a" -I "*.la")
+
+engines: force
+ifeq ($(SUBDIR),/lib/)
+	$(call CopyFiles, -I "*.a" -I "*.la")
+endif
+
+ssh: force
+ifeq ($(SUBDIR),/etc/)
+	$(call CopyFiles,)
+endif
+
+ipsec: force
+	$(call CopyFiles,)
+
+iptables: force
+	$(call CopyFiles, -I "*.a" -I "*.la")
+
+$(MAKEFILE_LIST): ;
+
+%: force
+	@echo File/directory '$(shell pwd)/$@' ignored...
+
+force: ;
+

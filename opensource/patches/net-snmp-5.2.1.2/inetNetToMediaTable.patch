@@ -1,0 +1,27 @@
+Index: net-snmp-5.2.1.2/agent/mibgroup/ip-mib/inetNetToMediaTable/inetNetToMediaTable.c
+===================================================================
+RCS file: /usr/cvsroot/tslinux_mv21/net-snmp-5.2.1.2/agent/mibgroup/ip-mib/inetNetToMediaTable/inetNetToMediaTable.c,v
+retrieving revision 1.1
+retrieving revision 1.1.10.1
+diff -u -r1.1 -r1.1.10.1
+--- net-snmp-5.2.1.2/agent/mibgroup/ip-mib/inetNetToMediaTable/inetNetToMediaTable.c	22 Jul 2005 22:30:16 -0000	1.1
++++ net-snmp-5.2.1.2/agent/mibgroup/ip-mib/inetNetToMediaTable/inetNetToMediaTable.c	2 May 2007 13:43:08 -0000	1.1.10.1
+@@ -374,11 +374,16 @@
+      * TODO:231:o: |-> Extract the current value of the inetNetToMediaPhysAddress data.
+      * set (* inetNetToMediaPhysAddress_val_ptr_ptr ) and (* inetNetToMediaPhysAddress_val_ptr_len_ptr ) from rowreq_ctx->data
+      */
+-    (*inetNetToMediaPhysAddress_val_ptr_ptr) =
+-        rowreq_ctx->data->arp_physaddress;
++    if ((*inetNetToMediaPhysAddress_val_ptr_len_ptr) <
++        rowreq_ctx->data->arp_physaddress_len)
++        return MFD_SKIP;
++
++    memcpy((*inetNetToMediaPhysAddress_val_ptr_ptr),
++           rowreq_ctx->data->arp_physaddress,
++           rowreq_ctx->data->arp_physaddress_len);
+     (*inetNetToMediaPhysAddress_val_ptr_len_ptr) =
+         rowreq_ctx->data->arp_physaddress_len;
+-
++    
+     return MFD_SUCCESS;
+ }                               /* inetNetToMediaPhysAddress_get */

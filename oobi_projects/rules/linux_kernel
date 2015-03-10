@@ -1,0 +1,158 @@
+#
+#  Makefile for cyclades projects.
+#
+
+#
+# Checks make version and some environment variables
+#
+include $(ROOT_PROJ)/$(TOOLS)/MakeChecks
+
+include $(WORK_DIR)/config
+include $(ROOT_PROJ)/$(PACKAGES_DEF)
+include $(CONFIG_TOOL_DIR)/config_tools
+
+$(call check_vars,BUILD_KERNEL BUILD SOURCES TOOLS RULES)
+
+HDR_COOKIE:=COOKIE_HDR
+SRC_COOKIE:=COOKIE_SRC
+CFG_COOKIE:=COOKIE_CFG
+
+foo:
+	$(error Aborting. '$(firstword $MAKEFILE_LIST)' not called with a valid target)
+
+CCACHE := /usr/local/bin/ccache
+CROSS_CC:=$(CCACHE) $(CROSS_CC)
+CROSS_CPP:=$(CCACHE) $(CROSS_CPP)
+
+MAKE_ENV = \
+	PATH=$(CROSS_PATH) \
+	$(CROSS_ENV_TOOLS) \
+	CROSS_COMPILE=$(CROSS_PREFIX) \
+	ARCH=$(ARCH)
+
+MAKE_PARMS= V=1 \
+	INSTALL_MOD_PATH=$(WORK_DIR)/$(TARGET) \
+	DEFTARG="$(DEFTARG)" \
+	COMPILE_DEFTARG="$(COMPILE_DEFTARG)"
+
+MVL_LSP:=$(KERNEL_SOURCE)/$(LSP_DIR)
+SRC_LSP:=$(ROOT_PROJ)/$(SOURCES)/$(LSP_DIR)
+CURR_SRC := $(notdir $(BUILD_KERNEL))
+
+########################## rules for linux config #######################
+
+$(MVL_LSP):
+	$(error LSP: '$(MVL_LSP)' not installed.)
+
+$(WORK_DIR)/$(MD5)/$(CURR_SRC).md5: force
+	install -d $(WORK_DIR)/$(MD5)
+	if [ -d $(SRC_LSP) ] ; then \
+		find $(SRC_LSP) -true | \
+		md5sum > $(WORK_DIR)/$(MD5)/$(CURR_SRC).tmp ; \
+	else \
+		echo "empty-directory" | md5sum > $(WORK_DIR)/$(MD5)/$(CURR_SRC).tmp ; \
+	fi
+	cmp -s $@ $(WORK_DIR)/$(MD5)/$(CURR_SRC).tmp || \
+		mv $(WORK_DIR)/$(MD5)/$(CURR_SRC).tmp $@
+
+$(BUILD_KERNEL): $(MVL_LSP) $(WORK_DIR)/$(MD5)/$(CURR_SRC).md5
+	sudo rm -rf $(BUILD_KERNEL)
+	install -d $(BUILD_KERNEL)
+	SOURCE_DIR=$(MVL_LSP) \
+	TARGET_DIR=$(BUILD_KERNEL) \
+	COPY_HDR=yes \
+	$(ROOT_PROJ)/$(TOOLS)/setup_build.sh
+
+$(BUILD_KERNEL)/$(SRC_COOKIE):
+	SOURCE_DIR=$(SRC_LSP) \
+	TARGET_DIR=$(BUILD_KERNEL) \
+	COPY_HDR=yes \
+	$(ROOT_PROJ)/$(TOOLS)/setup_build.sh
+	for file in \
+		.config \
+		.config.old \
+		include/linux/autoconf.h ; \
+	do \
+		rm -f $(BUILD_KERNEL)/$$file ; \
+	done
+	mv $(BUILD_KERNEL)/arch/ppc/boot/cyc_banner.h.$(TARGET_PRODUCT) \
+		$(BUILD_KERNEL)/arch/ppc/boot/cyc_banner.h
+	# replace ACS string if we have APC OEM build
+	cd $(BUILD_KERNEL)/arch/ppc/boot/simple; \
+	[ -f configure.in ] && [ ! -f configure ] && autoconf; \
+	if [ -f configure ]; then \
+		ACS=$(TARGETNAME) ; \
+		ACS=$${ACS} ./configure ; \
+	fi
+	date > $@
+	date > $(BUILD_KERNEL)/$(HDR_COOKIE)
+
+$(BUILD_KERNEL)/$(HDR_COOKIE):
+	$(MAKE) -C $(SRC_LSP) -f $(ROOT_PROJ)/$(RULES)/linux_hdr \
+		TARGET_DIR=$(BUILD_KERNEL) \
+		FILE_REF=$(BUILD_KERNEL)/$(SRC_COOKIE)
+	date > $(BUILD_KERNEL)/$(SRC_COOKIE)
+
+src: $(BUILD_KERNEL) \
+	 $(BUILD_KERNEL)/$(SRC_COOKIE) \
+	 $(BUILD_KERNEL)/$(HDR_COOKIE)
+	rm -f $(BUILD_KERNEL)/$(HDR_COOKIE)
+
+$(BUILD_KERNEL)/.config: $(BUILD_KERNEL)/$(KERNEL_CONFIG)
+	cp $(BUILD_KERNEL)/$(KERNEL_CONFIG) $(BUILD_KERNEL)/.config
+	$(MAKE_ENV) \
+	$(MAKE) -C $(BUILD_KERNEL) oldconfig $(MAKE_PARMS)
+
+$(BUILD_KERNEL)/$(CFG_COOKIE): $(BUILD_KERNEL)/.config
+ifneq ($(KERNEL_VERSION),k26)
+	$(MAKE_ENV) \
+	sudo $(MAKE) -C $(BUILD_KERNEL) dep $(MAKE_PARMS)
+	$(MAKE_ENV) \
+	sudo $(MAKE) -C $(BUILD_KERNEL) clean $(MAKE_PARMS)
+endif
+	date > $@
+
+config: src $(BUILD_KERNEL)/$(CFG_COOKIE)
+
+clean:
+	sudo rm -rf $(BUILD_KERNEL)
+
+###################### rules for build linux  modules ####################
+
+modules: config
+	# build modules
+	$(MAKE_ENV) \
+	sudo $(MAKE) -C $(BUILD_KERNEL) modules $(MAKE_PARMS)
+
+	#install modules
+	$(MAKE_ENV) \
+	$(MAKE) -C $(BUILD_KERNEL) modules_install $(MAKE_PARMS)
+
+	# make links
+	( \
+		cd $(WORK_DIR)/$(TARGET)/lib ; \
+		LIB_PCMCIA=`find . -name "pcmcia-config" -type d` ; \
+		if [ -n "$$LIB_PCMCIA" ] ; then \
+		  cd `dirname $$LIB_PCMCIA` ; \
+		  sudo mv pcmcia-config $(WORK_DIR)/$(TARGET)/etc/pcmcia ; \
+		  ln -sf /etc/pcmcia pcmcia-config ; \
+		fi \
+	)
+
+###################### rules for build linux  kernel ####################
+
+uImage \
+uImage.initrd: CROSS_PATH:=$(CROSS_PATH):$(WORK_DIR)/$(BUILD)/$(u-boot)/tools
+
+uImage \
+uImage.initrd: config
+	$(MAKE_ENV) \
+	sudo $(MAKE) -C $(BUILD_KERNEL) $@ $(MAKE_PARMS)
+
+zImage \
+zImage.initrd: config
+	$(MAKE_ENV) \
+	sudo $(MAKE) -C $(BUILD_KERNEL) $@ $(MAKE_PARMS)
+
+force: ;
+

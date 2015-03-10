@@ -1,0 +1,31 @@
+[logging]
+ default = FILE:/var/log/krb5libs.log
+ kdc = FILE:/var/log/krb5kdc.log
+ admin_server = FILE:/var/log/kadmind.log
+
+[libdefaults]
+ ticket_lifetime = 24000
+ default_realm = dnpg.com
+ default_tgs_enctypes = des-cbc-crc
+ default_tkt_enctypes = des-cbc-crc
+
+[realms]
+ dnpg.com= {
+  kdc = 64.186.161.125:88
+  admin_server = 61.186.161.125:749
+  default_domain = dnpg.com
+ }
+
+[domain_realm]
+ .dnpg.com = dnpg.com
+ dnpg.com = dnpg.com
+
+[kdc]
+ profile = /var/kerberos/krb5kdc/kdc.conf
+
+[pam]
+ debug = true
+ ticket_lifetime = 36000
+ renew_lifetime = 36000
+ forwardable = true
+ krb4_convert = true

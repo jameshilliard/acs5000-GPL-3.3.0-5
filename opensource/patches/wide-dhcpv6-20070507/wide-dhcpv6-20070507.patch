@@ -1,0 +1,19 @@
+--- wide-dhcpv6-20070507/configure.orig	2007-09-03 17:27:24.000000000 -0300
++++ wide-dhcpv6-20070507/configure	2007-09-03 17:28:38.000000000 -0300
+@@ -2096,6 +2096,7 @@ else
+     CFLAGS=
+   fi
+ fi
++CFLAGS="$CFLAGS -Wall -Os -fomit-frame-pointer"
+ echo "$as_me:$LINENO: checking for $CC option to accept ANSI C" >&5
+ echo $ECHO_N "checking for $CC option to accept ANSI C... $ECHO_C" >&6
+ if test "${ac_cv_prog_cc_stdc+set}" = set; then
+@@ -4996,7 +4997,7 @@ else
+   if test "$cross_compiling" = yes; then
+   { { echo "$as_me:$LINENO: error: cannot check setpgrp when cross compiling" >&5
+ echo "$as_me: error: cannot check setpgrp when cross compiling" >&2;}
+-   { (exit 1); exit 1; }; }
++  }
+ else
+   cat >conftest.$ac_ext <<_ACEOF
+ /* confdefs.h.  */

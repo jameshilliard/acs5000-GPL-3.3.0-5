@@ -1,0 +1,4 @@
+#!/bin/sh
+/bin/bld_img.ftp @TYPE@.bin 132.147.160.1 cyprod prod123 /usr/@TYPE@ zImage
+ftp -i -d -v -n < /bin/ftp.cmd
+

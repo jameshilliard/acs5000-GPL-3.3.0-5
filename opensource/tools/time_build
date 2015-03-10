@@ -1,0 +1,6 @@
+#!/bin/sh
+
+start_time=$(date)
+make-3.81 -f ${OPENSOURCE_DIR}/${TOOLS}/Makefile $*
+echo "started  :" $start_time
+echo "finished :" $(date)

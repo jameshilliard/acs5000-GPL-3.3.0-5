@@ -1,0 +1,52 @@
+#
+#  Makefile for cyclades projects.
+#
+
+#
+# Addtional compiler and/or link options may be defined here
+#
+#CFLAGS += ...
+#LDFLAGS += ...
+
+#
+# Command line parameters for configure must be defined here
+#
+CONFIGURE_PARMS:=\
+	--prefix=/usr/ \
+	--disable-static \
+	--host=powerpc-linux \
+	--sysconfdir=/etc/logpipe
+
+CONFIGURE_ENV:=\
+	CROSS_COMPILE=$(CROSS_PREFIX) \
+	CC=$(CROSS_COMPILE)gcc \
+	LIBS="-L$(my_prefix)/usr/lib" \
+	CFLAGS="-I$(my_prefix)/usr/include" \
+	LIBDAEMON_CFLAGS="-D_REENTRANT -I$(BUILTIN_DIST)/$(libdaemon)/usr/include" \
+	LIBDAEMON_LIBS="-L$(BUILTIN_DIST)/$(libdaemon)/usr/lib -ldaemon"
+
+MAKE_ENV:=
+
+MAKE_PARMS:= \
+	CROSS_COMPILE=$(CROSS_PREFIX)
+
+#
+#  more ac_variables for configure may be defined here
+#
+#CROSS_ENV_AC += ...
+
+############################################################################
+
+$(CFG_COOKIE):
+	$(CONFIGURE_ENV) \
+	./configure $(CONFIGURE_PARMS)
+	# autoconf magic sucks:
+	touch config.h.in
+	date > $@
+
+$(BLD_COOKIE): $(CFG_COOKIE)
+	$(MAKE_ENV) \
+	$(MAKE) $(MAKE_PARMS)
+	$(MAKE) DESTDIR=$(my_prefix) install
+	$(CROSS_COMPILE)strip $(my_prefix)/usr/bin/logpipe
+

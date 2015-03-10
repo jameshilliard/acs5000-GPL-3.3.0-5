@@ -1,0 +1,48 @@
+#
+#  Makefile for cyclades projects.
+#
+
+#
+# Addtional compiler and/or link options may be defined here
+#
+CFLAGS += -I$(BUILTIN_DIST)/$(kerberos)/usr/include
+LDFLAGS += -shared
+
+#
+# Command line parameters for configure must be defined here
+#
+#CONFIGURE_PARMS:= ...
+
+#CONFIGURE_ENV := ...
+
+MAKE_ENV:=\
+	PATH=$(CROSS_PATH)
+
+MAKE_PARMS:=\
+	CROSS_COMPILE=$(CROSS_PREFIX) \
+	$(CROSS_ENV_TOOLS) \
+	DESTDIR=$(my_prefix)/lib/security \
+	MANDIR=$(my_prefix)/man \
+	CFGDIR=$(my_prefix)/etc \
+	CFLAGS="$(CFLAGS)" \
+	LDFLAGS="$(LDFLAGS)" \
+	OSLIBS="-lnsl -lresolv" \
+	INC="-I$(my_prefix)/usr/include" \
+	KRB5LIBS="-L$(my_prefix)/lib -L$(BUILTIN_DIST)/$(kerberos)/usr/lib -lkrb5 -lpam -lk5crypto -lcom_err"
+
+
+#
+#  more ac_variables for configure may be defined here
+#
+#CROSS_ENV_AC += ...
+
+############################################################################
+
+$(CFG_COOKIE):
+	date > $@
+
+$(BLD_COOKIE): $(CFG_COOKIE)
+	$(MAKE_ENV) \
+	$(MAKE) $(MAKE_PARMS) all install
+	install -m 644 $(BUILD_DIR)/$(pam_krb5_fk)/krb5.conf $(my_prefix)/etc
+

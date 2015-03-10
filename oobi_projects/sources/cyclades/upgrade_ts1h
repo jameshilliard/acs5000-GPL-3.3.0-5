@@ -1,0 +1,49 @@
+===============================================================================
+                       UPGRADE to Version 2.3.0
+===============================================================================
+
+REMARKS
+=======
+      . For more information about new features, please read the up-to-date
+        Release Notes.
+
+      . For those who are new to Linux/Unix, we recommend reading appendix A
+        in the Cyclades ACS User's Guide.
+
+NOTE: Cyclades strongly recommends that the user has read the latest User's
+Guide available in Cyclades' ftp site before using this new firmware.
+
+
+UPGRADING OVERVIEW
+==================
+
+The TS100rev2  packages may be updated from one version to another. So, if 
+the user has an TS100rev2 running an earlier version, special care should be 
+taken regarding configuration.
+
+The user can choose to start the configuration from scratch by simply doing:
+
+    echo 0 > /proc/flash/script
+    reboot
+
+or, the user must perform all steps from all "Upgrading from <version> actions"
+with version numbers equal to or greater than the original version of his 
+TS100rev2.
+
+To run a new configuration and save it into flash the user must execute
+the following commands:
+
+    runconf
+    saveconf
+
+The command "saveconf" is equivalent to the Linux command:
+
+"tar -cf /proc/flash/script -T /etc/config_files"
+
+so, double check that all files which have been changed have their names in the
+file /etc/config_files.
+
+If any of the files /etc/inittab, /etc/rc.sysinit, or any user's shell script
+executed by /etc/rc.sysinit were changed, the ACS must be rebooted for them to
+take effect.
+

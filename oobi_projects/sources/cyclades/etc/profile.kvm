@@ -1,0 +1,35 @@
+# /etc/profile
+
+#echo Exec "/etc/profile" Dir `pwd` 
+
+# System wide environment and startup programs
+# Functions and aliases go in /etc/bashrc
+
+alias rm='rm -i'
+alias w='w -u'
+
+PS1="[$USER@\h \W]\\$ "  
+
+# Do not generate core file
+ulimit -c 0
+
+if [ `id -gn` = `id -un` -a `id -u` -gt 14 ]; then
+	umask 002
+else
+	umask 022
+fi
+
+USER=`id -un`
+LOGNAME=$USER
+MAIL="/var/spool/mail/$USER"
+
+HOSTNAME=`/bin/hostname`
+HISTSIZE=1000
+HISTFILESIZE=1000
+
+INPUTRC=/etc/inputrc
+
+PATH=$PATH:/usr/local/bin
+
+export PATH HOSTNAME HISTSIZE HISTFILESIZE USER LOGNAME MAIL INPUTRC
+

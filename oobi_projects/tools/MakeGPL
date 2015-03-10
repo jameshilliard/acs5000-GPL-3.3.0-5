@@ -1,0 +1,118 @@
+#
+#  Makefile for Cyclades projects.
+#
+#  It will build packages changed by Cyclades
+#
+
+include $(ROOT_PROJ)/$(TOOLS)/MakeChecks
+
+$(call check_vars,SOURCES BUILD WORK_DIR TARGET)
+
+# Set the build directory based on the project and target.
+BUILD_DIR := $(WORK_DIR)/$(BUILD)
+
+include $(WORK_DIR)/config
+
+$(call check_vars,LSP_DIR RULES OPENSOURCE_DIR)
+
+include $(ROOT_PROJ)/$(PACKAGES_DEF)
+
+include $(ROOT_PROJ)/$(TOOLS)/GPL_PACKAGES
+
+ifeq ($(GPL_TARGET),OLD_GPL)
+SRC_PKGS:=$(filter $(OLD_GPL_PKGS),$(SOURCE_PKGS) $(INCLUDE_PKGS))
+else
+SRC_PKGS:=$(filter $(NEW_GPL_PKGS),$(SOURCE_PKGS) $(INCLUDE_PKGS))
+endif
+
+OOBI_STUFF_DIR:=$(notdir $(ROOT_PROJ))
+OPEN_STUFF_DIR:=$(notdir $(OPENSOURCE_DIR))
+
+OOBI_STUFF_FILE:=$(WORK_DIR)/$(IMAGE)/oobi_$(GPL_TARGET)_stuff
+OPEN_STUFF_FILE:=$(WORK_DIR)/$(IMAGE)/open_$(GPL_TARGET)_stuff
+TAR_FILE:=$(WORK_DIR)/$(IMAGE)/$(GPL_TARGET)_$(notdir $(WORK_DIR)).tar
+
+.PHONY: all init linux bld_gpl_stuff zip sources
+
+all: init linux sources bld_gpl_stuff zip
+
+init:
+	mkdir -p $(WORK_DIR)/$(IMAGE)
+	echo -n > $(OOBI_STUFF_FILE)
+	echo -n > $(OPEN_STUFF_FILE)
+
+EXCLUDE_OEM:=--exclude \*.apc --exclude \*.kvmapc --exclude CVS
+
+zip:
+	rm -f $(TAR_FILE)*
+	tar -cf $(TAR_FILE) -C $(dir $(OPENSOURCE_DIR)) -T $(OPEN_STUFF_FILE) $(EXCLUDE_OEM)
+	tar -rf $(TAR_FILE) -C $(dir $(ROOT_PROJ)) -T $(OOBI_STUFF_FILE) $(EXCLUDE_OEM)
+ifneq ($(GPL_TARGET),OLD_GPL)
+	sudo tar -czf $(WORK_DIR)/target.gz -C $(WORK_DIR) target --exclude dev --exclude pcmcia-config
+	tar -rf $(TAR_FILE) -C $(dir $(ROOT_PROJ)) $(OOBI_STUFF_DIR)/$(notdir $(WORK_DIR))/target.gz
+	rm -f $(WORK_DIR)/target.gz
+endif
+	gzip $(TAR_FILE)
+
+ifneq ($(GPL_TARGET),OLD_GPL)
+BASE_TOOL_DIR:=$(subst $(OPENSOURCE_DIR)/,,$(CONFIG_TOOL_DIR))
+endif
+
+bld_gpl_stuff:
+ifneq ($(GPL_TARGET),OLD_GPL)
+	@( \
+	 echo $(OOBI_STUFF_DIR)/zoneinfo_exclude >> $(OOBI_STUFF_FILE); \
+	 echo $(OOBI_STUFF_DIR)/$(RULES) >> $(OOBI_STUFF_FILE); \
+	 echo $(OOBI_STUFF_DIR)/$(TOOLS) >> $(OOBI_STUFF_FILE); \
+	 echo $(OOBI_STUFF_DIR)/$(PACKAGES_DEF) >> $(OOBI_STUFF_FILE); \
+	 echo $(OOBI_STUFF_DIR)/$(CYCLADES_FILES) >> $(OOBI_STUFF_FILE); \
+	 echo $(OOBI_STUFF_DIR)/$(MVL_BIN_FILES) >> $(OOBI_STUFF_FILE); \
+	 echo $(OOBI_STUFF_DIR)/$(MVL_LIB_FILES) >> $(OOBI_STUFF_FILE); \
+	 echo $(OOBI_STUFF_DIR)/$(notdir $(WORK_DIR))/config >> $(OOBI_STUFF_FILE); \
+	 echo $(OPEN_STUFF_DIR)/$(RULES) >> $(OPEN_STUFF_FILE); \
+	 echo $(OPEN_STUFF_DIR)/$(TOOLS) >> $(OPEN_STUFF_FILE); \
+	 echo $(OPEN_STUFF_DIR)/$(BASE_TOOL_DIR)/include >> $(OPEN_STUFF_FILE); \
+	 echo $(OPEN_STUFF_DIR)/$(BASE_TOOL_DIR)/packages_def >> $(OPEN_STUFF_FILE); \
+	 echo $(OPEN_STUFF_DIR)/$(BASE_TOOL_DIR)/config_tools >> $(OPEN_STUFF_FILE); \
+	)
+ifdef PCMCIA_FILES
+	@echo $(OOBI_STUFF_DIR)/$(PCMCIA_FILES) >> $(OOBI_STUFF_FILE);
+endif
+endif
+	@( \
+	 echo $(OPEN_STUFF_DIR)/$(TARBAL) >> $(OPEN_STUFF_FILE); \
+	 echo $(OPEN_STUFF_DIR)/$(PATCHES) >> $(OPEN_STUFF_FILE); \
+	 )
+
+linux:
+	@( \
+	  cd $(ROOT_PROJ)/$(SOURCES); \
+	  if [ -d $(LSP_DIR) ] ; then \
+	    echo $(OOBI_STUFF_DIR)/$(SOURCES)/$(LSP_DIR) >> $(OOBI_STUFF_FILE); \
+	  fi ;\
+	  exit 0; \
+	)
+
+define oobi_SRC_template
+@( \
+ if [ -z "$($(1))" ] ; then \
+  echo "Package '$(1)' not properly defined." >&2; \
+  exit 1; \
+ fi ; \
+ cd $(ROOT_PROJ); \
+ if [ -d $(SOURCES)/$($(1)) ] ; then \
+   echo $(OOBI_STUFF_DIR)/$(SOURCES)/$($(1)) >> $(OOBI_STUFF_FILE); \
+ fi ; \
+ exit 0; \
+)
+endef
+
+sources: $(SRC_PKGS)
+
+$(SRC_PKGS): force
+	$(call oobi_SRC_template,$@)
+
+$(MAKEFILE_LIST): ;
+
+force: ;
+

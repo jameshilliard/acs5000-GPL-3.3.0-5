@@ -1,0 +1,84 @@
+#!/bin/sh
+
+FILES=""
+CURDIR=`pwd`
+
+if [ $# -lt 1 ] ; then
+  echo "*** ERROR *** At least one filename must be given !!!"
+  exit 0
+fi
+
+for file in $*
+do
+  grep -q $file  /etc/config_files 2>/dev/null
+  if [ $? -ne 0 ] ; then
+    echo "*** ERROR *** $file not present in /etc/config_files !!!"
+    exit 0
+  fi
+done
+
+rm -rf /tmp/upd
+mkdir /tmp/upd
+chmod 0700 /tmp/upd
+cd /tmp/upd
+
+CF_FS=`set_nports 18`
+K26=`set_nports 19`
+
+if [ "x$CF_FS" = "x1" ] ; then
+  CFG_FILE=/mnt/hda3/backup/configuration_files.gz
+else
+  if [ "x$K26" = "x1" ] ; then
+    CFG_FILE=/mnt/flash/config.tgz
+  else
+    CFG_FILE=/proc/flash/script
+  fi
+fi
+
+zcat $CFG_FILE 2>/dev/null | tar -px 2>/dev/null
+
+st=$?
+
+for file in $*
+do
+  if [ -f $file -o -d $file ] ; then
+    if [ $st = 0 ] ; then
+      install -Dp $file ./$file
+    fi
+    FILES="$FILES $file"
+  else
+    echo "$0 : File '$file' does not exist !"
+  fi
+done
+
+if [ -d /tmp/upd/etc/ssh ] ; then
+    chmod -R 644 /tmp/upd/etc/ssh
+    SSHFILES="ssh_host_key ssh_host_dsa_key ssh_host_rsa_key"
+    for SFILE in $SSHFILES
+    do
+        if [ -e /tmp/upd/etc/ssh/$SFILE ]
+        then
+            chmod 600 /tmp/upd/etc/ssh/$SFILE
+        fi
+    done
+fi
+
+echo -e "Updating configuration files: $FILES to Flash ... \c"
+
+if [ $st = 0 ] ; then
+  tar -pcf /tmp/config * > /dev/null 2>&1
+else
+  tar -pcf /tmp/config $FILES > /dev/null 2>&1
+fi
+
+if [ $? != 0 ]; then
+    echo -e "FAILED!!\n"
+    exit 1
+fi
+rm -rf /tmp/upd
+cd /tmp
+gzip config
+cp config.gz $CFG_FILE
+rm -rf config.gz
+cd $CURDIR
+echo -e "done."

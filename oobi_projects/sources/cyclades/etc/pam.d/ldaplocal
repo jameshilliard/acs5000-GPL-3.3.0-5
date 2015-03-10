@@ -1,0 +1,11 @@
+#
+# The PAM configuration file for the `ldaplocal' service
+#
+auth	requisite	pam_securetty.so
+auth    [success=1 new_authtok_reqd=1 default=ignore]	pam_ldap.so
+auth    required	pam_redirect.so service=s_local	
+auth    optional  	pam_auth_srv.so 
+account sufficient 	pam_ldap.so
+account sufficient      pam_unix2.so
+session sufficient 	pam_ldap.so
+session sufficient      pam_unix2.so

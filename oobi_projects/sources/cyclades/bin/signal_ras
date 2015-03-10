@@ -1,0 +1,188 @@
+#!/bin/sh
+
+SIG=-int
+inetd=no
+cy_buffering=no
+sshd=no
+snmp=no
+ipsec=no
+syslog=no
+stop=no
+start=no
+buzzer=no
+PGMS=""
+ret_code=0
+
+while [ ! "x$1" = "x" ] ; do
+  case $1 in
+   start)
+     start=yes
+     ;;
+   stop)
+     stop=yes
+     ;;
+   inetd)
+     if [ "$inetd" = "no" ] ; then
+       inetd=yes
+       PGMS="$PGMS inetd" 
+     fi
+     ;;
+   sshd)
+     if [ "$sshd" = "no" ] ; then
+       sshd=yes
+       PGMS="$PGMS sshd" 
+     fi
+     ;;
+   buffering)
+     if [ "$cy_buffering" = "no" ] ; then
+       cy_buffering=yes
+       PGMS="$PGMS cy_buffering" 
+     fi
+     ;;
+   snmp)
+     if [ "$snmpd" = "no" ] ; then
+       snmpd=yes
+       PGMS="$PGMS snmpd" 
+     fi
+     ;;
+   ipsec)
+     if [ "$ipsec" = "no" ] ; then
+       ipsec=yes
+       PGMS="$PGMS ipsec" 
+     fi
+     ;;
+   syslog)
+     if [ "$syslog" = "no" ] ; then
+       syslog=yes
+       PGMS="$PGMS syslog-ng" 
+     fi
+     ;;
+   buzzer)
+     if [ "$buzzer" = "no" ] ; then
+        if [ "$2" = "on" ] ; then
+          buzzer=-hup
+          shift
+        fi 
+        if [ "$2" = "off" ] ; then
+          buzzer=-usr1
+          shift
+        fi 
+     fi
+     ;;
+   hup)
+	PGMS="updconf"
+	;;
+   *)
+    SIG=-$1
+  esac
+  shift
+done
+
+
+if [ "$start" = "yes" ] ; then
+  ipsec=no
+  MPID=`ps ax | grep inetd | grep -v grep | cut -b -6`
+  if [ "$MPID" = "" ] ; then
+    sh_write_evt 11 Us inetd
+    /bin/inetd
+  fi
+  MPID=`ps ax | grep sshd | grep -v grep | cut -b -6`
+  if [ "$MPID" = "" ] ; then
+    sh_write_evt 11 Us sshd
+    /bin/sshd -f /etc/ssh/sshd_config
+  fi
+  MPID=`ps ax | grep cy_ras | grep -v grep | cut -b -6`
+  if [ "$MPID" = "" ] ; then
+    sh_write_evt 11 Us cy_ras
+    /bin/cy_ras &
+  fi
+  MPID=`ps ax | grep cy_buffering | grep -v grep | cut -b -6`
+  if [ "$MPID" = "" ] ; then
+    sh_write_evt 11 Us cy_buffering
+    /bin/cy_buffering &
+  fi
+  MPID=`ps ax | grep snmpd | grep -v grep | cut -b -6`
+  if [ "$MPID" = "" ] ; then
+    sh_write_evt 11 Us snmpd
+    /sbin/snmpd &
+  fi
+  aux=`grep "ipsec.init" /etc/inittab | grep -v "#"`
+  MPID=`ps ax | grep pluto | grep -v grep | cut -b -6`
+  if [ "$MPID" = "" -a ! "$aux" = "" ] ; then
+    sh_write_evt 11 Us ipsec
+    /usr/local/sbin/ipsec setup --start &
+  fi
+  MPID=`ps ax | grep syslog-ng | grep -v grep | cut -b -6`
+  if [ "$MPID" = "" ] ; then
+    sh_write_evt 11 Us syslog-ng
+    /sbin/syslog-ng
+  fi
+  exit 0
+fi
+
+if [ "$stop" = "yes" ] ; then
+  ipsec=yes
+  SIG=-int
+  PGMS="inetd cy_buffering cy_ras sshd snmp syslog-ng"
+fi
+
+# for singal_ras hup, call updconf instead
+if [ "$PGMS" = "updconf" ]; then 
+	/bin/updconf -q
+        if [ $? -ne 0 ]; then
+           ret_code=1
+        fi
+	PGMS="cy_ras"
+	SIG=-hup
+fi
+
+if [ "$PGMS" = "" -a "$buzzer" = "no" ] ; then
+	PGMS="cy_ras"
+fi
+
+for pgm in $PGMS ; do
+  if [ ! "$pgm" = "ipsec" ] ; then 
+    MPID=`ps ax | grep $pgm | grep -v grep | cut -b -6`
+    if [ ! "$MPID" = "" ] ; then
+      kill $SIG $MPID
+    else
+      if [ ! "$pgm" = "cy_ras" -a ! "$SIG" = "-usr2" ] ; then
+        echo "*** ERROR *** $pgm is not running !!!"
+        ret_code=1
+      fi
+    fi
+    if [ "$stop" = "yes" ] ; then
+	sh_write_evt 12 Us pmg
+    else
+	sh_write_evt 15 U
+    fi
+  fi
+done
+
+if [ "$ipsec" = "yes" ] ; then
+  if [ "$SIG" = "-int" ] ; then
+    MPID=`ps ax | grep pluto | grep -v grep | cut -b -6`
+    if [ ! "$MPID" = "" ] ; then
+	sh_write_evt 12 Us ipsec
+      /usr/local/sbin/ipsec setup --stop &
+    fi
+  else
+    aux=`grep "ipsec.init" /etc/inittab | grep -v "#"`
+    if [ ! "$aux" = "" ] ; then
+	sh_write_evt 15 U
+      /usr/local/sbin/ipsec setup --restart &
+    fi
+  fi
+fi
+
+if [ ! "$buzzer" = "no" ] ; then
+  MPID=`ps ax | grep cy_wdt_led | grep -v grep | cut -b -6`
+  if [ ! "$MPID" = "" ] ; then
+    kill $buzzer $MPID
+  fi
+fi
+
+if [ $ret_code -eq 1 ]; then
+   exit 1
+fi
+

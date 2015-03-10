@@ -1,0 +1,220 @@
+
+#include <net-snmp/net-snmp-config.h>
+#include <net-snmp/net-snmp-includes.h>
+#include <net-snmp/agent/net-snmp-agent-includes.h>
+#include "cySerialGroupTable.h"
+#include "cystrings.h"
+#include "cycommon.h"
+
+int write_cySGroupName(int, u_char *, u_char, size_t, u_char *, oid *,
+		       size_t);
+int write_cySGroupUsers(int, u_char *, u_char, size_t, u_char *, oid *,
+			size_t);
+unsigned char *var_cySGroupTable(struct variable *, oid *, size_t *, int,
+				 size_t *, WriteMethod **);
+
+oid cySerialGroupTable_oid[] = { PROD_OID, 2, 6, 1, 11 };
+
+#define CYSGroup_INDEX_OID_LEN 	PROD_OID_SIZE+6	
+
+struct variable3 cySGroupTable_variables[] = {
+	{COLUMN_CYGROUPINDEX, ASN_INTEGER, RONLY, var_cySGroupTable, 2,
+	 {1, 1}},
+	{COLUMN_CYGROUPNAME, ASN_OCTET_STR, RWRITE, var_cySGroupTable, 2,
+	 {1, 2}},
+	{COLUMN_CYGROUPUSERS, ASN_OCTET_STR, RWRITE, var_cySGroupTable, 2,
+	 {1, 3}}
+};
+
+struct gtable *group_table = 0;
+
+int cy_numgroups;
+
+
+/** Initializes the cySerialGroupTable module */
+void init_cySerialGroupTable(void)
+{
+	int index;
+
+	if (!group_table) {
+		index = 20 * sizeof(struct gtable);
+		group_table = (struct gtable *) malloc(index);
+		memset(group_table, 0, index);
+	}
+
+	REGISTER_MIB("cySerialGroupTable", cySGroupTable_variables,
+		     variable3, cySerialGroupTable_oid);
+}
+
+/*
+ * var_cySGroupTable():
+ */
+unsigned char *var_cySGroupTable(struct variable *vp,
+				 oid * name,
+				 size_t * length,
+				 int exact,
+				 size_t * var_len,
+				 WriteMethod ** write_method)
+{
+	/*
+	 * variables we may use later 
+	 */
+	static long long_ret;
+	struct gtable *paux;
+
+	cy_numgroups = cy_rwsp_group(0);
+
+	// find the index
+	if (header_simple_table
+	    (vp, name, length, exact, var_len, write_method, cy_numgroups+1)
+	    == MATCH_FAILED)
+		return NULL;
+
+	paux = group_table + (name[CYSGroup_INDEX_OID_LEN] - 1);
+
+	if (!paux->index) {
+		paux->index = cy_numgroups+1;
+		paux->gname[0] = paux->gusers[0] = 0x00;
+	}
+
+	/*
+	 * * this is where we do the value assignments for the mib results.
+	 */
+	switch (vp->magic) {
+	case COLUMN_CYGROUPINDEX:
+		long_ret = paux->index;
+		return (unsigned char *) &long_ret;
+		break;
+
+	case COLUMN_CYGROUPNAME:
+		*var_len = strlen(paux->gname);
+		*write_method = write_cySGroupName;
+		return paux->gname;
+		break;
+
+	case COLUMN_CYGROUPUSERS:
+		*var_len = strlen(paux->gusers);
+		*write_method = write_cySGroupUsers;
+		return paux->gusers;
+		break;
+	default:
+		break;
+	}
+	return NULL;
+}
+
+int
+write_cySGroupName(int action,
+		   u_char * var_val,
+		   u_char var_val_type,
+		   size_t var_val_len,
+		   u_char * statP, oid * name, size_t name_len)
+{
+	char value;
+	int size;
+	int index;
+	int other;
+	struct gtable *paux;
+
+	index = name[name_len - 1];
+	cy_numgroups = cy_rwsp_group(0);
+	if (index > cy_numgroups + 1) {
+		return SNMP_ERR_WRONGVALUE;
+	}
+
+	paux = group_table + index - 1;
+
+	switch (action) {
+	case MODE_SET_RESERVE1:
+		if (var_val_type != ASN_OCTET_STR) {
+			fprintf(stderr,
+				"write to @CYACSCONF@ not ASN_OCTET_STR\n");
+			return SNMP_ERR_WRONGTYPE;
+		}
+		if (var_val_len > 20) {
+			return SNMP_ERR_WRONGLENGTH;
+		}
+		break;
+
+	case MODE_SET_RESERVE2:
+		size = var_val_len;
+		value = *(char *) var_val;
+
+		break;
+
+	case MODE_SET_FREE:
+		break;
+
+	case MODE_SET_ACTION:
+		strncpy(paux->gname, var_val, var_val_len);
+		paux->gname[var_val_len] = 0;
+		cy_rwsp_group(1);
+		break;
+
+	case MODE_SET_COMMIT:
+		break;
+
+	case MODE_SET_UNDO:
+		break;
+
+	}
+	return SNMP_ERR_NOERROR;
+}
+
+int
+write_cySGroupUsers(int action,
+		    u_char * var_val,
+		    u_char var_val_type,
+		    size_t var_val_len,
+		    u_char * statP, oid * name, size_t name_len)
+{
+	char value;
+	int size;
+	int index;
+	int other;
+	struct gtable *paux;
+
+	index = name[name_len - 1];
+	cy_numgroups = cy_rwsp_group(0);
+	if (index > cy_numgroups + 1) {
+		return SNMP_ERR_WRONGVALUE;
+	}
+
+	paux = group_table + index - 1;
+
+	switch (action) {
+	case MODE_SET_RESERVE1:
+		if (var_val_type != ASN_OCTET_STR) {
+			fprintf(stderr,
+				"write to @CYACSCONF@ not ASN_OCTET_STR\n");
+			return SNMP_ERR_WRONGTYPE;
+		}
+		if (var_val_len > 20) {
+			return SNMP_ERR_WRONGLENGTH;
+		}
+		break;
+
+	case MODE_SET_RESERVE2:
+		size = var_val_len;
+		value = *(char *) var_val;
+
+		break;
+
+	case MODE_SET_FREE:
+		break;
+
+	case MODE_SET_ACTION:
+		strncpy(paux->gusers, var_val, var_val_len);
+		paux->gusers[var_val_len] = 0;
+		cy_rwsp_group(1);
+		break;
+
+	case MODE_SET_COMMIT:
+		break;
+
+	case MODE_SET_UNDO:
+		break;
+
+	}
+	return SNMP_ERR_NOERROR;
+}

@@ -1,0 +1,33 @@
+#
+#  Makefile for cyclades projects.
+#
+
+#
+# Addtional compiler and/or link options may be defined here
+#
+#CFLAGS += ...
+
+#
+# Command line parameters for configure must be defined here
+#
+
+MAKE_ENV := \
+	PATH=$(CROSS_PATH)
+
+MAKE_PARMS := \
+	CC=$(CROSS_CC) \
+	STRIP=$(CROSS_STRIP) \
+	EXTRA_CFLAGS="$(CFLAGS)" \
+	PREFIX=$(my_prefix)
+
+#
+#  more ac_variables for configure may be defined here
+#
+#CROSS_ENV_AC +=
+
+$(CFG_COOKIE):
+	date > $@
+
+$(BLD_COOKIE): $(CFG_COOKIE)
+	$(MAKE_ENV) $(MAKE) all $(MAKE_PARMS)
+	$(MAKE_ENV) $(MAKE) install $(MAKE_PARMS)

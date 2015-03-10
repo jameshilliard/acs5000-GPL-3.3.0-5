@@ -1,0 +1,9 @@
+#!/bin/sh
+
+if [ -n "$2" ] ; then
+  /bin/bld_file.ftp $1 $2
+else
+  /bin/bld_file.ftp $1 bin
+fi
+ftp -i -d -v -n < /bin/ftp.cmd
+

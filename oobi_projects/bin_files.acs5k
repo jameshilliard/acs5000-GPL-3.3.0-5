@@ -1,0 +1,43 @@
+./usr/bin/getent
+./usr/bin/chage
+./usr/sbin/pwconv
+./bin/mount
+./bin/umount
+./usr/sbin/rarpd
+./usr/bin/groups nostrip
+./sbin/mke2fs
+./sbin/sfdisk
+./sbin/fsck
+./sbin/fsck.ext2
+./usr/bin/nice
+./usr/bin/users
+./usr/bin/vmstat
+./usr/share/terminfo nostrip
+./usr/bin/wall
+./usr/bin/lpq
+./usr/bin/lprm
+./usr/bin/install
+./etc/ppp/options nostrip
+./sbin/iwconfig
+./sbin/iwlist
+./usr/sbin/lpd
+./bin/run-parts
+./bin/fuser
+./bin/bash
+./bin/sh
+./bin/awk
+./usr/bin/gawk
+./usr/bin/logger
+./usr/bin/nsupdate
+./usr/bin/paste
+./usr/bin/w
+./sbin/portmap
+./usr/sbin/ypbind
+./usr/bin/ypwhich
+./usr/bin/ypcat
+./usr/bin/ypmatch
+./usr/bin/diff
+./usr/bin/less
+./usr/sbin/zic
+./usr/bin/sudo
+./sbin/ldconfig

@@ -1,0 +1,812 @@
+# include <stdio.h>
+# include <sys/types.h>
+# include <sys/stat.h>
+# include <fcntl.h>
+# include <errno.h>
+# include <unistd.h>
+# include <termios.h>
+# include <linux/ioctl.h>
+# include <stdlib.h>
+# include <signal.h>
+# include <string.h>
+# include <ctype.h>
+
+# include <linux/shm.h>
+# include <linux/sem.h>
+
+#include <webApi.h>
+#include <src/server.h>
+#include "webpm.h"
+#include "webpmcomm.h"
+
+char *pmcCommand[] = {PMCOMM_OFF, PMCOMM_ON, PMCOMM_UNLOCK, PMCOMM_LOCK, 
+	PMCOMM_CYCLE};
+
+int cycPmChangeState (char_t * username, UInt32 serialPort, UInt32 outletNumber,
+		CycPmOutletCommand command)
+{
+	char cmd[50];
+	pmcInfo *pmc;
+	if (pmcCommand[command] == NULL) {
+		return false;
+	}
+	pmc = cycGetPmc(serialPort,100);
+	if (!pmc) return false; //mp
+
+	if (pmc->pmc_status!= PMC_IDLE) {
+		return false;
+	}
+
+	sprintf(cmd,"%s %d",pmcCommand[command],outletNumber);
+
+GOTOChangeState :	
+	cycPmcMountCommand(pmc, outletNumber,username,cmd);
+	if (cycWaitAnswer(pmc)) {
+		if (pmc->pmc_status== PMC_ANSOK) {
+			pmc->pmc_status= PMC_IDLE;
+			return true;		
+		}
+	} else {
+		goto GOTOChangeState;
+	}
+	pmc->pmc_status= PMC_IDLE;
+	return false;
+}
+
+
+int cycPmSaveCmd (UInt32 serialPort)
+{
+	return true;
+}
+
+unsigned char *outlcfgcmd[3] = {"powerondelay", "poweroffdelay", 
+	"rebootduration"};
+unsigned long outlcfgoff[3] = {
+	offsetof(PmOutletInfo, powerUpInterval), 
+	offsetof(PmOutletInfo, powerDownInterval), 
+	offsetof(PmOutletInfo, rebootDuration)};
+
+int cycPmConfPowerUpInterval (char_t * username, UInt32 serialPort, 
+	UInt32 outletNumber, UInt32 type, char_t * interval)
+{
+	char cmd[50];
+	
+	pmcInfo *pmc = cycGetPmc(serialPort,100);
+	if (!pmc) return false; //mp
+
+	if (pmc->pmc_status!= PMC_IDLE) {
+		return false;
+	}
+	
+	if (type < 3) {
+		sprintf(cmd, "%s %d:%s", outlcfgcmd[type], outletNumber,
+			interval);
+	} else {
+		return false;
+	}
+
+
+GOTOPowerUpInterval:
+	cycPmcMountCommand(pmc, outletNumber,username, cmd);
+	if (cycWaitAnswer(pmc)) {
+		if (pmc->pmc_status== PMC_ANSOK) {
+			pmc->pmc_status= PMC_IDLE;
+			return true;
+		}
+	} else {
+	       goto GOTOPowerUpInterval;
+	}	       
+	pmc->pmc_status= PMC_IDLE;
+	return false;
+}
+
+int cycPmConfOutName (char_t * username, UInt32 serialPort, UInt32 outletNumber,
+		char_t *name)
+{
+	char cmd[50];
+	
+	pmcInfo *pmc = cycGetPmc(serialPort,100);
+	if (!pmc) return false; //mp
+
+	if (pmc->pmc_status!= PMC_IDLE) {
+		return false;
+	}
+	
+	if (strchr(name, ' ') || strstr(name, "\\\"")) {
+		sprintf(cmd,"name %d \"%s\"",outletNumber,name);
+	} else {
+		sprintf(cmd,"name %d %s",outletNumber,name);
+	}
+
+GOTOConfOutName:
+	cycPmcMountCommand(pmc, outletNumber,username,cmd);
+	if (cycWaitAnswer(pmc)) {
+		if (pmc->pmc_status== PMC_ANSOK) {
+			pmc->pmc_status= PMC_IDLE;
+			//[RK]Dec/02/05 - check if return OK
+			if (strstr(pmc->pmc_answerBuf,"Setting name")) {
+				return true;
+			} else {
+				return false;
+			}
+			return true;
+		}
+	} else {
+		goto GOTOConfOutName;
+	}
+	pmc->pmc_status= PMC_IDLE;
+	return false;
+}
+
+int cycPmClearMaxCurrent(UInt32 serialPort)
+{
+	return false;
+}
+
+int cycPmClearMaxTemperature(UInt32 serialPort)
+{
+	return false;
+}
+
+int cycPmUpgradeFirmware(UInt32 serialPort, UInt32 ipduNumber)
+{
+	return 1;
+}
+
+static int cycPmParseOutStatus(int serialP, char *buf, PmOutletInfo *pout)
+{
+	int cont, nout;
+	char *il, *el, *field, *aux, name[31];
+
+	il = buf;
+	cont = nout = 0;
+	while (*il) {
+		el = il;
+		while (*el && *el != '\r' && *el !='\n') el++;
+		if (*el) *el++ = 0x00;
+		if (*el == '\r' || *el == '\n') *el++ = 0x00;
+
+		while (*il && isspace(*il)) il++;
+		field = il;
+		if (! isdigit(*il)) {
+			il = el;
+			continue;
+		}
+		while (*il && *il != ':') il++;
+		*il++ = 0x00;
+		nout = atoi(field);
+	
+		field = il;
+		while (*il && *il != ':') il++;
+		*il++ = 0x00;
+		while (*field && isspace(*field)) field ++;
+		aux = field;
+		while (! isspace(*aux)) aux ++;
+		if (*aux) *aux++ = 0;
+		if (!strcmp(field,"ON") || (!strcmp(field,"ON*"))) {
+			pout->flgOnOff = kPmStateON;
+		} else {
+			pout->flgOnOff = kPmStateOFF;
+		}
+		if (strchr(field, '*')) {
+			pout->flgLock = kOutStateLock;
+		} else {
+			pout->flgLock = kOutStateUnlock;
+		}
+		while (*il && isspace(*il)) il ++;
+		strncpy(name, il, 32);
+		
+		pout->number = nout;
+		if (getOutletName(serialP,nout,pout->name)){
+			pout->flagName = kOutNameServer;
+		} else {
+			char *s, *t;
+			for (s=name, t=pout->name; *s; s++) {
+				if (*s == '"') {
+					*t ++ = '\\';
+				}
+				*t ++= *s;
+			}
+			*t ++= 0;
+			pout->flagName = kOutNamePM;
+		}
+		pout++;
+		cont++;
+		il = el;
+	}	
+	return cont;
+}
+
+static void cycPmParseOutConfig(int serialP, char *buf, PmOutletInfo *pout,
+	int offset, int cont)
+{
+	int nout, i;
+	char *il, *el, *field;
+
+	il = buf;
+	nout = 0;
+	while (*il) {
+		el = il;
+		while (*el && *el != '\r' && *el !='\n') el++;
+		if (*el) *el++ = 0x00;
+		if (*el == '\r' || *el == '\n') *el++ = 0x00;
+
+		while (*il && isspace(*il)) il ++;
+		if (! isdigit(*il)) {
+			il = el;
+			continue;
+		}
+		field = il;
+		while (*il && *il != ':') il++;
+		if (*il) *il++ = 0x00;
+		nout = atoi(field);
+	
+		/* Check if the number is in the list */
+		for (i = 0; i < cont; i ++) {
+			if (nout == pout[i].number) {
+				break;
+			}
+		}
+		if (i >= cont) {
+			il = el;
+			continue;
+		}
+
+		while (*il && *il != ':') il++;
+		if (*il) *il++ = 0x00;
+		field = il;
+
+		if ((il = strstr(field, " is ")) == NULL) {
+			il = el;
+			continue;
+		}
+		il += 4;
+		field = il;
+		while (*il && ! isspace(*il) && *il != '.') il++;
+		if (*il) *il++ = 0x00;
+		strncpy((char *)&pout[i] + offset, field, 7);
+		il = el;
+	}	
+}
+
+int cycPmOutletStatus(char_t * username, UInt32 serialPort, int outletNumber,
+		PmOutletInfo *outlet)
+{
+	int cont=0, type;
+	char cmd[50];
+	
+	pmcInfo *pmc = cycGetPmc(serialPort,400 + (MAXOutletsPS * 80));
+	if (!pmc) return false; //mp
+
+	if (pmc->pmc_status!= PMC_IDLE) {
+		return false;
+	}
+	
+	if (outletNumber > 0) {
+		sprintf(cmd, PMCOMM_STATUS" %d",outletNumber);
+	} else if (!outletNumber) {
+		outletNumber = 0;
+		sprintf(cmd, PMCOMM_STATUS" all");
+	} else {
+		sprintf(cmd, PMCOMM_STATUS" all");
+		outletNumber = 0;
+	}
+
+GOTOOutletStatusLoop:
+	cycPmcMountCommand(pmc, (UInt32)outletNumber, username, cmd);
+	if (cycWaitAnswer(pmc)) {
+		if (pmc->pmc_status== PMC_ANSOK) {
+			if (pmc->pmc_answerBuf[0]) {
+				cont = cycPmParseOutStatus(serialPort,pmc->pmc_answerBuf,outlet);
+				pmc->pmc_answerBuf[0] = 0;
+			}
+			pmc->pmc_status= PMC_IDLE;
+			if (cont) {
+				goto GOTOOutletConfig;
+			}
+		}
+	} else {
+		goto GOTOOutletStatusLoop;
+	}
+	pmc->pmc_status= PMC_IDLE;
+	return false;
+
+GOTOOutletConfig:
+	for (type = 0; type < 3; type ++) {
+		if (outletNumber > 0) {
+			sprintf(cmd, "%s %d", outlcfgcmd[type], outletNumber);
+		} else if (!outletNumber) {
+			outletNumber = 0;
+			sprintf(cmd, "%s", outlcfgcmd[type]);
+		} else {
+			sprintf(cmd, "%s", outlcfgcmd[type]);
+			outletNumber = 0;
+		}	
+
+GOTOOutletConfigLoop:
+		cycPmcMountCommand(pmc, (UInt32)outletNumber, username, cmd);
+		if (cycWaitAnswer(pmc)) {
+			if (pmc->pmc_status== PMC_ANSOK) {
+				if (pmc->pmc_answerBuf[0]) {
+					cycPmParseOutConfig(serialPort, 
+						pmc->pmc_answerBuf, outlet, 
+						outlcfgoff[type], cont);
+					pmc->pmc_answerBuf[0] = 0;
+				}
+				pmc->pmc_status= PMC_IDLE;
+				continue;
+			}
+		} else {
+			goto GOTOOutletConfigLoop;
+		}
+		pmc->pmc_status= PMC_IDLE;
+		return false;
+	}
+	return cont;
+}
+
+int cycPmIpduConf(UInt32 serialP, char *command, UInt32 *value, UInt32 rdWrtFlg)
+{
+	char cmd[50], *s, *t, *aux, *pans;
+	int i, num_phases, bit;
+	
+	pmcInfo *pmc = cycGetPmc(serialP,700);
+	if (!pmc) return false; //mp
+
+	if (pmc->pmc_status!= PMC_IDLE) {
+		return false;
+	}
+	
+	if (rdWrtFlg) {
+		num_phases = *value / 0x1000000 + 1;
+		for (i = 0; i < num_phases; i ++) {
+			bit = *value & 1;
+			*value = *value >> 1;
+			sprintf(cmd,"%s %d %s", command, i + 1, 
+				(bit == kPmStateON) ? "on" : "off");
+GOTOIpduConfSet:
+			cycPmcMountCommand(pmc, 0, NULL, cmd);
+			if (! cycWaitAnswer(pmc)) {
+				goto GOTOIpduConfSet;
+			}
+			if (pmc->pmc_status== PMC_ANSOK) {
+				pmc->pmc_status= PMC_IDLE;
+				if (pmc->pmc_answerBuf[0] == 0x00) 
+					return false;
+			}
+		}
+		return true;
+	}
+
+	sprintf(cmd,"%s",command);
+GOTOIpduConfGet:
+	cycPmcMountCommand(pmc, 0, NULL, cmd);
+	if (! cycWaitAnswer(pmc)) {
+		goto GOTOIpduConfGet;
+	}
+	if (pmc->pmc_status== PMC_ANSOK) {
+		pmc->pmc_status= PMC_IDLE;
+		if (pmc->pmc_answerBuf[0] == 0x00) 
+			return false;
+		pans = pmc->pmc_answerBuf;
+		*value = 0;
+		num_phases = 0;
+		while (*pans) {
+			aux = pans;
+			while (*pans && *pans != '\n') pans ++;
+			if (*pans) *pans ++ = 0;
+			if (!(s = strstr(aux, " is ")) ||
+				!(strstr(aux, " for phase "))) {
+				continue;
+			}
+			s += 4;
+			while (isspace(*s)) s++;
+			t = s;
+			while (*t && !isspace(*t)) t++;
+			if (*t) *t++ = 0;
+			if (! strcmp(s, "on")) {
+				*value |= kPmStateON << num_phases;
+			} else if (! strcmp(s, "off")) {
+				*value |= kPmStateOFF << num_phases;
+			} else {
+				continue;
+			}
+			num_phases ++;
+		}
+		if (num_phases == 0) {
+			return false;
+		}
+		*value |= (num_phases - 1) << 24;
+	}
+	return true;
+}
+
+int cycPmIpduInfo(UInt32 serialP,UInt32 ipduNumber,PmIpduInfo *info)
+{
+	char cmd[50], *il, *el;
+	PmIpduInfo *pinfo = info;
+	
+	pmcInfo *pmc = cycGetPmc(serialP,700);
+	if (!pmc) return false; //mp
+
+	memset((char*)info,0,sizeof(PmIpduInfo));
+
+	if (pmc->pmc_status!= PMC_IDLE) {
+		return false;
+	}
+
+	sprintf(cmd,"ver");
+
+GOTOIpduInfo:
+	cycPmcMountCommand(pmc, 0, NULL, cmd);
+	if (!cycWaitAnswer(pmc)) return false;
+	if (pmc->pmc_status== PMC_ANSOK) {
+		pmc->pmc_status= PMC_IDLE;
+		if (pmc->pmc_answerBuf[0] == 0x00) 
+			return false;
+		for (il=pmc->pmc_answerBuf; *il; ) {
+			for (el = il; 
+				*el && *el != '\r' && *el != '\n'; 
+				el ++);
+			if (*el) *el ++ = 0;
+			if (*el == '\r' || *el == '\n') *el ++ = 0;
+			while (*il && isspace(*il)) il ++;
+			if (!strncmp(il, "AOS ", 4)) {
+				strcpy(pinfo->version, il + 4);
+			} else if (!strncmp(il, "Switched Rack PDU ", 18)) {
+				strcpy(pinfo->ipduversion, il + 18);
+			} else if (!strncmp(il, "Model: ", 7)) {
+				strcpy(pinfo->model, il + 7);
+			} else if (!strncmp(il, "Outlets: ", 9)) {
+				pinfo->outlets = atoi(il + 9);
+			} else if (!strncmp(il, "Max Current: ", 13)) {
+				pinfo->maxCurrentAllowed = atoi(il + 13);
+			} else if (!strncmp(il, "Input Type: ", 12)) {
+			}
+			il = el;
+		}
+	} else {
+		goto GOTOIpduInfo;
+	}
+	return true;
+}
+
+int cycPmIpduAlarm(UInt32 serialP, UInt32 ipduNumber, PmAlarmStr * value, UInt32 rdWrtFlg)
+{
+	char cmd[50], *pe, *pans, *aux, *pp;
+	char *pa;
+	int phase;
+	
+	pmcInfo *pmc = cycGetPmc(serialP,200);
+	if (!pmc) return false; //mp
+
+	if (pmc->pmc_status!= PMC_IDLE) {
+		return false;
+	}
+	
+	if (rdWrtFlg) {
+		pa = (char *)value;
+		phase = 1;
+		while (*pa) {
+			aux = pa;
+			while (*pa && *pa != '/') pa ++;
+			if (*pa) *pa ++ = 0;
+			sprintf(cmd, "overloadalarm %d %s", phase++, aux);
+GOTOIpduAlarmSet:
+			cycPmcMountCommand(pmc, 0, NULL, cmd);
+			if (!cycWaitAnswer(pmc)) goto GOTOIpduAlarmSet;
+			if (pmc->pmc_status == PMC_ANSOK) {
+				pmc->pmc_status = PMC_IDLE;
+				if (pmc->pmc_answerBuf[0] == 0x00) 
+					return false;
+			}
+		}
+		return true;
+	}
+
+	sprintf(cmd, "overloadalarm");
+GOTOIpduAlarmGet:
+	cycPmcMountCommand(pmc, 0, NULL, cmd);
+	if (!cycWaitAnswer(pmc)) goto GOTOIpduAlarmGet;
+	if (pmc->pmc_status == PMC_ANSOK) {
+		pmc->pmc_status = PMC_IDLE;
+		if (pmc->pmc_answerBuf[0] == 0x00) 
+			return false;
+		pa = (char *)value;
+		pa[0] = 0;
+		pans = pmc->pmc_answerBuf;
+		while (*pans) {
+			aux = pans;
+			while (*pans && (*pans != '\n')) pans ++;
+			if (*pans) *pans ++ = 0;
+			if ((pe = strstr(aux," is ")) == NULL || 
+				(pp = strstr(aux, " for phase ")) == NULL) 
+				continue;
+			pe += 4; 
+			aux = pe;
+			while(*aux && ! isspace(*aux) && *aux != '.') aux++;
+			if (*aux) *aux++ = 0;
+			if (pa[0]) {
+				strcat(pa, "/");
+			}
+			strcat(pa, pe);
+		}
+	}
+	return true;
+}
+
+int cycPmIpduStatus(UInt32 serialP, UInt32 ipduNumber, char * command, PmIpduUnitValues *info)
+{
+	char cmd[50], *ini, *pans, *aux;
+	PmIpduUnitValues *pinfo;
+	
+	pmcInfo *pmc = cycGetPmc(serialP,100);
+	if (!pmc) return false; //mp
+
+	if (pmc->pmc_status!= PMC_IDLE) {
+		return false;
+	}
+	
+	sprintf(cmd,"%s",command);
+
+GOTOIpduStatus :
+	cycPmcMountCommand(pmc, 0, NULL, cmd);
+	if (!cycWaitAnswer(pmc)) goto GOTOIpduStatus;
+	if (pmc->pmc_status== PMC_ANSOK) {
+		pmc->pmc_status= PMC_IDLE;
+		if (pmc->pmc_answerBuf[0] == 0x00) 
+			return false;
+		pinfo = info;
+		pans = pmc->pmc_answerBuf;
+		pinfo->value[0] = 0;
+		while (*pans) {
+			ini = pans; 
+			while (*ini && *ini != '\r' && *ini != '\n') ini ++;
+			if (*ini) *ini++ = 0;
+			if (*ini == '\r' || *ini == '\n') *ini ++= 0;
+			if ((aux = strchr(pans, ':')) != NULL) {
+				pans = aux + 1;
+			}
+			while (isspace(*pans)) pans ++;
+			if (! isdigit(*pans)) {
+				pans = ini;
+				continue;
+			}
+			aux = pans;
+			while (*pans && ! isspace(*pans)) pans ++;
+			if (*pans) *pans++ = 0;
+			if (pinfo->value[0]) {
+				strcat(pinfo->value, "/");
+			}
+			strcat(pinfo->value, aux);
+			pans = ini;
+		}
+	}
+	return true;
+}
+
+#ifdef EXTRA_OUTLET_GROUPS
+int getExtraOutletGroups (PmIpduMultiDevInfo *pmdi)
+{
+	unsigned char *filename = "/etc/apcpdu/config.ini";
+	unsigned char line[128], *s, *t, *u;
+	unsigned char outlet[8];
+	int grpnum, noutlets, numgroups=0;
+	FILE *fp = fopen(filename, "r");
+	if (! fp) {
+		return 0;
+	}
+	while (fgets(line, 128, fp)) {
+		for (s = line; *s && isspace(*s); s ++);
+		if (strncmp(s, "[OutletGroup]", 13)) {
+			continue;
+		}
+		s += 13;
+		if (*s && ! isspace(*s)) {
+			continue;
+		}
+		while (fgets(line, 128, fp)) {
+			for (s = line; *s && isspace(*s); s ++);
+			if (strncmp(s, "OutletGroup", 11)) {
+				continue;
+			}
+			s += 11;
+			if (*s < '1' || *s > '9') {
+				continue;
+			}
+			grpnum = *s - '0';
+			s ++;
+			while (*s >= '0' && *s <= '9') {
+				grpnum *= 10;
+				grpnum += *s - '0';
+				s ++;
+			}
+			for (; *s && isspace(*s); s ++);
+			if (*s != '=') {
+				continue;
+			}
+			s ++;
+			for (; *s && isspace(*s); s ++);
+			if (strncmp(s, "Outlets[", 8)) {
+				continue;
+			}
+			s += 8;
+			t = s;
+			for (; *s && *s != ']'; s ++);
+			if (*s != ']') {
+				continue;
+			}
+			*s ++ = 0;
+			noutlets = 0;
+			while (*t) {
+				for (u = t; *u && *u != ','; u ++);
+				if (*u == ',') {
+					*u ++ = 0;
+				}
+				for (; *t && isspace(*t); t ++);
+				if (*t < '1' || *t > '9') {
+					noutlets = 0;
+					break;
+				}
+				outlet[noutlets] = *t - '0';
+				t ++;
+				while (*t >= '0' && *t >= '9') {
+					outlet[noutlets] *= 10;
+					outlet[noutlets] += *t - '0';
+					t ++;
+				}
+				noutlets ++; 
+				if (*t == '*') {
+					t ++;
+				}
+				for (; *t && isspace(*t); t ++);
+				if (*t) {
+					noutlets = 0;
+					break;
+				}
+				t = u;
+			}
+			if (noutlets == 0) {
+				continue;
+			}
+			for (; *s && isspace(*s); s ++);
+			if (*s != ',') {
+				continue;
+			}
+			for (; *s && isspace(*s); s ++);
+			if (*s == 0) {
+				continue;
+			}
+			if (pmdi) {
+				pmdi->serialPort = (0x8000 | grpnum);
+				strcpy(pmdi->alias, s);
+				pmdi->numOutlets = noutlets;
+				memcpy(pmdi->outlets, outlet, noutlets);
+				pmdi ++;
+			}
+			numgroups ++;
+		}
+	}
+	fclose(fp);
+	return numgroups;
+}
+
+#define KVMserialP	1
+
+int getExtraGroupOutlets (PmIpduOutletsInfo *poi)
+{
+	PmIpduMultiDevInfo *pmdi = poi->group;
+	PmOutletInfo *po;
+	int nout=0, ret=0;
+	int i, j;
+
+	po = poi->outlet;
+	nout = 0;
+	for (i = 0; i < pmdi->numOutlets; i++) {
+		ret = cycPmOutletStatus(poi->username, KVMserialP, 
+			pmdi->outlets[i], po);
+		if (ret != -1) {
+			for (j = 0; j < ret; j ++) {
+				po->serialPort = KVMserialP;
+				strcpy(po->portName, pmdi->alias);
+				po ++;
+				nout ++;
+			}
+		}
+	}
+	poi->outletNumber = nout;
+	return nout;
+}
+
+int extraOutletGroupChangeState (char_t * username, 
+	PmIpduMultiDevInfo *pmdi, CycPmOutletCommand command)
+{
+	char cmd[50];
+	pmcInfo *pmc;
+	if (pmcCommand[command] == NULL) {
+		return false;
+	}
+	pmc = cycGetPmc(KVMserialP,100);
+	if (!pmc) return false; //mp
+
+	if (pmc->pmc_status!= PMC_IDLE) {
+		return false;
+	}
+
+	sprintf(cmd,"%s \"%s\"", pmcCommand[command], pmdi->alias);
+
+MultiGOTOChangeState :
+	cycPmcMountCommand(pmc, 0, username, cmd);
+	if (cycWaitAnswer(pmc)) {
+		if (pmc->pmc_status== PMC_ANSOK) {
+			pmc->pmc_status= PMC_IDLE;
+			return true;		
+		}
+	} else {
+		goto MultiGOTOChangeState;
+	}
+	pmc->pmc_status= PMC_IDLE;
+	return false;
+}
+#endif
+
+
+int parse_pmstatus_line(char *command, int *number, char **name, int *onoff, 
+	int *lock, char **pwron)
+{
+	unsigned char *s, *t, *u;
+
+	s = command;
+	/* means its not a outlet info line */
+	while (*s && isspace(*s)) s++;
+	if (! isdigit(*s)) {
+		return 0;
+	}
+	/* Get Outlet number */
+	t = s;
+	while (*s && *s != ':') s++;
+	*s++ = 0x00;
+	*number = atoi(t);
+
+	/* Get Outlet status */
+	t = s;
+	while (*s && *s != ':') s++;
+	*s++ = 0x00;
+	while (*t && isspace(*t)) t++;
+	u = t;
+	while (!isspace(*u)) u ++;
+	if (*u) *u ++ = 0;
+	if (! strcmp(t, "ON") || ! strcmp(t, "ON*")) {
+		*onoff=PM_ON;
+	} else {
+		*onoff=PM_OFF;
+	}
+	if (strchr(t, '*')) {
+		*lock=PM_LOCKED;
+	} else {
+		*lock=PM_UNLOCKED;
+	}
+	while (*s && isspace(*s)) s++;
+	t = s;
+	while (*t && *t != '\r' && *t != '\n') t ++;
+	if (*t) *t++ = 0;
+	*name = s;
+	*pwron = NULL;
+	return 1;
+}
+
+void convertOutletName(char *old, char *new, int number)
+{
+	snprintf(new, 9, "%-8s", old);
+}
+
+void convertOutletNameMaxSize(char *old, char *new, int number)
+{
+	snprintf(new, 17, "%-16s", old);
+}
+
+char *convertOutletNameForWeb(char *name)
+{
+	return name;
+}
+

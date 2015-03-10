@@ -1,0 +1,11 @@
+#!/bin/bash
+cat /etc/ipsec.secrets |grep "#pubkey=" >/dev/null 2>&1
+if [ $? -ne 0 ]; then
+	echo "IPsec: Generating host key"
+	echo "ATTENTION: the unit needs ethernet traffic to generate the RSA"
+	echo "key pair. Refer to the manual for details."
+	( /usr/local/sbin/ipsec newhostkey --bits 512 \
+         --random /dev/urandom --output /etc/ipsec.secrets ; \
+	updatefiles /etc/ipsec.secrets ) &
+fi
+

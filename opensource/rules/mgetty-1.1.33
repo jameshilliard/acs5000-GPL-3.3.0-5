@@ -1,0 +1,53 @@
+#
+#  Makefile for cyclades projects.
+#
+
+#MAKE+=-e
+
+#
+# Addtional compiler and/or link options may be defined here
+#
+#CFLAGS += ...
+#LDFLAGS += ...
+
+#
+# Command line parameters for configure must be defined here
+#
+#CONFIGURE_PARMS := ...
+
+#CONFIG_ENV := ...
+
+MAKE_ENV := \
+	CROSS_COMPILE=$(CROSS_COMPILE)\
+	PATH=$(CROSS_PATH)
+
+MAKE_PARMS := \
+	MAKE="$(MAKE)" \
+	HOST_CC=cc \
+	HOST_CFLAGS= \
+	FAX_OUT_USER=$(USER) \
+	$(CROSS_ENV_TOOLS) \
+	CFLAGS="$(CFLAGS)" \
+	LDFLAGS="$(LDFLAGS)" \
+	prefix=$(my_prefix)
+
+#
+#  more ac_variables for configure may be defined here
+#
+#CROSS_ENV_AC += ...
+
+$(CFG_COOKIE):
+	date > $@
+
+$(BLD_COOKIE):
+	ln -sf policy.h-dist policy.h
+	$(MAKE_ENV) $(MAKE) bin-all $(MAKE_PARMS)
+	date > $@
+
+$(INST_COOKIE):
+	install -m 755 -d $(my_prefix)/var/spool
+	install -m 755 -D mgetty $(my_prefix)/sbin/mgetty
+	install -m 755 -D callback/callback $(my_prefix)/sbin/callback
+#	$(MAKE_ENV) $(MAKE) install $(MAKE_PARMS)
+	date > $@
+

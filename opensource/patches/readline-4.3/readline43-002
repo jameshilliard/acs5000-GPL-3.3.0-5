@@ -1,0 +1,26 @@
+			   READLINE PATCH REPORT
+			   =====================
+
+Readline-Release: 4.3
+Patch-ID: readline43-002
+
+Bug-Reported-by:  rwhron@earthlink.net
+Bug-Reference-ID: <20020724000454.GA15210@rushmore> (bug-bash)
+Bug-Reference-URL: http://mail.gnu.org/pipermail/bug-bash/2002-July/004856.html
+
+Bug-Description:
+
+Repeating an edit in vi-mode with `.' does not work.
+
+Patch:
+
+*** readline-4.3/readline.c	Wed Mar 13 17:10:46 2002
+--- xxx/readline.c	Tue Jul 30 17:46:44 2002
+***************
+*** 685,688 ****
+--- 685,689 ----
+  #if defined (VI_MODE)
+    if (rl_editing_mode == vi_mode && _rl_keymap == vi_movement_keymap &&
++       key != ANYOTHERKEY &&
+        _rl_vi_textmod_command (key))
+      _rl_vi_set_last (key, rl_numeric_arg, rl_arg_sign);

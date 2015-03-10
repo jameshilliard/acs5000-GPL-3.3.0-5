@@ -1,0 +1,59 @@
+#
+#  Makefile for cyclades projects.
+#
+
+#
+# Addtional compiler and/or link options may be defined here
+#
+#CFLAGS += ...
+#LDFLAGS += ...
+
+#
+# Command line parameters for configure must be defined here
+#
+CONFIGURE_PARMS := \
+	--prefix=$(my_prefix) \
+	--host=$(HOST) \
+	--enable-static \
+	--sysconfdir=/etc 
+
+CONFIG_ENV := \
+	CROSS_COMPILE=$(CROSS_COMPILE)\
+	PATH=$(CROSS_PATH) \
+	HOST_CC=cc \
+	$(CROSS_ENV_TOOLS) \
+	CFLAGS="$(CFLAGS)" \
+	LDFLAGS="$(LDFLAGS)" \
+	DLLTOOL= \
+	LIBOBJS= \
+	GLIB_GENMARSHAL=$(DIST_DIR)/../../../tools/glib-2.12.13/gobject/glib-genmarshal
+
+MAKE_ENV := \
+	CROSS_COMPILE=$(CROSS_COMPILE)\
+	PATH=$(CROSS_PATH)
+
+MAKE_PARMS := \
+	CROSS_COMPILE=$(CROSS_COMPILE)
+
+#
+#  more ac_variables for configure may be defined here
+#
+CROSS_ENV_AC += \
+	glib_cv_stack_grows=yes \
+	glib_cv_uscore=yes \
+	ac_cv_func_posix_getpwuid_r=yes
+
+$(CFG_COOKIE):
+	-rm -f config.cache
+	-rm -f config.status
+	$(CONFIG_ENV) $(CROSS_ENV_AC) ./configure $(CONFIGURE_PARMS)
+	date > $@
+
+$(BLD_COOKIE):
+	$(MAKE_ENV) $(MAKE) all $(MAKE_PARMS)
+	date > $@
+
+$(INST_COOKIE):
+	$(MAKE_ENV) $(MAKE) install $(MAKE_PARMS)
+	date > $@
+

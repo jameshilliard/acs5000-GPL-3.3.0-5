@@ -1,0 +1,324 @@
+#!/bin/sh
+
+. /etc/create_cf.parms
+
+factory_default="no"
+doformat="no"
+dontformat="no"
+device="/dev/hda"
+image=0
+awk_debug=0
+
+do_exit ()
+{
+  umount /mnt/hdPart >/dev/null 2>&1
+  rm -rf /mnt/hdPart >/dev/null 2>&1
+  if [ "$1" = "" ]; then
+    EXIT_CODE=1
+  else
+    EXIT_CODE=$1
+  fi
+  exit $EXIT_CODE
+}
+
+do_exec ()
+{
+  eval $1 >/dev/null 2>&1
+  if [ $? -ne 0 ] ; then
+    echo
+    echo "Error in command: '$1'"
+    echo
+    do_exit 1
+  fi
+}
+
+do_tar ()
+{
+  echo -n " Packing ${2}"
+  rm -f /tmp/${2}.*
+  do_exec "tar -pcf /tmp/${2}.tar $3"
+  do_exec "gzip /tmp/${2}.tar"
+  do_exec "cp -a /tmp/${2}.tar.gz ${1}/${2}.gz"
+  rm -f /tmp/${2}.*
+  echo " done."
+}
+
+show_usage ()
+{
+    echo $1
+    echo "USAGE:" `basename $0` "[ options ]"
+    echo "Where options are:"
+    echo "  -d device         : Writes the image in the specified"
+    echo "                      block type device, default '/dev/hda.'"
+    echo "  --factory_default : Creates the image with factory default values."
+    echo "                      If omitted, the configuration from the current"
+    echo "                      partition, if valid, will be used."
+    echo "  --doformat        : Rebuilds the partition table, erases the"
+	echo "                      contents of the compact flash, and writes"
+	echo "                      the image into image1."
+    echo "  --dontformat      : Does not format the compact flash. Checks the"
+    echo "                      size of partitions 1 to 3 and 5 to 8, which"
+    echo "                      must not be smaller than $szP1, $szP2, $szP3, $szP5, $szP6, $szP7, and $szP8"
+    echo "                      Mbytes respectively."
+    echo "  --image<n>        : Creates/replaces the n-th image n=1,2."
+    echo "                      Required unless the --doformat option is used."
+    exit 1
+}
+
+while [ -n "$1" ] ; do
+case "$1" in
+  -d)
+    shift
+    device="$1"
+    [ -z "$1" -o ! -b ${device} ] && show_usage "ERROR - Invalid device name: ${device}"
+    ;;
+  --factory_default)
+    factory_default="yes"
+    ;;
+  --dontformat)
+    [ $doformat == "yes" ] && show_usage "Error - only one of  --format and --dontformat can be used"
+    dontformat="yes"
+    ;;
+  --doformat)
+    [ $dontformat == "yes" ] && show_usage "Error - only one of  --format and --dontformat can be used"
+    doformat="yes"
+    image=1
+    ;;
+  --image1)
+    image=1
+    ;;
+  --image2)
+    image=2
+    ;;
+  --awk_debug)
+    awk_debug=1
+    ;;
+  *)
+    show_usage "invalid parameter: '$1'"
+    ;;
+esac
+shift
+done
+
+echo "un-mounting device '${device}'"
+for file in $( mount | grep ${device} | cut -f 3 -d ' ' )
+do
+  for mfile in $( mount | grep ${file} | cut -f 3 -d ' ' )
+  do
+    echo " un-mounting directory $mfile"
+    do_exec "umount $mfile"
+  done
+done
+
+echo "Reading '${device}' information"
+ 
+sfdisk -l ${device} 2>/dev/null | awk -f /bin/cf_awk \
+device=$device \
+doformat=$doformat \
+dontformat=$dontformat \
+print_var=$awk_debug \
+szP1=${szP1:=2} \
+szP2=${szP2:=2} \
+szP3=${szP3:=5} \
+szP5=${szP5:=50} \
+szP6=${szP6:=50} \
+szP7=${szP7:=5} \
+szP8=${szP8:=5}
+
+rtn=$?
+
+if [ $rtn -eq 1 ] ; then
+  exit 1
+fi
+
+if [ $image -eq 0 ] ; then
+  if [ $dontformat == "yes" -o $rtn -eq 2 ] ; then
+    show_usage "Parameter --image<n> is required."
+  fi
+fi
+
+if [ -n "`mount | grep -s ${device}`" -o \
+     -n "`grep -s ${device} /proc/cmdline`" ] ; then
+  echo "*"
+  echo "* ERROR - device '${device}' is being used, umount it first."
+  echo "*"
+  exit 1
+fi
+
+if [ $image -eq 0 ] ; then
+  image=1
+fi
+
+if [ $rtn -eq 0 ] ; then
+  doformat="yes"
+  do_exec "sh /tmp/cf_fmt.cmd"
+  for i in 1 2
+  do
+    echo "Initializing ${device}${i} as a DOS partition."
+    do_exec "mkdosfs ${device}${i}"
+  done
+  for i in 3 5 6 7 8 
+  do
+    echo "Initializing ${device}${i} as an EXT2 partition."
+    do_exec "mke2fs ${device}${i}"
+  done
+fi
+
+/sbin/sfdisk -l ${device}
+
+[ -d /mnt/hdPart ] || mkdir /mnt/hdPart
+
+# Trap signals so that this application is not interrupted
+trap do_exit SIGTERM SIGINT SIGQUIT SIGHUP
+
+do_exec "mount -t ext2 /dev/hda3 /mnt/hdPart"
+[ -d /mnt/hdPart//backup ] || do_exec "mkdir /mnt/hdPart/backup"
+umount /mnt/hdPart
+
+devKernel=${device}${image}
+cnt=`expr ${image} + 4`
+devRamDsk=${device}${cnt}
+cnt=`expr ${image} + 6`
+devConfig=${device}${cnt}
+
+if [ "${doformat}" == "no" ] ; then
+  echo "Initializing ${devKernel} as a DOS partition."
+  do_exec "mkdosfs ${devKernel}"
+  echo "Initializing ${devRamDsk} as an EXT2 partition."
+  do_exec "mke2fs ${devRamDsk}"
+  echo "Initializing ${devConfig} as an EXT2 partition."
+  do_exec "mke2fs ${devConfig}"
+fi
+
+echo " Creating directories in ${device}3"
+do_exec "mount -t ext2 ${device}3 /mnt/hdPart"
+for file in $p3_dirs
+do
+  do_exec "mkdir -p /mnt/hdPart/$file"
+done
+umount /mnt/hdPart > /dev/null 2>&1
+
+echo " Copying Linux kernel to ${devKernel}"
+do_exec "mount -t vfat ${devKernel} /mnt/hdPart"
+if [ -n "`grep -s '=/dev/ram' /proc/cmdline`" ] ; then
+  do_exec "cp /kernel_image/* /mnt/hdPart"
+else
+  [ -d /mnt/hdP1 ] || mkdir /mnt/hdP1
+  if [ -n "`grep -s '=/dev/hda5' /proc/cmdline`" ] ; then
+    devKernelCur=/dev/hda1
+  else
+    devKernelCur=/dev/hda2
+  fi
+  do_exec "mount -t vfat ${devKernelCur} /mnt/hdP1"
+  do_exec "cp /mnt/hdP1/* /mnt/hdPart"
+  umount /mnt/hdP1 >/dev/null 2>&1
+  rm -rf /mnt/hdP1
+
+fi
+umount /mnt/hdPart > /dev/null 2>&1
+echo "Initialization of ${devKernel} done."
+
+echo " Copying RO file system to ${devRamDsk}"
+do_exec "mount -t ext2 ${devRamDsk} /mnt/hdPart"
+
+cd /
+do_tar /mnt/hdPart dev dev
+
+echo "  Creating directories..."
+for file in $dirs_created
+do
+  echo -n "  Creating $file..."
+  do_exec "mkdir /mnt/hdPart/$file"
+  echo " done."
+done
+
+do_exec "cp -a /dev/console /mnt/hdPart/dev"
+do_exec "cp -a /dev/ttyS0 /mnt/hdPart/dev"
+
+echo "  Copying directories/files..."
+cd /
+for file in *
+do
+  skip_file=0
+  for f in ${dirs_created} ${files_skipped}
+  do
+    if [ $f = $file ] ; then
+      skip_file=1
+    fi
+  done
+  if [ $skip_file -eq 0 ] ; then
+    echo -n "  Copying $file..."
+    do_exec "cp -a /$file /mnt/hdPart"
+    echo " done."
+  fi
+done
+
+umount /mnt/hdPart > /dev/null 2>&1
+echo "Initialization of ${devRamDsk} done."
+
+cd /
+echo " Copying configuration files to ${devConfig}"
+do_exec "mount -t ext2 ${devConfig} /mnt/hdPart"
+  
+if [ ${factory_default} == "no" ] ; then
+  echo " Copying current configuration files from '/'"
+  for file in etc home root
+  do
+    echo -n "  Copying $file..."
+    do_exec "cp -a $file /mnt/hdPart"
+    echo " done."
+  done
+else
+  if [ -d /bkp_config ] ; then
+    do_exec "cd /bkp_config"
+    echo " Copying default configuration files from '/bkp_config'"
+    for file in etc home root
+    do
+      echo -n "  Copying $file..."
+      do_exec "cp -a $file /mnt/hdPart"
+      echo " done."
+    done
+	cd /
+  else
+    if [ -n "`grep -s '=/dev/hda5' /proc/cmdline`" ] ; then
+      configCur=/mnt/hda7
+    else
+      configCur=/mnt/hda8
+    fi
+    echo " Extracting default configuration files from '${configCur}/backup'"
+    do_exec "cd /mnt/hdPart"
+    do_exec "tar -xzf ${configCur}/backup/factory_default_files.gz"
+  fi
+fi
+
+do_exec "mkdir /mnt/hdPart/backup"
+if [ -d /bkp_config ] ; then
+  do_exec "cd /bkp_config"
+  do_tar /mnt/hdPart/backup factory_default_files "etc home root"
+  cd /
+else
+  if [ -n "`grep -s '=/dev/hda5' /proc/cmdline`" ] ; then
+    configCur=/mnt/hda7
+  else
+    configCur=/mnt/hda8
+  fi
+  do_exec "cd ${configCur}"
+  do_exec "cp -a ${configCur}/factory_default_files.gz /mnt/hdPart/backup"
+fi
+
+echo "Initialization of ${devConfig} done."
+
+echo
+echo "Creation of image '$image' completed."
+echo 
+if [ ${device} == "/dev/hda" ] ; then
+  echo "Setting currentimage to '$image'"
+  do_exec "cmd_uboot -q -p currentimage -n ${image}"
+else
+  echo "In order to boot this image, the u-boot parameter 'currentimage' might"
+  echo "have to be configured in the machine where this CF will be used."
+fi
+echo
+  
+do_exit 0
+

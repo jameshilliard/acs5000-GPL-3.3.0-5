@@ -1,0 +1,34 @@
+/lib/modules/2.6.22/kernel/net/netfilter/xt_TCPMSS.ko:
+/lib/modules/2.6.22/kernel/net/ipv6/xfrm6_tunnel.ko: /lib/modules/2.6.22/kernel/net/ipv6/tunnel6.ko /lib/modules/2.6.22/kernel/net/ipv6/ipv6.ko
+/lib/modules/2.6.22/kernel/net/ipv6/xfrm6_mode_tunnel.ko:
+/lib/modules/2.6.22/kernel/net/ipv6/xfrm6_mode_transport.ko:
+/lib/modules/2.6.22/kernel/net/ipv6/xfrm6_mode_beet.ko: /lib/modules/2.6.22/kernel/net/ipv6/ipv6.ko
+/lib/modules/2.6.22/kernel/net/ipv6/tunnel6.ko: /lib/modules/2.6.22/kernel/net/ipv6/ipv6.ko
+/lib/modules/2.6.22/kernel/net/ipv6/sit.ko: /lib/modules/2.6.22/kernel/net/ipv6/ipv6.ko
+/lib/modules/2.6.22/kernel/net/ipv6/netfilter/nf_conntrack_ipv6.ko: /lib/modules/2.6.22/kernel/net/ipv6/ipv6.ko
+/lib/modules/2.6.22/kernel/net/ipv6/netfilter/ip6table_mangle.ko: /lib/modules/2.6.22/kernel/net/ipv6/netfilter/ip6_tables.ko /lib/modules/2.6.22/kernel/net/ipv6/ipv6.ko
+/lib/modules/2.6.22/kernel/net/ipv6/netfilter/ip6table_filter.ko: /lib/modules/2.6.22/kernel/net/ipv6/netfilter/ip6_tables.ko
+/lib/modules/2.6.22/kernel/net/ipv6/netfilter/ip6t_owner.ko:
+/lib/modules/2.6.22/kernel/net/ipv6/netfilter/ip6t_ipv6header.ko: /lib/modules/2.6.22/kernel/net/ipv6/netfilter/ip6_tables.ko
+/lib/modules/2.6.22/kernel/net/ipv6/netfilter/ip6t_hl.ko:
+/lib/modules/2.6.22/kernel/net/ipv6/netfilter/ip6t_eui64.ko:
+/lib/modules/2.6.22/kernel/net/ipv6/netfilter/ip6t_REJECT.ko: /lib/modules/2.6.22/kernel/net/ipv6/ipv6.ko
+/lib/modules/2.6.22/kernel/net/ipv6/netfilter/ip6t_LOG.ko: /lib/modules/2.6.22/kernel/net/ipv6/netfilter/ip6_tables.ko
+/lib/modules/2.6.22/kernel/net/ipv6/netfilter/ip6_tables.ko:
+/lib/modules/2.6.22/kernel/net/ipv6/ipv6.ko:
+/lib/modules/2.6.22/kernel/net/ipv6/ipcomp6.ko: /lib/modules/2.6.22/kernel/net/ipv6/xfrm6_tunnel.ko /lib/modules/2.6.22/kernel/net/ipv6/tunnel6.ko /lib/modules/2.6.22/kernel/net/ipv6/ipv6.ko
+/lib/modules/2.6.22/kernel/net/ipv6/esp6.ko: /lib/modules/2.6.22/kernel/net/ipv6/ipv6.ko
+/lib/modules/2.6.22/kernel/net/ipv6/ah6.ko: /lib/modules/2.6.22/kernel/net/ipv6/ipv6.ko
+/lib/modules/2.6.22/kernel/net/dccp/dccp_ipv6.ko: /lib/modules/2.6.22/kernel/net/ipv6/ipv6.ko
+/lib/modules/2.6.22/kernel/lib/crc16.ko:
+/lib/modules/2.6.22/kernel/lib/crc-itu-t.ko:
+/lib/modules/2.6.22/kernel/lib/crc-ccitt.ko:
+/lib/modules/2.6.22/kernel/fs/vfat/vfat.ko: /lib/modules/2.6.22/kernel/fs/fat/fat.ko
+/lib/modules/2.6.22/kernel/fs/nls/nls_iso8859-2.ko:
+/lib/modules/2.6.22/kernel/fs/nls/nls_iso8859-15.ko:
+/lib/modules/2.6.22/kernel/fs/nls/nls_iso8859-1.ko:
+/lib/modules/2.6.22/kernel/fs/nls/nls_cp852.ko:
+/lib/modules/2.6.22/kernel/fs/nls/nls_cp850.ko:
+/lib/modules/2.6.22/kernel/fs/nls/nls_cp437.ko:
+/lib/modules/2.6.22/kernel/fs/msdos/msdos.ko: /lib/modules/2.6.22/kernel/fs/fat/fat.ko
+/lib/modules/2.6.22/kernel/fs/jbd/jbd.ko:

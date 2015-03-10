@@ -1,0 +1,2 @@
+exec /sbin/ifconfig eth0:0 down
+

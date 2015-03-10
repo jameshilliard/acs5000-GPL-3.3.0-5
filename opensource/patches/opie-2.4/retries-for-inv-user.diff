@@ -1,0 +1,21 @@
+Index: opie-2.4/libopie/verify.c
+===================================================================
+--- opie-2.4.orig/libopie/verify.c
++++ opie-2.4/libopie/verify.c
+@@ -76,11 +76,12 @@ int opieverify FUNCTION((opie, response)
+     goto verret;
+ 
+   if (!opie->opie_principal)
+-#if DEBUG
+-    abort();
+-#else /* DEBUG */
++//[HF] (2006-09-22) - Try to fix bug #15722
++//#if DEBUG
++//    abort();
++//#else /* DEBUG */
+     goto verret;
+-#endif /* DEBUG */
++//#endif /* DEBUG */
+ 
+   if (!opieatob8(&lastkey, opie->opie_val))
+     goto verret;

@@ -1,0 +1,277 @@
+#!/bin/sh 
+
+FILE_LOCK=/var/run/saveconf.pid
+
+if [ -f $FILE_LOCK ] ; then
+	echo "Error: saveconf or restoreconf already running!"
+	exit 1
+fi
+
+echo XXX > $FILE_LOCK
+
+CFG_FILE=/proc/flash/script
+CF_FILE=/proc/flash/restore.conf
+TMP_DIR=/tmp
+CONFIG_FILE_LIST=/etc/config_files
+CONFIG_FILE=$TMP_DIR/restoring_config
+
+do_restart ()
+{
+	echo -n "Evaluating configuration files ... "
+	mkdir -p $TMP_DIR/do_restart
+	echo "#!/bin/sh" > $CONFIG_FILE.sh
+	zcat $CONFIG_FILE.bk.gz | tar -px -C $TMP_DIR/do_restart
+
+	cat $CONFIG_FILE_LIST | grep -v ^# | while read file_l MARK RST_PROC
+	do
+		for file in $file_l
+		do
+  			[ -z "$RST_PROC" ] && continue
+  			[ -z "$file" ] && continue
+  			if [ -L $file -o -f $file -o -d $file ] ; then
+				if [ "x$MARK" = "x*" ]; then
+					cmp $file $TMP_DIR/do_restart/$file > /dev/null 2>&1
+					if [ $? -ne 0 ]; then
+						cat $CONFIG_FILE.sh |grep "$RST_PROC" >/dev/null 2>&1
+						if [ $? -ne 0 ]; then
+								echo "$RST_PROC" >> $CONFIG_FILE.sh
+						fi
+					fi
+				fi
+			fi
+		done
+	done
+
+	rm -rf $TMP_DIR/do_restart $CONFIG_FILE.restart
+	echo "done."
+	if [ -s $CONFIG_FILE.sh ]; then
+		echo -n "Restarting processes ... "
+		/bin/sh $CONFIG_FILE.sh > /dev/null 2>&1
+		if [ $? -ne 0 ]; then
+			echo "error."
+		else
+			echo "done."
+		fi
+		rm -f $CONFIG_FILE.sh
+	fi
+}
+
+do_exit ()
+{
+	CONFIG_FILE=$TMP_DIR/restoring_config
+	if [ "$2" = "" ]; then
+		EXIT_CODE=1
+	else
+		EXIT_CODE=$2
+	fi
+	rm -rf $TMP_DIR/do_restart
+	if [ -s "$LIST_FILE" ]; then
+		cat $LIST_FILE | while read LINE
+		do
+			rm -f $LINE.tmp
+		done
+		rm -f $LIST_FILE
+	fi
+	rm -f $CONFIG_FILE*
+	if [ "$1" = "" ]; then
+		echo -e "*** Aborting..."
+	else
+		echo -e "$1"
+	fi	
+	rm -f $FILE_LOCK
+	exit $EXIT_CODE
+}
+
+show_usage ()
+{
+	echo "Usage:"
+	echo "   Restore from flash :                     restoreconf "
+	echo "   Restore from flash and restart process : restoreconf -r"
+	echo "   Restore from local file :                restoreconf local [text|wintxt|bin] <FILE>"
+	echo "   Restore from FTP server :                restoreconf ftp [text|wintxt|bin] <FILE> <FTP_SERVER> <USER> <PASSWORD>"
+	echo "   Restore from TFTP server :               restoreconf tftp [text|wintxt|bin] <FILE> <TFTP_SERVER>"
+	echo "   Restore from SSH server :                restoreconf ssh  [text|wintxt|bin] <FILE> <SSH_SERVER> <USER>"
+	rm -f $FILE_LOCK
+	do_exit " " 0
+} 
+
+parse_files ()
+{
+	[ ! -s $1 ] && return
+	TEMP_FILE=/dev/null
+	LIST_FILE=/tmp/list.tmp
+
+	if [ "$FILE_TYPE" = "wintxt" ];then
+		parse_restore $CONFIG_FILE $LIST_FILE 1
+	else
+		parse_restore $CONFIG_FILE $LIST_FILE 
+	fi
+
+	if [ -s $LIST_FILE ]; then
+		for LINE in `cat $LIST_FILE` 
+		do
+			mv $LINE.tmp $LINE
+		done
+		rm -f $LIST_FILE
+	fi
+}
+
+# Trap signals so that this application is not interrupted
+trap do_exit SIGTERM SIGINT SIGQUIT SIGHUP
+umask 77
+
+RESTART=0
+
+if [ "x$1" = "x" ]; then
+	[ -e "$CFDIR$CFG_FILE" -a "`grep "default=yes" "$CF_DIR"`" ] && TARGET=sd || TARGET=flash
+	[ "x$1" = "x-r" ] && TARGET=flash
+    FILE_TYPE=bin
+	if [ "x$1" = "x-r" ];then
+		RESTART=1
+	fi
+else
+	case $1 in
+		ftp | tftp | local | ssh ) TARGET=$1;;
+		* ) show_usage;;
+	esac
+
+	case $2 in
+		text | wintxt | bin) FILE_TYPE=$2;;
+		*) FILE_TYPE=;;
+	esac
+	if [ "x$FILE_TYPE" = "x" ]; then
+                FILE_TYPE=bin
+		if [ $# -lt 2 ]; then
+			show_usage
+		fi
+		REMOTE_FILE=$2
+		if [ "$TARGET" != "local" ];then
+			if [ $# -lt 3 ]; then
+				show_usage
+			fi
+			SERVER_IP=$3
+			if [ "$TARGET" != "tftp" ]; then
+				if [ $# -lt 4 ]; then
+					show_usage
+				fi
+				USER=$4
+				if [ "$TARGET" != "ssh" ]; then
+					if [ $# -lt 5 ]; then
+						show_usage
+					fi
+					PASSWORD=$5
+				fi
+			fi
+		fi
+	else 
+		if [ $# -lt 3 ]; then
+			show_usage
+		fi
+		REMOTE_FILE=$3
+		if [ "$TARGET" != "local" ];then
+			if [ $# -lt 4 ]; then
+				show_usage
+			fi
+			SERVER_IP=$4
+			if [ "$TARGET" != "tftp" ]; then
+				if [ $# -lt 5 ]; then
+					show_usage
+				fi
+				USER=$5
+				if [ "$TARGET" != "ssh" ]; then
+					if [ $# -lt 6 ]; then
+						show_usage
+					fi
+					PASSWORD=$6
+				fi
+			fi
+		fi
+	fi
+fi
+
+if [ "$TARGET" = "flash" ]; then
+	echo -n "Restoring configuration files from Flash ... "
+	if [ $RESTART = 1 ] ; then
+		saveconf local bin $CONFIG_FILE.bk.gz > /dev/null 2>&1
+	fi
+	zcat -t $CFG_FILE > /dev/null 2>&1
+	if [ $? -ne 0 ] ; then
+		echo ""
+		do_exit "*** ERROR: invalid compressed config file." 1
+	fi
+	umask 22
+	zcat $CFG_FILE | tar -px -C / > /dev/null 2>&1
+	if [ $? -ne 0 ] ; then
+		echo ""
+		do_exit "*** ERROR: config file extraction failed." 1
+	fi
+	echo "done."
+	umask 77
+	if [ $RESTART = 1 ] ; then
+		do_restart
+		rm -f $CONFIG_FILE.bk.gz	
+	fi
+	rm -f $FILE_LOCK
+	exit 0
+fi
+
+TEMP_FILE=$TMP_DIR/ftp.cmd
+
+if [ "$TARGET" = "ftp" ]; then
+	echo "user $USER $PASSWORD" > $TEMP_FILE
+	echo "bin" >> $TEMP_FILE
+	echo "get $REMOTE_FILE $CONFIG_FILE" >> $TEMP_FILE
+	echo "quit" >> $TEMP_FILE
+
+	echo "Loading file $REMOTE_FILE from $SERVER_IP FTP server."
+	echo "User: $USER"
+	ftp -n $SERVER_IP < $TEMP_FILE
+	rm -f $TEMP_FILE
+fi
+
+if [ "$TARGET" = "tftp" ]; then
+	echo -n "Loading file $REMOTE_FILE from $SERVER_IP TFTP server ... "
+	tftp -g -l $CONFIG_FILE -r $REMOTE_FILE $SERVER_IP >/dev/null 2>&1
+	if [ $? -ne 0 ]; then
+		echo ""
+		do_exit "*** ERROR: file transfer failed." 1
+	fi
+fi
+
+if [ "$TARGET" = "local" ]; then
+	cp $REMOTE_FILE $CONFIG_FILE
+fi
+
+if [ "$TARGET" = "ssh" ]; then
+	echo "Loading file $REMOTE_FILE from $SERVER_IP SSH server, as $USER."
+	scp -S ssh -q $USER@$SERVER_IP:$REMOTE_FILE $CONFIG_FILE 2>/dev/null
+	if [ $? -ne 0 ]; then
+		do_exit "*** ERROR: file transfer failed." 1
+	fi
+fi
+
+if [ ! -f $CONFIG_FILE ]; then
+	echo ""
+	do_exit "*** ERROR: config file transfer failed." 1
+fi
+
+if [ "$FILE_TYPE" = "text" -o "$FILE_TYPE" = "wintxt" ]; then
+	echo "Loading configuration from text file $CONFIG_FILE."
+	parse_files
+else	
+	zcat -t $CONFIG_FILE > /dev/null 2>&1
+	if [ $? -ne 0 ] ; then
+		echo ""
+		do_exit "*** ERROR: invalid compressed config file." 1
+	fi
+	zcat $CONFIG_FILE | tar -px -C / >/dev/null 2>&1
+	if [ $? -ne 0 ]; then
+		echo ""
+		do_exit "*** ERROR: config file extraction failed." 1
+	fi
+fi
+rm -f $CONFIG_FILE
+echo "done."
+rm -f $FILE_LOCK
+exit 0
+

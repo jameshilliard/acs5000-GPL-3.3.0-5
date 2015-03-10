@@ -1,0 +1,271 @@
+#!/bin/bash 
+# Upgrade script for device's software V 1.0.0
+
+DATE=`date '+%D %H:%M:%S'`
+TIMESTAMP=`date '+%Y%m%d%H%M%S'`
+TEMP=/tmp/.upgrade
+LOGFILE=/tmp/.upgrade.log
+NEEDSAVE=0
+
+if [ -f /var/firstBoot ]; then
+	exit
+fi
+
+if [ -f /etc/inittab ]; then
+	if ! grep -q "/etc/rc\.shutdown" /etc/inittab; then
+		echo "# System shutdown" >> /etc/inittab
+        	echo "::shutdown:/etc/rc.shutdown" >> /etc/inittab
+        	echo "Updated /etc/inittab" 
+		NEEDSAVE=1
+	fi
+fi
+
+# --- IPv6 support -- upgrade begin
+if ! grep -q " ;; " /etc/syslog-ng/syslog-ng.conf; then
+	awk -f /bin/awk_syslog /etc/syslog-ng/syslog-ng.conf > /tmp/syslog-ng.conf.tmp
+	mv /tmp/syslog-ng.conf.tmp /etc/syslog-ng/syslog-ng.conf
+	echo "Updated Syslog-ng Configuration"
+	NEEDSAVE=2
+fi
+
+if grep -q "authserver" /etc/adsap2.conf; then
+
+	awk ' $1 ~ /^#?authserver/ { \
+           if (substr($2, length($2)) != ",") \
+              $2 = $2 "," \
+	   } \
+	   { \
+              print $0 \
+	   } \
+	   ' /etc/adsap2.conf > /tmp/adsap2.conf.tmp
+
+	if ! cmp -s /etc/adsap2.conf /tmp/adsap2.conf.tmp; then
+		cp /tmp/adsap2.conf.tmp /etc/adsap2.conf
+		echo "Updated ADSAP2 Configuration"
+		NEEDSAVE=3
+	fi
+
+	rm -f /tmp/adsap2.conf.tmp
+fi
+
+if ! grep -q "Enable IPv4 configuration" /etc/portslave/pslave.conf; then
+
+	awk ' /Ethernet configuration/ { \
+		  print "# Enable IPv4 configuration"; \
+		  print "#"; \
+		  print "# This parameter is used to enable or disable the configuration of IPv4"; \
+		  print "# addresses."; \
+		  print "# Valid entries are: yes or 1 and no or 0."; \
+		  print "#"; \
+		  print "conf.enableIPv4 yes"; \
+		  print ""; \
+		  print "#"; \
+		  print "# Enable IPv6 configuration"; \
+		  print "#"; \
+		  print "# This parameter is used to enable or disable the configuration of IPv6"; \
+		  print "# addresses."; \
+		  print "# Valid entries are: yes or 1 and no or 0."; \
+		  print "#"; \
+		  print "conf.enableIPv6 no"; \
+		  print ""; \
+		  print "#"; \
+		} \
+		{ \
+		  print $0; \
+		} \
+	' /etc/portslave/pslave.conf > /tmp/pslave.conf.tmp
+
+	mv /tmp/pslave.conf.tmp /etc/portslave/pslave.conf
+	
+	echo "Updated Portslave IPv4/IPv6 Configuration"
+	NEEDSAVE=4
+fi
+
+if ! grep -q "AIDP" /etc/daemon_list; then
+	echo "AIDP        /etc/daemon.d/aidp.sh" >> /etc/daemon_list
+	echo "Updated /etc/daemon_list"
+	NEEDSAVE=5
+fi
+
+if ! grep -q "NIS" /etc/daemon_list; then
+	echo "NIS        /etc/daemon.d/ypbind.conf" >> /etc/daemon_list
+	NEEDSAVE=6
+fi
+
+if ! grep -q "IPSEC" /etc/daemon_list; then
+	echo "IPSEC        /etc/daemon.d/ipsec.sh" >> /etc/daemon_list
+	NEEDSAVE=7
+fi
+
+if ! grep -q "modprobe\.conf" /etc/config_files; then
+	echo "/etc/modprobe.conf" >> /etc/config_files
+	NEEDSAVE=8
+fi
+
+awk ' /IPTables restore rules saved in/ { next; } \
+      /::wait:\/bin\/fwset restore/ { next; } \
+      /::once:\/bin\/cy_ras/ { next; } \
+      /initialize shared memory configuration/ { next; } \
+      /::wait:\/bin\/updconf -f -q/ { next; } \
+      { print $0; } \
+   ' /etc/inittab > /etc/inittab.temp
+
+if ! cmp -s /etc/inittab /etc/inittab.temp; then
+	cp /etc/inittab.temp /etc/inittab
+	echo "Updated /etc/inittab"
+	NEEDSAVE=9
+fi
+rm -f /etc/inittab.temp
+
+if [ -f /etc/network/ifcfg_lo ]; then
+	mv /etc/network/ifcfg_lo /etc/network/_ifcfg_lo
+fi
+if [ -f /etc/network/ifcfg_eth0 ]; then
+	rm -f /etc/network/ifcfg_*
+	echo "Removed /etc/network/ifcfg_* files"
+	NEEDSAVE=10
+fi
+if [ -f /etc/network/_ifcfg_lo ]; then
+	mv /etc/network/_ifcfg_lo /etc/network/ifcfg_lo
+fi
+
+if ! grep -q "/etc/network/firewall6" /etc/config_files; then
+	echo "/etc/network/firewall6" >> /etc/config_files
+	NEEDSAVE=11
+fi
+# --- IPv6 support -- upgrade end
+
+# == Fix SSL version 
+if ! grep -q "source \/etc\/ssl_version.conf" /etc/daemon.d/webui.conf; then
+
+	awk '$1 ~ /^ENABLE=/ { \
+                print "source /etc/ssl_version.conf"; \
+                print ""; \
+        } \
+	$1 ~ /^SSLVER=/ { \
+                if (substr($0, 12, 1) == "2") \
+                   print "SSLVER=SSLv2"; \
+                else if (substr($0, 12, 1) == "3") \
+                   print "SSLVER=SSLv3"; \
+                else \
+                   print "SSLVER=SSLv23"; \
+                next; \
+        } \
+	$1 ~ /^DPARM=/ { \
+                print "case \"$SSLVER\" in"; \
+                print "'SSLv2') SSLVER=\"-v 2\" ;;"; \
+                print "'SSLv3') SSLVER=\"-v 3\" ;;"; \
+                print "     *) SSLVER=\"\" ;;"; \
+                print "esac"; \
+        } \
+        { \
+                print $0; \
+        } \
+	' /etc/daemon.d/webui.conf > /tmp/webui.conf.temp
+
+	if ! cmp -s /etc/daemon.d/webui.conf /tmp/webui.conf.temp; then
+		cp /tmp/webui.conf.temp /etc/daemon.d/webui.conf
+		echo "Updated /etc/daemon.d/webui.conf"
+		NEEDSAVE=12
+	fi
+
+	rm -f /tmp/webui.conf.temp
+fi
+
+awk '$1 ~ /^SSLv/ {
+		print "SSLVER="$1;
+		next;
+        }
+        {
+                print $0;
+        }
+   ' /etc/ssl_version.conf > /tmp/ssl_version.conf.temp
+
+if ! cmp -s /etc/ssl_version.conf /tmp/ssl_version.conf.temp; then
+	cp /tmp/ssl_version.conf.temp /etc/ssl_version.conf
+	echo "Updated /etc/ssl_version.conf"
+	NEEDSAVE=13
+fi
+rm -f /tmp/ssl_version.conf.temp
+
+if ! grep -q "/etc/ssl_version.conf" /etc/config_files; then
+        echo "/etc/ssl_version.conf" >> /etc/config_files
+        NEEDSAVE=14
+fi
+
+if grep -q "ulimit" /etc/profile; then
+
+	awk '$1 ~ /^ulimit/ { \
+	      print "ulimit -c 0"; \
+	      next; \
+	   } \
+	   { \
+              print $0; \
+	   } \
+	   ' /etc/profile > /etc/profile.temp
+
+	if ! cmp -s /etc/profile /etc/profile.temp; then
+		cp /etc/profile.temp /etc/profile
+		echo "Updated /etc/profile"
+		NEEDSAVE=15
+	fi
+
+	rm -f /etc/profile.temp
+fi
+
+if ! grep -q "\$SSLCIPHER" /etc/daemon.d/webui.conf; then
+	cp /etc/daemon.d/webui.conf /tmp/webui.conf
+	awk -f /bin/awk_webui /tmp/webui.conf > /etc/daemon.d/webui.conf
+	rm -f /tmp/webui.conf
+	NEEDSAVE=16
+fi
+
+# update the /etc/ppp/auth-up - remove DSView detection
+if [ -f /etc/ppp/auth-up ]; then
+	if grep -q "auth-up.dsview" /etc/ppp/auth-up; then
+		cp /etc/ppp/auth-up /tmp/auth-up
+		grep -v "auth-up.dsview" /tmp/auth-up > /etc/ppp/auth-up
+		rm -f /tmp/auth-up
+		NEEDSAVE=17
+	fi
+fi
+
+# upgrade - fix problem with ldap.conf
+if [ -f /etc/ldap.conf ]; then
+	if ! grep -q "^tls_checkpeer" /etc/ldap.conf; then
+		echo "tls_checkpeer no" >> /etc/ldap.conf
+		NEEDSAVE=18
+	fi
+fi
+
+if grep -q "27 =" /etc/event_notif.conf; then
+	sed "/^27 =*/d;/^28 =*/d;/^34 =*/d;/^41 =*/d;/^42 =*/d" /etc/event_notif.conf > /tmp/event_notif.conf
+	sed '$a\43 = 2\
+44 = 2\
+45 = 2\
+46 = 2\
+47 = 2\
+48 = 2\
+49 = 2\
+50 = 2\
+51 = 2\
+52 = 2\
+53 = 2\
+54 = 2\
+55 = 2\
+56 = 2\
+57 = 2\
+58 = 2' /tmp/event_notif.conf > /etc/event_notif.conf
+	rm -f /tmp/event_notif.conf
+	NEEDSAVE=19
+fi
+
+# removed features from ACS Classic (v3.3.0) end
+
+#Validate all modification
+if [ $NEEDSAVE != 0 ]
+then
+    /bin/saveconf
+#mp: for debugging
+#	touch /root/code$NEEDSAVE
+fi

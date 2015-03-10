@@ -1,0 +1,15 @@
+#ifndef CYACSINFO_H
+#define CYACSINFO_H
+#include <stdio.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
+
+/*
+ * function declarations 
+ */
+void init_@CYACSINFO@(void);
+void init_@CYACSINFO@Table(void);
+
+#endif

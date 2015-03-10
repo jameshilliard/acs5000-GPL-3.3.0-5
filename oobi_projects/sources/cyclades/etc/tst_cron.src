@@ -1,0 +1,6 @@
+PATH=/usr/bin:/bin
+SHELL=/bin/sh
+HOME=/
+#
+0-59 * * * *   /etc/tst_cron.sh
+

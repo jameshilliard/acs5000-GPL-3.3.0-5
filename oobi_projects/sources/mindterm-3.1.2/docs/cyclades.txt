@@ -1,0 +1,47 @@
+Changes done by Cyclades
+-------------------------
+
+Dec,2005 - ESOARES
+------------------
+1. For each Mindterm parameter (applet or application) is necessary to register it in com.mindbright.ssh.SSHPropertyHandler.defaultPropDesc
+	Static parameters are set up in WEB-INF/jnlp/mindterm.properties. 
+	Dinamic parameters are merged when to the static ones and passed to Applet/JWS application.	
+
+2. com.mindbright.ssh.SSHMenuHandlerFullSwing : Menu is added to the LayoutManager rather than set in JFrame, to be useful also for applets.
+	Restriction: Work around done using swing was sucessfull because JMenuBar extends JComponent. However it is not viable in JDK 1.1 because java.awt.MenuBar does not extend java.awt.Component.
+		
+3. com.mindbright.ssh.SSHMenuHandlerFull : "send break" menu item configuration.
+		
+4. com.mindbright.ssh.SSHInteractiveClient : Mindterm information and logo commented out in startup.
+	Watch the little information displayed on Mindterm startup. 
+		
+5. com.mindbright.gui.AWTConvenience.isSwingJFrame : Modified to force use of swing according to parameter force-swing (true/false)
+			
+
+6. GUIInterface,GUIAWT, GUISwing (com.mindbright.gui) : Method added to show dialog with buttons OK,NO and CANCEL (swing only).
+	
+7. Mindterm : Support for argument --app in Application mode to accept parameters from stand-alone application
+	
+8. Mindterm logo replaced by Cyclades logo (src/defaults/logo.gif) 
+		
+9. MindTerm3 : Set up username/password and server parameters, handle session timeout closing Applet/JWS window. 
+
+
+Tests
+-----------------
+1. You may change WEB-INF/jnlp/mindterm.properties
+
+2. Menu support in Applet - watch it. force-swing property must be set to true in WEB-INF/jnlp/mindterm.properties.
+
+3. Send break 
+		A. Connect to a server, e.g. 172.22.78.2.
+		B. Click on menu item File/Send Break
+		C. The break must be send in a empty line (after a CRLF). If is not the case, one dialog will appear asking the user to send the CRLF.
+		
+4. Cyclades logo - Go to menu Help/About Mindterm.
+
+5. Username/password set up for console/device - As soon as Mindterm starts, it should connect to the proper console/device automatically
+	
+6. Session timeout - If session timeout is enabled for the user, the Applet/JWS application will close when HTTP session timeouts out.
+
+

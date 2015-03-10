@@ -1,0 +1,42 @@
+#
+
+#
+# Addtional compiler and/or link options may be defined here
+#
+
+#LDFLAGS += ...
+
+#
+# Command line parameters for configure must be defined here
+#
+#CONFIGURE_PARMS := ...
+
+#CONFIGURE_ENV := ...
+
+APPLDIR=$(my_prefix)/$(WebPagesDir)/normal/applications/appl
+PKGNAME=mindterm
+
+MAKE_ENV:=\
+	TARG=$(TARGET_PRODUCT) \
+	JAVA_HOME=/usr/java/j2sdk1.4.2_04 \
+	PATH=/usr/java/j2sdk1.4.2_04/bin:/usr/apache-ant-1.6.5/bin:$(PATH)
+
+MAKE_PARMS:=\
+	APPLDIR=$(APPLDIR) \
+	PKGNAME=$(PKGNAME)
+
+#
+#  more ac_variables for configure may be defined here
+#
+#CROSS_ENV_AC += ...
+
+############################################################################
+
+$(CFG_COOKIE):
+	date > $@
+
+$(BLD_COOKIE): $(CFG_COOKIE)
+	@echo $(APPLDIR)
+	@echo $(PKGNAME)
+	$(MAKE_ENV) $(MAKE) $(MAKE_PARMS)
+

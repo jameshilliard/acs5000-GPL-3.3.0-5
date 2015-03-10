@@ -1,0 +1,44 @@
+#
+#  Makefile for cyclades projects.
+#
+
+#
+# Addtional compiler and/or link options may be defined here
+#
+EXTRA_CFLAGS = -I$(DIST_DIR)/$(SYSFSUTILS)/include
+EXTRA_LDFLAGS = -L$(DIST_DIR)/$(SYSFSUTILS)/lib
+
+#
+# Command line parameters for configure must be defined here
+#
+#CONFIGURE_PARMS := ...
+
+#CONFIG_ENV := ...
+
+MAKE_ENV := \
+	PATH=$(CROSS_PATH)
+
+MAKE_PARMS :=\
+	CROSS="$(CROSS_COMPILE)" \
+	DESTDIR="$(my_prefix)" \
+	EXTRA_CFLAGS="$(EXTRA_CFLAGS)" \
+	EXTRA_LDFLAGS="$(EXTRA_LDFLAGS) -L$(DIST_DIR)/$(SYSFSUTILS)/lib" \
+	STARTUP=false \
+	UDEV=false \
+	V=true
+
+#
+#  more ac_variables for configure may be defined here
+#
+#CROSS_ENV_AC += ...
+
+$(CFG_COOKIE):
+	date > $@
+
+$(BLD_COOKIE):
+	$(MAKE_ENV) $(MAKE) all $(MAKE_PARMS)
+	date > $@
+
+$(INST_COOKIE):
+	$(MAKE_ENV) $(MAKE) install-tools $(MAKE_PARMS)
+	date > $@

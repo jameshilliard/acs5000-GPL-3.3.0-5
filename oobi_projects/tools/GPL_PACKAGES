@@ -1,0 +1,4 @@
+OLD_GPL_PKGS:=dhcpcd Linux-PAM netbsd-tftp netkit-bootparamd net-snmp openssh pam_krb5_fk pam_ldap pam_opie pam_radius pam_smb pam_tacplus pam_unix2 pppd rlogin tinylogin
+
+NEW_GPL_PKGS:=busybox configts cyclades dhcpcd dlog dummy_tcpd expect inetd javaApplet libadsap2 libcyc Linux-PAM llconf mindterm netbsd-tftp netkit-bootparamd net-snmp new_webs ntpclient openssh pam_krb5_fk pam_ldap pam_opie pam_radius pam_smb pam_tacplus pam_unix2 pmclib pppd ras rlogin tempsensor u-boot webApi zoneinfo tinylogin
+

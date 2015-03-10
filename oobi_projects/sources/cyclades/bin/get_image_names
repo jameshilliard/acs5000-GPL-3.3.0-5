@@ -1,0 +1,23 @@
+#!/bin/sh
+
+cd /tmp
+rm -f image_files
+rm -rf  mnt
+mkdir mnt
+
+for i in 1 2 ; do
+  echo -n "image${i}:" >> image_files
+  mount -t vfat /dev/hda$i mnt > /dev/null 2>&1
+  rtn=$?
+  cnt=`ls mnt | wc -l`
+  if [ $rtn -eq 0 -a $cnt -eq 1 ] ; then
+    ls mnt >> image_files
+    echo -en "\r" >> image_files
+  else
+    echo -en "none\r\n" >> image_files
+  fi
+  if [ $rtn -eq 0 ] ; then
+    umount mnt
+  fi
+done
+

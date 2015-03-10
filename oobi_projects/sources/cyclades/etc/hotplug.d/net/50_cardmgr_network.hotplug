@@ -1,0 +1,60 @@
+#!/bin/sh
+
+#exec >/dev/ttyS0 2>&1
+#echo "$0: called parms: $*"
+#env
+#set -x
+
+#DEBUG=yes; export DEBUG
+
+cd /etc/hotplug
+. ./hotplug.functions
+. ./cardmgr.functions
+
+if [ "$ACTION" = "" ]; then
+	mesg "Bad PCMCIA agent invocation, no action"
+	exit 1
+fi
+
+[ "$ACTION" = "add" -o "$ACTION" = "remove" ] || exit 2
+
+debug_mesg $PHYSDEVPATH $PHYSDEVDRIVER $DEVPATH
+
+# Ignore event if net interface is not on a pcmcia bus.
+[ "$PHYSDEVBUS" = "pcmcia" ] || exit 2
+
+# Determine socket and device numbers:
+get_socket "${PHYSDEVPATH##*/}" socket_no device_no
+
+# Determine device name:
+case "$DEVPATH" in
+	*/ippp*)
+		# Ignore interfaces created by isdnctrl.
+		exit 2
+		;;
+	*)
+		device_name="${DEVPATH##*/}"
+		;;
+esac
+
+#
+# Translate the parameters in order to call the cardmgr script.
+#
+if [ "$ACTION" = "add" ]; then
+	MGR_ACTION="start"
+	MGR_DEVICE="$device_name"
+	MGR_NEW_SCHEME="default"
+	MGR_SOCKET="$socket_no"
+	MGR_INSTANCE="$device_no"
+	MGR_MAJOR=""
+	MGR_MINOR=""
+	MGR_DRIVER="$PHYSDEVDRIVER"
+	MGR_SCRIPT="network"
+else
+	# Load previously saved parameters from file:
+	cardmgr_load_params "network" "$socket_no" "$device_no" || exit 3
+
+	MGR_ACTION="stop"
+fi
+
+cardmgr_run_script

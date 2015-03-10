@@ -1,0 +1,22 @@
+Index: jta25/de/mud/terminal/SwingTerminal.java
+===================================================================
+--- jta25.orig/de/mud/terminal/SwingTerminal.java
++++ jta25/de/mud/terminal/SwingTerminal.java
+@@ -286,7 +286,7 @@ public class SwingTerminal extends Compo
+ 
+     /* we have to make sure the tab key stays within the component */
+     String version = System.getProperty("java.version");
+-    if (version.startsWith("1.4")) {
++//    if (version.startsWith("1.4")) {
+       try {
+         Class params[] = new Class[]{boolean.class};
+         SwingTerminal.class.getMethod("setFocusable", params).invoke(this, new Object[]{new Boolean(true)});
+@@ -295,7 +295,7 @@ public class SwingTerminal extends Compo
+         System.err.println("vt320: unable to reset focus handling for java version " + version);
+         e.printStackTrace();
+       }
+-    }
++//    }
+ 
+     // lightweight component handling
+     enableEvents(VDU_EVENTS);

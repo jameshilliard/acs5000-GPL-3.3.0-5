@@ -1,0 +1,63 @@
+#
+#  Makefile for Cyclades projects.
+#
+#  It will to decompress packages used by Cyclades
+#
+#  For each package it determines the tarball name and its patches,
+#  if any, and call MakeTar.
+#
+
+include $(OPENSOURCE_DIR)/$(TOOLS)/MakeChecks
+
+$(call check_vars,APPLETS JAVA_CONF)
+
+include $(OPENSOURCE_DIR)/$(TOOLS)/$(JAVA_CONF)
+include $(WORK_DIR)/packages_def
+
+TARBAL_DIR := $(OPENSOURCE_DIR)/tarbal
+#PATCHES_DIR := $(OPENSOURCE_DIR)/patches
+PATCHES_DIR := patches
+APPLETS_DIR := $(OPENSOURCE_DIR)/$(APPLETS)
+
+.PHONY: all
+
+all: check_utilities $(APPLET_PKGS)
+
+define DEP_template
+$(1)_PATCHES:=$(wildcard $(PATCHES_DIR)/$(1)/*)
+$(1)_TAR:=$(wildcard $(TARBAL_DIR)/$(1).*)
+endef
+
+$(foreach pack,$(APPLET_PKGS),$(eval $(call DEP_template,$(pack))))
+
+$(APPLET_PKGS): force
+	$(call EXEC_ACTION,src_$@,\
+	$(MAKE) -C $(APPLETS_DIR) -f $(OPENSOURCE_DIR)/$(TOOLS)/MakeTar \
+		TARGET=$@ TARFILE=$($@_TAR) )
+	$(call EXEC_ACTION,bld_$@,\
+		$(MAKE) -C $(APPLETS_DIR)/$@ \
+			-f $(OPENSOURCE_DIR)/$(TOOLS)/MakeBldApplet \
+			JAVA_DIR=$(JAVA_DIR) \
+			GNUEXP_JAR=$(GNUEXP_JAR) \
+			JDOM_JAR=$(JDOM_JAR))
+
+$(MAKEFILE_LIST): ;
+
+# Java utilities to check
+JAVAC:=bin/javac
+JARSIGNER:=bin/jarsigner
+
+check_utilities: force
+ifneq ($(words $(APPLET_PKGS)),0)
+	@test -x $(JAVA_DIR)/$(JAVAC) || \
+		( echo "ERROR: The Java Compiler was not found"; \
+		  echo "Please install the java compiler in your machine"; \
+		  exit 1 )
+	@test -x $(JAVA_DIR)/$(JARSIGNER) || \
+		( echo "ERROR: The jarsigner utility was not found"; \
+		  echo "Please install jarsigner in your machine"; \
+		  exit 1)
+endif
+
+force: ;
+

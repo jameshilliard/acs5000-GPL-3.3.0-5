@@ -1,0 +1,28 @@
+#!/bin/sh
+
+if [ "x$1" = "x" ] ; then
+    cat /proc/sys/kernel/domainname
+    exit
+fi
+
+if [ "x$1" = "x-f" ] ; then
+  fn=
+  if [ -n "$2" ] ; then
+    if [ -f $2 ] ; then
+      fn=$2
+    fi
+  fi
+  if [ -z "$fn" ] ; then
+    fn=/etc/domainname.conf
+  fi
+  dn=`cat $fn`
+else
+  dn=$1
+  echo $1 > /etc/domainname.conf
+  /bin/updatefiles /etc/domainname.conf 2>&1 > /dev/null
+fi
+if [ -z $dn ]; then
+  sysctl -w kernel.domainname=" " 2>&1 > /dev/null
+else
+  sysctl -w kernel.domainname=$dn 2>&1 > /dev/null
+fi

@@ -1,0 +1,4 @@
+./cyclades_code_changes_v32p1.diff
+./cyclades_config_changes.diff
+./cyclades_make_changes.diff
+./lib-libtools.patch

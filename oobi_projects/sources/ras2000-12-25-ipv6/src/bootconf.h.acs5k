@@ -1,0 +1,19 @@
+#ifndef __bootconf_h
+#define __bootconf_h
+
+/*
+ *  Define those default values which may differ
+ *  depending on the compiled target
+ */
+
+#define FLASH_BLOCK	(64*1024)
+#define DEFAULT_TFTP_PATH	"zvmppcacs5k.bin"
+#define DEFAULT_WDT_OPT	1
+
+#define BOOT_ORI_FILE	"/mnt/flash/boot_ori"
+#define BOOT_OM_FILE	"/mnt/flash/.info"
+#define BOOT_CONF_FILE	"/mnt/flash/boot_conf"
+	
+//[GB]May/06/06 - Ethernet Receive Rate Limiy
+#define MII_MAX_RATE 1
+#endif	/* __bootconf_h */

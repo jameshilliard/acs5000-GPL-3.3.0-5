@@ -1,0 +1,71 @@
+		Console Server Supported Device List
+
+		Last updated: 2004/09/27
+
+
+
+Ethernet cards:
+
+    [3c589_cs driver]
+    3Com Megahertz 10Mbps LAN Card Model 3CCE589ET
+
+
+Fast Ethernet (10/100baseT) adapters:
+
+    [axnet_cs driver]
+    Linksys EtherFast 10/100 PC Card Model PCMPC100 v3
+
+    [pcnet_cs driver]
+    D-Link EtherFast 10/100 PC Card Model DFE-670TXD
+
+
+Wireless network adapters:
+
+    [orinoco_cs driver]
+    Lucent Orinoco PC Card Gold
+    Linksys WPC 11
+
+
+Fiber Optic Ethernet adapters:
+
+    [pcnet_cs driver]
+    Danpex 1300C FX100BT (AFC1300SC/ST models)
+
+
+Modem cards:
+
+    [serial_cs driver]
+    CyQ've 56K Fax Modem Card Multi National FMC-561
+    Zoom/Modem V.92 PC Card Plus Model 3075
+    Psion 56K+Fax WAN Global PC Card
+    Xircom XM5600 56K PC Card Modem Adapter
+
+
+ISDN cards:
+
+    [avma1_cs driver]
+    Fritz! PCMCIA Card
+    
+    [sedlbauer_cs driver]
+    Sedlbauer speed star ISDN PCMCIA Adapter
+
+
+GSM cards:
+
+    [serial_cs driver]
+    Sierra Aircard 750
+    Novatel Merlin G201
+
+
+IDE (hard disk) cards:
+
+    [ide_cs driver]
+    Toshiba MK5002MPL
+
+
+Compact Flash cards:
+
+    [ide_cs driver]
+    hama 64MB card
+    SunDisc SDP 5/3 16MB card
+    Kingston 128MB 

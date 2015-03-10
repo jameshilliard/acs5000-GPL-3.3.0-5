@@ -1,0 +1,6 @@
+bootparamd
+callbootd
+bootparam_prot_svc.c
+bootparam_prot_clnt.c
+bootparam_prot_xdr.c
+bootparam_prot.h

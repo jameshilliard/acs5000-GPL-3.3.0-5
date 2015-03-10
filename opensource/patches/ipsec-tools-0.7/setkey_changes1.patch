@@ -1,0 +1,15 @@
+--- ipsec-tools-0.7/src/setkey/setkey.c.orig	2007-10-19 17:06:31.000000000 -0200
++++ ipsec-tools-0.7/src/setkey/setkey.c	2007-10-19 17:07:09.000000000 -0200
+@@ -39,11 +39,11 @@
+ #include <sys/param.h>
+ #include <sys/socket.h>
+ #include <sys/time.h>
+ #include <sys/stat.h>
+-#include <sys/sysctl.h>
+ #include <err.h>
+ #include <netinet/in.h>
+ #include <net/pfkeyv2.h>
++#include <sys/sysctl.h>
+ #include PATH_IPSEC_H
+ 
+ #include <stdio.h>

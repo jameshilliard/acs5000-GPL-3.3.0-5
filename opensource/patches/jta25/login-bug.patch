@@ -1,0 +1,13 @@
+Index: jta25/contrib/de/mud/jta/plugin/Jsch.java
+===================================================================
+--- jta25.orig/contrib/de/mud/jta/plugin/Jsch.java
++++ jta25/contrib/de/mud/jta/plugin/Jsch.java
+@@ -272,7 +272,7 @@ public class Jsch extends Plugin impleme
+ 
+                   	if (req_auth) {
+                     	String loginStr;
+-               			if (Applet.portChosenSsh.equals("22") == false) {
++               			if (Applet.portChosenSsh != null && Applet.portChosenSsh.equals("22") == false) {
+                   			loginStr = login.getText() + ":" + Applet.portChosenSsh;
+                			} else {
+                   			loginStr = login.getText();

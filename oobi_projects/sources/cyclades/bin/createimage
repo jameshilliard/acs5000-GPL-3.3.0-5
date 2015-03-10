@@ -1,0 +1,131 @@
+#!/bin/sh 
+
+TMP_DIR=/tmp
+TMP_MOUNTDIR=$TMP_DIR/tmp1
+TMP2_MOUNTDIR=$TMP_DIR/tmp2
+force_stop="no"
+
+usage ()
+{
+   echo "[ERROR] Wrong usage."
+   echo "Usage:"
+   echo
+   echo "$0 <image filename>"
+   exit 1
+}
+
+do_exit ()
+{
+  if [ -d "$TMP_DIR" ]; then
+    cd $TMP_DIR
+    if [ -d "$TMP2_MOUNTDIR" ]; then
+      umount $TMP2_MOUNTDIR >/dev/null 2>&1
+      rm -rf $TMP2_MOUNTDIR >/dev/null 2>&1
+#      losetup -d /dev/loop0
+    fi
+    if [ -d "$TMP_MOUNTDIR" ]; then
+      umount $TMP_MOUNTDIR >/dev/null 2>&1
+      rm -rf $TMP_MOUNTDIR >/dev/null 2>&1
+    fi
+  fi
+  if [ $force_stop == "used" ]; then
+    echo "Restarting daemons"
+    do_daemon "restart"
+  fi
+  if [ "$2" = "" ]; then
+    EXIT_CODE=1
+  else
+    EXIT_CODE=$2
+  fi
+  exit $EXIT_CODE
+}
+
+do_exec ()
+{
+  eval $1 >/dev/null 2>&1
+  if [ $? -ne 0 ] ; then
+    echo
+    echo "[ERROR] in command '$1'."
+    echo
+    do_exit 1 1
+  fi
+}
+
+do_daemon ()
+{
+  for d in `egrep -v "KVMD|SSH|SNMP|EVTGEN|LOGPIPE|ADSAP2" /etc/daemon_list | awk '/^#/ {next}; {print $1}'`; do
+    echo " ${1}ing daemon $d"
+    do_exec "daemon.sh $1 $d"
+  done
+}
+
+if [ $# -lt 1 ]; then
+	usage
+fi
+
+# Define the partitions to which the files will be copied
+if [ -n "`grep 'root=/dev/ram' /proc/cmdline`" ]; then
+	echo "[ERROR] This command does not run when the root filesystem is in RAMDISK. Use create_cf for this purpose."
+	do_exit 1 1 
+fi
+
+# Trap signals so that this application is not interrupted
+trap do_exit SIGTERM SIGINT SIGQUIT SIGHUP
+
+# Check for --force flag
+while [ -n "$1" ]; do
+  case "$1" in
+  	--force)
+  	  force_stop="yes"
+  	;;
+  	*)
+  	  UIMAGE=$1
+  	;;
+  esac
+  shift
+done
+
+# These are the procedures when we can mount as loop with a tmpfs file.
+# Check memory availability 
+RD_SIZE=`expr 64 \* 1024 \* 1024`
+RD_SIZE_K=`expr $RD_SIZE / 1024`
+if [ $force_stop == "yes" ]; then
+  force_stop="used"
+  echo "Stopping daemons to clear memory space"
+  do_daemon "stop"
+fi
+freemem=`free | grep "Mem:" | awk '{ print $4}'`
+if [ $freemem -lt $RD_SIZE_K ]; then
+#  if [ $force_stop == "yes" ]; then
+#    force_stop="used"
+#    echo "Not enough memory space to create ${RD_SIZE_K}KiB ramdisk (${freemem}KiB free)"
+#    echo "Stopping daemons to clear memory space"
+#    do_daemon "stop"
+#    freemem=`free | grep "Mem:" | awk '{ print $4}'`
+#  fi
+#  if [ $freemem -lt $RD_SIZE_K ]; then
+    echo "[ERROR] Not enough memory space to do upgrade"
+    do_exit 1 1
+#  fi
+fi
+
+# Mount a temporary filesystem
+mkdir -p $TMP_MOUNTDIR
+do_exec "mount -t tmpfs none $TMP_MOUNTDIR -o size=$RD_SIZE"
+
+echo "Extracting and uncompressing the ramdisk image"
+RAMDISK=ramdisk
+eval "checkImage $UIMAGE | gunzip -c > $TMP_MOUNTDIR/$RAMDISK" >/dev/null
+if [ $? -ne 0 ] ; then
+	echo "[ERROR] File is not a valid image."
+	do_exit 1 1
+fi
+
+mkdir -p $TMP2_MOUNTDIR
+echo "Mounting the ramdisk image"
+do_exec "mount -t ext2 -o loop $TMP_MOUNTDIR/$RAMDISK $TMP2_MOUNTDIR"
+
+eval $TMP2_MOUNTDIR/bin/createPartitions
+
+do_exit 1 $?
+

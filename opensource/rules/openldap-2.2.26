@@ -1,0 +1,68 @@
+#
+#  Makefile for cyclades projects.
+#
+
+#
+# Addtional compiler and/or link options may be defined here
+#
+#CFLAGS += ...
+#LDFLAGS += ...
+
+#
+# Command line parameters for configure must be defined here
+#
+CONFIGURE_PARMS := \
+	--host=$(HOST) \
+	--enable-x-compile \
+	--with-yielding_select=yes \
+	--enable-shared=no \
+	--enable-static=yes \
+	--with-tls=openssl \
+	--disable-slapd \
+	--disable-slurpd \
+	--with-cyrus-sasl=no \
+	--prefix=$(my_prefix)
+
+CONFIG_ENV = \
+	CROSS_COMPILE=$(CROSS_COMPILE)\
+	PATH=$(CROSS_PATH) \
+	HOST_CC=cc \
+	$(CROSS_ENV_TOOLS) \
+	CFLAGS="$(CFLAGS)" \
+	CPPFLAGS="$(CFLAGS) -I$(DIST_DIR)/$(OPENSSL)/include" \
+	LDFLAGS="$(LDFLAGS) -L$(DIST_DIR)/$(OPENSSL)/lib"
+
+MAKE_ENV := \
+	PATH=$(CROSS_PATH)
+
+MAKE_PARMS :=\
+	CROSS_COMPILE=$(CROSS_COMPILE)
+
+#
+#  more ac_variables for configure may be defined here
+#
+#CROSS_ENV_AC += ...
+
+$(CFG_COOKIE):
+	-rm -f config.cache
+	-rm -f config.status
+	$(CONFIG_ENV) $(CROSS_ENV_AC) ./configure $(CONFIGURE_PARMS)
+	$(MAKE_ENV) $(MAKE) depend
+	date > $@
+
+$(BLD_COOKIE):
+	$(MAKE_ENV) $(MAKE) all $(MAKE_PARMS)
+	date > $@
+
+$(INST_COOKIE):
+	( \
+		install -d $(my_prefix)/lib; \
+		cp libraries/libldap/.libs/libldap.a $(my_prefix)/lib; \
+		cp libraries/liblber/.libs/liblber.a $(my_prefix)/lib; \
+		cp libraries/liblutil/liblutil.a $(my_prefix)/lib; \
+		install -d $(my_prefix)/include; \
+		cp include/*.h $(my_prefix)/include; \
+	)
+	date > $@
+
+

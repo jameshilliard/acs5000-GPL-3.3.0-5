@@ -1,0 +1,207 @@
+Index: configure.ac
+===================================================================
+RCS file: /usr/cvsroot/tslinux_mv21/ipsec/ipsec-tools-0.5-rc1/configure.ac,v
+retrieving revision 1.1
+retrieving revision 1.2
+diff -u -r1.1 -r1.2
+--- ipsec-tools-0.5-rc1/configure.ac	11 Feb 2005 10:38:53 -0000	1.1
++++ ipsec-tools-0.5-rc1/configure.ac	11 Feb 2005 11:17:41 -0000	1.2
+@@ -19,7 +19,10 @@
+ AC_SUBST(LEXLIB)
+ AC_PROG_EGREP
+ 
+-CFLAGS_ADD="$CFLAGS_ADD -Wall -Werror -Wno-unused"
++# Can't have -Werror when cross compiling and using the real kernel headers
++# include/linux/list.h warns!
++#CFLAGS_ADD="$CFLAGS_ADD -Wall -Werror -Wno-unused"
++CFLAGS_ADD="$CFLAGS_ADD -Wall -Wno-unused"
+ 
+ case $host in
+ *netbsd*)
+@@ -57,8 +60,8 @@
+ 	      AC_SUBST(CONFIGURE_AMFLAGS) ],
+ 	    [ KERNEL_INCLUDE="/lib/modules/`uname -r`/build/include" ])
+ 
+-    AC_CHECK_FILE($KERNEL_INCLUDE/linux/pfkeyv2.h, ,
+-	[ AC_CHECK_FILE(/usr/src/linux/include/linux/pfkeyv2.h,
++    AC_CHECK_HEADER($KERNEL_INCLUDE/linux/pfkeyv2.h, ,
++	[ AC_CHECK_HEADER(/usr/src/linux/include/linux/pfkeyv2.h,
+ 	  KERNEL_INCLUDE=/usr/src/linux/include ,
+ 	  [ AC_MSG_ERROR([Unable to find linux-2.6 kernel headers. Aborting.]) ] ) ] )
+     AC_SUBST(KERNEL_INCLUDE)
+@@ -72,9 +75,9 @@
+                	[Are PF_KEY policy priorities supported?])], [],
+     	[#include "$KERNEL_INCLUDE/linux/pfkeyv2.h"])
+ 
+-    GLIBC_BUGS='-include ${top_srcdir}/src/include-glibc/glibc-bugs.h -I${top_srcdir}/src/include-glibc -I${top_builddir}/src/include-glibc'
++    top_srcdir=.
++    GLIBC_BUGS='-include \${top_srcdir}/src/include-glibc/glibc-bugs.h -I\${top_srcdir}/src/include-glibc -I\${top_builddir}/src/include-glibc'
+     AC_SUBST(GLIBC_BUGS)
+-    GLIBC_BUGS_LOCAL="-include ${srcdir-.}/src/include-glibc/glibc-bugs.h -I${srcdir-.}/src/include-glibc -I./src/include-glibc"
+     CPPFLAGS="$GLIBC_BUGS_LOCAL $CPPFLAGS"
+     ;;
+  *)
+@@ -135,8 +138,8 @@
+ # Check if readline support is requested
+ AC_MSG_CHECKING(if readline support is requested)
+ AC_ARG_WITH(readline,
+-	[  --with-readline         support readline input (yes by default)],
+-	[with_readline="$withval"], [with_readline="yes"])
++	AC_HELP_STRING([--with-readline],[support readline input \(yes by default\)]),
++	[with_readline="yes"], )
+ AC_MSG_RESULT($with_readline)
+ 
+ # Is readline available?
+@@ -146,31 +149,75 @@
+ 				AC_DEFINE(HAVE_READLINE, [],
+ 					[Is readline available?])
+ 				LIBS="$LIBS -lreadline"
+-		], [])], [])
++		])])
+ fi
+ 
++
++AC_MSG_CHECKING(if --with-flex option is specified)
++AC_ARG_WITH(flexdir,
++	[AC_HELP_STRING([--with-flex], [use directiory (default: no)])],
++	[flexdir="$withval"])
++AC_MSG_RESULT(${flexdir-dirdefault})
++
++AC_MSG_CHECKING(if --with-flexlib option is specified)
++AC_ARG_WITH(flexlib,
++	[  --with-flexlib=<LIB>    specify flex library.],
++	[flexlib="$withval"])
++AC_MSG_RESULT(${flexlib-default})
++
++if test "x$flexlib" != "x"; then
++# todo AC_TRY_LINK ...
++	LIBS="$LIBS $flexlib"
++fi
++
++AC_MSG_CHECKING(if --with-zlib option is specified)
++AC_ARG_WITH(zlib,
++	[  --with-zlib=<LIB>    specify zlib library.],
++	[zlib="$withval"])
++AC_MSG_RESULT(${zlib-default})
++
++if test "x$zlib" != "x"; then
++# todo AC_TRY_LINK ...
++	LIBS="$LIBS -L $zlib"
++fi
++
++
+ # Check if a different OpenSSL directory was specified
+ AC_MSG_CHECKING(if --with-openssl option is specified)
+ AC_ARG_WITH(openssl, [  --with-openssl=DIR      specify OpenSSL directory],
+-	[crypto_dir=$withval])
++	[crypto_dir="$withval"])
+ AC_MSG_RESULT(${crypto_dir-default})
+ 
+ if test "x$crypto_dir" != "x"; then
+ 	LIBS="$LIBS -L${crypto_dir}/lib"
+-	CPPFLAGS_ADD="-I${crypto_dir}/include $CPPFLAGS_ADD"
++	CFLAGS="-I${crypto_dir}/include $CFLAGS"
++	CPPFLAGS="-I${crypto_dir}/include $CPPFLAGS"
+ fi
++
+ AC_MSG_CHECKING(openssl version)
+-AC_EGREP_CPP(yes, [#include <openssl/opensslv.h>
+-#if OPENSSL_VERSION_NUMBER >= 0x0090602fL
+-yes
+-#endif], [AC_MSG_RESULT(ok)], [AC_MSG_RESULT(too old)
+-	AC_MSG_ERROR([OpenSSL version must be 0.9.6 or higher. Aborting.])
+-	])
++AC_TRY_COMPILE(
++[#include <openssl/opensslv.h>
++],
++[#if OPENSSL_VERSION_NUMBER < 0x0090602fL
++#error OpenSSL version is too old ...
++#endif],
++[AC_MSG_RESULT([OpenSSL version is ok])],
++[
++AC_MSG_ERROR([OpenSSL version must be 0.9.6 or higher. Aborting.])
++])
++#
++# AC_MSG_RESULT(too old)
++#
++
+ AC_CHECK_HEADERS(openssl/engine.h)
++AC_CHECK_HEADERS([openssl/aes.h], [],
++	[CRYPTOBJS="$CRYPTOBJS rijndael-api-fst.o rijndael-alg-fst.o"])
+ 
+ # checking rijndael
+-AC_CHECK_HEADERS([openssl/aes.h], [], 
+-	[CRYPTOBJS="$CRYPTOBJS rijndael-api-fst.o rijndael-alg-fst.o"])
++#AC_TRY_COMPILE(
++#[#include <openssl/aes.h>
++#], [AC_DEFINE([HAVE_AES_H], [], [Have aes.h]], 
++# ============== FIXME ==================:
+ 
+ # checking sha2
+ AC_MSG_CHECKING(sha2 support)
+@@ -192,29 +239,49 @@
+ AC_MSG_RESULT($enable_adminport)
+ 
+ # Check for Kerberos5 support
+-AC_MSG_CHECKING(if --enable-gssapi option is specified)
+-AC_ARG_ENABLE(gssapi,
+-	[  --enable-gssapi         enable GSS-API authentication],
+-	[], [enable_gssapi=no])
+-AC_MSG_RESULT($enable_gssapi)
+-AC_PATH_PROG(KRB5_CONFIG,krb5-config,no)
+-if test "x$enable_gssapi" = "xyes"; then
+-	if test "$KRB5_CONFIG" != "no"; then
+-		krb5_incdir="`$KRB5_CONFIG --cflags gssapi`"
+-		krb5_libs="`$KRB5_CONFIG --libs gssapi`"
+-		LIBS="$LIBS $krb5_libs"
+-		CPPFLAGS_ADD="$krb5_incdir $CPPFLAGS_ADD"
+-		AC_DEFINE([HAVE_GSSAPI], [], [Enable GSS API])
+-	else
+-		AC_MSG_ERROR([krb5-config not found, but needed for GSSAPI support. Aborting.])
++AC_MSG_CHECKING(if --with-krb5 option is specified)
++AC_ARG_WITH(krb5,
++	[  --with-krb5=<LIB>    specify kerberos library.],
++	[krb5="$withval"
++	krb5_incdir="-I${krb5}/include"
++	krb5_libs="-L${krb5}/lib -lkrb5 -lk5crypto -lcom_err -lgssapi_krb5"
++	LIBS="$LIBS $krb5_libs"
++	CPPFLAGS_ADD="$krb5_incdir $CPPFLAGS_ADD"
++	AC_DEFINE([HAVE_GSSAPI], [], [Enable GSS API])
++	])
++AC_MSG_RESULT(${krb5-no})
++
++if test "x$krb5" == "x"; then
++	AC_MSG_CHECKING(if --enable-gssapi option is specified)
++	AC_ARG_ENABLE(gssapi,
++		[  --enable-gssapi         enable GSS-API authentication],
++		[], [enable_gssapi=no])
++	AC_MSG_RESULT($enable_gssapi)
++	AC_PATH_PROG(KRB5_CONFIG,krb5-config,no)
++	if test "x$enable_gssapi" = "xyes"; then
++		if test "x$KRB5_CONFIG" != "xno"; then
++			krb5_incdir="`$KRB5_CONFIG --cflags gssapi`"
++			krb5_libs="`$KRB5_CONFIG --libs gssapi`"
++			LIBS="$LIBS $krb5_libs"
++			CPPFLAGS_ADD="$krb5_incdir $CPPFLAGS_ADD"
++			AC_DEFINE([HAVE_GSSAPI], [], [Enable GSS API])
++		else
++			AC_MSG_ERROR([krb5-config not found, but needed for GSSAPI support. Aborting.])
++		fi
+ 	fi
+ fi
+ 
++AC_MSG_CHECKING("HOST")
++AC_MSG_RESULT($HOST)
++
++AC_MSG_CHECKING("BUILD")
++AC_MSG_RESULT($BUILD)
++
+ AC_MSG_CHECKING([if --enable-hybrid option is specified])
+ AC_ARG_ENABLE(hybrid, 
+     [  --enable-hybrid	  enable hybrid, both mode-cfg and xauth support],
+     [
+-	LIBS="$LIBS -lcrypt"; 
++	LIBS="$LIBS -lcrypt";
+ 	enable_hybrid=yes;
+ 	HYBRID_OBJS="isakmp_xauth.o isakmp_cfg.o isakmp_unity.o throttle.o"
+ 	AC_SUBST(HYBRID_OBJS)

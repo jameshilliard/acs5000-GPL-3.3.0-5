@@ -1,0 +1,147 @@
+EAP-TLS authentication support for PPP
+======================================
+
+1. Intro
+
+    The Extensible Authentication Protocol (EAP; RFC 3748) is a
+    security protocol that can be used with PPP.  It provides a means
+    to plug in multiple optional authentication methods.
+
+    Transport Level Security (TLS; RFC 2246) provides for mutual 
+    authentication, integrity-protected ciphersuite negotiation and 
+    key exchange between two endpoints.
+
+    EAP-TLS (RFC 2716) incapsulates the TLS messages in EAP packets,
+    allowing TLS mutual authentication to be used as a generic EAP
+    mechanism.
+
+    This patch provide EAP-TLS support to pppd.
+    This authentication method can be used in both client or server
+    mode.
+
+2. Building
+
+    To build pppd with EAP-TLS support, OpenSSL (http://www.openssl.org)
+    is required. Any version from 0.9.7 should work.
+    
+    You must also have libcurl installed (used to fetch CRLs).
+    The version required is 7.9.8 or newer (because that's the one I used,
+    but an earlier version may work).
+
+    Configure, compile, and install as usual. 
+
+3. Configuration
+
+    On the client side edit the /etc/ppp/eaptls-client file.
+    Insert a line for each system with which you use EAP-TLS.
+    The line is composed of this fields separated by tab:
+
+      - Client name 
+		The name used by the client for authentication, can be *
+      - Server name
+		The name of the server, can be *
+      - Client certificate file 
+		The file containing the certificate chain for the 
+		client in PEM format
+      - Server certificate file
+		If you want to specify the certificate that the 
+		server is allowed to use, put the certificate file name.
+		Else put a dash '-'.
+      - CA certificate file
+		The file containing the trusted CA certificates in PEM
+		format.
+      - Client private key file
+		The file containing the client private key in PEM format.
+
+
+    On the server side edit the /etc/ppp/eaptls-server file.
+    Insert a line for each system with which you use EAP-TLS.
+    The line is composed of this fields separated by tab:
+
+      - Client name
+                The name used by the client for authentication, can be *
+      - Server name
+                The name of the server, can be *
+      - Client certificate file
+                If you want to specify the certificate that the
+                client is allowed to use, put the certificate file name.
+                Else put a dash '-'.
+      - Server certificate file
+		The file containing the certificate chain for the
+                server in PEM format
+      - CA certificate file
+                The file containing the trusted CA certificates in PEM
+                format.
+      - Client private key file
+                The file containing the server private key in PEM format.
+      - addresses
+		A list of IP addresses the client is allowed to use.
+
+
+4. Options
+
+      These pppd options are available:
+
+      crl-dir <dir>
+        	Use CRL files from dir. It contains CRL files in PEM
+		format and each file contains a CRL. The files are looked up 
+		by the issuer name hash value. Use the c_rehash utility 
+		to create necessary links.
+
+      auto-update-crl
+		On a new TLS handshake, try to fetch updated CRLs for the
+		trusted CAs. This is done only if the crl-dir option was used.
+		For each trusted CA, the appropriate CRL is checked and if
+		it doesn't exist or is too old, the update take place. 
+
+      crl-update-time
+		Time (in hours) after which a CRL must be updated if the option
+		auto-update-crl or only-update-crl-* were specified. Use 0 as 
+		value if you want to force update. The default value is 72
+
+      need-peer-eap
+		If the peer doesn't ask us to authenticate or doesn't use eap
+		to authenticate us, disconnect.
+
+      only-update-crl-server
+		Parse EAP-TLS server configuration file (/etc/ppp/eaptls-server)
+		and find all files containing trusted CAs; then update their CRL
+		and exit.
+		The 'crl-dir' option must be used to specify crl directory.
+
+      only-update-crl-client
+		Similar to only-update-crl-server, but uses client configuration
+		file.
+
+
+5. Connecting
+
+    If you're setting up a pppd server, edit the EAP-TLS configuration file 
+    as written above and then run pppd with the 'auth' option to authenticate
+    the client. The EAP-TLS method will be used if the other eap methods can't
+    be used (no secrets).
+
+    If you're setting up a client, edit the configuration file and then run
+    pppd with 'remotename' option to specify the server name. Add the 
+    'need-peer-eap' option if you want to be sure the peer ask you to
+    authenticate (and to use eap) and to disconnect if it doesn't.
+
+6. Updating CRLs with cron
+
+    With the 'auto-update-crl' option you can do crl updating at connect time.
+    In some situations this approach can't be used, because the download can 
+    take long time and the peer will have to wait too much, possibly going in
+    timeout.
+    In such cases, you can update crls periodically (with cron) using pppd with
+    the 'only-update-crl-client' or 'only-update-crl-server' options, as 
+    explained above.
+    Example:
+
+	pppd crl-dir /root/crldir only-update-crl-server crl-update-time 0
+
+    To show debug information add '/dev/null debug' to the command line.
+
+7. Notes
+
+   This is experimental code.
+   Send suggestions and comments to Beniamino Galvani <bengal@interfree.it>

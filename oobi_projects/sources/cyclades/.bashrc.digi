@@ -1,0 +1,22 @@
+# .bashrc
+
+#echo Exec "/.bashrc" Dir `pwd` 
+
+# Source global definitions
+if [ -f /etc/bashrc ]; then
+	. /etc/bashrc
+fi
+
+if [ "/dev/ttyS0" = "`tty`" ] ; then
+  # if we aren't prevented from doing so, execute a
+  # helper application for network configuration
+  if [ ! -f /home/.noautorun.netconfig ]; then
+    /sbin/netconfig
+
+  # if we didn't run the network configuration application,
+  # display useful information to root user
+  elif [ -f /readme ]; then
+    more /readme
+  fi
+fi
+

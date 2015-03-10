@@ -1,0 +1,71 @@
+--- isdn4k-utils.v3.1pre1/ipppd/sys-linux.c.old	2005-08-04 17:34:05.139930018 -0700
++++ isdn4k-utils.v3.1pre1/ipppd/sys-linux.c	2005-08-04 17:35:44.196452169 -0700
+@@ -51,13 +51,13 @@
+ #include <unistd.h>
+ #include <netinet/in.h>
+ #include <arpa/inet.h>
+-#include </usr/include/net/if.h>
+-#include </usr/include/net/if_arp.h>
+-#include </usr/include/net/route.h>
++#include <net/if.h>
++#include <net/if_arp.h>
++#include <net/route.h>
+ #if defined __GLIBC__ && __GLIBC__ >= 2
+-# include </usr/include/net/ppp_defs.h>
+-# include </usr/include/net/if_ppp.h>
+-# include </usr/include/net/ethernet.h>
++# include <net/ppp_defs.h>
++# include <net/if_ppp.h>
++# include <net/ethernet.h>
+ # include "route.h"
+ #else
+ # include <linux/ppp_defs.h>
+--- isdn4k-utils.v3.1pre1/ipppd/lcp.c.old	2005-08-04 17:34:05.142929640 -0700
++++ isdn4k-utils.v3.1pre1/ipppd/lcp.c	2005-08-04 17:36:09.082316994 -0700
+@@ -49,10 +49,10 @@
+ 
+ #ifdef __linux__		/* Needs ppp ioctls */
+ #if defined __GLIBC__ && __GLIBC__ >= 2
+-# include </usr/include/net/if.h>
+-# include </usr/include/net/if_ppp.h>
++# include <net/if.h>
++# include <net/if_ppp.h>
+ #else
+-# include </usr/include/net/if.h>
++# include <net/if.h>
+ # include <linux/if_ppp.h>
+ #endif
+ #endif
+--- isdn4k-utils.v3.1pre1/ipppd/main.c.old	2005-08-04 17:34:05.146929136 -0700
++++ isdn4k-utils.v3.1pre1/ipppd/main.c	2005-08-04 17:36:31.077545856 -0700
+@@ -47,7 +47,7 @@
+ #include <sys/resource.h>
+ #include <sys/stat.h>
+ #include <sys/socket.h>
+-#include </usr/include/net/if.h>
++#include <net/if.h>
+ 
+ #include "fsm.h"
+ #include "ipppd.h"
+--- isdn4k-utils.v3.1pre1/ipppstats/ipppstats.c.old	2005-08-04 17:34:05.149928758 -0700
++++ isdn4k-utils.v3.1pre1/ipppstats/ipppstats.c	2005-08-04 17:36:55.312492408 -0700
+@@ -54,8 +54,8 @@
+ #include <sys/ioctl.h>
+ 
+ #if defined __GLIBC__ && __GLIBC__ >= 2
+-# include </usr/include/net/ppp_defs.h>
+-# include </usr/include/net/if.h>
++# include <net/ppp_defs.h>
++# include <net/if.h>
+ #else
+ # include <linux/ppp_defs.h>
+ # include <linux/if.h>
+@@ -65,7 +65,7 @@
+ 
+ #ifndef STREAMS
+ # if defined __GLIBC__ && __GLIBC__ >= 2
+-#  include </usr/include/net/if_ppp.h>
++#  include <net/if_ppp.h>
+ # else
+ #  include <linux/if_ppp.h>		/* BSD, Linux, NeXT, etc. */
+ # endif

@@ -1,0 +1,8 @@
+_loweralarmcolor=blue
+_submit.x=39
+_language=en
+_submit.y=13
+_bgcolor=#99CCFF
+_logo=dmf_logo.png
+_rowcount=8
+_upperalarmcolor=red

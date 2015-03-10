@@ -1,0 +1,66 @@
+#
+#  Makefile for Cyclades projects.
+#
+
+TARGET_CCACHE := /usr/local/bin/ccache
+DIR_CCACHE := ccache-2.4
+
+DIR_MAKE := make-3.81
+TARGET_MAKE := $(dir $(shell which make))$(DIR_MAKE)
+
+TARGET_QUILT := /usr/bin/quilt
+DIR_QUILT := quilt-0.42
+
+all: $(TARGET_MAKE) $(TARGET_CCACHE) $(TARGET_QUILT)
+
+$(TARGET_MAKE):
+	tar -xzf ../tarbal/$(DIR_MAKE).tar.gz
+	cd $(DIR_MAKE) && ./configure
+	$(MAKE) -C $(DIR_MAKE)
+	sudo install -D -m 755 $(DIR_MAKE)/make $@
+	rm -rf $(DIR_MAKE)
+
+$(TARGET_QUILT):
+	tar -xzf ../tarbal/$(DIR_QUILT).tar.gz
+	cd $(DIR_QUILT) && autoconf && ./configure --prefix=/usr
+	$(MAKE) -C $(DIR_QUILT)
+	sudo $(MAKE) -C $(DIR_QUILT) install
+	rm -rf $(DIR_QUILT)
+
+$(TARGET_CCACHE):
+	tar -xzf ../tarbal/$(DIR_CCACHE).tar.gz
+	cd $(DIR_CCACHE) && ./configure
+	$(MAKE) -C $(DIR_CCACHE)
+	sudo $(MAKE) -C $(DIR_CCACHE) install
+	rm -rf $(DIR_CCACHE)
+
+$(MAKEFILE_LIST): ;
+
+define text_util
+
+
+The build system requires the tool: '$(1)'
+
+You should perform the following commands:
+
+cd $(OPENSOURCE_DIR)/$(TOOLS)
+make -f MakeUtils
+cd $(OPENSOURCE_DIR)
+. ./tools/mk_env -s
+
+endef
+
+define DEP_CHECK_UTIL
+$(if $(shell [ -x $(2) ] || echo 1),\
+$(warning $(text_util)) \
+$(error "$(1) was not found..."))
+endef
+
+chk_ccache: force
+	@$(call DEP_CHECK_UTIL,ccache,$(TARGET_CCACHE))
+
+chk_quilt: force
+	@$(call DEP_CHECK_UTIL,quilt,$(TARGET_QUILT))
+
+force: ;
+

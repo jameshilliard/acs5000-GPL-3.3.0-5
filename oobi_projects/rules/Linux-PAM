@@ -1,0 +1,54 @@
+#
+#  Makefile for cyclades projects.
+#
+
+#
+# Addtional compiler and/or link options may be defined here
+#
+#CFLAGS += ...
+#LDFLAGS += ...
+
+#
+# Command line parameters for configure must be defined here
+#
+CONFIGURE_PARMS:=\
+	CROSS_COMPILE=$(CROSS_PREFIX) \
+	--prefix= \
+	--with-mailspool=no \
+	--enable-read-both-confs \
+	--enable-fakeroot=$(my_prefix) \
+	--host=$(HOST)
+
+CONFIGURE_ENV:=\
+	PATH=$(CROSS_PATH) \
+	$(CROSS_ENV_TOOLS)
+
+MAKE_ENV:=\
+	PATH=$(CROSS_PATH) \
+
+MAKE_PARMS:=\
+	CROSS_COMPILE=$(CROSS_PREFIX) \
+	OS_CFLAGS="-Wall -Os -fomit-frame-pointer -D_GNU_SOURCE" \
+	LDFLAGS="$(LDFLAGS)"
+
+#
+#  more ac_variables for configure may be defined here
+#
+#CROSS_ENV_AC += ...
+
+############################################################################
+
+$(CFG_COOKIE):
+	rm -f config.cache config.log config.status configure
+	autoconf
+	$(CONFIGURE_ENV) \
+	$(CROSS_ENV_AC) ./configure $(CONFIGURE_PARMS)
+	date > $@
+
+$(BLD_COOKIE): $(CFG_COOKIE)
+	$(MAKE_ENV) \
+	$(MAKE) $(MAKE_PARMS) all install
+ifeq ($(APPL_DEBUG),1)
+	PATH=$(CROSS_PATH) \
+	sudo install -s -D bin/xsh $(my_prefix)/bin/xsh
+endif

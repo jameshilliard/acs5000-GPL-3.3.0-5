@@ -1,0 +1,21 @@
+PKGNAME=aidp2
+
+CFLAGS += -I$(BUILD_DIR)/$(dlog) -I$(BUILD_DIR)/$(ras) -I$(BUILD_DIR)/$(libcyc)/include
+LDFLAGS += -L$(BUILD_DIR)/$(dlog) -L$(BUILD_DIR)/$(ras)/src -L$(BUILD_DIR)/$(libcyc)/src -L$(BUILD_DIR)/$(avct-protocol-core)  -L$(BUILTIN_DIST)/$(libdaemon)/usr/lib
+
+MAKE_ENV:=\
+	CROSS_COMPILE=$(CROSS_PREFIX) \
+	PATH=$(CROSS_PATH) \
+	$(CROSS_ENV_TOOLS) \
+	CFLAGS="$(CFLAGS)" \
+	LDFLAGS="$(LDFLAGS)" 
+
+MAKE_PARMS:=\
+	TARGET_DIR=$(my_prefix)
+	
+$(CFG_COOKIE):
+	date > $@
+
+$(BLD_COOKIE): $(CFG_COOKIE)
+	@echo $(PKGNAME)
+	$(MAKE_ENV) $(MAKE) $(MAKE_PARMS)

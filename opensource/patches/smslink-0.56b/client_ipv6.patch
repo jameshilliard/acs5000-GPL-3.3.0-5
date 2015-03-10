@@ -1,0 +1,256 @@
+--- smslink-0.56b/client/sendsms.c.orig	2004-06-11 08:07:39.000000000 -0300
++++ smslink-0.56b/client/sendsms.c	2007-11-01 14:44:43.000000000 -0200
+@@ -90,7 +90,7 @@
+ #    endif
+ #  endif
+ #endif                                      /* ifdef HPUX */
+-#include <netdb.h>                 /* for gethostbyname() */
++#include <netdb.h>                 
+ #include <pwd.h>                        /* for getpwuid() */
+ #include <sys/socket.h>
+ #include <netinet/in.h>
+@@ -108,6 +108,7 @@
+ /*========================================================*/
+ /**********             LOCAL DEFINES              ********/
+ /*========================================================*/
++#define MAXSTRPORT 5
+ 
+ /* For debugging purposes only - comment out for normal compile */
+ /* #define INCL_DEBUG_CODE */
+@@ -253,42 +254,6 @@ int is_dotted_quad (char *string)
+   return (is_dq);
+ }                                    /* is_dotted_quad () */
+ /*========================================================*/
+-unsigned long int resolve (char *host)
+-/* return the host ip address in network format */
+-{
+-  struct hostent *h_ent;
+-  struct in_addr target_ip;
+-  char **addrs;
+-  char *scratch;
+-  
+-  if (is_dotted_quad (host)) {
+-    if (debug) {
+-      fprintf (stderr, "I think I got an IP address\n");
+-    }
+-    if (inet_aton (host, &target_ip) == 0)
+-      syserr ("sendsms: invalid server IP address");
+-  }
+-  else {
+-    if (debug) {
+-      fprintf (stderr, "I think I got a host name\n");
+-    }
+-    if ((h_ent = gethostbyname (host)) == NULL) {
+-      scratch = (char *) malloc ((MINIBUFF + 1) * sizeof (char));
+-      sprintf (scratch, "sendsms: can't resolve hostname (%s)", host);
+-      herror (scratch);
+-      free (scratch);
+-      exit (1);
+-    }
+-    /* lines below cf. "Beginning Linux Progr.", pp. 468-473 */
+-    addrs = h_ent->h_addr_list;
+-    target_ip = *(struct in_addr *)*addrs;
+-    if (debug) {
+-      fprintf (stderr, "server IP address is: [%s]\n", inet_ntoa (target_ip));
+-    }
+-  }                             /* if (isdigit (host[0])) */
+-  return (target_ip.s_addr);
+-}                                           /* resolve () */
+-/*========================================================*/
+ int load_from_file (char *msg, char *file)
+ {
+   FILE *infile;
+@@ -617,14 +582,12 @@ main (int argc, char *argv[])
+   char *message;
+   char *msgfile;
+   char *host_or_ip;
++  char *destport;
+   int devreport;
+-  int destport;
+   int action;
+   int priority;
+-  struct servent *sent;
+-  struct servent ssent;
+-  struct in_addr server_ip;
+-  struct sockaddr_in sockaddr;
++  struct addrinfo *ai;
++  struct addrinfo hints;
+   int sockfd;
+   int addrlen;
+   char *cmdline;
+@@ -670,6 +633,12 @@ main (int argc, char *argv[])
+     syserr ("sendsms: main(): can't malloc host_or_ip");
+   }
+   host_or_ip[0] = '\0';
++  destport = (char *) malloc ((MAXSTRPORT + 1) * sizeof (char));
++  if (!destport) {
++    syserr ("sendsms: main(): can't malloc destport");
++  }
++  destport[0] = '\0';
++  
+   sendlog = NULL;
+   /*........................default values for parameters */
+   if ((pwduentry = getpwuid (getuid ())) == NULL) {
+@@ -685,7 +654,6 @@ main (int argc, char *argv[])
+   }
+   quote (user);
+   devreport = FALSE;
+-  destport = 0;
+   priority = 0;
+   action = SMS_ACTION_SEND;
+   /*-------------------------Command line processing loop */
+@@ -764,7 +732,14 @@ main (int argc, char *argv[])
+         break;
+ 
+       case 'p':                     /* port on the server */
+-        destport = atoi (optarg);
++        if (strlen (optarg) > MAXSTRPORT) {
++	  fprintf (stderr, "sendsms: error: destport too long (max %d "
++		  "characters)\n", MAXSTRPORT);
++	  exit(1);
++        }
++        else {
++          strcpy (destport, optarg);
++        }
+         break;
+ 
+       case 'e':                /* queued message priority */
+@@ -877,8 +852,8 @@ main (int argc, char *argv[])
+     fprintf (stderr, "message  = [%s]\n", message);
+     fprintf (stderr, "msgfile  = [%s]\n", msgfile);
+     fprintf (stderr, "user     = [%s]\n", user);
+-    if (destport) {
+-      fprintf (stderr, "port     = [%d]\n", destport);
++    if (destport[0]) {
++      fprintf (stderr, "port     = [%s]\n", destport);
+     }
+     if (priority) {
+       fprintf (stderr, "priority = [%d]\n", priority);
+@@ -889,61 +864,56 @@ main (int argc, char *argv[])
+   }
+ 
+   /*---------------------------Start real processing loop */
+-  /* first resolve server name */
+-  server_ip.s_addr = resolve (host_or_ip);
+-  
++
+   /* load message from file if required */
+   if (strlen (msgfile) > 0) {
+     if (load_from_file (message, msgfile) == 0)
+       syserr ("sendsms: error loading message from file or empty file");
+     quote (message);
+   }
+-  
+-  /* find destination port if not specified */
+-  if (destport == 0) {
+-    /* not provided on command-line -- get it from system */
+-    if ((sent = getservbyname ("sms", "tcp")) == NULL) {
+-      /* not defined in /etc/services, use compiled-in default */
+-      sent = &ssent;
+-      sent->s_port = htons (DEFSMSPORT);
+-      if (debug) {
+-	fprintf (stderr, "using compiled-in default port <%d> to connect to server\n",
+-	DEFSMSPORT);
+-      }
++
++  // set destport if was not setted by the user
++  if (!destport[0])
++	  strcpy(destport, "sms");
++
++  // Init IP address structure
++  memset(&hints, '\0', sizeof(hints));
++  hints.ai_socktype = SOCK_STREAM;
++
++  // read addr info
++  if (getaddrinfo (host_or_ip, destport, &hints, &ai) != 0) {
++
++    //try to use compiled-in default port
++    sprintf(destport, "%d", DEFSMSPORT);
++    if (getaddrinfo (host_or_ip, destport, &hints, &ai) != 0) {
++      perror("getaddrinfo");
++      fprintf (stderr, "sendsms: error getting addr info\n");
++      exit(1);
+     }
+-    else {
+-      /* ok, found */
+-      if (debug) {
+-	fprintf (stderr, "found port <%d> for service sms\n", ntohs (sent->s_port));
+-      }
++
++    if (debug) {
++    	fprintf (stderr, "using compiled-in default port <%d> to"
++		" connect to server\n", DEFSMSPORT);
+     }
+   }
+   else {
+-    /* store provided value in struct servent after conversion */
+-    sent = &ssent;
+-    sent->s_port = htons (destport);
+     if (debug) {
+-      fprintf (stderr, "using provided destport <%d> to connect to server\n",
+-              destport);
++      fprintf (stderr, "using port <%d> for service sms\n",
++	      ai->ai_addr->sa_data[0] * 0x100 + ai->ai_addr->sa_data[1]);
+     }
+-  }                                 /* if (destport == 0) */
+-  
++  }
++
+   /* create the socket */
+-  if ((sockfd = socket (AF_INET, SOCK_STREAM, 0)) == -1)
++  if ((sockfd = socket (ai->ai_family, ai->ai_socktype, ai->ai_protocol)) == -1)
+     syserr ("sendsms: can't create socket");
+   
+-  /* build the server socket address parameters */
+-  sockaddr.sin_family = AF_INET;
+-  sockaddr.sin_port = sent->s_port;
+-  sockaddr.sin_addr.s_addr = server_ip.s_addr;
+-  addrlen = sizeof (sockaddr);
+-  
+   /* now connect to the server */
+-  if (connect (sockfd, (struct sockaddr *)&sockaddr, addrlen) == -1)
++  if (connect (sockfd, (struct sockaddr *)ai->ai_addr, ai->ai_addrlen) == -1)
+     syserr ("sendsms: can't connect to server");
+-    
++                      
+   /*......................................Start of dialog */
+   while (TRUE) {                            /* dummy loop */
++
+     /* slurp server announce and catch prompt */
+     if (sendlog) {
+       free (sendlog);
+@@ -955,20 +925,20 @@ main (int argc, char *argv[])
+ 	fprintf (stderr, "server announce:\n%s\n", sendlog);
+       }
+       if (strstr (sendlog, SERVPROMPT)) {
+-	retval = 0;                            /* success */
++	retval = 0;                            // success
+       }
+       else {
+ 	fprintf (stderr, "can't get server prompt\n");
+-	retval = 103;             /* failed to get prompt */
++	retval = 103;             // failed to get prompt
+ 	break;
+       }
+     }
+     else {
+       fprintf (stderr, "no answer from server\n");
+-      retval = 101;                          /* no answer */
++      retval = 101;                          // no answer
+       break;
+-    }                          /* if (get_gsm_answer (... */
+-
++    }                          // if (get_gsm_answer (...
++    
+     /* set sender ID - get ok */
+     sprintf (cmdline, "set user = %s\n", user);
+     tellsock (sockfd, cmdline);
+@@ -1181,6 +1151,8 @@ main (int argc, char *argv[])
+   free (msgfile);
+   free (host_or_ip);
+   free (cmdline);
++  free (destport);
++  freeaddrinfo(ai);
+   if (sendlog) {
+     free (sendlog);
+   }

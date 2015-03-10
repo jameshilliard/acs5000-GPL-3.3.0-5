@@ -1,0 +1,94 @@
+static char PROD_LINE0[] = "Cyclades";
+static char PROD_NAME0[] = " TS";
+
+static char PROD_LINE1[] = "Cyclades";
+static char PROD_NAME1[] = " CS";
+
+#define PROD_LINE3			PROD_LINE1
+static char PROD_NAME3[] = " ACS";
+
+#define PROD_LINE2			PROD_LINE1
+static char PROD_NAME2[] = " SM";
+
+#define PROD_LINE4			PROD_LINE1
+static char PROD_NAME4[] = " KVM";
+
+#define PROD_LINE5			PROD_LINE1
+static char PROD_NAME5[] = " KVM/net";
+
+#define PROD_LINE6          PROD_LINE1
+static char PROD_NAME6[] = " ONS";
+
+#define PROD_LINE7			PROD_LINE1
+static char PROD_NAME7[] = " KVM/net Plus";
+
+static char PROD_LINE8[] = "AutoView";
+static char PROD_NAME8[] = " CS";
+
+static char PROD_LINE9[] = "Cyclades";
+static char PROD_NAME9[] = " ACS5000";
+
+static char AVOCENT_TXT[] = "Avocent";
+static char CYCLADES_TXT[] = "Cyclades";
+static char CYCLADES_BANNER[] = "Linux ";
+
+#define CYCLADES_VERSION	(CYCLADES_WHAT+4)
+
+static char machine_txt[50][8] = {
+	"PR3000",
+	"PR+000",
+	"PR=000",
+	"PR1000",
+	"TS1000",
+	"TS2000",
+	"TS400",
+	"TS800",
+	"TS3000",
+	"Tx1000",
+	"Tx2000",
+	"PL1000",
+	"TS100",
+	"NL1000",
+	"ACS16",
+	"ACS32",
+	"SM100",
+	"PR3500",
+	"TS110",
+	"ACS48",
+	"ACS4",
+	"ACS8",
+	"ACS1",
+	"PR3000",
+	"KVM16",
+	"KVM32",
+	"KVMN16",
+	"KVMN32",
+	"ONS441",
+	"ONS481",
+	"ONS841",
+	"ONS881",
+	"ONS442",
+	"ONS482",
+	"ONS842",
+	"ONS882",
+	"KVMP16",
+	"KVMP32",
+	"CS4001",
+	"CS4004",
+	"CS4008",
+	"CS4016",
+	"CS4032",
+	"CS4048",
+	"ACS5001",
+	"ACS5004",
+	"ACS5008",
+	"ACS5016",
+	"ACS5032",
+	"ACS5048"
+};
+
+unsigned char *osdboot_header =		"  Cyclades Corporation  ";
+unsigned char *osdboot_analog_header =	"   AlterPath-KVM Boot   ";
+unsigned char *osdboot_net_header = 	" AlterPath-KVM/net Boot ";
+unsigned char *osdboot_ons_header = 	" AlterPath-0nSite Boot  ";
+unsigned char *osdboot_plus_header =	" AlterPath-KVM/net Boot ";

@@ -1,0 +1,45 @@
+#
+#  Makefile for cyclades projects.
+#
+
+#
+# Addtional compiler and/or link options may be defined here
+#
+#CFLAGS += ...
+#LDFLAGS += ...
+
+#
+# Command line parameters for configure must be defined here
+#
+#CONFIGURE_PARMS:= ...
+
+#CONFIGURE_ENV := ...
+
+include $(OPENSOURCE_DIR)/$(TOOLS)/$(JAVA_CONF)
+
+APPLDIR:=$(my_prefix)/$(WebPagesDir)/normal/applications/appl
+
+MAKE_ENV:=\
+	JAVA_DIR=$(JAVA_DIR) \
+	GNUEXP_JAR=$(GNUEXP_JAR) \
+	JDOM_JAR=$(JDOM_JAR)
+
+MAKE_PARMS:=\
+	TARG=$(TARGET_PRODUCT) \
+	APPLDIR=$(APPLDIR)
+
+#
+#  more ac_variables for configure may be defined here
+#
+#CROSS_ENV_AC += ...
+
+############################################################################
+
+$(CFG_COOKIE):
+	date > $@
+
+$(BLD_COOKIE): $(CFG_COOKIE)
+	install -d $(APPLDIR)
+	$(MAKE_ENV) \
+	$(MAKE) $(MAKE_PARMS)
+

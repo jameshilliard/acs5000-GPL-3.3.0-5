@@ -1,0 +1,59 @@
+#
+#  Makefile for cyclades projects.
+#
+
+#
+# Addtional compiler and/or link options may be defined here
+#
+#CFLAGS += ...
+#LDFLAGS += ...
+
+#
+# Command line parameters for configure must be defined here
+#
+CONFIGURE_PARMS := \
+	--exec-prefix=$(my_prefix) \
+	--prefix=$(my_prefix) \
+	--host=$(HOST) \
+	--enable-shared=no \
+	--enable-static=yes \
+	--with-libsmbclient \
+	--disable-cups \
+	--without-readline \
+	--with-included-popt
+
+CONFIG_ENV := \
+	CROSS_COMPILE=$(CROSS_COMPILE)\
+	PATH=$(CROSS_PATH) \
+	$(CROSS_ENV_TOOLS) \
+	CFLAGS="$(CFLAGS)" \
+	LDFLAGS="$(LDFLAGS)"
+
+MAKE_ENV := \
+	PATH=$(CROSS_PATH)
+
+MAKE_PARMS :=\
+	CROSS_COMPILE=$(CROSS_COMPILE)
+
+#
+#  more ac_variables for configure may be defined here
+#
+#CROSS_ENV_AC += ...
+
+$(CFG_COOKIE):
+	cd source; \
+	-rm -f config.cache configure; \
+	autoconf; \
+	$(CONFIG_ENV) $(CROSS_ENV_AC) ./configure $(CONFIGURE_PARMS)
+	date > $@
+
+$(BLD_COOKIE):
+	cd source; \
+	$(MAKE_ENV) $(MAKE) SHOWFLAGS proto_exists libsmbclient $(MAKE_PARMS)
+	date > $@
+
+$(INST_COOKIE):
+	cd source; \
+	$(MAKE_ENV) $(MAKE) installclientlib $(MAKE_PARMS)
+	date > $@
+

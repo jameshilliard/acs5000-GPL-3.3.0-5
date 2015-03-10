@@ -1,0 +1,50 @@
+#
+#  Makefile for cyclades projects.
+#
+
+#
+# Addtional compiler and/or link options may be defined here
+#
+#CFLAGS += ...
+#LDFLAGS += ...
+
+#
+# Command line parameters for configure must be defined here
+#
+#CONFIGURE_PARMS:= ...
+
+#CONFIGURE_ENV := ...
+
+MAKE_ENV:=\
+	PATH=$(CROSS_PATH) \
+	$(CROSS_ENV_TOOLS) \
+	INCLUDE_DIRS="-I$(TOOL_KIT_DIR)/include" \
+	PAM_DIR=$(my_prefix)
+
+MAKE_PARMS:=\
+	CROSS_COMPILE=$(CROSS_PREFIX) \
+	COPTS="$(CFLAGS)" \
+	LDFLAGS="$(LDFLAGS)" \
+	BINDIR=$(my_prefix)/usr/local/sbin \
+	MANDIR=$(my_prefix)/usr/man \
+	INSTALL=install
+
+
+#
+#  more ac_variables for configure may be defined here
+#
+#CROSS_ENV_AC += ...
+
+############################################################################
+
+$(CFG_COOKIE):
+	date > $@
+
+$(BLD_COOKIE): $(CFG_COOKIE)
+	$(MAKE_ENV) \
+	$(MAKE) -C pppd $(MAKE_PARMS) install
+	cd $(my_prefix)/usr/local/sbin && ln -fs pppd pppd-radius ;
+
+	$(MAKE_ENV) \
+	$(MAKE) -C chat $(MAKE_PARMS) install
+

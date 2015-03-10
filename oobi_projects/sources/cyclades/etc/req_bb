@@ -1,0 +1,21 @@
+[ req ]
+default_bits            = 1024
+distinguished_name      = bb
+prompt                  = no
+x509_extensions         = x509v3
+
+[ bb ]
+C               = US
+ST              = PA
+L               = Lawrence
+O               = Black Box
+OU              = R&D
+CN              = www.blackbox.com
+emailAddress    = support@bb.com
+
+[ x509v3 ]
+subjectKeyIdentifier    = hash
+authorityKeyIdentifier  = keyid:always,issuer:always
+basicConstraints        = CA:true
+nsComment               = "This is just a TEST certificate. Don't use it for real secure conections. Create your own certificate instead."
+nsCertType              = server, sslCA

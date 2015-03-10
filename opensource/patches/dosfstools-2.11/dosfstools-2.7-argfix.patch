@@ -1,0 +1,15 @@
+--- dosfstools-2.10/mkdosfs/mkdosfs.c.argfix	2003-06-14 22:07:08.000000000 +0200
++++ dosfstools-2.10/mkdosfs/mkdosfs.c	2004-12-07 15:38:38.798018438 +0100
+@@ -1619,6 +1619,12 @@
+   if (optind < argc)
+     {
+       device_name = argv[optind];  /* Determine the number of blocks in the FS */
++
++      if (!device_name) {
++	  printf("No device specified.\n");
++	  usage();
++      }
++
+       if (!create)
+          i = count_blocks (device_name); /*  Have a look and see! */
+     }

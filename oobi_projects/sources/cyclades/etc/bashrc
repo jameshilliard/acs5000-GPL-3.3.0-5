@@ -1,0 +1,6 @@
+# /etc/bashrc
+
+#echo Exec "/etc/bashrc" Dir `pwd` 
+
+# User global aliases and functions
+

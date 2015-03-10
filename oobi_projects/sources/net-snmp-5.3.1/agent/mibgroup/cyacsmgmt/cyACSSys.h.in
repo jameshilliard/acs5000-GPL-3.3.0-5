@@ -1,0 +1,13 @@
+#ifndef CYACSSYS_H
+#define CYACSSYS_H
+
+/*
+ * function declarations 
+ */
+void            init_@CYACSSYS@(void);
+FindVarMethod   var_@CYACSSYS@;
+FindVarMethod   var_cyCardIdentTable;
+FindVarMethod   var_cyCardConfTable;
+FindVarMethod   var_cyCardStatusTable;
+
+#endif                          /* CYACSSYS_H */

@@ -1,0 +1,1 @@
+lowerAlarmText=<%getLabel("lower.alarm");%>:&upperAlarmText=<%getLabel("upper.alarm");%>:&yAxisLabel=<%getLabel("value");%>&xAxisLabel=<%getLabel("time");%>

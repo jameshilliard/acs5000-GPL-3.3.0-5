@@ -1,0 +1,46 @@
+#
+#  Makefile for cyclades projects.
+#
+
+#
+# Addtional compiler and/or link options may be defined here
+#
+CFLAGS  += "-I$(BUILTIN_DIST)/$(libtirpc)/include/tirpc"
+LDFLAGS += "-L$(BUILTIN_DIST)/$(libtirpc)/lib"
+
+#
+# Command line parameters for configure must be defined here
+#
+#CONFIGURE_PARMS:= ...
+
+#CONFIGURE_ENV := ...
+
+MAKE_ENV:=\
+	PATH=$(CROSS_PATH) \
+	$(CROSS_ENV_TOOLS)
+
+MAKE_PARMS:=\
+	CROSS_COMPILE=$(CROSS_PREFIX) \
+	CFLAGS="$(CFLAGS)" \
+	LDFLAGS="$(LDFLAGS)" \
+	LIBS="-ltirpc -lpthread" \
+	DAEMONMODE="755" \
+	SBINDIR="$(my_prefix)/sbin" \
+	BINMODE="755" \
+	BINDIR="$(my_prefix)/bin"
+
+#
+#  more ac_variables for configure may be defined here
+#
+#CROSS_ENV_AC += ...
+
+############################################################################
+
+$(CFG_COOKIE):
+	date > $@
+
+$(BLD_COOKIE): $(CFG_COOKIE)
+	install -d $(my_prefix)/sbin
+	install -d $(my_prefix)/bin
+	$(MAKE_ENV) $(MAKE) all install $(MAKE_PARMS)
+	date > $@

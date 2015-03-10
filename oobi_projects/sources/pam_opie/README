@@ -1,0 +1,78 @@
+pam_opie 0.21
+=============
+May 26, 1998
+
+	Copyright (C) 1997-1998, Andy Berkheimer <andy@tho.org>
+
+	This adds support for OPIE authentication to PAM. OPIE is a
+	freely available one time password system based on S/Key. This
+	module is available under the terms of the GPL.
+
+	The module currently only supports authentication. In the future 
+	it may handle password management as well using OTP extended
+	responses. Eventually this module will be fully compliant with
+	the server requirements of the latest OTP specification (as of
+	Jul 31, 1997, this is RFC 1938). Also, the module does not
+	yet recognize any extra parameters.
+
+	To compile the module, you can either put the directory in the
+	Linux-PAM source tree under the Linux-PAM-x.y/modules directory
+	or compile it standalone (I think - let me know if you run into 
+	problems with this). Hit make, then make install, and voila.
+
+	Right now, I can say with fair certainty that this will work
+	with Linux-PAM 0.59 under Redhat 5.0.  For any other setup,
+	it should probably work, but I can't guarantee it. If
+	you find problems on other system setups, let me know
+	(especially if you figured out how to fix them).
+
+	I'd appreciate hearing from anyone who tries this module,
+	whether it be with bug reports, patches, suggestions, critiques, 
+	or just to tell me that it works for you too. I may be too busy
+	to reply, but don't worry, every mail I get gives me that warm
+	fuzzy feeling.
+
+	The most recent version of this module will be available from
+	http://www.tho.org/~andy/pam-opie.html.
+
+WHAT'S NEW
+
+Version 0.21: May 26, 1998
+
+	Seems that I forgot to actually include my simpler
+	Makefile setup in the release tarball of 0.21. This
+	has been remedied.
+
+Version 0.2: April 20, 1998
+
+	Upgraded the libopie used from 2.31 to 2.32. Changed the
+	Makefile setup for building libopie to be simpler.
+
+	Modified the Makefile so that it should be possible to
+	build the pam_opie module without needing the entire Linux-PAM
+	source tree.
+
+	Fixed a few sporadic segmentation faults.
+	
+Version 0.1: July 31, 1997
+
+	Initial Release
+	
+CREDITS
+
+	Much of the processing in this module is done by libopie from 
+	the OPIE 2.32 distribution from The Inner Net. libopie includes 
+	contributions from the following organizations:
+
+	This product includes software developed by the University of
+	California, Berkeley and its contributors.
+
+	This product includes software developed at the Information
+	Technology Division, US Naval Research Laboratory.
+	
+	This product includes software developed by The Inner Net and 
+	other contributors.
+
+
+-Andy Berkheimer
+ <andy@tho.org>

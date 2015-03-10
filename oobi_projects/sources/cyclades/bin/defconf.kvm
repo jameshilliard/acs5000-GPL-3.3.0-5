@@ -1,0 +1,20 @@
+#!/bin/sh
+
+PATH_TO_FACTORY="/proc/flash/script"
+
+while true
+do
+    echo -e "\nWARNING: this will erase all of your current configuration and restore the "
+    echo -e "         system's factory default configuration. This action is irreversible"
+    echo -e "         and the device must be rebooted to apply that.\n"
+    echo -e "\nAre you sure you wish to continue? (y/N) \c"
+    read RET
+    if [ "${RET}" = "Y" -o "${RET}" = "y" ] 
+    then
+        echo "" > "${PATH_TO_FACTORY}" 
+        exit 0
+    elif [ "${RET}" = "N" -o "${RET}" = "n" ] 
+    then 
+        exit 1
+    fi
+done

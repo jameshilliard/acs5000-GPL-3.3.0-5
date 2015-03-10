@@ -1,0 +1,4 @@
+The following patches have been added to the stock ppp-2.3.8 daemon:
+
+o An extension that makes it possible to dynamically load some
+  new code into pppd (the radius code)

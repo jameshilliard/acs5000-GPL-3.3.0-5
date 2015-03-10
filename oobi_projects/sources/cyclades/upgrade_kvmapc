@@ -1,0 +1,58 @@
+===============================================================================
+                        UPGRADE to Version 2.4.0
+===============================================================================
+
+
+REMARKS
+=======
+      . In this document we assume that the APC's KVM (hereafter referred 
+	to as APC-KVM) is already running the new Linux Kernel Image 
+	(2.4.17) and that it will be the version used from now on.
+
+      . For more information about new features, please read the up-to-date
+        Release Notes and the APC documentation.
+
+      . For those who are new to Linux/Unix, we recommend reading appendix A
+        in the APC User's Guide.
+
+
+UPGRADING OVERVIEW
+==================
+
+The APC-KVM packages may be updated from one version to another. So, if the 
+user has a APC-KVM running an earlier version, special care should be taken 
+regarding configuration.
+
+The user can choose to start the configuration from scratch by simply doing:
+
+    echo 0 > /proc/flash/script
+    reboot
+
+or, the user must perform all steps from all "Upgrading from <version> actions"
+with version numbers equal to or greater than the original version of his 
+APC-KVM.
+
+In case the option is for upgrading from an earlier version keeping the current
+configuration (not start from scratch), please really do ALL upgrade actions
+listed for ALL versions equal and newer then the current one.
+
+To run a new configuration the user must execute the following command:
+
+    daemon.sh 
+
+To save a new configuration into flash the user must execute
+the following command:
+
+    saveconf
+
+The command "saveconf" is equivalent to the Linux command:
+
+"tar -czf /proc/flash/script -T /etc/config_files"
+
+so, double check that all files which have been changed have their names in the
+file /etc/config_files.
+
+If any of the files /etc/inittab, /etc/rc.sysinit, or any user's shell script
+executed by /etc/rc.sysinit were changed, the APC-KVM must be rebooted for 
+them to take effect.
+

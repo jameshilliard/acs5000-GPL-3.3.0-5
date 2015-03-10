@@ -1,0 +1,912 @@
+/*
+ * auth.c	Authentication for socket port and unit access
+ *
+ * 1st Version:	@(#)auth.c  1.00  19-Jan-2001 EAS
+ *
+ */
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <termios.h>
+#include <time.h>
+#include <signal.h>
+#include <ctype.h>
+#include <errno.h>
+#include <arpa/inet.h>
+#include <fcntl.h>
+#include <grp.h>
+#include <netdb.h>
+#include <netinet/in.h>
+#include <pwd.h>
+#include <string.h>
+#include <sys/resource.h>
+#include <sys/stat.h>
+#include <sys/time.h>
+#include <sys/types.h>
+#include <syslog.h>
+#include <unistd.h>
+#include <utmp.h>
+#include <crypt.h>
+#include <string.h>
+
+#include "server.h"
+#include "auth.h"
+
+#ifdef USE_PAM
+
+#include <security/pam_appl.h>
+#include <security/pam_misc.h>
+#include <security/pam_appdata.h>
+
+/* ------ some static data objects ------- */
+
+struct line_cfg *pconf;
+extern struct auth *pai;
+int ppp_tty_conv(int num_msg, const struct pam_message **msgm,
+	      struct pam_response **response, void *appdata_ptr)
+{
+	struct pam_response *reply;
+	int count;
+
+	/* PAM will free this later */
+	reply = malloc(num_msg * sizeof(*reply));
+	if (reply == NULL)
+		return PAM_CONV_ERR;
+
+	for (count = 0; count < num_msg; count++) {
+		/*
+		 * Username and Password alread in struct Auth...
+		 */
+		switch(msgm[count]->msg_style) {
+		case PAM_PROMPT_ECHO_ON:
+			free(reply);
+			return PAM_CONV_ERR;
+		case PAM_PROMPT_ECHO_OFF:
+			reply[count].resp = x_strdup(pai->passwd);
+			reply[count].resp_retcode = PAM_SUCCESS;
+			break;
+		case PAM_ERROR_MSG:
+		case PAM_TEXT_INFO:
+			reply[count].resp = x_strdup("");
+			reply[count].resp_retcode = PAM_SUCCESS;
+			break;
+		default:
+			free(reply);
+			return PAM_CONV_ERR;
+		}
+	}
+
+	*response = reply;
+
+	return PAM_SUCCESS;
+}
+
+extern int socket_tty_conv(int num_msg, const struct pam_message **msgm,
+	      struct pam_response **response, void *appdata_ptr);
+
+static struct pam_appl_data appl_data = {
+	id : 0x1234fedc
+};
+
+static struct pam_conv conv = {
+     ppp_tty_conv,
+     (void *)&appl_data
+};
+
+/* ------- the application itself -------- */
+
+static pam_handle_t *pamh=NULL;
+static int pamh_flag = 0;
+
+/* ------ some local (static) functions ------- */
+#define PAM_FAIL_CHECK(str, retcode, flag) \
+	if (retcode != PAM_SUCCESS) { \
+		nsyslog(LOG_ERR,"%s : %s", str, pam_strerror(pamh, retcode)); \
+		if (flag) { \
+			return(1); \
+		} \
+	}
+
+/*
+ * Authenticate and open a session for the user
+*/
+static int do_pam_authentication( char *service)
+{
+	int retcode;
+	char *user;
+
+	// check the service name
+	if (!service) {
+		return -1;
+	}
+ 
+	pamh_flag = 1;
+	appl_data.result = 0;
+	appl_data.sock = (pconf->protocol == P_SOCKET_SERVER ||
+				pconf->protocol == P_SOCKET_SERVER_SSH ||
+#ifdef BIDIRECT
+				pconf->protocol == P_TELNET_BIDIRECT ||
+#endif
+			  pconf->protocol == P_SOCKET_CLIENT
+#ifdef PMD
+			  //[RK]June/03/04 - SSH/Telnet to IPDU
+			  || (pconf->protocol == P_IPDU && pai->proto == P_SOCKET_SERVER)
+#endif
+	);
+// [JY] 10/21/04: use port field of pam_appl_data for serial port number
+	appl_data.port = pconf->this+1;
+	appl_data.ppp = (pconf->protocol == P_LOCAL || pconf->protocol == P_RLOGIN ||
+		 	 pconf->protocol == P_PPP || pconf->protocol == P_PPP_ONLY);
+	// this flag is used by pam_auth_srv :
+	// 0 - user is not added in the local database 
+	// 1 - user is added in the local database
+	appl_data.flag = (
+#ifdef PMD
+			(pconf->protocol == P_IPDU && pai->proto == P_SOCKET_SERVER) ||
+#endif
+			(pconf->protocol == P_LOCAL && (pconf->authtype & AUTH_SERVER)) ||
+#ifdef KRBenable
+			((pconf->authtype & AUTH_SERVER) == AUTH_KERBEROS) ||
+#endif
+			((pconf->authtype & AUTH_SERVER) == AUTH_LDAP));
+
+	appl_data.caller = 0;
+
+#ifdef GRPAUTHenable
+	appl_data.group_name = NULL; //[RK]May/20/05 - Group Authorization Support
+#endif
+
+	/* set PAM_SERVICE to the correct value */
+	retcode = pam_set_item(pamh, PAM_SERVICE, service);
+	PAM_FAIL_CHECK("pam_set_item PAM_SERVICE", retcode, 0);
+
+	/* set PAM_CONV to the latest values */
+	retcode = pam_set_item(pamh, PAM_CONV, &conv);
+	PAM_FAIL_CHECK("pam_set_item PAM_CONV", retcode, 0);
+	/* authenticate the user --- `0' here, could have been
+		PAM_SILENT | PAM_DISALLOW_NULL_AUTHTOK */
+
+	retcode = pam_authenticate(pamh, 0);
+	//[RK]Aug/23/05 - removed the service error message
+	if (retcode != PAM_SERVICE_ERR) {
+		PAM_FAIL_CHECK("pam_authenticate", retcode, 0);
+	}
+
+	if (retcode != PAM_SUCCESS) {
+		switch(appl_data.result) {
+		case 3:
+			if (mainconf.locallogins) {
+				strncpy (pai->login, appl_data.name, sizeof(pai->login));
+				pai->passwd[0] = '\0';
+				pai->proto = P_LOCAL;
+				return(4);
+			}
+			break;
+		case 1:
+			strncpy (pai->login, "AutoPPP", sizeof(pai->login));
+			pai->proto = P_AUTOPPP;
+			return(3);
+		case 4:
+			pam_set_item(pamh, PAM_SANITIZE, (char *)0);
+			break;
+		case 2: 
+			nsyslog(LOG_ERR,"time out error");
+			return(2);
+		default:
+			if (retcode != PAM_AUTH_ERR) {
+				return(-1);
+			}
+			break;
+		}
+		//[RK]May/22/06 
+		pam_get_item(pamh, PAM_USER, (const void **) &user); 
+		strncpy(pai->login, user, sizeof(pai->login));
+		return(1);
+	}
+
+	pam_set_item(pamh, PAM_SANITIZE, (char *)0);
+
+	/* the user is valid, but should they have access at this time? */
+
+	retcode = pam_acct_mgmt(pamh, 0); /* `0' could be as above */
+	PAM_FAIL_CHECK("pam_acct_mgmt", retcode, 0);
+
+	if (retcode == PAM_NEW_AUTHTOK_REQD) {
+		retcode = pam_chauthtok(pamh,PAM_CHANGE_EXPIRED_AUTHTOK);
+	}
+
+	PAM_FAIL_CHECK("pam_acct_mgmt", retcode, 1);
+
+	retcode = pam_setcred(pamh, PAM_ESTABLISH_CRED);
+	PAM_FAIL_CHECK("pam_setcred", retcode, 1);
+
+	/* open a session for the user --- `0' could be PAM_SILENT */
+	retcode = pam_open_session(pamh,0);
+	PAM_FAIL_CHECK("pam_open_session", retcode, 1);
+
+    //mp: would have to change Linux-PAM-x.yz/libpam/pam_item.c...
+    //warning: dereferencing type-punned pointer will break strict-aliasing rules
+	pam_get_item(pamh, PAM_USER, (const void **) &user);
+	strncpy(pai->login, user, sizeof(pai->login));
+
+	return(0);
+}
+
+/*
+ * close a session for the user
+*/
+
+int do_pam_close(void)
+{
+	int retcode;
+
+	if (!pamh || !pamh_flag) return(1);
+
+#ifdef GRPAUTHenable
+	//[RK]May/31/05 - Group Authorization Support
+	if (appl_data.group_name)
+		free(appl_data.group_name);
+#endif
+
+	retcode = pam_close_session(pamh,0);
+	PAM_FAIL_CHECK("pam_close_session", retcode, 1);
+	  
+	retcode = pam_setcred(pamh, PAM_DELETE_CRED);
+	PAM_FAIL_CHECK("pam_setcred", retcode, 1);
+
+	pam_end(pamh, 0);
+
+	return(0);
+
+}
+
+#else
+
+#include "radius.h"
+
+
+#define TLG_FEATURE_SHADOWPASSWDS
+
+#include <shadow.h>
+
+#define CRYPT_EP_SIZE 13 /* Maximum encrypted password size */
+
+static char *pw_encrypt(const char *clear, const char *salt)
+{
+	static char cipher[CRYPT_EP_SIZE+3];
+	char *cp;
+
+	cp = (char *) crypt(clear, salt);
+	/* if crypt (a nonstandard crypt) returns a string too large,
+	   truncate it so we don't overrun buffers and hope there is
+	   enough security in what's left */
+	if (strlen(cp) > CRYPT_EP_SIZE) {
+	  cp[CRYPT_EP_SIZE+1]=0;
+	}
+	strcpy(cipher, cp);
+	return cipher;
+}
+
+// login_local can't be static: called by other modules
+int login_local(struct auth *pai)
+{
+	struct passwd *pwd;
+	char *password;
+	int	rtn;
+
+#ifdef TLG_FEATURE_SHADOWPASSWDS
+	struct spwd *spwd = NULL;
+#endif
+
+	if (!(pwd = getpwnam(pai->login))) {
+		// No username info
+		sprintf(pai->message[0], "Invalid Login.\n");  
+		return(1);
+	}
+
+#ifdef TLG_FEATURE_SHADOWPASSWDS
+	if (pwd && ((strcmp(pwd->pw_passwd, "x") == 0)
+				|| (strcmp(pwd->pw_passwd, "*") == 0))) {
+		spwd = getspnam(pai->login);
+		if (spwd) {
+			password = spwd->sp_pwdp;
+		} else {
+			// No username info
+			sprintf(pai->message[0], "Invalid Login.\n");
+			return(1);
+		}
+	} else {
+		password = pwd->pw_passwd;
+	}
+#else
+	password = pwd->pw_passwd;
+#endif		/* TLG_FEATURE_SHADOWPASSWDS */
+
+	if (*password == '\0' && pai->passwd == '\0') {
+		rtn = 0;
+	} else {
+		if ((rtn = strcmp(pw_encrypt(pai->passwd, password), password))) {
+			// No username info
+			sprintf(pai->message[0], "Invalid Login.\n");
+		}
+	}
+
+	endpwent();					/* stop access to password file */
+	endgrent();					/* stop access to group file */
+#ifdef TLG_FEATURE_SHADOWPASSWDS
+	endspent();					/* stop access to shadow passwd file */
+#endif
+	if (!rtn && pai->proto == P_AUTOPPP) { 
+		pai->proto = P_PPP;
+		if (pai->address == 0 && lineconf[pai->nasport].ipno) {
+			pai->address = lineconf[pai->nasport].ipno;
+		}
+	}
+	if (rtn == 0)
+		pai->authenticated = 1;
+	return(rtn);
+}
+
+int tac_client(struct auth *pai, int ppp)
+{
+	sprintf(pai->message[0], "Authentication protocol is not available yet\n");
+	return(1);
+}
+
+int kerberos_client(struct auth *pai, int ppp)
+{
+	sprintf(pai->message[0], "Authentication protocol is not available yet\n");
+	return(1);
+}
+
+int ldap_client(struct auth *pai, int ppp)
+{
+	sprintf(pai->message[0], "Authentication protocol is not available yet\n");
+	return(1);
+}
+
+#endif
+
+
+
+static char pauth_fail[] = "Authentication failure\r\n";
+
+int do_local_or_server_authentication(struct auth *ai, int ppp)
+{
+	int x = 0;
+#ifdef USE_PAM
+	char buf[256];
+	int retcode;
+#endif
+	pconf = &lineconf[ai->nasport];
+	pai = ai;
+
+	ai->msn = 0;
+	ai->do_acct = 0;
+	ai->next_token = 0;
+	ai->authenticated = 0;
+#ifdef CBCPenable
+	ai->sess_type = 0;  /* callback session */
+#endif
+
+	ai->flag_admin_user = 0;	//[RK]May/31 - Group Authorization Support
+
+	if (pconf->authtype == AUTH_NONE) {
+		return(0);
+	}
+
+#ifdef USE_PAM
+#ifdef CBCPenable
+	appl_data.callback_number[0] = 0;
+#endif
+
+	/* initialize the Linux-PAM library */
+	if (ppp) {
+		conv.conv = ppp_tty_conv;
+		retcode = pam_start("other", ai->login, &conv, &pamh);
+	} else {
+		conv.conv = socket_tty_conv;
+		retcode = pam_start("other", NULL, &conv, &pamh);
+	}
+
+	PAM_FAIL_CHECK("pam_start", retcode, 1);
+
+	/* set PAM_TTY to make pam_security working */
+	retcode = pam_set_item(pamh, PAM_TTY,
+		(!pconf->virtual ? pconf->tty : "/dev/ttyS1"));
+	PAM_FAIL_CHECK("pam_set_item PAM_TTY", retcode, 0);
+
+	/* set PAM_RHOST  */
+	gethostname(buf, sizeof(buf));
+	retcode = pam_set_item(pamh, PAM_RHOST, buf);
+	PAM_FAIL_CHECK("pam_set_item PAM_RHOST", retcode, 0);
+
+	/* set PAM_USER_PROMPT  */
+	if (pconf->prompt && *pconf->prompt) {
+		expand_format (buf, sizeof (buf), pconf->prompt, ai);
+//syslog(4,"auth user=[%s] prompt[%s]",ai->login,buf);
+		retcode = pam_set_item(pamh, PAM_USER_PROMPT, buf);
+		PAM_FAIL_CHECK("pam_set_item PAM_RHOST", retcode, 0);
+	}
+
+#endif
+
+     /* to avoid using goto we abuse a loop here */
+	switch (pconf->authtype) {
+	case AUTH_RADIUS_LOCAL:
+#ifdef USE_PAM
+		if (!(x=do_pam_authentication("radiuslocal"))) {
+//			ai->authenticated = 2;
+			goto check_access;
+		}
+#else
+		if (!(x = rad_client(ai, 0))) {
+			ai->do_acct = ai->next_token == 0;
+			goto check_access;
+		}
+		if (!login_local(ai)) {
+			goto check_access;
+		}
+#endif
+		break;
+
+	case AUTH_RADIUS_DOWN_LOCAL:
+#ifdef USE_PAM
+		if (!(x=do_pam_authentication("radiusdownlocal"))) {
+//			ai->authenticated = 2;
+			goto check_access;
+		}
+#else
+		if (!(x = rad_client(ai, 0))) {
+			ai->do_acct = ai->next_token == 0;
+			goto check_access;
+		}
+		if ( x != -1) {
+			break;
+		}
+		if (!login_local(ai)) {
+			goto check_access;
+		}
+#endif
+		break;
+
+	case AUTH_LOCAL_RADIUS:
+#ifdef USE_PAM
+		if (!(x=do_pam_authentication("localradius"))) {
+			goto check_access;
+		}
+#else
+		if (!login_local(ai)) {
+			goto check_access;
+		}
+		if (!rad_client(ai, 0)) {
+			ai->do_acct = ai->next_token == 0;
+			goto check_access;
+		}
+#endif
+		break;
+
+	case AUTH_RADIUS:
+#ifdef USE_PAM
+		if (!(x=do_pam_authentication("radius"))) {
+//			ai->authenticated = 2;
+			goto check_access;
+		}
+#else
+		if (!rad_client(ai, 0)) {
+			ai->do_acct = ai->next_token == 0;
+			goto check_access;
+		}
+#endif
+		break;
+
+#ifdef KRBenable
+    case AUTH_KERBEROS:
+#ifdef USE_PAM
+        if (!(x=do_pam_authentication("kerberos"))) {
+ //           ai->authenticated = 2;
+            goto check_access;
+        }
+#else
+        if (!kerberos_client(ai, 0)) {
+            ai->do_acct = ai->next_token == 0;
+            goto check_access;
+        }
+#endif
+        break;
+
+    case AUTH_KERBEROS_LOCAL:
+#ifdef USE_PAM
+        if (!(x=do_pam_authentication("kerberoslocal"))) {
+//            ai->authenticated = 2;
+            goto check_access;
+        }
+#else
+        if (!kerberos_client(ai, 0)) {
+            ai->do_acct = ai->next_token == 0;
+            goto check_access;
+        }
+#endif
+        break;
+
+    case AUTH_KERBEROS_DOWN_LOCAL:
+#ifdef USE_PAM
+        if (!(x=do_pam_authentication("kerberosdownlocal")))
+		{
+ //           ai->authenticated = 2;
+            goto check_access;
+        }
+#else
+        if (!kerberos_client(ai, 0)) {
+            ai->do_acct = ai->next_token == 0;
+            goto check_access;
+        }
+#endif
+        break;
+#endif
+
+    case AUTH_LDAP:
+#ifdef USE_PAM
+        if (!(x=do_pam_authentication("ldap"))) {
+//            ai->authenticated = 2;
+            goto check_access;
+        }
+#else
+        if (!ldap_client(ai, 0)) {
+            ai->do_acct = ai->next_token == 0;
+            goto check_access;
+        }
+#endif
+        break;
+
+    case AUTH_LDAP_DOWN_LOCAL:
+#ifdef USE_PAM
+        if (!(x=do_pam_authentication("ldapdownlocal"))) {
+//            ai->authenticated = 2;
+            goto check_access;
+        }
+#else
+        if (!ldap_client(ai, 0)) {
+            ai->do_acct = ai->next_token == 0;
+            goto check_access;
+        }
+#endif
+        break;
+
+#ifdef RADIUS2FACTORenable
+    case AUTH_LDAP_DOWN_LOCAL_AND_RADIUS:
+#ifdef USE_PAM
+        if (!(x=do_pam_authentication("ldapdownlocal-radius"))) {
+//            ai->authenticated = 2;
+            goto check_access;
+        }
+#else
+        if (!ldap_client(ai, 0)) {
+            ai->do_acct = ai->next_token == 0;
+            goto check_access;
+        }
+#endif
+        break;
+#endif
+
+    case AUTH_LDAP_LOCAL:
+#ifdef USE_PAM
+        if (!(x=do_pam_authentication("ldaplocal"))) {
+//            ai->authenticated = 2;
+            goto check_access;
+        }
+#else
+        if (!ldap_client(ai, 0)) {
+            ai->do_acct = ai->next_token == 0;
+            goto check_access;
+        }
+#endif
+		break;
+
+	case AUTH_TacacsPlus:
+#ifdef USE_PAM
+		if (!(x=do_pam_authentication("tacplus"))) {
+//			ai->authenticated = 2;
+			goto check_access;
+		}
+#else
+		if (!tac_client(ai, 0)) {
+			goto check_access;
+		}
+#endif
+		break;
+
+	case AUTH_LOCAL_TacacsPlus:
+#ifdef USE_PAM
+		if (!(x=do_pam_authentication("localtacplus"))) {
+//			ai->authenticated = 2;
+			goto check_access;
+		}
+#else
+		if (!login_local(ai)) {
+			goto check_access;
+		}
+		if (!tac_client(ai, 0)) {
+			goto check_access;
+		}
+#endif
+		break;
+
+	case AUTH_TacacsPlus_LOCAL:
+#ifdef USE_PAM
+		if (!(x=do_pam_authentication("tacpluslocal"))) {
+//			ai->authenticated = 2;
+			goto check_access;
+		}
+#else
+		if (!(x = tac_client(ai, 0))) {
+			goto check_access;
+		}
+		if (!login_local(ai)) {
+			goto check_access;
+		}
+#endif
+		break;
+
+	case AUTH_TacacsPlus_DOWN_LOCAL:
+#ifdef USE_PAM
+		if (!(x=
+			do_pam_authentication("tacplusdownlocal"))) {
+//			ai->authenticated = 2;
+			goto check_access;
+		}
+#else
+		if (!(x = tac_client(ai, 0))) {
+			goto check_access;
+		}
+		if (x != -1) {
+			break;
+		}
+		if (!login_local(ai)) {
+			goto check_access;
+		}
+#endif
+		break;
+
+	case AUTH_LOCAL:
+#ifdef USE_PAM
+		if (!(x=do_pam_authentication("local"))) {
+			goto check_access;
+		}
+#else
+		if (!login_local(ai)) {
+			goto check_access;
+		}
+#endif
+		break;
+
+	case AUTH_REMOTE:
+#ifdef USE_PAM
+		if (!(x=do_pam_authentication("remote"))) {
+			goto check_access;
+		}
+#else
+		goto check_access;
+#endif
+		break;
+
+#ifdef NISenable
+	case AUTH_NIS:
+#ifdef USE_PAM
+		if (!(x=do_pam_authentication("local"))) {
+			goto check_access;
+		}
+#else
+		if (!login_local(ai)) {
+			goto check_access;
+		}
+#endif
+		break;
+
+	case AUTH_NIS_LOCAL:
+#ifdef USE_PAM
+		if (!(x=do_pam_authentication("local"))) {
+			goto check_access;
+		}
+#else
+		if (!login_local(ai)) {
+			goto check_access;
+		}
+#endif
+		break;
+
+	case AUTH_NIS_DOWN_LOCAL:
+#ifdef USE_PAM
+		if (!(x=do_pam_authentication("local"))) {
+			goto check_access;
+		}
+#else
+		if (!login_local(ai)) {
+			goto check_access;
+		}
+#endif
+		break;
+
+	case AUTH_LOCAL_NIS:
+#ifdef USE_PAM
+		if (!(x=do_pam_authentication("local"))) {
+			goto check_access;
+		}
+#else
+		if (!login_local(ai)) {
+			goto check_access;
+		}
+#endif
+		break;
+#endif
+
+#ifdef OTPenable
+	case AUTH_OTP:
+#ifdef USE_PAM
+		if (!(x=do_pam_authentication("otp"))) {
+			goto check_access;
+		}
+#else
+		if (!login_local(ai)) {
+			goto check_access;
+		}
+#endif
+		break;
+
+	case AUTH_OTP_LOCAL: //[RK]Jan/18/06
+#ifdef USE_PAM
+		if (!(x=do_pam_authentication("otplocal"))) {
+			goto check_access;
+		}
+#else
+		if (!login_local(ai)) {
+			goto check_access;
+		}
+#endif
+		break;
+#endif
+
+#ifdef ADSAP2
+	case AUTH_DSVIEW:
+#ifdef USE_PAM
+		if (!(x=do_pam_authentication("@DSVIEW@"))) {
+			goto check_access;
+		}
+#else
+		goto check_access;
+#endif
+		break;
+
+	case AUTH_DSVIEW_LOCAL:
+#ifdef USE_PAM
+		if (!(x=do_pam_authentication("@DSVIEW@local"))) {
+			goto check_access;
+		}
+#else
+		goto check_access;
+#endif
+		break;
+
+	case AUTH_DSVIEW_DOWN_LOCAL:
+#ifdef USE_PAM
+		if (!(x=do_pam_authentication("@DSVIEW@downlocal"))) {
+			goto check_access;
+		}
+#else
+		goto check_access;
+#endif
+		break;
+#endif
+
+	default:
+		break;
+
+	}
+
+	if (x == 3 &&
+		(pconf->protocol == P_LOCAL || pconf->protocol == P_RLOGIN ||
+		 pconf->protocol == P_PPP || pconf->protocol == P_PPP_ONLY ))
+		return(0);
+
+	if (x == 4 &&
+		(pconf->protocol == P_LOCAL || pconf->protocol == P_RLOGIN ||
+		 pconf->protocol == P_TELNET || pconf->protocol == P_SSH ||
+		 pconf->protocol == P_SSH2 || pconf->protocol == P_SOCKET_CLIENT))
+		goto check_access1;
+
+#ifdef BIDIRECT
+	if (x == 2 &&
+		(pconf->protocol == P_TELNET_BIDIRECT)) {
+		goto check_access2;
+	}
+#endif
+
+	usleep(2000000);
+#ifdef USE_PAM
+	write(STDOUT_FILENO, pauth_fail, 24);
+#else
+	if (ai->message[0][0]) {
+		if (ai->msn) {
+			for (x = 0; x < ai->msn; x++)
+				write(STDOUT_FILENO, ai->message[x], strlen(ai->message[x]));
+			write(STDOUT_FILENO, "\r\n", 2);
+		} else {
+			write(STDOUT_FILENO, pauth_fail, 24);
+		}
+	}
+#endif
+
+	return(1);
+
+check_access:
+	//[RK]Mar/03/06 - the user was authenticated by PAM
+	ai->authenticated = 2;
+
+check_access1:
+
+#ifdef USE_PAM
+#ifdef CBCPenable
+	if (appl_data.callback_number[0]) {
+		ai->sess_type = 1;  /* callback session */
+		if (appl_data.callback_number[0] != 255) {
+			memcpy(ai->callback_number, appl_data.callback_number,
+			       sizeof(ai->callback_number));
+		} else {
+			ai->callback_number[0] = 0;
+		}
+	}
+#endif
+#endif
+
+	if (pconf->auxflg) {
+		return(0);
+	}
+
+#ifdef ONS
+#define NULL_NOT_VALID 1
+#else
+#define NULL_NOT_VALID 0
+#endif
+
+#ifdef GRPAUTHenable
+	//[RK]May/20/05 - Group Authorization Support
+	if (appl_data.group_name) {
+		if (!check_group_name_access(ai->login, appl_data.group_name, pconf->users, pconf->admin_users, NULL_NOT_VALID)) {
+			ai->flag_admin_user = check_admin_user(ai->login, appl_data.group_name,pconf->admin_users);
+			return(0);
+		}
+	} else 
+#endif
+	{
+		if (!check_users_access(pconf->users, ai->login, NULL_NOT_VALID)) {
+			//[RK]May/31/05 - Group Authorization Support
+			if (check_users_access(pconf->admin_users, ai->login, 1)) {
+				ai->flag_admin_user = 0;
+			} else {
+				ai->flag_admin_user = 1; 
+			}
+			return(0);
+		}
+
+		if (!check_users_access(pconf->admin_users, ai->login, 1)) {
+			ai->flag_admin_user = 1; //[RK]May/31/05 - Group Authorization Support
+			return(0);
+		}
+	}
+check_access2:
+#ifdef USE_PAM
+	do_pam_close();
+#else
+	if (ai->do_acct) {
+		ai->do_acct = 0;
+		rad_acct(ai, 0);   
+	}
+#endif
+
+	ai->authenticated = 0;
+
+	usleep(2000000);
+	write(STDOUT_FILENO, pauth_fail, 24);
+	return(2);
+}
+

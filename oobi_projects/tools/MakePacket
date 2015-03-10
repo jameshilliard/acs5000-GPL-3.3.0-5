@@ -1,0 +1,144 @@
+#
+#  Makefile for Cyclades projects.
+#
+#  It will build a package changed by Cyclades
+#
+
+include $(ROOT_PROJ)/$(TOOLS)/MakeChecks
+
+include $(WORK_DIR)/config
+include $(ROOT_PROJ)/$(PACKAGES_DEF)
+include $(CONFIG_TOOL_DIR)/config_tools
+
+$(call check_vars,SOURCES BUILD TOOLS MAKE_PKT my_prefix MD5 SOURCE_PKGS)
+
+CURR_DST := $(shell pwd)
+CURR_SRC := $(notdir $(CURR_DST))
+BUILD_DIR := $(WORK_DIR)/$(BUILD)
+SRC_COOKIE := COOKIE_SRC
+POST_SRC_COOKIE := COOKIE_SRC_POST
+PRE_CFG_COOKIE := COOKIE_CFG_PRE
+CFG_COOKIE := COOKIE_CFG
+BLD_COOKIE := COOKIE_BLD
+
+#
+# Set global compilation flags
+#
+CFLAGS += $(COMPILE_DEFTARG) -DCYCLADES -D$(DEFTARG)
+
+#
+# Set feature flags
+#
+
+FEATURE-yes := -DTARGET_$(TARGETNAME)
+FEATURE-no :=
+
+FEATURE-$(RDPenable) += -DRDPenable
+FEATURE-$(BondingLAN) += -DBONDING_FEATURE
+FEATURE-$(DLAenable) += -DCY_DLA_ALERT
+FEATURE-$(PCMCIAenable) += -DPCMCIA
+FEATURE-$(DLSenable) += -DDLSenable
+FEATURE-$(ALERTSenable) += -DALERTSenable
+FEATURE-$(CBCPenable) += -DCBCPenable
+FEATURE-$(EAPenable) += -DEAPenable
+FEATURE-$(RADIUS2FACTORenable) += -DRADIUS2FACTORenable
+FEATURE-$(RADIUSSECIDenable) += -DRADIUSSECIDenable
+FEATURE-$(OTPenable) += -DOTPenable
+FEATURE-$(WINEMSenable) += -DWINEMSenable
+FEATURE-$(GRPAUTHenable) += -DGRPAUTHenable
+FEATURE-$(MODBUSenable) += -DMODBUS
+FEATURE-$(BILLINGenable) += -DBILLING
+FEATURE-$(CUSTOMAPPLICSenable) += -DCUSTOMAPPLICS
+FEATURE-$(PMDenable) += -DPMD
+FEATURE-$(PMDNGenable) += -DPMDNG
+FEATURE-$(IPMIenable) += -DIPMI
+FEATURE-$(BIDIRECTenable) += -DBIDIRECT
+FEATURE-$(ADSAP2enable) += -DADSAP2
+FEATURE-$(SHOWDSVIEWOPTIONSenable) += -DSHOW_DSVIEW_OPTIONS
+FEATURE-$(KRBenable) += -DKRBenable
+FEATURE-$(NISenable) += -DNISenable
+FEATURE-$(SECPROFILEenable) += -DSECPROFILE
+FEATURE-$(SMBenable) += -DSMBenable
+FEATURE-$(IPSECenable) += -DIPSEC
+FEATURE-$(CLUSTERenable) += -DCONFIG_CLUSTER
+FEATURE-$(MINDTERMenable) += -DMINDTERM
+FEATURE-$(AVWORKSenable) += -DAVWORKS
+FEATURE-$(IPv6enable) += -DIPv6enable
+FEATURE-$(PMLOCKdisable) += -DPMLOCK_disabled
+
+CFLAGS += $(FEATURE-yes)
+CXXFLAGS:=$(CFLAGS)
+
+#
+# Set PATH and/to tools
+#
+ifneq "$(CCACHE_$(NAME_PKT))" "no"
+CROSS_PATH:=$(CONFIG_TOOL_DIR)/dummy:$(CROSS_PATH)
+endif
+
+ifeq ($(APPL_DEBUG),1)
+  CROSS_PATH:=$(WORK_DIR)/dummy:$(CROSS_PATH)
+  STRIP=$(CROSS_STRIP) --remove-section=.note --remove-section=.comment
+else
+  STRIP=strip
+endif
+
+##################### Source/Build targets ########################
+
+src: $(POST_SRC_COOKIE)
+
+bld: $(BLD_COOKIE)
+
+include $(MAKE_PKT)
+
+DO_POST_SRC_COOKIE ?= yes
+
+$(CFG_COOKIE): $(POST_SRC_COOKIE)
+$(BLD_COOKIE): $(CFG_COOKIE)
+
+$(POST_SRC_COOKIE): $(SRC_COOKIE) $(MAKE_PKT)
+	if [ $(DO_POST_SRC_COOKIE) = yes ]; then \
+		$(MAKE) -f $(ROOT_PROJ)/$(TOOLS)/MakeCopyTarg SFX=$(TARGET_PRODUCT); \
+	fi
+	date > $@
+
+$(ROOT_PROJ)/$(SOURCES)/$(CURR_SRC) \
+$(OPENSOURCE_DIR)/$(SOURCES)/$(CURR_SRC):
+	$(warning Package '$@' is not installed.)
+
+$(SRC_COOKIE): $(WORK_DIR)/$(MD5)/$(CURR_SRC).md5 | \
+				$(OPENSOURCE_DIR)/$(SOURCES)/$(CURR_SRC) \
+				$(ROOT_PROJ)/$(SOURCES)/$(CURR_SRC)
+	# clean-up the build directory
+	rm -rf $(CURR_DST)/*
+
+	# make links to opensource/package
+	if [ -d $(OPENSOURCE_DIR)/$(SOURCES)/$(CURR_SRC) ] ; then \
+		SOURCE_DIR=$(OPENSOURCE_DIR)/$(SOURCES)/$(CURR_SRC) \
+		TARGET_DIR=$(CURR_DST) \
+		$(ROOT_PROJ)/$(TOOLS)/setup_build.sh ; \
+	fi
+
+	# make links to project/package
+	if [ -d $(ROOT_PROJ)/$(SOURCES)/$(CURR_SRC) ] ; then \
+		SOURCE_DIR=$(ROOT_PROJ)/$(SOURCES)/$(CURR_SRC) \
+		TARGET_DIR=$(CURR_DST) \
+		$(ROOT_PROJ)/$(TOOLS)/setup_build.sh ; \
+	fi
+	cp $(WORK_DIR)/$(MD5)/$(CURR_SRC).md5 $@
+
+$(WORK_DIR)/$(MD5)/$(CURR_SRC).md5: force
+	install -d $(WORK_DIR)/$(MD5)
+	if [ -d $(ROOT_PROJ)/$(SOURCES)/$(CURR_SRC) ] ; then \
+		find $(ROOT_PROJ)/$(SOURCES)/$(CURR_SRC) -true | \
+			md5sum > $(WORK_DIR)/$(MD5)/$(CURR_SRC).tmp ; \
+	else \
+		echo "empty-directory" | md5sum > $(WORK_DIR)/$(MD5)/$(CURR_SRC).tmp ; \
+	fi
+	cmp -s $@ $(WORK_DIR)/$(MD5)/$(CURR_SRC).tmp || \
+		mv $(WORK_DIR)/$(MD5)/$(CURR_SRC).tmp $@
+ 
+$(MAKEFILE_LIST): ;
+
+force: ;
+

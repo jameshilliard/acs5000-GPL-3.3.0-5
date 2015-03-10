@@ -1,0 +1,12 @@
+#!/bin/sh
+
+dev=$1
+
+IPv6_LIST=`ifconfig $dev | grep inet6 | awk '{ print $3 }'`
+
+for ip_addr in $IPv6_LIST ; do
+	echo "ifconfig $dev del $ip_addr"
+	ifconfig $dev del $ip_addr
+done
+
+

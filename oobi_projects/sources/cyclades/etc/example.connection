@@ -1,0 +1,15 @@
+#conn example 
+	#left=%any
+	#leftid=@west
+	#leftrsasigkey=0sAQNzGEFs18VKT00s
+	#leftsubnet=192.0.1.254/24
+	#leftnexthop=192.1.2.23
+	#right=192.1.2.23
+	#rightid=@east
+	#rightrsasigkey=0sAQN3cn11FrBVbZh
+	#rightsubnet=192.0.2.254/24
+	#rightnexthop=192.1.2.45
+	#auto=none
+	#auth=esp
+	#authby=rsasig
+

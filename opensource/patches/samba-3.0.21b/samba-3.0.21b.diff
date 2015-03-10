@@ -1,0 +1,30 @@
+diff -ru samba-3.0.21b/source/configure.in samba-3.0.21b-patch/source/configure.in
+--- samba-3.0.21b/source/configure.in	2006-01-30 06:45:07.000000000 -0800
++++ samba-3.0.21b-patch/source/configure.in	2006-02-10 12:21:33.000000000 -0800
+@@ -1208,7 +1208,7 @@
+ #endif
+        exit(0);
+ }
+-], [linux_getgrouplist_ok=yes], [linux_getgrouplist_ok=no])
++], [linux_getgrouplist_ok=yes], [linux_getgrouplist_ok=no], [linux_getgrouplist_ok=no])
+        if test x"$linux_getgrouplist_ok" = x"yes"; then
+           AC_DEFINE(HAVE_GETGROUPLIST, 1, [Have good getgrouplist])
+        fi
+@@ -1791,7 +1791,7 @@
+ #include <sys/time.h>
+ #include <unistd.h>
+ main() { struct timeval tv; exit(gettimeofday(&tv, NULL));}],
+-           samba_cv_HAVE_GETTIMEOFDAY_TZ=yes,samba_cv_HAVE_GETTIMEOFDAY_TZ=no,samba_cv_HAVE_GETTIMEOFDAY_TZ=cross)])
++           samba_cv_HAVE_GETTIMEOFDAY_TZ=yes,samba_cv_HAVE_GETTIMEOFDAY_TZ=no,samba_cv_HAVE_GETTIMEOFDAY_TZ=yes)])
+ if test x"$samba_cv_HAVE_GETTIMEOFDAY_TZ" = x"yes"; then
+     AC_DEFINE(HAVE_GETTIMEOFDAY_TZ,1,[Whether gettimeofday() is available])
+ fi
+@@ -2426,7 +2426,7 @@
+ #define AUTOCONF_TEST 1
+ #include "confdefs.h"
+ #include "${srcdir-.}/lib/interfaces.c"],
+-           samba_cv_HAVE_IFACE_IFCONF=yes,samba_cv_HAVE_IFACE_IFCONF=no,samba_cv_HAVE_IFACE_IFCONF=cross)])
++           samba_cv_HAVE_IFACE_IFCONF=yes,samba_cv_HAVE_IFACE_IFCONF=no,samba_cv_HAVE_IFACE_IFCONF=yes)])
+ if test x"$samba_cv_HAVE_IFACE_IFCONF" = x"yes"; then
+     iface=yes;AC_DEFINE(HAVE_IFACE_IFCONF,1,[Whether iface ifconf is available])
+ fi

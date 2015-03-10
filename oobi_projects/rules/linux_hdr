@@ -1,0 +1,27 @@
+#
+# Makefile for Cyclades projects.
+#
+# Copy header files from source linux to the build 
+#
+
+include $(ROOT_PROJ)/$(TOOLS)/MakeChecks
+
+$(call check_vars, TARGET_DIR FILE_REF)
+
+FILES := $(shell find . -name "*.h" -type f -cnewer $(FILE_REF))
+
+$(warning FILES[$(FILES)])
+
+ifneq ($(FILES),)
+
+all: $(FILES)
+
+$(FILES): force
+	install -D $@ $(TARGET_DIR)/$@
+
+endif
+
+$(MAKEFILE_LIST): ;
+
+force: ;
+

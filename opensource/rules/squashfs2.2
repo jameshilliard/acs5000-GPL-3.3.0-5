@@ -1,0 +1,57 @@
+#
+#  Makefile for cyclades projects.
+#
+
+#
+# Addtional compiler and/or link options may be defined here
+#
+#CFLAGS += ...
+#LDFLAGS += ...
+TOOL_KIT_DIR :=
+LSP_DIR :=
+CROSS_DIR :=
+CROSS_BIN :=
+CROSS_TARGET :=
+CROSS_PREFIX :=
+
+CFLAGS :=
+LDFLAGS :=
+
+HOST:=$(shell uname -m)
+
+CROSS_ENV_AC:=
+CROSS_ENV_TOOLS:=
+CROSS_PATH:=$(PATH)
+
+#
+# Command line parameters for configure must be defined here
+#
+#CONFIGURE_PARMS := ...
+
+#CONFIG_ENV := ...
+
+MAKE_ENV := \
+	PATH=$(CROSS_PATH) \
+	PREFIX=$(my_prefix) \
+	$(CROSS_ENV_TOOLS) \
+	CFLAGS="$(CFLAGS)" \
+	LDFLAGS="$(LDFLAGS)"
+
+MAKE_PARMS := 
+
+#
+#  more ac_variables for configure may be defined here
+#
+#CROSS_ENV_AC += ...
+
+$(CFG_COOKIE):
+	date > $@
+
+$(BLD_COOKIE):
+	$(MAKE_ENV) $(MAKE) -C squashfs-tools $(MAKE_PARMS)
+	date > $@
+
+$(INST_COOKIE):
+	cp -a squashfs-tools $(my_prefix)
+	date > $@
+

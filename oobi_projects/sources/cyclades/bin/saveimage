@@ -1,0 +1,82 @@
+#!/bin/sh 
+
+TMP_DIR=/tmp
+
+usage ()
+{
+   echo "[ERROR] Wrong usage."
+   echo "Usage:"
+   echo
+   echo "$0 <server> <username> <password> <directory> <filename>"
+   exit 1
+}
+
+do_exit ()
+{
+  rm -f $TMP_DIR/uImage
+  if [ "$2" = "" ]; then
+    EXIT_CODE=1
+  else
+    EXIT_CODE=$1
+  fi
+  exit $EXIT_CODE
+}
+
+
+do_exec ()
+{
+  eval $1 >/dev/null 2>&1
+  if [ $? -ne 0 ] ; then
+    echo
+    echo "[ERROR] in command '$1'."
+    echo
+    do_exit 1 1
+  fi
+}
+
+if [ $# -lt 5 ]; then
+	usage
+fi
+
+SERVER_IP=$1
+USERNAME=$2
+PASSWORD=$3
+DIRECTORY=$4
+IMAGEFILE=$5
+
+# Trap signals so that this application is not interrupted
+trap do_exit SIGTERM SIGINT SIGQUIT SIGHUP
+
+TEMP_FILE=$TMP_DIR/ftpcmd
+TEMP2_FILE=$TMP_DIR/ftpout
+# Generating the FTP command file to get list of versions
+touch $TEMP_FILE
+chmod 600 $TEMP_FILE
+echo "Downloading the image file ... "
+echo "user $USERNAME $PASSWORD" > $TEMP_FILE
+echo "bin" >> $TEMP_FILE
+echo "cd $DIRECTORY" >> $TEMP_FILE
+echo "lcd $TMP_DIR" >> $TEMP_FILE
+echo "get $IMAGEFILE uImage" >> $TEMP_FILE
+echo "quit" >> $TEMP_FILE
+ftp -i -n $SERVER_IP < $TEMP_FILE > $TEMP2_FILE 2>&1
+cat $TEMP2_FILE | grep "Login incorrect"
+FTP_ERROR_LOGIN=$?
+cat $TEMP2_FILE | grep "Not connected"
+FTP_ERROR_NOT_CONNECTED=$?
+cat $TEMP2_FILE | grep "No such"
+FTP_ERROR_NO_SUCH=$?
+cat $TEMP2_FILE | grep "Permission denied"
+FTP_ERROR_PERM_DENIED=$?
+do_exec "rm -f $TEMP_FILE"
+do_exec "rm -f $TEMP2_FILE"
+if [ $FTP_ERROR_LOGIN -eq 0 -o $FTP_ERROR_NOT_CONNECTED -eq 0 -o $FTP_ERROR_NO_SUCH -eq 0 -o $FTP_ERROR_PERM_DENIED -eq 0 ]; then
+	echo ""
+	echo "[ERROR] File transfer failed."
+	do_exit 1 1
+fi
+
+eval /bin/createimage $TMP_DIR/uImage
+
+do_exit 1 $?
+

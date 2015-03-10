@@ -1,0 +1,98 @@
+--- mgetty-1.1.33/policy.h-dist-old	2005-06-16 17:06:54.000000000 -0700
++++ mgetty-1.1.33/policy.h-dist	2005-06-21 09:38:32.000000000 -0700
+@@ -11,7 +11,7 @@
+ 
+ /* main mgetty configuration file
+  */
+-#define MGETTY_CONFIG "mgetty.config"
++#define MGETTY_CONFIG "/etc/mgetty/mgetty.config"
+ 
+ /* sendfax configuration file
+  *
+@@ -39,7 +39,7 @@
+  *
+  * If this doesn't start with "/", it's relative to CONFDIR.
+  */
+-#define LOGIN_CFG_FILE "login.config"
++#define LOGIN_CFG_FILE "/etc/mgetty/login.config"
+ 
+ /* default login program
+  *
+@@ -65,7 +65,7 @@
+  * Not needed if PPP callers want to get a real "login:"
+  * prompt first. Don't forget to activate the /AutoPPP/ line in login.config!
+  */
+-/* #define AUTO_PPP */
++#define AUTO_PPP 
+ 
+ /* callback config file
+  *
+@@ -75,7 +75,7 @@
+  *
+  * If this path does not start with "/", it's relative to CONFDIR.
+  */
+-#define CALLBACK_CONFIG "callback.config"
++#define CALLBACK_CONFIG "/etc/mgetty/callback.config"
+ 
+ 
+ /* if this file exists, it can be used to control what callers
+@@ -85,7 +85,7 @@
+  * ZyXELs use S40.2=1.
+  * If the path doesn't start with "/", it's relative to CONFDIR.
+  */
+-/* #define CNDFILE "dialin.config" */
++#define CNDFILE "/etc/mgetty/dialin.config" 
+ 
+ 
+ /* If you want to use /etc/gettydefs to set tty flags, define this
+@@ -110,11 +110,11 @@
+ /* user id of the "uucp" user. The tty device will be owned by this user,
+  * so parallel dial-out of uucico will be possible
+  */
+-#define DEVICE_OWNER	"uucp"
++#define DEVICE_OWNER	"nobody"
+ /* group id that the device is chown()ed to. If not defined, the
+  * primary group of "DEVICE_OWNER" is used.
+  */
+-#define DEVICE_GROUP	"modem"
++//#define DEVICE_GROUP	"modem"
+ 
+ /* access mode for the line while getty has it - it should be accessible
+  * by uucp / uucp, but not by others (imagine someone dialing into your
+@@ -147,7 +147,7 @@
+  *
+  * if the directory does not exist, the log file goes to CONSOLE (!)
+  */
+-#define LOG_PATH "/var/log/mgetty.%s"
++#define LOG_PATH "/var/log/mgetty/mgetty.%s"
+ 
+ /* Default log error level threshold. Possible error levels are
+  * L_FATAL, L_ERROR, L_AUDIT, L_WARN, L_MESG, L_NOISE, L_JUNK (see mgetty.h)
+@@ -172,7 +172,7 @@
+  * mgetty will use the facility "LOG_AUTH", and the priorities
+  * LOG_NOTICE, LOG_ERR and LOG_ALERT, respectively.
+  */
+-/* #define SYSLOG */
++#define SYSLOG
+ 
+ /* Syslog facility
+  *
+@@ -327,7 +327,8 @@
+  *
+  * The modem must answer with "OK" (!!!) - otherwise, use "init-chat".
+  */
+-#define MODEM_INIT_STRING	"ATS0=0Q0&D3&C1"
++//#define MODEM_INIT_STRING	"ATS0=0Q0&D3&C1"
++#define MODEM_INIT_STRING	"ATZ"
+ 
+ /* command termination string
+  *
+@@ -365,7 +366,7 @@
+  * setting it to "cls2".
+  * You can override this define with the "-C <mode>" switch.
+  */
+-#define DEFAULT_MODEMTYPE "auto"
++#define DEFAULT_MODEMTYPE "data"
+ 
+ 
+ /* some modems are a little bit slow - after sending a response (OK)

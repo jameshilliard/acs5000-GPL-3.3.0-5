@@ -1,0 +1,86 @@
+BEGIN {
+  SUDOERS="/tmp/sudoers.tmp"
+  groups["SH_CMDS",""] = "SH_CMDS";
+  groups["CONF_FILES",""] = "CONF_FILES"
+  groups["APPLICATIONS",""] = "APPLICATIONS";
+  groups["SH_CMDS","list"] = \
+    "/bin/cat,/bin/tar,/bin/kill,/bin/grep,/bin/egrep,/bin/sed,/bin/touch,"\
+    "/bin/w,/bin/w_cas,/bin/sess_mngt,/sbin/route,/bin/what,/etc/pcmcia/isdn,"\
+    "/bin/echo,/usr/local/bin/opiepasswd,/bin/delgroup,/bin/do_create_otpdb,"\
+    "/bin/deluser,/bin/ls,/etc/dsview/dsviewModemInfo.sh,/bin/chmod,"\
+    "/bin/opielogin,/usr/bin/sudo,/bin/adduser,/usr/bin/passwd";
+  groups["APPLICATIONS","list"] = \
+    "/usr/bin/kvmipctl,/bin/restoreconf,/bin/runconf,/bin/vcard_upgrade.exp,"\
+    "/bin/daemon.sh,/bin/manageService.sh,/bin/dsviewKillAdmin,"\
+    "/bin/pmfwupgrade,/bin/pmCommand,/usr/bin/apctl,/bin/adsap2_clear,"\
+    "/bin/createimage,/bin/create_cf,/bin/upgrade_power.sh,/usr/bin/kvminfo";
+  group;
+  split_list("SH_CMDS");
+  split_list("APPLICATIONS");
+}
+
+/^#/ {
+  print $0 >> SUDOERS
+  next;
+}
+
+$1 ~ /Cmnd_Alias/ {
+  sub("\t"," ",$0);
+  group = groups[$2,""];
+  if(group!="") {
+    for(i=4;i<=NF;i++) {
+      add_items($i);
+      delete groups[group,"\\"];
+    }
+    next;
+  }
+}
+
+/\\$/ && group!="" {
+  add_items($0);
+  delete groups[group,"\\"];
+  next;
+}
+
+$1 ~ /^\// && group!="" {
+  split($0, temp, ",");
+  add_items($0);
+  printf("Cmnd_Alias\t%s = \\\n",group) >> SUDOERS;
+  for(superitem in groups) {
+    split(superitem,indexes,SUBSEP);
+    if(indexes[1]==group&&indexes[2]!="") {
+      group2[groups[superitem]]=groups[superitem];
+      delete groups[superitem];
+    }
+  }
+  delete groups[group,""];
+  n=asort(group2);
+  for(i=1;i<n;i++) {
+    printf(" %s,\\\n",group2[i]) >> SUDOERS;
+    delete group2[i];
+  }
+  printf(" %s\n",group2[n]) >> SUDOERS;
+  delete group2[n];
+  next;
+}
+
+{
+  print $0 >> SUDOERS
+}
+
+function split_list(group) {
+  split(groups[group,"list"],temp,",");
+  for(item in temp) {
+    groups[group,temp[item]] = temp[item];
+  }
+  delete groups[group,"list"];
+}
+
+function add_items(items) {
+  split(items,temp,",");
+  for(item in temp) {
+    sub(/^  */,"",temp[item]);
+    sub(/  *$/,"",temp[item]);
+    groups[group,temp[item]]=temp[item];
+  }
+}

@@ -1,0 +1,13 @@
+#! /bin/sh
+RULES=/etc/network/firewall
+
+if [ x$1 = "xrestore" ] ; then
+
+	if [ ! -f $RULES -o ! -s $RULES ] ; then exit 0 ; fi
+
+	iptables-restore < $RULES
+else
+	iptables-save | grep -v nat_cluster > $RULES
+	updatefiles $RULES
+fi
+exit 0

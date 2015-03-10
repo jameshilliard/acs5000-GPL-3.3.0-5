@@ -1,0 +1,18 @@
+#
+# security.opts		Security Options
+#
+#	This file contains the definition of the current security profile,
+#   the ICMP reply state and some details about the "custom" profile.
+#
+
+# Security Profile currently set
+# < open | moderate | secured | custom >
+profile    custom
+
+# allow Direct Access to KVM Ports
+# < enabled | disabled >
+directaccess    disabled
+
+# reply Network Layer ICMP messages
+# < enabled | disabled >
+icmp    enabled

@@ -1,0 +1,2 @@
+/sbin/dhcpcd -Y -t 60 -l 360 -c /bin/handle_dhcp -x 2 &
+sleep 4

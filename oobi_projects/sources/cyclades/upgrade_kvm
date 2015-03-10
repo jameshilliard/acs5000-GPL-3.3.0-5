@@ -1,0 +1,195 @@
+===============================================================================
+                       UPGRADE to Version 2.1.1 
+===============================================================================
+
+REMARKS
+=======
+      . For more information about new features, please read the most
+        recently dated Release Notes.
+
+      . For those who are new to Linux/Unix, we recommend reading appendix A
+        in the Cyclades KVM User's Guide.
+
+NOTE: Cyclades strongly recommends that users read the latest User's
+Guide available from the Cyclades' FTP site before using this new firmware.
+
+
+UPGRADING OVERVIEW
+==================
+
+The KVM packages may be updated from an existing version to a later version. Special care should be taken regarding the configuration if you are running an earlier version of KVM.
+
+You can choose to start the configuration from scratch by using:
+
+    restoreconf factory_default
+    reboot
+
+As an alternative, you must perform all steps from all "Upgrading from <version> actions", using version numbers equal to, or greater than, the original version of their KVM.
+
+To run a new configuration, execute the following command:
+
+    daemon.sh 
+
+To save a new configuration into flash, execute
+the following command:
+
+    saveconf
+
+The command "saveconf" is equivalent to the Linux command:
+
+"tar -czf /proc/flash/script -T /etc/config_files"
+
+Double-check that all files that have been changed are listed in the
+file /etc/config_file.
+
+If any of the files /etc/inittab, /etc/rc.sysinit, or any user's shell 
+script executed by /etc/rc.sysinit were changed, the KVM must be rebooted 
+for the changes to take effect.
+
+The release_notes.html file available in the Cyclades Web site brings the 
+microcontrolers compatibility. Please refer to that document and upgrade 
+the microcode accordingly right after upgrading the KVM opcode itself.
+Using the Web interface, navigate to Management:Microcode Upgrade to upgrade 
+the microcontroles. 
+
+
+Upgrading from 2.1.0 (or its patches) Actions
+=============================================
+
+- The file /etc/config_files was changed:
+  . some new files were included.
+  . if you have modified the /etc/config_files file, include your changes in
+    the /etc/config_files.save and copy it to /etc/config_files. Then save in 
+    CF using the saveconf command.
+  . if you did not change /etc/config_files, just copy /etc/config_files.save
+    over /etc/config_files and save it in flash using saveconf.
+  If you do not update the config_files properly, all following executions of
+  saveconf will fail to save the recently added files to flash, which will
+  cause a loss of configuration.
+
+- The script set_timezone was removed from the image. Use the Web Interface to
+  configure the timezone.
+
+- The file /etc/daemon.d/webui.conf was changed:
+  . if you have modified the /etc/daemon.d/webui.conf file, include your 
+    changes in the /etc/daemon.d/webui.conf.save file and copy it to 
+    /etc/daemon.d/webui.conf. Then save in CF using the saveconf command.
+  . if you did never change that file just copy /etc/daemon.d/webui.conf.save
+    over /etc/daemon.d/webui.conf and save it in flash using saveconf.
+
+
+Upgrading from 2.0.0 Actions
+============================
+
+- the file /etc/config_files was changed:
+  . some files were included (/etc/online_help, /etc/onlineHelp/*, ...)
+  . if you have modified the /etc/config_files file, include your changes in
+    the /etc/config_files.save and copy it to /etc/config_files. Then save in 
+    CF using the saveconf command.
+  If you do not update the config_files properly, all following executions of
+  saveconf will fail to save the recently added files to flash, which will
+  cause a loss of configuration such as the online help link, or the help 
+  pages themselves, if you choose to save them locally in the KVM.
+
+
+Upgrading from 1.1.0(-X) Actions
+================================
+
+- the file /etc/config_files was changed
+  . some files were included (/etc/shadow, ...)
+  . some files were removed (/etc/TIMEZONE, ...)
+  . include your changes in the /etc/config_files.save and copy it to
+    /etc/config_files, and then save in CF.
+  If you do not update the config_files properly, all following executions of
+  saveconf will fail to save the recently added files to flash, which will
+  cause a loss of configuration such as passwords, or timezone, or both. 
+  In the particular case of the shadow file, if the config_files is not 
+  updated, all passwords, including admin, will revert to their default next 
+  time you run saveconf.
+
+- The daemon configuration files must be moved to /etc/daemon.d.  
+  References to all moved files will be changed to /etc/config_files 
+  and /etc/daemon_list by running the following command: 
+
+        upgrade200.sh
+
+- Certificates are generated during the first boot through two scripts 
+  called firstssl.sh and firstssh.sh. These scripts are activated by the parameter called ShellInit of the configuration files webui.conf and sshd.sh, located at /etc/daemon.d. Set the following items to generate the SSL and SSH certificates:
+
+  In /etc/daemon.d/webui.conf, alter the ShellInit parameter to:
+  ShellInit=/bin/firstkssl.sh
+
+  In /etc/config_files, add the following two lines:
+  /etc/CA/server.pem
+  /etc/CA/cert.pem
+
+  In /etc/daemon.d/sshd.sh, alter ShellInit parameter to:
+  ShellInit=/bin/firstkssh.sh
+
+  In /etc/config_files, add the following lines:
+  /etc/ssh/ssh_config
+  /etc/ssh/ssh_host_key
+  /etc/ssh/ssh_host_key.pub
+  /etc/ssh/ssh_host_dsa_key
+  /etc/ssh/ssh_host_dsa_key.pub
+  /etc/ssh/ssh_host_rsa_key
+  /etc/ssh/ssh_host_rsa_key.pub
+
+- The ppp configuration filename was changed from /etc/ppp/options.ttySx to
+  /etc/ppp/options.ttyMx. This is because the dedicated device files (ttyM1 and 
+  ttyM2) have been created for the PCMCIA ppp devices.
+
+  If PPP has already been configured, rename the existing file /etc/ppp/options.ttySx to /etc/ppp/options.ttyM1 and add the following line to the file /etc/config_files:
+
+        "/etc/ppp/options.ttyM1"
+
+- File /etc/getty_ttyS0 is no longer in the image. It is created dynamically at boot time, based on the console speed configured in flash. The intention is to guarantee that the Linux console will always work at the same speed as the low level console, which is configured using the bootconf utility.
+
+Therefore, in cases where the previous configuration should be kept (not re-started from scratch), follow the steps below:
+
+       1) remove "/etc/getty_ttyS0" line from /etc/config_files
+       2) run the saveconf command
+       3) reboot
+
+Upgrading from 1.0.X Actions
+============================
+
+- OpenSSH was upgraded from 3.7.1.p2 to 3.8.1p1. The new version does 
+  not accept the authentication method "gssapi", but accepts the new method
+  "gssapi-with-mic". If you use Kerberos TGT, make sure that your ssh
+  client accepts the authentication method "gssapi-with-mic".
+  If you use NIS to do the authentication, you need to configure the parameter UseLogin as YES in the /etc/ssh/sshd_config file.
+
+- The file /etc/snmpd.conf was renamed to /etc/snmpd.sh. If you have modified /etc/snmpd.conf, apply the same changes to /etc/snmpd.sh.
+
+- /etc/config_files contains a list of files that are saved to flash
+  when you run "saveconf". If you had run "saveconf" with release 2.2.0, /etc/config_files is loaded from flash and you will not have the latest list. 
+
+  Edit /etc/config_files and take the following actions:
+  1) rename the file /etc/snmpd.conf to /etc/snmpd.sh
+  2) rename the file /etc/ppp/options to /etc/ppp/options*
+  3) run saveconf
+
+- The pmusers group has removed. The following files were changed:
+  1) file /etc/rc.sysinit.If there is one saved in flash it must be 
+     replaced/merged with /etc/rc.sysinit.save.
+  2) file /etc/group. If the file was not changed just replace it with the file /etc/group.save.
+
+- This version does not have support to Sentry's IPDU nor RPC's IPDU. 
+  The files /etc/pm.sentry and /etc/pm.rpc22 were deleted.
+  The file /etc/pmd.sh was changed. If there is one saved in flash it
+  must be edited as follows: 
+
+  old line - ConfigFiles="/etc/pm.cyclades /etc/pm.rpc22 /etc/pm.sentry"
+      new line - ConfigFiles="/etc/pm.cyclades"
+
+- The file /etc/getty_ttyS0 is no longer in the image. It is created dynamically at
+  boot time based on the console speed configured in flash. The intention is to
+  guarantee that the Linux console will always work at the same speed as the low level
+  console, which is configured using the bootconf utility.
+
+  In cases where a previous configuration should be kept (not re-started from scratch), follow the steps below:
+
+        1) remove "/etc/getty_ttyS0" line from /etc/config_files
+        2) run saveconf command
+        3) reboot

@@ -1,0 +1,134 @@
+diff -urN krb5-1.4.3.ori/src/appl/gssftp/ftpd/ftpcmd.y krb5-1.4.3/src/appl/gssftp/ftpd/ftpcmd.y
+--- krb5-1.4.3.ori/src/appl/gssftp/ftpd/ftpcmd.y	2004-12-03 17:39:07.000000000 -0800
++++ krb5-1.4.3/src/appl/gssftp/ftpd/ftpcmd.y	2006-01-23 14:18:32.000000000 -0800
+@@ -968,10 +968,10 @@
+ #include <arpa/telnet.h>
+ 
+ /*
+- * getline - a hacked up version of fgets to ignore TELNET escape codes.
++ * ftpgetline - a hacked up version of fgets to ignore TELNET escape codes.
+  */
+ char *
+-getline(s, n, iop)
++ftpgetline(s, n, iop)
+ 	char *s;
+ 	int n;
+ 	register FILE *iop;
+@@ -1086,7 +1086,7 @@
+ 		*s = '\0';
+ 		return(s);
+ 	    }
+-	    if (debug) syslog(LOG_DEBUG, "getline got %d from %s <%s>\n", 
++	    if (debug) syslog(LOG_DEBUG, "ftpgetline got %d from %s <%s>\n", 
+ 			      len, cs, mic?"MIC":"ENC");
+ 	    clevel = mic ? PROT_S : PROT_P;
+ #ifdef KRB5_KRB4_COMPAT
+@@ -1213,13 +1213,13 @@
+ 		case CMD:
+ 			(void) signal(SIGALRM, toolong);
+ 			(void) alarm((unsigned) timeout);
+-			if (getline(cbuf, sizeof(cbuf)-1, stdin) == NULL) {
++			if (ftpgetline(cbuf, sizeof(cbuf)-1, stdin) == NULL) {
+ 				reply(221, "You could at least say goodbye.");
+ 				dologout(0);
+ 			}
+ 			(void) alarm(0);
+ 
+-			/* If getline() finds an error, the string is null */
++			/* If ftpgetline() finds an error, the string is null */
+ 			if (*cbuf == '\0')
+ 				continue;
+ 
+diff -urN krb5-1.4.3.ori/src/appl/gssftp/ftpd/ftpd.c krb5-1.4.3/src/appl/gssftp/ftpd/ftpd.c
+--- krb5-1.4.3.ori/src/appl/gssftp/ftpd/ftpd.c	2005-01-21 14:46:47.000000000 -0800
++++ krb5-1.4.3/src/appl/gssftp/ftpd/ftpd.c	2006-01-23 14:19:20.000000000 -0800
+@@ -176,7 +176,7 @@
+ extern	char *home;		/* pointer to home directory for glob */
+ extern	FILE *ftpd_popen(), *fopen(), *freopen();
+ extern	int  ftpd_pclose(), fclose();
+-extern	char *getline();
++extern	char *ftpgetline();
+ extern	char cbuf[];
+ extern	off_t restart_point;
+ 
+@@ -2139,7 +2139,7 @@
+ 	if (!transflag)
+ 		return;
+ 	cp = tmpline;
+-	if (getline(cp, sizeof(tmpline), stdin) == NULL) {
++	if (ftpgetline(cp, sizeof(tmpline), stdin) == NULL) {
+ 		reply(221, "You could at least say goodbye.");
+ 		dologout(0);
+ 	}
+diff -urN krb5-1.4.3.ori/src/appl/gssftp/ftpd/ftpd_var.h krb5-1.4.3/src/appl/gssftp/ftpd/ftpd_var.h
+--- krb5-1.4.3.ori/src/appl/gssftp/ftpd/ftpd_var.h	2001-10-09 20:18:22.000000000 -0700
++++ krb5-1.4.3/src/appl/gssftp/ftpd/ftpd_var.h	2006-01-23 14:19:01.000000000 -0800
+@@ -89,7 +89,7 @@
+ 
+ /* ftpcmd.y */
+ void upper(char *);
+-char *getline(char *, int, FILE *);
++char *ftpgetline(char *, int, FILE *);
+ #endif /* FTPD_VAR_H__ */
+ 
+ /* popen.c */
+diff -urN krb5-1.4.3.ori/src/appl/telnet/configure krb5-1.4.3/src/appl/telnet/configure
+--- krb5-1.4.3.ori/src/appl/telnet/configure	2005-11-16 14:48:06.000000000 -0800
++++ krb5-1.4.3/src/appl/telnet/configure	2006-01-23 15:00:59.000000000 -0800
+@@ -6728,7 +6728,7 @@
+   echo $ECHO_N "(cached) $ECHO_C" >&6
+ else
+   ac_check_lib_save_LIBS=$LIBS
+-LIBS="-ltermcap  $LIBS"
++LIBS="-ltermcap -lncurses  $LIBS"
+ cat >conftest.$ac_ext <<_ACEOF
+ #line $LINENO "configure"
+ #include "confdefs.h"
+@@ -6776,7 +6776,7 @@
+ #define TERMCAP 1
+ _ACEOF
+ 
+-LIBS="$LIBS -ltermcap"
++LIBS="$LIBS -ltermcap -lncurses"
+ else
+   echo "$as_me:$LINENO: checking for setupterm in -lcurses" >&5
+ echo $ECHO_N "checking for setupterm in -lcurses... $ECHO_C" >&6
+@@ -8250,7 +8250,7 @@
+   echo $ECHO_N "(cached) $ECHO_C" >&6
+ else
+   ac_check_lib_save_LIBS=$LIBS
+-LIBS="-ltermcap  $LIBS"
++LIBS="-ltermcap -lncurses  $LIBS"
+ cat >conftest.$ac_ext <<_ACEOF
+ #line $LINENO "configure"
+ #include "confdefs.h"
+@@ -8298,7 +8298,7 @@
+ #define TERMCAP 1
+ _ACEOF
+ 
+-LIBS="$LIBS -ltermcap"
++LIBS="$LIBS -ltermcap -lncurses"
+ else
+   echo "$as_me:$LINENO: checking for setupterm in -lcurses" >&5
+ echo $ECHO_N "checking for setupterm in -lcurses... $ECHO_C" >&6
+diff -urN krb5-1.4.3.ori/src/appl/telnet/configure.in krb5-1.4.3/src/appl/telnet/configure.in
+--- krb5-1.4.3.ori/src/appl/telnet/configure.in	2004-09-22 15:59:46.000000000 -0700
++++ krb5-1.4.3/src/appl/telnet/configure.in	2006-01-23 15:33:06.694982304 -0800
+@@ -51,7 +51,7 @@
+ ])
+ dnl
+ AC_CHECK_LIB(termcap,main,AC_DEFINE(TERMCAP)
+-LIBS="$LIBS -ltermcap",
++LIBS="$LIBS -ltermcap -lncurses",
+   AC_CHECK_LIB(curses,setupterm,LIBS="$LIBS -lcurses",
+   AC_CHECK_LIB(ncurses,setupterm,LIBS="$LIBS -lncurses")
+ ))
+@@ -97,7 +97,7 @@
+ dnl
+ dnl AC_PROG_INSTALL
+ AC_CHECK_LIB(termcap,main,AC_DEFINE(TERMCAP)
+-LIBS="$LIBS -ltermcap",
++LIBS="$LIBS -ltermcap -lncurses",
+   AC_CHECK_LIB(curses,setupterm,LIBS="$LIBS -lcurses",
+   AC_CHECK_LIB(ncurses,setupterm,LIBS="$LIBS -lncurses")
+ ))

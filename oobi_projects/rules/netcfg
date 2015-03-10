@@ -1,0 +1,51 @@
+#
+#  Makefile for cyclades projects.
+#
+
+#
+# Addtional compiler and/or link options may be defined here
+#
+#CFLAGS += 
+#LDFLAGS += -ldl
+GOALS:=lib script
+
+ifeq ($(IPv6enable),yes)
+EXTRA_CFLAGS:=-DIPv6enable
+else
+EXTRA_CFLAGS:=
+endif
+
+#
+# Command line parameters for configure must be defined here
+#
+#CONFIGURE_PARMS:= ...
+
+#CONFIGURE_ENV := ...
+
+MAKE_ENV:=\
+	PATH=$(CROSS_PATH) \
+	LDFLAGS="$(LDFLAGS)"
+
+MAKE_PARMS:=\
+	PREFIX=$(my_prefix) \
+	MVL_TARGET_DIR=$(CROSS_TARGET) \
+	CROSS_COMPILE=$(CROSS_COMPILE) \
+	TARG=$(TARGET_PRODUCT) \
+	DEFTARG=$(DEFTARG) \
+	$(CROSS_ENV_TOOLS) \
+	GOALS="$(GOALS)" \
+	EXTRA_CFLAGS="$(EXTRA_CFLAGS)"
+
+#
+#  more ac_variables for configure may be defined here
+#
+#CROSS_ENV_AC += ...
+
+############################################################################
+
+$(CFG_COOKIE):
+	date > $@
+
+$(BLD_COOKIE): $(CFG_COOKIE)
+	$(MAKE_ENV) \
+	$(MAKE) $(MAKE_PARMS) all install

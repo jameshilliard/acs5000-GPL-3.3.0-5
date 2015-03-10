@@ -1,0 +1,140 @@
+#!/bin/sh
+# ACS Menu Shell for Terminal Server Application
+
+SYS_CFG_FILE=/etc/config_files
+MENUSH_CFG_FILE=/etc/menush.cfg
+MENUSH_CFG_SCR=/bin/menush_cfg
+MENUSH_SCR=/bin/menush
+PSLAVE_FILE=/etc/portslave/pslave.conf
+
+do_exit ()
+{
+    echo "*** ERROR: script interrupted."
+    sleep 1
+    exit 2
+}
+
+# Trap signals so that this application is not interrupted
+trap do_exit SIGTERM SIGINT SIGQUIT SIGHUP
+
+. $MENUSH_CFG_FILE
+
+echo -e "\n"
+echo "              ----------------------------------------------------"
+echo "                        MenuShell Configuration Utility"
+echo "              ----------------------------------------------------"
+echo -e "\n"
+
+while true
+do
+	echo "Please choose from one of the following options:"
+	echo ""
+	echo "1. Define Menu Title"
+	echo "2. Add Menu Option"
+	echo "3. Delete Menu Option"
+	echo "4. List Current Menu Settings"
+	echo "5. Save Configuration to Flash"
+	echo -e "6. Quit\n\n"
+	echo -e "Option ==> \c"
+	read OPTION
+
+	case $OPTION in
+
+		1)	# Define Menu Title
+			echo -e "\n\nCurrent Menu Title: \"$MENU_TITLE\""
+			echo -e "\nEnter the menu title: \c"
+			read MENU_TITLE_NEW
+			MENUSH_CFG_VAR=`cat $MENUSH_CFG_FILE`
+			MENUSH_CFG_VAR=`echo "$MENUSH_CFG_VAR" | sed -e "s/^MENU_TITLE=\"$MENU_TITLE/MENU_TITLE=\"$MENU_TITLE_NEW/g"`
+			echo "$MENUSH_CFG_VAR" > $MENUSH_CFG_FILE
+			. $MENUSH_CFG_FILE
+			;;
+
+		2)	# Add Menu Option
+			echo -e "\n\nEnter the name for the new menu option: \c"
+			read MENU_NAME
+			echo -e "Enter the command for the new menu option: \c"
+			read MENU_CMD
+			MENU_NBR_NEW=`expr $MENU_NBR + 1`
+			MENUSH_CFG_VAR=`cat $MENUSH_CFG_FILE`
+			MENUSH_CFG_VAR=`echo "$MENUSH_CFG_VAR" | sed -e "s/^MENU_NBR=$MENU_NBR/MENU_NBR=$MENU_NBR_NEW/g"`
+			echo "$MENUSH_CFG_VAR" > $MENUSH_CFG_FILE
+			echo "MENU_OPT$MENU_NBR_NEW=\"$MENU_NAME%$MENU_CMD\"" >> $MENUSH_CFG_FILE
+			. $MENUSH_CFG_FILE
+			;;
+
+		3)	# Delete Menu Option
+			COUNT=1
+			echo "Current Menu Options:"
+			while [ "$COUNT" -le "$MENU_NBR" ]
+			do
+				eval MENU_OPTION=\$MENU_OPT$COUNT
+				MENU_NAME=`echo "$MENU_OPTION" | cut -d'%' -f1`
+				MENU_CMD=`echo "$MENU_OPTION" | cut -d'%' -f2`
+				echo "  $COUNT: $MENU_NAME  --> $MENU_CMD"
+				COUNT=`expr $COUNT + 1`
+			done
+			echo -e "\nSelect the Menu Option to delete: \c"
+			read DEL_OPTION
+			if [ "$DEL_OPTION" -gt "$MENU_NBR" ]; then
+				echo -e "*** Invalid option ($DEL_OPTION)!!\n"
+				break
+			fi
+			MENU_NBR_NEW=`expr $MENU_NBR - 1`
+			MENUSH_CFG_VAR=`cat $MENUSH_CFG_FILE`
+			MENUSH_CFG_VAR=`echo "$MENUSH_CFG_VAR" | sed -e "s/^MENU_NBR=$MENU_NBR/MENU_NBR=$MENU_NBR_NEW/g"`
+			DEL=`expr $DEL_OPTION + 2`
+			MENUSH_CFG_VAR=`echo "$MENUSH_CFG_VAR" | sed -e "${DEL}d"`
+			DEL2=`expr $DEL_OPTION + 1`
+			while [ "$DEL2" -le "$MENU_NBR" ]
+			do
+			MENUSH_CFG_VAR=`echo "$MENUSH_CFG_VAR" | sed -e "s/^MENU_OPT$DEL2/MENU_OPT$DEL_OPTION/g"`
+			DEL_OPTION=`expr $DEL_OPTION + 1`
+			DEL2=`expr $DEL_OPTION + 1`
+			done
+			echo "$MENUSH_CFG_VAR" > $MENUSH_CFG_FILE
+			. $MENUSH_CFG_FILE
+			;;
+
+		4)	# List Current Menu Options
+			COUNT=1
+			echo ""
+			echo "Menu Title: \"$MENU_TITLE\""
+			echo "Menu Options:"
+			while [ "$COUNT" -le "$MENU_NBR" ]
+			do
+				eval MENU_OPTION=\$MENU_OPT$COUNT
+				MENU_NAME=`echo "$MENU_OPTION" | cut -d'%' -f1`
+				MENU_CMD=`echo "$MENU_OPTION" | cut -d'%' -f2`
+				echo "  $COUNT: $MENU_NAME  --> $MENU_CMD"
+				COUNT=`expr $COUNT + 1`
+			done
+			echo ""
+			;;
+
+		5)	# Save Configuration to Flash
+			if [ "`grep $MENUSH_CFG_FILE $SYS_CFG_FILE`" = "" ]; then
+				echo "$MENUSH_CFG_FILE" >> $SYS_CFG_FILE
+				echo "$MENUSH_CFG_SCR" >> $SYS_CFG_FILE
+				echo "$MENUSH_SCR" >> $SYS_CFG_FILE
+			fi
+			if [ "`grep $MENUSH_SCR $PSLAVE_FILE`" = "" ]; then
+				PSLAVE_VAR=`cat $PSLAVE_FILE`
+				PSLAVE_VAR=`echo "$PSLAVE_VAR" | sed -e "/conf\.telnet/s/\/usr\/bin\/telnet/\/bin\/menush/g"`
+				echo "$PSLAVE_VAR" > $PSLAVE_FILE
+			fi
+			saveconf
+			;;
+
+		6)	# Quit
+			echo -e "\nExiting ... \n\n"
+			exit
+			;;
+
+		*)
+			;;
+	esac
+
+done
+exit
+

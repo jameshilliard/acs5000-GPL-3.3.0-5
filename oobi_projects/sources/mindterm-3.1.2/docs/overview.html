@@ -1,0 +1,36 @@
+<html>
+<body bgcolor="white">
+
+Packages to build a complete secure shell (version 1 and 2) client. The cleanest
+packages are com.mindbright.security.* and com.mindbright.ssh2.*. Most other
+packages are somewhat clean and structured. Beware of the package
+com.mindbright.ssh though since it contains lots of deprecated code which is
+only needed to build the complete MindTerm client which is in places overly
+complex and somewhat unstructured. We strongly advice against building ssh1
+enabled clients if it at all can be avoided.
+<p>
+People looking for the ssh2 implementation need only look in the
+com.mindbright.ssh2 package. The only external packages needed are
+com.mindbright.jce.crypto.*, com.mindbright.jca.security.*,
+com.mindbright.security.*, and com.mindbright.util. To be able to utilize the
+terminal the com.mindbright.terminal package have to be added aswell. Finally
+the packages com.mindbright.net.* and com.mindbright.sshcommon contains useful
+stuff (like proxy connection classes and scp1 file transfer protocol).
+<p>
+It is possible to build the whole code using another crypto provider and/or
+javax.crypto.* package (given that all needed algorithms are available). Please
+note though that since some Java environments doesn't contain a full set of
+java.security.* and javax.crypto.* packages we have implemented everything that
+is needed by our implementation and put it into the packages
+com.mindbright.jca.security.*. and com.mindbright.jce.crypto.*. This is
+convenient since it makes the code independent from the java.security.* and
+javax.crypoto.* packages available. However, since java has no good way of doing
+conditional compilation (like #ifdef in C) changing to another crypto provider
+and/or changing to the real java.security.* packages means you will have to
+replace the com.mindbright.jca.security.* with java.security.* and
+com.mindbright.jce.crypto.* with javax.crypto.* everywhere in the code.
+
+<!-- Put @see and @since tags down here. -->
+
+</body>
+</html>

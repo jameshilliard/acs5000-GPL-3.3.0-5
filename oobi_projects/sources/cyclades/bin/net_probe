@@ -1,0 +1,235 @@
+#!/bin/bash 
+
+# Global Variables 
+CFG_FILE="/etc/internal_net"
+RUN_FILE="/tmp/internal_net.running"
+LOCK_FILE="/var/lock/probe.lock"
+PORT1="K5"
+PORT2="K6"
+FST_BDNAM="ipboard_one"
+SND_BDNAM="ipboard_two"
+GHOST="255"				# to eth0:GHOST --> eth0:255 to avoid conflict with ONS
+MYIP=""
+FST_BOARD=""
+SND_BOARD=""
+MYNET=""
+BCAST=""
+PROBE=""
+VCARD_TYPE="/etc/vcard_type"
+MAC_FILE="/tmp/vcard_mac"
+
+AWK=/bin/awk
+PROC_INFO_FILE=/proc/bdinfo
+PROC_INFO_DELIMITER="!"
+
+# Make sure both KVM/IP cards are installed; this information is
+# found in position 15 & 16 of /proc/bdinfo
+KVMIP_1_ACTIVE=`$AWK -F $PROC_INFO_DELIMITER '{ print $15 }' $PROC_INFO_FILE`
+KVMIP_2_ACTIVE=`$AWK -F $PROC_INFO_DELIMITER '{ print $16 }' $PROC_INFO_FILE`
+if [ "$KVMIP_1_ACTIVE" = "1" -o "$KVMIP_2_ACTIVE" = "1" ]; then
+	echo "Found KVM/IP module(s)"
+else
+	exit 0
+fi
+
+
+# Function to change Network/IP addresses of the KVMNet devices 
+function change_network_settings () { 
+	if [ -f "$RUN_FILE" ]; then
+		rm -f $RUN_FILE
+	fi
+        echo "Reconfiguring internal IP addresses to fit in $1 network." 
+	# Configuring board 1
+	# comment the "> /dev/null 2>&1" to get a verbose output
+	rm -f $MAC_FILE.*
+	/bin/tnet.exp $2 $1 $FST_BDNAM $DOMAINNAME $4 $PORT1 $MAC_FILE.1 > /dev/null 2>&1 & 
+	# Configuring board 2 
+	/bin/tnet.exp $3 $1 $SND_BDNAM $DOMAINNAME $4 $PORT2 $MAC_FILE.2 > /dev/null 2>&1 &
+	echo "Done..."
+} 
+
+function jump_to_next_net () {
+
+	TESTNET="10"
+	SUBNET=0
+	MATCH="no"
+
+	cat $RUN_FILE | while read configline				# read each line of /tmp/internal_net.running
+	do
+	       [ "x${configline:0:1}" = "x#" ] && continue         	# if line begin with #, ignore it
+	       MYIP=`echo $configline | cut -d: -f1`			# first column - eth0:255 ip address
+	       FST_BOARD=`echo $configline | cut -d: -f2`		# second column - ipboard 1 ip address
+	       SND_BOARD=`echo $configline | cut -d: -f3`		# third column - ipboard 2 ip address
+	done
+
+	MYTESTNET=`echo $MYIP | cut -d. -f1`
+	if [ "z${MYTESTNET}z" = "z${TESTNET}z" ]; then	
+		MYNET=`echo $MYIP | cut -d. -f1-2`	
+		while [ "$SUBNET" -le 255 ] && [ "$MATCH" = "no" ] 
+		do
+		        if [ "z${MYNET}z" = "z${TESTNET}.${SUBNET}z" ]; then
+		            #exit 1;
+			    MATCH="yes"
+			    continue
+		        fi
+		        SUBNET=$(($SUBNET+1))
+		done
+	        SUBNET=$(($SUBNET+1))
+	else
+        	SUBNET=0
+	fi
+
+	MYIP_TMP=`echo $MYIP | cut -d. -f3-4`
+	FST_TMP=`echo $FST_BOARD | cut -d. -f3-4`
+	SND_TMP=`echo $SND_BOARD | cut -d. -f3-4`
+	MYIP=`echo ${TESTNET}.${SUBNET}.${MYIP_TMP}`
+	FST_BOARD=`echo ${TESTNET}.${SUBNET}.${FST_TMP}`
+	SND_BOARD=`echo ${TESTNET}.${SUBNET}.${SND_TMP}`
+	NETMASK=`echo $configline | cut -d: -f4`			# fourth column - netmask for internal network
+
+	change_network_settings $MYIP $FST_BOARD $SND_BOARD $NETMASK 
+	echo "$MYIP:$FST_BOARD:$SND_BOARD:$NETMASK" > $RUN_FILE		# saving running config to volatile memory (RAMDISK)
+	ifconfig eth0:$GHOST $MYIP netmask $NETMASK
+}
+
+function lock() {
+	touch $LOCK_FILE
+}
+
+function unlock() {
+	rm -f $LOCK_FILE
+}
+
+
+#
+# Script starts here
+#
+
+
+if [ -f "$LOCK_FILE" ]; then
+	exit 1;
+fi
+
+lock
+
+/bin/vcard_probe -i >/dev/null 2>&1
+if [ -f "$VCARD_TYPE" ]; then
+	T1=`$AWK -F : '{ print $1 }' $VCARD_TYPE`
+	T2=`$AWK -F : '{ print $2 }' $VCARD_TYPE`
+	if [ -z "$T1" -a -z "$T2" ]; then
+		echo "Invalid IP Cards type. IP connections will not be available."
+		exit 1;
+	fi
+	if [ -n "$T1" -a -n "$T2" -a "$T1" != "$T2" ]; then
+		echo "IP Cards type does not match. IP connections will not be available."
+		exit 1;
+	fi
+	if [ -z "$T1" ]; then
+		T1="$T2"
+	fi
+	ln -sf /bin/close_viewer.exp.$T1 /tmp/close_viewer.exp
+	ln -sf /bin/tnet.exp.$T1 /tmp/tnet.exp
+else
+	echo "IP Card probe failed. IP connections will not be available."
+	exit 1;
+fi
+
+#
+# read (or set a fake) domain name
+#
+DOMAINNAME=`domainname`						# I need the domain name
+								# if I got (none), put a generic domainname
+if [ "$DOMAINNAME" = '(none)' ]; then 
+	DOMAINNAME="kvmnet.cyclades.com"
+fi
+
+
+#
+# Kernel has detected a IP conflict. 
+# We have to check if the conflict is realted to IP Boards.
+# If true, lets reconfigure the ipboards. If false, only exit
+# The Syslog message came as $2 (second) parameter, when IP is the 10nd item of string
+#
+if [ -f "$RUN_FILE" ] && [ "$1" = "--conflict" ]; then 
+	cat $RUN_FILE | while read configline			# read each line of /tmp/internal_net.running
+	do
+	    [ "x${configline:0:1}" = "x#" ] && continue         # if line begin with #, ignore it
+    	    MYIP=`echo $configline | cut -d: -f1`		# first column - eth0:255 ip address
+    	    FST_BOARD=`echo $configline | cut -d: -f2`		# second column - ipboard 1 ip address
+    	    SND_BOARD=`echo $configline | cut -d: -f3`		# third column - ipboard 2 ip address
+    	    CNF_IP=`echo $2 | cut -d ' ' -f10`			# conflict ip address
+	
+	    if [ "$MYIP" != "$CNF_IP" -a "$FST_BOARD" != "$CNF_IP" -a "$SND_BOARD" != "$CNF_IP" ]; then
+		exit 1;
+	    else
+		jump_to_next_net
+		/usr/bin/forward.sh
+		exit 1;
+	    fi
+	done
+#
+# Testing the actual (running) configuration
+# First check if exists a running configuration
+# then test if its valid yet
+# the --force parameter at command line will skip this test
+#
+elif [ -f "$RUN_FILE" ] && [ "$1" != "--force" ]; then 
+	cat $RUN_FILE | while read configline			# read each line of /tmp/internal_net.running
+	do
+	    [ "x${configline:0:1}" = "x#" ] && continue         # if line begin with #, ignore it
+    	    MYIP=`echo $configline | cut -d: -f1`		# first column - eth0:255 ip address
+    	    FST_BOARD=`echo $configline | cut -d: -f2`		# second column - ipboard 1 ip address
+    	    SND_BOARD=`echo $configline | cut -d: -f3`		# third column - ipboard 2 ip address
+	    MYNET=`echo $configline | cut -d. -f1-3`		# I will ping the network (broadcast) get the 3 first octets
+	    							# from my ipaddress: xxx.xxx.xxx and add a .0 at the end
+	    BCAST=`ifconfig | grep $MYIP | awk '/Bcast/ { print $3 }' | sed -e s/Bcast://`
+    	    PROBE=`ping -c 2 -s 1 "${BCAST}" | grep $MYNET | grep -v ${MYIP}: | grep -v $FST_BOARD: | grep -v $SND_BOARD:`
+	    if [ "z${PROBE}z" = "zz" ]; then
+		    						# if nobody on network answer the pings (except KVM and IP boards)
+							        # we got a good network address to setup
+	   	change_network_settings $MYIP $FST_BOARD $SND_BOARD $NETMASK 
+   		echo "$MYIP:$FST_BOARD:$SND_BOARD:$NETMASK" > $RUN_FILE		# saving running config to RAM
+		/usr/bin/forward.sh
+		exit 1;
+	    fi 
+	done 
+elif [ ! -f "$RUN_FILE" ]; then
+# the exit 1 above doesnt exit from script... this exit below exit from script
+# we could set a network, and fine to exit
+#if [ $? -ne 0 ]; then
+#	unlock
+#	exit 0
+#fi
+	
+	# Test whether the network is being used 
+	#
+	# No previous or no valid configuration found
+	# Lets try the networks set at CFG_FILE
+	# we are looking for a network that dont answer our pings
+	#
+	cat $CFG_FILE | while read configline				# read each line of /etc/internal_net
+	do
+	    [ "x${configline:0:1}" = "x#" ] && continue         	# if line begin with #, ignore it
+	    MYIP=`echo $configline | cut -d: -f1`			# first column - eth0:255 ip address
+	    FST_BOARD=`echo $configline | cut -d: -f2`			# second column - ipboard 1 ip address
+	    SND_BOARD=`echo $configline | cut -d: -f3`			# third column - ipboard 2 ip address
+	    NETMASK=`echo $configline | cut -d: -f4`			# fourth column - netmask for internal network
+	    MYNET=`echo $configline | cut -d. -f1-3`		
+							
+	    #
+	    #
+  
+	   change_network_settings $MYIP $FST_BOARD $SND_BOARD $NETMASK 
+	   echo "$MYIP:$FST_BOARD:$SND_BOARD:$NETMASK" > $RUN_FILE		# saving running config to volatile memory (RAMDISK)
+	   ifconfig eth0:$GHOST $MYIP netmask $NETMASK
+	   exit 1;
+	done 
+
+	# Start forward.sh to set up the NAT/routing and
+	# Download IP Viewer not done to speed up the boot process.
+	# Just copy the cabn file from the image.
+	cp /etc/vpclient*.cab /new_web/normal/applications/appl/tmp/ 
+
+fi
+unlock
+exit 1

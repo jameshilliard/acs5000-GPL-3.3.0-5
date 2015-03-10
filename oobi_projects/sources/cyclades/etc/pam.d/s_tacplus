@@ -1,0 +1,26 @@
+
+# ---------------------------------------------------------------------------#
+# /etc/pam.conf                                                              #
+#                                                                            #
+# Last modified by Andrew G. Morgan <morgan@kernel.org>                      #
+# ---------------------------------------------------------------------------#
+# $Id: s_tacplus,v 1.1 2008/09/04 21:18:08 edson Exp $
+# ---------------------------------------------------------------------------#
+# serv.	module	   ctrl	      module [path]	...[args..]                  #
+# name	type	   flag                                                      #
+# ---------------------------------------------------------------------------#
+
+# WARNING. The services tacacs, s_tacacs, radius, s_radius, local, s_local,
+#          and remote are used by the applications portslave,
+#          socket_server, socket_ssh, and raw_data and should not be changed
+#          by the administrators unless he knows what he is doing.
+
+#
+# The PAM configuration file for the `tacplus' service
+#
+
+#auth     requisite  pam_securetty.so
+auth     requisite   pam_tacplus.so use_first_pass
+auth     optional   pam_auth_srv.so
+account  required   pam_tacplus.so 
+session  required   pam_tacplus.so 

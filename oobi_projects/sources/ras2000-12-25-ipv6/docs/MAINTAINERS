@@ -1,0 +1,19 @@
+
+* All versions up to and including 1.16:
+
+  Miquel van Smoorenburg <miquels@cistron.nl>
+
+  1.16 is the last version from me. Here in the Netherlands, people are
+  moving away from the traditional terminal server+modems solution.
+  From Januari 1st, 1998 we will only use ISDN PRI solutions.
+  Whoever wants to take over portslave is free to do so, but you might
+  want to contact me first to see if noone else is working on it yet
+  so that I can try to coordinate it a bit.
+
+* 1.17
+ 
+  Dave Cinege <dcinege@psychosis.com>
+ 
+* 1.2.0+  
+
+  Dave Cinege <dcinege@psychosis.com>

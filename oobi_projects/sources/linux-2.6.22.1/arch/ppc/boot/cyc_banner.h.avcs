@@ -1,0 +1,2 @@
+#include "products.cyc"
+static char CYCLADES_WHAT[] = "@(#)V_1.0.0 (Apr/27/2007)";

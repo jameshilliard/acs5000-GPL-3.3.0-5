@@ -1,0 +1,67 @@
+		   How to use MindTerm as an applet
+
+This document explores some issues which applies when one tries to run
+MindTerm as an applet.
+
+
+  The applet should be signed
+  ===========================
+The security model of Java requires applets to be signed if they are
+going to perform certain operations. Operations which require signing
+include accessing the local file-system, opening local tcp-ports for
+listening and connecting to other machines than the one the applet was
+downloaded from.
+
+If you bought a commercial copy of MindTerm you should have received a
+signed version of the applet. But if you are using the free version, or
+have done modifications, you must sign it yourself. Fortunately there
+are lots of tutorials on the web on how to do this. For example see
+the list of tutorials at http://mindprod.com/jgloss/signedapplets.html
+
+MindTerm does not yet use any of the never (1.2 or later) security
+models.
+
+
+  Files needed on the server
+  ==========================
+The Sub Java Plugin expects to find a mindter.jar-file specified in
+the ARCHIVE attribute. So in the vast majority of cases this is all
+that is needed.
+
+The MS Java Plugin does not user jar-file but instead expects to find a
+cabinets paremeter which points to mindterm.cab. The commercial
+distribution includes a signed mindterm.cab. It is also pretty easy to
+just unpack the jarfile and repack it as a cab-file with jar and
+cabarc. But this might not even be needed since the MS Java Plugin is
+obsolete and not distributed anymore. So it shoudl only be encountered
+on old machine.
+
+
+  Webpage
+  =======
+To actually use MindTerm one needs to place it on a webpage. One this
+page you place code which actually launches the applet. This code may
+look like this:
+
+  <APPLET CODE="com.mindbright.application.MindTerm.class"
+          ARCHIVE="mindterm.jar" WIDTH=0 HEIGHT=0>
+    <PARAM NAME="cabinets" VALUE="mindterm.cab">
+    <PARAM NAME="sepframe" value="true">
+    <PARAM NAME="debug" value="true">
+  </APPLET>
+
+The first three lines of this are used to specify the applet
+files. The Sun Java Plugin will use the ARCHIVE version and the MS
+Java (which is obsolete) will use the specified cabinet file. After
+that one can add an arbitrary number of parameters to MindTerm. This
+example sets 'sepframe' to true (to launch the applet in a separate
+frame) and enables debugging. For a complete list of parameters see
+Settings.txt.
+
+
+  Connectivity
+  ============
+The applet will always run in the users browser. This means that
+all network connections will originate from the users client
+machine. So a site wishing to provide SSH access via MindTerm must
+both make the applet available via http and open up the ssh port.

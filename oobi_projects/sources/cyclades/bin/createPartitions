@@ -1,0 +1,173 @@
+#!/bin/sh 
+
+. /etc/create_cf.parms
+
+TMP_DIR=/tmp
+TMP2_MOUNTDIR=$TMP_DIR/tmp2
+TMP3_DIR=$TMP_DIR/tmp3
+HDPART=$TMP_DIR/hdPart
+
+do_exit ()
+{
+  cd $TMP_DIR
+  rm -rf $TMP3_DIR >/dev/null 2>&1
+  if [ -z "$2" ]; then
+    EXIT_CODE=1
+  else
+    EXIT_CODE=$2
+  fi
+  exit $EXIT_CODE
+}
+
+
+do_exec ()
+{
+  eval $1 >/dev/null 2>&1
+  if [ $? -ne 0 ] ; then
+    echo
+    echo "[ERROR] in command '$1'."
+    echo
+    do_exit 1 1
+  fi
+}
+
+do_tar ()
+{
+  echo -n " Packing ${2}"
+  rm -f /tmp/${2}.*
+  do_exec "tar -pcf /tmp/${2}.tar $3"
+  do_exec "gzip /tmp/${2}.tar"
+  do_exec "cp -a /tmp/${2}.tar.gz ${1}/${2}.gz"
+  rm -f /tmp/${2}.*
+  echo " done."
+}
+
+device="/dev/hda"
+
+# Define the partitions to which the files will be copied
+if [ -n "`grep root=${device}5 /proc/cmdline`" ]; then
+	kerpart=2
+	binpart=6
+	cfgpart=8
+elif [ -n "`grep root=${device}6 /proc/cmdline`" ]; then
+	kerpart=1
+	binpart=5
+	cfgpart=7
+else
+	echo "[ERROR] Unknown root file system."
+	do_exit 1 1
+fi
+
+# Trap signals so that this application is not interrupted
+trap do_exit SIGTERM SIGINT SIGQUIT SIGHUP
+
+if [ -d $HDPART ] ; then
+  umount $HDPART > /dev/null 2>&1
+  rm -rf $HDPART >/dev/null 2>&1
+fi
+mkdir -p $HDPART
+# Copying the kernel 
+echo "Initializing ${device}$kerpart as a DOS partition."
+do_exec "mkdosfs ${device}$kerpart"
+echo " Copying Linux kernel to ${device}$kerpart"
+do_exec "mount -t vfat ${device}$kerpart $HDPART"
+do_exec "cp $TMP2_MOUNTDIR/kernel_image/* $HDPART"
+umount $HDPART > /dev/null 2>&1
+echo "Initialization of ${device}$kerpart done."
+
+# Copying the root filesystem (read only)
+echo "Initializing ${device}$binpart as an EXT2 partition."
+do_exec "mke2fs ${device}$binpart"
+echo " Copying RO file system to ${device}$binpart"
+do_exec "mount -t ext2 ${device}$binpart $HDPART"
+
+do_exec "cd $TMP2_MOUNTDIR"
+do_tar $HDPART dev dev
+do_tar $HDPART var var
+
+echo "  Creating directories..."
+for file in $dirs_created
+do
+	echo -n "  Creating $file..."
+	do_exec "mkdir -p $HDPART/$file"
+	echo " done."
+done
+
+do_exec "cp -a $TMP2_MOUNTDIR/dev/console $HDPART/dev"
+do_exec "cp -a $TMP2_MOUNTDIR/dev/ttyS0 $HDPART/dev"
+
+echo "  Copying directories/files..."
+do_exec "cd $TMP2_MOUNTDIR"
+for file in *
+do
+  skip_file=0
+  for f in ${dirs_created} ${files_skipped}
+  do
+    if [ $f = $file ] ; then
+      skip_file=1
+    fi
+  done
+  if [ $skip_file -eq 0 ] ; then
+    echo -n "  Copying $file..."
+	do_exec "cp -a $file $HDPART"
+    echo " done."
+  fi
+done
+
+umount $HDPART > /dev/null 2>&1
+echo "Initialization of ${device}$binpart done."
+
+# Copying the configuration (read write)
+
+echo "Initializing ${device}$cfgpart as an EXT2 partition."
+do_exec "mke2fs ${device}$cfgpart"
+do_exec "mount -t ext2 ${device}$cfgpart $HDPART"
+do_exec "cd $TMP2_MOUNTDIR"
+
+for file in etc home root
+do
+  echo -n "  Copying new $file..."
+  do_exec "cp -a $file $HDPART"
+  echo " done."
+done
+
+CONFIG_FILE_list=""
+for file in `cat /etc/config_files` ; do
+  [ "x${file:0:1}" = "x#" ] && continue
+    if [ -L $file -o -f $file -o -d $file ]; then
+      CONFIG_FILE_list="$CONFIG_FILE_list .$file"
+      echo "   Preparing to copy over old $file..."
+    fi
+done
+
+if [ -z "$CONFIG_FILE_list" ]; then
+	CONFIG_FILE_list="*"
+fi
+
+do_exec "cd /mnt/hdCnf" 
+do_exec "tar -cvf $TMP_DIR/current_config.tar $CONFIG_FILE_list"
+echo -n "  Copying over old config files..."
+do_exec "tar -xvf $TMP_DIR/current_config.tar -C $HDPART"
+do_exec "rm -f $TMP_DIR/current_config.tar"
+echo " done."
+
+do_exec "cd $TMP2_MOUNTDIR"
+
+#Compressing default configuration
+do_exec "mkdir -p $HDPART/backup"
+do_exec "tar -pcf $HDPART/backup/factory_default_files  etc home root"
+do_exec "gzip $HDPART/backup/factory_default_files"
+
+umount $HDPART > /dev/null 2>&1
+rm -rf $HDPART
+echo "Initialization of ${device}$cfgpart finished."
+
+echo "Setting up boot configuration."
+do_exec "cmd_uboot -p currentimage -n $kerpart"
+echo
+echo "Image upgrading finished."
+echo "You should reboot the appliance to make the upgrade effective."
+echo "The current version is still in the flash. In order to run it, use the"
+echo "bootconf utility."
+
+do_exit 0 0

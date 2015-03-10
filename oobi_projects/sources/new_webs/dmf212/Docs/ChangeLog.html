@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.2.8: http://docutils.sourceforge.net/" />
+<title>DMF Change Log / Release Notes</title>
+<link rel="stylesheet" href="default.css" type="text/css" />
+</head>
+<body>
+<div class="document" id="dmf-change-log-release-notes">
+<h1 class="title">DMF Change Log / Release Notes</h1>
+<!-- (c) 2002 Art & Logic Inc, All Rights Reserved. -->
+<!-- $Id: ChangeLog.html,v 1.1.1.1 2005/09/01 02:36:38 edson Exp $ -->
+<p>This document is a cumulative log of all significant changes made to the Art &amp;
+Logic Device Management Framework, maintained in reverse chronological order.</p>
+<div class="section" id="release-2-1-2">
+<h1><a name="release-2-1-2">Release 2.1.2</a></h1>
+<p>Changes since release 2.1.1:</p>
+<p>1) WebServer source updated to correct the following potential security
+exploits:</p>
+<div class="section" id="windows-95-98-me-aux-denial-of-service">
+<h2><a name="windows-95-98-me-aux-denial-of-service">Windows 95/98/ME <tt class="literal"><span class="pre">AUX</span></tt> Denial of Service</a></h2>
+<dl>
+<dt>Description:</dt>
+<dd><p class="first">When running on Windows 95/98/ME, URLs requested with path components
+matching a set of reserved DOS device names caused the WebServer to crash.</p>
+<p>The names that cause the crash are:</p>
+<pre class="last literal-block">
+aux
+con
+nul
+clock$
+config$
+</pre>
+</dd>
+<dt>Fix:</dt>
+<dd><p class="first">Code added to the <tt class="literal"><span class="pre">websValidateUrl()</span></tt> function to check the contents of
+the parsed URL against the list of prohibited names. If any of those names
+are present in the parsed URL, the URL is rejected as invalid.</p>
+<p>The code that checks for these prohibited pathname components checks for
+them in the form of either:</p>
+<pre class="literal-block">
+http://&lt;&lt;server address&gt;&gt;/aux
+</pre>
+<p>or:</p>
+<pre class="literal-block">
+http://&lt;&lt;server address&gt;&gt;/aux:
+</pre>
+<p class="last">where any non-alphanumeric character following one of the prohibited names
+will cause the URL request to be rejected.</p>
+</dd>
+</dl>
+</div>
+<div class="section" id="cross-site-scripting-exploit">
+<h2><a name="cross-site-scripting-exploit">404 Cross-site Scripting Exploit</a></h2>
+<dl>
+<dt>Description:</dt>
+<dd>Malicious users could request an invalid URL containing embedded JavaScript
+code that would be executed in the user's browser.</dd>
+<dt>Fix:</dt>
+<dd>404 (and other error messages) returned by the WebServer no longer display
+the invalid URL.</dd>
+</dl>
+</div>
+<div class="section" id="long-url-overflow-crash">
+<h2><a name="long-url-overflow-crash">Long URL Overflow Crash</a></h2>
+<dl>
+<dt>Description:</dt>
+<dd>URLs containing more than 64 levels of path components caused the WebServer
+to crash, entering a buffer overflow condition.</dd>
+<dt>Fix:</dt>
+<dd>The WebServer now keeps track of the depth as it validates the URL. URLs
+that are too long are now rejected with an error message.</dd>
+</dl>
+</div>
+</div>
+<div class="section" id="release-2-1-1">
+<h1><a name="release-2-1-1">Release 2.1.1</a></h1>
+<p>Changes since release 2.1.0:</p>
+<ol class="arabic simple">
+<li>DMF Tutorial added.</li>
+<li>Per-user error list is now only available from the page that has been
+designated as the appropriate <tt class="literal"><span class="pre">urlError</span></tt> handler for those errors.</li>
+</ol>
+</div>
+<div class="section" id="release-2-1-0">
+<h1><a name="release-2-1-0">Release 2.1.0</a></h1>
+<p>Changes since release 2.0.1:</p>
+<ol class="arabic simple">
+<li>SOAP support added.</li>
+<li>Support for localized interfaces using the <tt class="literal"><span class="pre">getLabel()</span></tt>,
+<tt class="literal"><span class="pre">getLabelVal()</span></tt>, and <tt class="literal"><span class="pre">getLanguage()</span></tt> ejScript functions.</li>
+<li>New Windows Visual C++ project files and Linux (etc.) Makefile.</li>
+<li>Extended capabilities of the ejScript functions handling user and group
+management.</li>
+<li>'User Collision' handling (when multiple users submit a form at roughly the
+same time) redesigned so the framework handles collisions automatically. In
+previous releases, support for this was required in each query and commit
+function added for your project.</li>
+</ol>
+<p>For full details, consult the DMF User Guide.</p>
+</div>
+</div>
+</body>
+</html>

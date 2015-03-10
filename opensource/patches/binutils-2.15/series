@@ -1,0 +1,8 @@
+./binutils-2.15-psignal.patch
+./binutils-2.15-solaris-qsort.patch
+./binutils-2.15-vmx.patch
+./binutils-arm-undef-imm.patch
+./binutils-skip-comments.patch
+./cross-gprof.patch
+./gccpr15247-fix.patch
+./s390-invalid-insn-format.patch

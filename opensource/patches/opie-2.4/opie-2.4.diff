@@ -1,0 +1,97 @@
+diff -ru opie-2.4/libmissing/Makefile.in opie-2.4_patch/libmissing/Makefile.in
+--- opie-2.4/libmissing/Makefile.in	2001-01-19 03:11:07.000000000 -0800
++++ opie-2.4_patch/libmissing/Makefile.in	2006-01-27 04:52:58.000000000 -0800
+@@ -22,7 +22,7 @@
+ all: $(TARGET)
+ 
+ $(TARGET): $(OBJS)
+-	ar cr $(TARGET) $(OBJS)
++	$(CROSS_COMPILE)ar cr $(TARGET) $(OBJS)
+ 	@RANLIB@ $(TARGET)
+ 
+ clean:
+diff -ru opie-2.4/libopie/Makefile.in opie-2.4_patch/libopie/Makefile.in
+--- opie-2.4/libopie/Makefile.in	2001-01-19 03:11:09.000000000 -0800
++++ opie-2.4_patch/libopie/Makefile.in	2006-01-27 04:52:58.000000000 -0800
+@@ -17,13 +17,13 @@
+ OBJS=md4c.o md5c.o atob8.o btoa8.o btoh.o challenge.o getsequence.o hash.o hashlen.o keycrunch.o lock.o lookup.o newseed.o parsechallenge.o passcheck.o passwd.o randomchallenge.o readpass.o unlock.o verify.o version.o btoe.o accessfile.o generator.o insecure.o getutmpentry.o readrec.o writerec.o login.o open.o logwtmp.o # sha.o
+ 
+ CC=@CC@
+-CFLAGS=$(CFL) -I.. -I../libmissing
++CFLAGS=$(CFL) -I.. -I../libmissing -DDEBUG
+ TARGET=libopie.a
+ 
+ all: $(TARGET)
+ 
+ $(TARGET): $(OBJS)
+-	ar cr $(TARGET) $(OBJS)
++	$(CROSS_COMPILE)ar cr $(TARGET) $(OBJS)
+ 	@RANLIB@ $(TARGET)
+ 
+ clean:
+diff -ru opie-2.4/Makefile.in opie-2.4_patch/Makefile.in
+--- opie-2.4/Makefile.in	2000-07-16 09:44:08.000000000 -0700
++++ opie-2.4_patch/Makefile.in	2006-02-14 17:48:39.062324388 -0800
+@@ -87,7 +87,7 @@
+ #
+ # Some sites might want to put this elsewhere. If you want to use an old
+ # S/Key database, you should create a link from /etc/skeykeys to /etc/opiekeys.
+-KEY_FILE=/etc/opiekeys
++KEY_FILE=/mnt/ide/etc/opiekeys
+ 
+ # Are we debugging?
+ #
+@@ -152,7 +152,8 @@
+ 	@-for i in otp-md4 otp-md5; do ln -s opiekey.1 $(LOCALMAN)/man1/$$i.1; done
+ 	@if test ! -d $(LOCALMAN)/man1; then $(MKDIR) $(LOCALMAN)/man1; chmod 755 $(LOCALMAN)/man1; fi; cp opiekey.1 $(LOCALMAN)/man1/opiekey.1; $(CHOWN) $(OWNER) $(LOCALMAN)/man1/opiekey.1; chgrp $(GROUP) $(LOCALMAN)/man1/opiekey.1; chmod 644 $(LOCALMAN)/man1/opiekey.1
+ 
+-server:	libopie/libopie.a libmissing/libmissing.a opietest-passed opielogin opiesu opiepasswd opieinfo opieftpd opieserv
++#server:	libopie/libopie.a libmissing/libmissing.a opietest-passed opielogin opiesu opiepasswd opieinfo opieftpd opieserv
++server:	libopie/libopie.a libmissing/libmissing.a opielogin opiepasswd opiekey
+ 
+ server-install: server
+ 	@echo "Installing OPIE server software..."
+diff -ru opie-2.4/opielogin.c opie-2.4_patch/opielogin.c
+--- opie-2.4/opielogin.c	1999-03-10 18:09:53.000000000 -0800
++++ opie-2.4_patch/opielogin.c	2006-01-27 04:52:58.000000000 -0800
+@@ -1175,10 +1175,12 @@
+             printf("\n");
+ 	  }
+         } else {
+-	  if (authsok & 2) {
+-	    pp = crypt(buf, thisuser.pw_passwd);
+-	    invalid = strcmp(pp, thisuser.pw_passwd);
+-	  } else
++	//[RK]Jan/18/06 - not allow password
++	//  if (authsok & 2) {
++	//    pp = crypt(buf, thisuser.pw_passwd);
++	//    invalid = strcmp(pp, thisuser.pw_passwd);
++	//  } else
++	syslog(LOG_WARNING, "Invalid login attempt for %s on %s from %s.Authentication as system user disabled.", name, tty, host);
+             invalid = TRUE;
+ 	}
+       }
+diff -ru opie-2.4/libopie/newseed.c opie-2.4_patch/libopie/newseed.c
+--- opie-2.4/libopie/newseed.c	2001-01-19 03:11:09.000000000 -0800
++++ opie-2.4_patch/libopie/newseed.c	2006-02-22 12:43:58.536397020 -0800
+@@ -55,7 +55,7 @@
+ 			if (++i >= max)
+ 				i = 1;
+ 
+-			snprintf(c, end - c, "%d", i);
++			snprintf(c, end - c + 2, "%04d", i);
+ 			seed[OPIE_SEED_MAX] = 0;
+ 			return 0;
+ 		}
+diff -ru opie-2.4/libopie/writerec.c opie-2.4_patch/libopie/writerec.c
+--- opie-2.4/libopie/writerec.c	2001-01-19 03:11:09.000000000 -0800
++++ opie-2.4_patch/libopie/writerec.c	2006-04-11 09:07:28.472454186 -0700
+@@ -81,6 +81,8 @@
+   if (fprintf(f, "%s %04d %-16s %s %-21s\n", opie->opie_principal, opie->opie_n, opie->opie_seed, opie->opie_val ? opie->opie_val : __opienone, buf2) < 1)
+     return -1;
+
++  fsync(f);
+   fclose(f);
++  sync();
+
+   return 0;

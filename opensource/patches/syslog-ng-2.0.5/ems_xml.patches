@@ -1,0 +1,322 @@
+--- syslog-ng-2.0.5/src/macros.c.orig	2007-11-16 09:01:58.000000000 -0200
++++ syslog-ng-2.0.5/src/macros.c	2007-11-16 09:35:40.000000000 -0200
+@@ -32,6 +32,9 @@
+ #include <time.h>
+ #include <string.h>
+ 
++#define TTY_MACRO 		("<tty>")
++#define XML_PREFIX_STRING	("XML_MONITOR(")
++
+ struct macro_def
+ {
+   char *name;
+@@ -137,6 +140,215 @@ result_append(GString *result, guchar *s
+     
+ }
+ 
++guint
++expand_xw_macro(gchar *macro, GString *result, LogMessage *msg)
++{
++	int i, j;
++	char *macro_replacement;
++	char *tag;
++	int tag_len;
++	int loglen;
++	char *log = msg->msg.str;
++	char *m = macro;
++	char *prefix = XML_PREFIX_STRING;
++	int macro_cnt = 0;
++	int macro_len = 0;
++	int length = 0;
++        char bufstr[100];
++        gint template_len;
++
++	loglen = strlen(msg->msg.str);
++
++	template_len = strlen(macro);
++
++	if (memcmp(macro,TTY_MACRO,sizeof(TTY_MACRO)-1) == 0) {
++
++		// This is the macro to get the tty information
++		while(loglen) {
++			for (i=0; i<sizeof(XML_PREFIX_STRING)-1; i++) {
++				if (*(log+i) != *(prefix+i)) {
++					break;
++				}
++			}
++			if (i==sizeof(XML_PREFIX_STRING)-1) {
++				break;
++			}
++			log++;
++			loglen--;
++		}
++		if (loglen == 0) {
++			goto xml_error;
++		}
++		macro_replacement = log+sizeof(XML_PREFIX_STRING)-1;
++		while (length < loglen) {
++			if (*(macro_replacement+length) == ')') {
++				break;
++			}
++			length++;
++		}
++		if (length == loglen) {
++			goto xml_error;
++		}
++		macro_len = sizeof(TTY_MACRO);
++	} else {
++
++	// This is a macro to get xml information.
++
++	// Find macro length
++	while ((macro_len < template_len) && (macro[macro_len] == '<')) {
++		while ((macro_len < template_len) && (macro[macro_len] != '>')) {
++			macro_len++;
++		}
++		macro_len++; // Add the closing '>'
++		macro_cnt++;
++	}
++
++	while (macro_cnt){
++		while (loglen && *log != '<'){
++			log++;
++			loglen--;
++		}
++		if (loglen == 0) {
++			goto xml_error;
++		}
++		for (i=0; i<macro_len && loglen; i++) {
++			if (m[i]=='>' || m[i]==' ') {
++				break;
++			}
++			if (m[i] != *log) {
++				break;
++			}
++			log++;
++			loglen--;
++		}
++		if (i==macro_len || loglen==0) {
++			goto xml_error;
++		}
++		if (m[i]=='>') {
++			// we had a match.
++			macro_cnt--;
++			if (macro_cnt) {
++				// there are more macros.
++				m = &m[i+1];
++				continue;
++			}
++			// last tag in the macro
++			tag = m+1; // skip '<'
++			tag_len = i; // don't include '>'
++			while (loglen && *log != '>') {
++				log++;
++				loglen--;
++			}
++			if (loglen==0) {
++				goto xml_error;
++			}
++			log++;		// Skip '>'
++			loglen--;
++			if (loglen==0) {
++				goto xml_error;
++			}
++			// macro replacement starts here
++			macro_replacement = log;
++			while (loglen) {
++				if (*log == '<') {
++					if ((loglen-1) && *(log+1)=='/') {
++						// check if this is the closing tag
++						for (j=0; j<tag_len; j++) {
++							if (*(log+2+j) != *(tag+j)) {
++								break;
++							}
++						}
++						if (j == tag_len){
++							length = log - macro_replacement;
++							break;
++						}
++					}
++				}
++				log++;
++				loglen--;
++			}
++			if (loglen==0) {
++				goto xml_error;
++			}
++			break;
++		} else if (m[i]==' '){
++			// search for attributes
++			j = i; // save beginning of search
++			i++;  // skip ' '
++			log++;
++			loglen--;
++	                for ( ; i<macro_len && loglen; i++) {
++        	                if (m[i]=='=' || m[i]=='>') {
++					// attribute match
++                	                break;
++                        	}
++				if (*log != m[i]) {
++					// this attribute doesn't match, go to next
++					while (loglen && *log != ' ' && *log != '>'){
++						log++;
++						loglen--;
++					}
++					if (*log == ' ') {
++						// let's try next attribute
++						log++;
++						loglen--;
++						i=j; // restore desired attribute; take in consideration that i will be incremented when continue
++						continue;
++					}
++					// end of attributes
++					goto xml_error;
++				}
++                        	log++;
++	                        loglen--;
++        	        }
++			if (i==macro_len || loglen==0) {
++				goto xml_error;
++			}
++			// get contents of attribute
++			if (m[i]=='=') {
++				i++;	// ignore '=' from macro
++				if (i==macro_len){
++					goto xml_error;
++				}
++			}
++			if (m[i]=='>') {
++				log++;	// skip '='
++				loglen--;
++			}
++
++			log++;	// skip quote
++			loglen--;
++			if (loglen<=0) {
++				goto xml_error;
++			}
++			macro_replacement=log;
++			while (loglen && *log!='\"'){
++				log++;
++				loglen--;
++			}
++			if (loglen==0) {
++				goto xml_error;
++			}
++			length = log - macro_replacement;
++			break;
++		}
++		// macro not present here. Go to next tag.
++	} // end while (macro_cnt)
++
++	} // end if
++
++	if (length >= sizeof(bufstr))
++		length = sizeof(bufstr) - 1;
++	strncpy(bufstr, macro_replacement, length);
++	bufstr[length] = 0;
++        g_string_append(result, bufstr);
++
++	return macro_len;
++
++xml_error:
++	return 0;
++}
++
+ gboolean
+ log_macro_expand(GString *result, gint id, guint32 flags, gint ts_format, glong zone_offset, gint frac_digits, LogMessage *msg)
+ {
+--- syslog-ng-2.0.5/src/macros.h.orig	2007-11-16 09:02:05.000000000 -0200
++++ syslog-ng-2.0.5/src/macros.h	2007-11-16 09:34:39.000000000 -0200
+@@ -114,4 +114,7 @@ log_macro_lookup(gchar *macro, gint len)
+ gboolean
+ log_macro_expand(GString *result, gint id, guint32 flags, gint ts_format, glong zone_offset, gint frac_digits, LogMessage *msg);
+ 
++guint
++expand_xw_macro(gchar *macro, GString *result, LogMessage *msg);
++
+ #endif
+--- syslog-ng-2.0.5/src/templates.c.orig	2007-11-16 09:02:17.000000000 -0200
++++ syslog-ng-2.0.5/src/templates.c	2007-11-16 09:44:32.000000000 -0200
+@@ -30,6 +30,7 @@ typedef struct _LogTemplateElem
+ {
+   guint macro;
+   GString *text;
++  GString *macro_text;
+ } LogTemplateElem;
+ 
+ void
+@@ -48,6 +49,8 @@ log_template_compile(LogTemplate *self)
+   guint last_macro = M_NONE;
+   GString *last_text = NULL;
+   LogTemplateElem *e;
++
++  GString *macro_text = NULL;
+   
+   p = self->template->str;
+   
+@@ -87,12 +90,18 @@ log_template_compile(LogTemplate *self)
+           else
+             {
+               start = p;
+-              while ((*p >= 'A' && *p <= 'Z') || (*p == '_'))
+-                {
++
++              while ((*p >= 'A' && *p <= 'Z') || (*p >= 'a' && *p <= 'z') ||
++                     (*p == '_') || (*p == '<') || (*p == '>') || (*p == '-')) {
++		  if (macro_text == NULL)
++                     macro_text = g_string_sized_new(80);
++		  g_string_append_c(macro_text, *p);
+                   p++;
+-                }
++              }
++
+               last_macro = log_macro_lookup(start, p - start);
+             }
++            
+           if (last_macro != M_NONE)
+             {
+               e = g_new0(LogTemplateElem, 1);
+@@ -102,6 +111,16 @@ log_template_compile(LogTemplate *self)
+               last_macro = M_NONE;
+               last_text = NULL;
+             }
++          else if (macro_text != NULL)
++            {
++              e = g_new0(LogTemplateElem, 1);
++              e->macro = M_NONE;
++              e->macro_text = macro_text;
++              e->text = last_text;
++              self->compiled_template = g_list_prepend(self->compiled_template, e);
++              macro_text = NULL;
++              last_text = NULL;
++            }
+           
+         }
+       else
+@@ -135,10 +154,12 @@ log_template_format(LogTemplate *self, L
+   for (p = self->compiled_template; p; p = g_list_next(p))
+     {
+       e = (LogTemplateElem *) p->data;
++
+       if (e->text)
+         {
+           g_string_append(result, e->text->str);
+         }
++        
+       if (e->macro != M_NONE)
+         {
+           log_macro_expand(result, e->macro, 
+@@ -149,6 +170,12 @@ log_template_format(LogTemplate *self, L
+                            frac_digits,
+                            lm);
+         }
++        
++      if (e->macro_text)
++        {
++          expand_xw_macro(e->macro_text->str, &result->str, lm);
++        }
++        
+     }
+ }
+ 

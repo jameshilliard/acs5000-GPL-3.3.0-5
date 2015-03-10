@@ -1,0 +1,216 @@
+#
+# BASH script to help implement the cardmgr compatibility scripts.
+#
+
+# Enable/disable console logging:
+LOGCONS=no
+
+# Enable/disable the actual execution of the cardmgr script:
+RUNSCRIPT=yes
+
+# Place where to find the cardmgr scripts:
+CARDMGR_DIR="/etc/pcmcia"
+
+# Places where to look for modules aliases.
+ALIAS_FILES="/etc/modprobe.conf /lib/modules/$(uname -r)/modules.alias"
+
+#
+# Show a message in the console.
+#
+if [ "$LOGCONS" = "yes" ]; then
+logcons () {
+		echo "hotplug: $@" | sed "s/^/${PPID}-$$: /" > /dev/console;
+#		echo "hotplug: $@" | sed "s/^/${PPID}-$$: /" >&2;
+}
+else
+logcons () {
+	return 0
+}
+fi
+
+
+#
+# Given a string in the format <sock>.<dev> in $1 returns
+# <sock> in the variable whose name is specified by $2 and optionally
+# <dev>  in the variable whose name is specified by $3.
+#
+# Exits with an error if the input string is not made up of numbers.
+#
+get_socket_silent ()
+{
+	local parm="$1"
+	local soc_no="${parm%.*}"
+	local dev_no="${parm#*.}"
+	local soc_var="$2"
+	local dev_var="$3"
+
+	if [[ "$soc_no" != [0-9] && "$soc_no" != [0-9][0-9] ]]; then
+		return 1
+	fi
+
+	if [[ "$dev_no" != [0-9] && "$dev_no" != [0-9][0-9] ]]; then
+		return 2
+	fi
+
+	[ -n "$soc_var" ] && eval "$soc_var"="$soc_no"
+	[ -n "$dev_var" ] && eval "$dev_var"="$dev_no"
+
+	return 0
+}
+
+#
+# Given a string in the format <sock>.<dev> in $1 returns
+# <sock> in the variable whose name is specified by $2 and optionally
+# <dev>  in the variable whose name is specified by $3.
+#
+# Exits with an error if the input string is not made up of numbers.
+#
+get_socket ()
+{
+	local result
+
+	get_socket_silent "$1" "$2" "$3"
+	result=$?
+
+	if [ $result -eq 0 ]; then
+		return 0
+	elif [ $result -eq 1 ]; then
+		logcons "Invalid socket number '$soc_no'"
+	elif [ $result -eq 2 ]; then
+		logcons "Invalid device number '$dev_no'"
+	else
+		logcons "Wrong format of socket string."
+	fi
+
+	return $result
+}
+
+cardmgr_clear_vars ()
+{
+	for var in ${!MGR_*}; do
+		eval "$var="
+	done
+}
+
+#
+# Run the script specified by the variable MGR_SCRIPT. All the the
+# environment variables whose names start with 'MGR_' will be exported
+# to the script.
+#
+cardmgr_run_script ()
+{
+	local script="$MGR_SCRIPT"
+	local uniqfile="/var/run/cardmgr_${MGR_SCRIPT}-${MGR_SOCKET}.${MGR_INSTANCE}"
+
+	# Run in a subshell so as to not interfere with our current environment.
+	(
+	# Protection against concurrent execution of the same (script,socket,instance).
+	local lockfile="${uniqfile}.lock"
+	while ! (set -C; echo "$$" > "$lockfile") 2>/dev/null; do
+		sleep 1
+	done
+	trap "rm -f $lockfile" EXIT
+
+	for var in ${!MGR_*}; do
+		export "$var"
+		logcons "$var=${!var}"
+	done
+
+	if [ "$MGR_ACTION" = "start" ]; then
+		# Send the variables to a file when "starting"...
+		for var in ${!MGR_*}; do
+			echo "$var=${!var}"
+		done > "$uniqfile"
+	fi
+
+	if [ "$RUNSCRIPT" = "yes" ]; then
+		logcons "Running $CARDMGR_DIR/$script $MGR_ACTION $MGR_DEVICE $MGR_NEW_SCHEME"
+
+		cd "$CARDMGR_DIR"
+		./$script "$MGR_ACTION" "$MGR_DEVICE" "$MGR_NEW_SCHEME"
+	else
+		logcons "Would run $CARDMGR_DIR/$script $MGR_ACTION $MGR_DEVICE $MGR_NEW_SCHEME"
+	fi
+	)
+}
+
+#
+# Load the file whose name is built from
+#  $1: script name
+#  $2: socket number, $3: device number
+#
+cardmgr_load_params ()
+{
+	local uniqfile="/var/run/cardmgr_$1-$2.$3"
+	local soc_no="$2"
+	local dev_no="$3"
+
+	if [[ "$soc_no" != [0-9] && "$soc_no" != [0-9][0-9] ]]; then
+		logcons "Invalid socket number '$soc_no'"
+		return 1
+	fi
+
+	if [[ "$dev_no" != [0-9] && "$dev_no" != [0-9][0-9] ]]; then
+		logcons "Invalid device number '$dev_no'"
+		return 1
+	fi
+
+	[ -r "$uniqfile" ] || return 2
+
+	. $uniqfile
+
+	return 0;
+}
+
+#
+# Call the cardmgr scripts the way they would be called by cardmgr if
+# a card ejection were requested. $1 is the device class, $2 is the
+# socket number and $3 is the device number. Any of them can be a
+# wildcard.
+#
+cardmgr_stop ()
+{
+	local uniqfile="/var/run/cardmgr_$1-$2.$3"
+	local socket_no device_no
+
+	for fn in $uniqfile; do
+
+		get_socket_silent "${fn##*-}" socket_no device_no
+		[ $? -eq 0 ] || continue
+		[ -r "$fn" ] || continue
+
+		# Replace MGR_... environment variables:
+		cardmgr_clear_vars
+		. $fn
+
+		[ -n "$MGR_SCRIPT" ] || continue
+
+		MGR_ACTION="stop" cardmgr_run_script
+
+		# Device stopped, let's remove the the unique file.
+		rm -f "$fn"
+	done
+}
+
+#
+# Convert an alias name to a module name.
+#
+alias2modname ()
+{
+	cat $ALIAS_FILES 2>/dev/null |
+	gawk -v modalias="$1" -- '
+BEGIN {	found = 0 }
+END   { exit !found }
+
+/^[ 	]*\<alias\>/ {
+	q = gensub("\\*", ".*", "g", $2);
+	r = gensub("\\?", ".?", "g", q);
+	if (match(modalias, "^" r "$")) {
+		print $3
+		found = 1
+		exit 0
+	}
+}
+'
+	return $?;
+}

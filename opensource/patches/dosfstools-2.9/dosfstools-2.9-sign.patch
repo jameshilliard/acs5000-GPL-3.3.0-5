@@ -1,0 +1,11 @@
+--- xxx/dosfsck/dosfsck.h
++++ xxx/dosfsck/dosfsck.h
+@@ -71,7 +71,7 @@
+ };
+ 
+ typedef struct {
+-    __s8	name[8],ext[3];	/* name and extension */
++    __u8	name[8],ext[3];	/* name and extension */
+     __u8	attr;		/* attribute bits */
+     __u8	lcase;		/* Case for base and extension */
+     __u8	ctime_ms;	/* Creation time, milliseconds */

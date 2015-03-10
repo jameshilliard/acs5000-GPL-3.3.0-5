@@ -1,0 +1,175 @@
+######## TERMINAL TYPE DESCRIPTIONS SOURCE FILE
+#
+#	Version 9.12.0
+#	termcap syntax
+#
+#	Eric S. Raymond		(current maintainer)
+#	John Kunze, Berkeley
+#	Craig Leres, Berkeley
+#
+# Please e-mail changes to terminfo@ccil.org.  The old termcap@berkeley.edu
+# address is no longer valid.
+#
+#
+# COPYRIGHTS AND OTHER DELUSIONS
+#
+# The BSD ancestor of this file had a standard Regents of the University of
+# California copyright with dates from 1980 to 1993.
+#
+# Some information has been merged in from a terminfo file SCO distributes.
+# It has an obnoxious boilerplate copyright which I'm ignoring because they 
+# took so much of the content from the ancestral BSD versions of this file
+# and didn't attribute it, thereby violating the BSD Regents' copyright.
+#
+# Not that anyone should care.  However many valid functions copyrights may
+# serve, putting one on a termcap/terminfo file with hundreds of anonymous
+# contributors makes about as much sense as copyrighting a wall-full of
+# graffiti -- it's legally dubious, ethically bogus, and patently ridiculous.
+#
+# This file deliberately has no copyright.  It belongs to no one and everyone.
+# If you claim you own it, you will merely succeed in looking like a fool. 
+# Use it as you like.  Use it at your own risk.  Copy and redistribute freely.
+# There are no guarantees anywhere.  Svaha!
+
+
+#### Specials
+
+dumb|80-column dumb tty:\
+	:am:\
+	:co#80:\
+	:bl=^G:cr=^M:do=^J:sf=^J:
+unknown|unknown terminal type:\
+	:gn:tc=dumb:
+lpr|printer|line printer:\
+	:hc:os:\
+	:co#132:li#66:\
+	:bl=^G:cr=^M:do=^J:ff=^L:le=^H:sf=^J:
+
+#### ANSI.SYS/ISO 6429 Capabilities
+klone+acs|alternate character set for ansi.sys displays:\
+	:ac=`\004a\261f\370g\361h\260j\331k\277l\332m\300n\305o~q\304r\362s_t\303u\264v\301w\302x\263y\371z\372{\373|\374}\375~\376.\031-\030\054\021+^P0\333p\304r\304y\363z\362{\343|\330}\234:\
+	:ae=\E[10m:as=\E[11m:
+
+klone+sgr|attribute control for ansi.sys displays:\
+	:S2=\E[11m:S3=\E[10m:ae=\E[11m:as=\E11m:mb=\E[5m:\
+	:md=\E[1m:me=\E[0;10m:mk=\E[8m:mr=\E[7m:\
+	:..sa=\E[0;10%?%p1%t;7%;%?%p2%t;4%;%?%p3%t;7%;%?%p4%t;5%;%?%p6%t;1%;%?%p7%t;8%;%?%p9%t;11%;m:\
+	:se=\E[m:so=\E[7m:ue=\E[m:us=\E[4m:
+
+klone+sgr-dumb|attribute control for ansi.sys displays (no ESC [ 11 m):\
+	:ae=\E[12m:as=\E12m:mb=\E[5m:md=\E[1m:me=\E[0;10m:\
+	:mk=\E[8m:mr=\E[7m:\
+	:..sa=\E[0;10%?%p1%t;7%;%?%p2%t;4%;%?%p3%t;7%;%?%p4%t;5%;%?%p6%t;1%;%?%p7%t;8%;%?%p9%t;12%;m:\
+	:se=\E[m:so=\E[7m:ue=\E[m:us=\E[4m:
+
+klone+color|color control for ansi.sys and ISO6429-compatible displays:\
+	:Co#8:NC#3:pa#64:\
+	:AB=\E[4%p1%dm:AF=\E[3%p1%dm:Sb=\E[%+(m:Sf=\E[%+^^m:\
+	:op=\E[37;40m:
+
+#### ANSI terminals and terminal emulators
+
+ansi-mini|any ansi terminal with pessimistic assumptions:\
+	:am:bs:\
+	:co#80:it#8:li#24:\
+	:ce=\E[K:cl=\E[H\E[2J:cm=\E[%i%d;%dH:do=\E[B:ho=\E[H:\
+	:le=\E[D:nd=\E[C:ta=^I:up=\E[A:
+
+pcansi-m|pcansi-mono|ibm-pc terminal programs claiming to be ansi (mono mode):\
+	:am:bs:mi:ms:\
+	:co#80:it#8:li#24:\
+	:al=\E[L:bl=^G:bt=\E[Z:cd=\E[J:ce=\E[K:cl=\E[H\E[J:\
+	:cm=\E[%i%d;%dH:cr=^M:ct=\E[2g:dc=\E[P:dl=\E[M:\
+	:do=\E[B:ho=\E[H:kb=^H:kd=\E[B:kh=\E[H:kl=\E[D:\
+	:kr=\E[C:ku=\E[A:le=\E[D:nd=\E[C:sf=^J:st=\EH:ta=^I:\
+	:up=\E[A:tc=klone+sgr-dumb:
+pcansi|ibm-pc terminal programs claiming to be ansi:\
+	:tc=klone+color:tc=pcansi-m:
+
+ansi-m|ansi-mono|ANSI X3.64-1979 terminal with ANSI.SYS compatible attributes:\
+	:5i:\
+	:AL=\E[%dL:DC=\E[%dP:DL=\E[%dM:DO=\E[%dB:IC=\E[%d@:\
+	:LE=\E[%dD:RI=\E[%dC:SF=\E[%dS:SR=\E[%dT:UP=\E[%dA:\
+	:cb=\E[1K:ch=\E[%i%dG:ct=\E[2g:cv=\E[%i%dd:ec=\E[%dX:\
+	:ei=:im=:kB=\E[Z:kI=\E[L:kb=^H:kd=\E[B:kl=\E[D:\
+	:kr=\E[C:ku=\E[A:nw=\r\E[S:pf=\E[4i:po=\E[5i:\
+	:..rp=%p1%c\E[%p2%{1}%-%db:s0=\E(B:s1=\E)B:s2=\E*B:\
+	:s3=\E+B:ta=\E[I:tc=pcansi-m:
+
+ansi|ansi/pc-term compatible with color:\
+	:u6=\E[%i%d;%dR:u7=\E[6n:..u8=\E[?%[;0123456789]c:\
+	:u9=\E[c:tc=klone+color:tc=klone+acs:tc=klone+sgr:tc=ansi-m:
+
+linux|linux-lat|linux console:\
+	:am:eo:mi:ms:ut:xn:xo:\
+	:co#80:it#8:li#25:\
+	:&7=^Z:@7=\E[4~:AL=\E[%dL:DC=\E[%dP:DL=\E[%dM:\
+	:F1=\E[23~:F2=\E[24~:F3=\E[25~:F4=\E[26~:F5=\E[28~:\
+	:F6=\E[29~:F7=\E[31~:F8=\E[32~:F9=\E[33~:FA=\E[34~:\
+	:IC=\E[%d@:K2=\E[G:al=\E[L:bl=^G:cd=\E[J:ce=\E[K:\
+	:ch=\E[%i%dG:cl=\E[H\E[J:cm=\E[%i%d;%dH:cr=^M:\
+	:cs=\E[%i%d;%dr:ct=\E[3g:cv=\E[%i%dd:dc=\E[P:dl=\E[M:\
+	:do=^J:ei=\E[4l:ho=\E[H:ic=\E[@:im=\E[4h:k1=\E[[A:\
+	:k2=\E[[B:k3=\E[[C:k4=\E[[D:k5=\E[[E:k6=\E[17~:\
+	:k7=\E[18~:k8=\E[19~:k9=\E[20~:k;=\E[21~:kB=\E[Z:\
+	:kD=\E[3~:kI=\E[2~:kN=\E[6~:kP=\E[5~:kb=^H:kd=\E[B:\
+	:kh=\E[1~:kl=\E[D:kr=\E[C:ku=\E[A:le=^H:mr=\E[7m:\
+	:nd=\E[C:nw=^M^J:r1=\Ec:rc=\E8:sc=\E7:sf=^J:sr=\EM:\
+	:st=\EH:ta=^I:u6=\E[%i%d;%dR:u7=\E[6n:u8=\E[?6c:\
+	:u9=\E[c:up=\E[A:vb=200\E[?5h\E[?5l:ve=\E[?25h:\
+	:vi=\E[?25l:tc=klone+sgr:tc=klone+color:tc=klone+acs:
+linux-m|Linux console no color:\
+	:Co@:pa@:\
+	:AB@:AF@:Sb@:Sf@:tc=linux:
+
+linux-nic|linux with ich/ich1 suppressed for non-curses programs:\
+	:IC@:ei=:ic@:im=:tc=linux:
+
+vt100|vt100-am|dec vt100 (w/advanced video):\
+	:am:ms:xn:xo:\
+	:co#80:it#8:li#24:vt#3:\
+	:@8=\EOM:DO=\E[%dB:K1=\EOq:K2=\EOr:K3=\EOs:K4=\EOp:\
+	:K5=\EOn:LE=\E[%dD:RA=\E[?7l:RI=\E[%dC:SA=\E[?7h:\
+	:UP=\E[%dA:\
+	:ac=``aaffggjjkkllmmnnooppqqrrssttuuvvwwxxyyzz{{||}}~~:\
+	:ae=^O:as=^N:bl=^G:cb=\E[1K:cd=\E[J:ce=\E[K:\
+	:cl=\E[H\E[J:cm=\E[%i%d;%dH:cr=^M:cs=\E[%i%d;%dr:\
+	:ct=\E[3g:do=^J:eA=\E(B\E)0:ho=\E[H:k0=\EOy:k1=\EOP:\
+	:k2=\EOQ:k3=\EOR:k4=\EOS:k5=\EOt:k6=\EOu:k7=\EOv:\
+	:k8=\EOl:k9=\EOw:k;=\EOx:kb=^H:kd=\EOB:ke=\E[?1l\E>:\
+	:kl=\EOD:kr=\EOC:ks=\E[?1h\E=:ku=\EOA:le=^H:mb=\E[5m:\
+	:md=\E[1m:me=\E[m\017:mr=\E[7m:nd=\E[C:\
+	:r2=\E>\E[?3l\E[?4l\E[?5l\E[?7h\E[?8h:rc=\E8:\
+	:..sa=\E[0%?%p1%p6%|%t;1%;%?%p2%t;4%;%?%p1%p3%|%t;7%;%?%p4%t;5%;m%?%p9%t\016%e\017%;:\
+	:sc=\E7:se=\E[m:sf=^J:so=\E[7m:sr=\EM:st=\EH:ta=^I:\
+	:ue=\E[m:up=\E[A:us=\E[4m:
+vt100nam|vt100-nam|vt100 no automargins:\
+	:am@:xn@:tc=vt100-am:
+
+# vt220:
+# This vt220 description maps F5--F9 to the second block of function keys
+# at the top of the keyboard.  The "DO" key is used as F10 to avoid conflict
+# with the key marked (ESC) on the vt220.  See vt220d for an alternate mapping.
+# PF1--PF4 are used as F1--F4.
+#
+vt220|vt200|DEC VT220 in vt100 emulation mode:\
+	:am:mi:xn:xo:\
+	:co#80:li#24:vt#3:\
+	:@7=\E[4~:RA=\E[?7l:SA=\E[?7h:\
+	:ac=kkllmmjjnnwwqquuttvvxx:ae=\E(B:al=\E[L:as=\E(0:\
+	:bl=^G:cd=\E[J:ce=\E[K:cl=\E[H\E[2J:cm=\E[%i%d;%dH:\
+	:cr=^M:cs=\E[%i%d;%dr:dc=\E[P:dl=\E[M:do=\E[B:\
+	:ei=\E[4l:ho=\E[H:if=/usr/lib/tabset/vt100:im=\E[4h:\
+	:is=\E[1;24r\E[24;1H:k1=\EOP:k2=\EOQ:k3=\EOR:k4=\EOS:\
+	:k5=\E[17~:k6=\E[18~:k7=\E[19~:k8=\E[20~:k9=\E[21~:\
+	:k;=\E[29~:kD=\E[3~:kI=\E[2~:kN=\E[6~:kP=\E[5~:kb=^H:\
+	:kd=\E[B:kh=\E[1~:kl=\E[D:kr=\E[C:ku=\E[A:le=^H:\
+	:mb=\E[5m:md=\E[1m:me=\E[m:mr=\E[7m:nd=\E[C:\
+	:r2=\E>\E[?3l\E[?4l\E[?5l\E[?7h\E[?8h:rc=\E8:\
+	:rf=/usr/lib/tabset/vt100:\
+	:..sa=\E[0%?%p6%t;1%;%?%p2%t;4%;%?%p4%t;5%;%?%p1%p3%|%t;7%;m%?%p9%t\E(0%e\E(B%;:\
+	:sc=\E7:se=\E[27m:sf=20\ED:so=\E[7m:sr=14\EM:ta=^I:\
+	:ue=\E[24m:up=\E[A:us=\E[4m:ve=\E[?25h:vi=\E[?25l:
+vt220-w|vt200-w|DEC vt220 in wide mode:\
+	:co#132:\
+	:r3=\E[?3h:tc=vt220:

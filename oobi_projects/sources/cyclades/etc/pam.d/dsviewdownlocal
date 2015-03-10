@@ -1,0 +1,11 @@
+#
+# The PAM configuration file for the `radiusdownlocal' service
+#
+auth	requisite	pam_securetty.so
+auth    \
+[ success=1 new_authtok_reqd=1 authinfo_unavail=ignore default=die ] \
+	pam_adsap2.so
+auth    required	pam_redirect.so service=s_local	
+auth	optional	pam_auth_srv.so
+account required    pam_adsap2.so
+session required    pam_adsap2.so

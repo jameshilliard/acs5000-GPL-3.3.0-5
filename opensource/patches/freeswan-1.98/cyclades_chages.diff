@@ -1,0 +1,198 @@
+diff -upbBr -I '$Name' -I '$Date' -I '$Header' -I '$Id' -I '$Rev' -x CVS -x '*.o' freeswan-1.98/klips/utils/Makefile freeswan-1.98/klips/utils/Makefile
+--- freeswan-1.98/klips/utils/Makefile	2002-01-29 16:17:05.000000000 -0800
++++ freeswan-1.98/klips/utils/Makefile	2002-08-27 07:48:24.000000000 -0700
+@@ -19,8 +19,8 @@ include ../../Makefile.inc
+ 
+ 
+ 
+-CC=gcc
+-CFLAGS=$(USERCOMPILE) -I../net/ipsec -I../../lib
++#CC=gcc
++CFLAGS=$(USERCOMPILE) -I../net/ipsec -I../../lib -I$(INC)
+ 
+ CFLAGS+= $(USERCOMPILE)
+ CFLAGS+= -Wall
+diff -upbBr -I '$Name' -I '$Date' -I '$Header' -I '$Id' -I '$Rev' -x CVS -x '*.o' freeswan-1.98/lib/Makefile freeswan-1.98/lib/Makefile
+--- freeswan-1.98/lib/Makefile	2002-03-27 15:08:24.000000000 -0800
++++ freeswan-1.98/lib/Makefile	2005-06-10 14:45:32.000000000 -0700
+@@ -65,15 +65,9 @@ all:	$(EXTHDRS) $(LIB) $(EXTLIBS)
+ programs: all
+ 
+ install:
+-	mkdir -p $(MANDIR)
+-	for f in $(MANS) ; \
+-	do \
+-		$(INSTALL) $(INSTMANFLAGS) $$f $(MANDIR)/ipsec_$$f || exit 1 ; \
+-		../utils/manlink $(MANDIR) ipsec_$$f ; \
+-	done
+ 
+ $(LIB):	$(OBJS)
+-	ar $(ARFLAGS) $(LIB) $(OBJS)
++	$(AR) $(ARFLAGS) $(LIB) $(OBJS)
+ 
+ $(OBJS):	$(HDRS)
+ 
+diff -upbBr -I '$Name' -I '$Date' -I '$Header' -I '$Id' -I '$Rev' -x CVS -x '*.o' freeswan-1.98/libdes/Makefile freeswan-1.98/libdes/Makefile
+--- freeswan-1.98/libdes/Makefile	2002-04-01 13:48:03.000000000 -0800
++++ freeswan-1.98/libdes/Makefile	2005-06-10 14:45:32.000000000 -0700
+@@ -43,18 +43,18 @@ OPTS0= -DLIBDES_LIT -DRAND -DTERMIO #-DN
+ 
+ OPTS= $(OPTS0) $(OPTS1) $(OPTS2) $(OPTS3) $(OPTS4)
+ 
+-MAKE=make -f Makefile
++#MAKE=make -f Makefile
+ #CC=cc
+ #CFLAG= -O
+ 
+ #CC=gcc
+ #CFLAG= -O4 -funroll-loops -fomit-frame-pointer
+ # normally overridden by FreeS/WAN Makefiles anyway
+-CFLAG= -O3 -fomit-frame-pointer
++#CFLAG= -O3 -fomit-frame-pointer
+ 
+ CFLAGS=$(OPTS) $(CFLAG)
+ CPP=$(CC) -E
+-AS=as
++#AS=as
+ 
+ # Assember version of des_encrypt*().
+ DES_ENC=des_enc.o fcrypt_b.o		# normal C version
+@@ -120,7 +125,8 @@ cc:
+ 	$(MAKE) CC=cc CFLAGS="-O $(OPTS) $(CFLAG)" all
+ 
+ gcc:
+-	$(MAKE) CC=gcc CFLAGS="-O3 -fomit-frame-pointer $(OPTS) $(CFLAG)" all
++	#$(MAKE) CC=gcc CFLAGS="-O3 -fomit-frame-pointer $(OPTS) $(CFLAG)" all
++	$(MAKE) CFLAGS="-O3 -fomit-frame-pointer $(OPTS) $(CFLAG)" all
+ 
+ x86-elf:
+ 	$(MAKE) DES_ENC='asm/dx86-elf.o asm/yx86-elf.o' CC='$(CC)' CFLAGS="-DELF $(OPTS) $(CFLAG)" all
+@@ -177,7 +183,8 @@ test:	all
+ 
+ $(DLIB): $(OBJ)
+ 	/bin/rm -f $(DLIB)
+-	ar cr $(DLIB) $(OBJ)
++	#ar cr $(DLIB) $(OBJ)
++	$(AR) cr $(DLIB) $(OBJ)
+ 	-if test -s /bin/ranlib; then /bin/ranlib $(DLIB); \
+ 	else if test -s /usr/bin/ranlib; then /usr/bin/ranlib $(DLIB); \
+ 	else exit 0; fi; fi
+diff -upbBr -I '$Name' -I '$Date' -I '$Header' -I '$Id' -I '$Rev' -x CVS -x '*.o' freeswan-1.98/Makefile freeswan-1.98/Makefile
+--- freeswan-1.98/Makefile	2002-06-16 22:07:34.000000000 -0700
++++ freeswan-1.98/Makefile	2002-08-27 07:43:46.000000000 -0700
+@@ -158,9 +159,11 @@ _patches2.3:
+ 	@$(PATCHER) -v $(KERNELSRC) drivers/isdn/isdn_net.c
+ 
+ # supply kernel-configuration defaults
+-ifeq ($(ARCH),)
+-ARCH := $(shell uname -m | sed -e s/i.86/i386/ -e s/sun4u/sparc64/ -e s/arm.*/arm/ -e s/sa110/arm/)
+-endif
++#ifeq ($(ARCH),)
++#ARCH := $(shell uname -m | sed -e s/i.86/i386/ -e s/sun4u/sparc64/ -e s/arm.*/arm/ -e s/sa110/arm/)
++#endif
++ARCH=ppc
++
+ klipsdefaults:
+ 	@KERNELDEFCONFIG=$(KERNELSRC)/arch/$(ARCH)/defconfig ; \
+ 	KERNELCONFIG=$(KCFILE) ; \
+diff -upbBr -I '$Name' -I '$Date' -I '$Header' -I '$Id' -I '$Rev' -x CVS -x '*.o' freeswan-1.98/Makefile.inc freeswan-1.98/Makefile.inc
+--- freeswan-1.98/Makefile.inc	2002-06-18 21:02:26.000000000 -0700
++++ freeswan-1.98/Makefile.inc	2005-06-10 14:45:32.000000000 -0700
+@@ -92,7 +104,7 @@ RCDIR=$(DESTDIR)$(FINALRCDIR)
+ ### kernel pathnames
+ 
+ # Kernel location:  where patches are inserted, where kernel builds are done.
+-KERNELSRC=/usr/src/linux
++KERNELSRC=/temp/linux-freeswan
+ 
+ # things whose existence indicates what kernel version we have
+ DIRIN22=$(KERNELSRC)/net/netlink
+@@ -145,11 +157,12 @@ KERNCLEAN=clean
+ 
+ # kernel make name:  zImage for 2.0.xx, bzImage for 2.2.xx and later, and
+ # boot on non-x86s (what ever happened to standards?)
+-INC_B=$(shell test -d $(DIRIN22) && echo b)
+-KERNEL=$(shell if expr " `uname -m`" : ' i.86' >/dev/null ; \
+-	then echo $(INC_B)zImage ; \
+-	else echo boot ; \
+-	fi)
++#INC_B=$(shell test -d $(DIRIN22) && echo b)
++#KERNEL=$(shell if expr " `uname -m`" : ' i.86' >/dev/null ; \
++#	then echo $(INC_B)zImage ; \
++#	else echo boot ; \
++#	fi)
++KERNEL=vmlinux
+ 
+ # temporary directory to be used when building RPMs, and where to put the
+ # resulting RPM tree
+diff -upbBr -I '$Name' -I '$Date' -I '$Header' -I '$Id' -I '$Rev' -x CVS -x '*.o' freeswan-1.98/pluto/Makefile freeswan-1.98/pluto/Makefile
+--- freeswan-1.98/pluto/Makefile	2002-06-03 18:28:33.000000000 -0700
++++ freeswan-1.98/pluto/Makefile	2005-06-10 14:45:32.000000000 -0700
+@@ -37,10 +37,10 @@ CFLAGS = -g -Wall -W -Wmissing-prototype
+ 	-Wstrict-prototypes # -Wundef
+ 
+ # where to find klips headers and FreeS/WAN headers
+-HDRDIRS = -I.. -I$(KLIPSD) $(FREESWANINCLS)
++HDRDIRS = -I.. -I$(KLIPSD) $(FREESWANINCLS) -I$(INC)
+ 
+ # On non-LINUX systems, these one of these may be needed (see endian.h)
+-# BYTE_ORDER = -DBIG_ENDIAN=4321 -DLITTLE_ENDIAN=1234 -DBYTE_ORDER=BIG_ENDIAN
++ BYTE_ORDER = -DBIG_ENDIAN=4321 -DLITTLE_ENDIAN=1234 -DBYTE_ORDER=BIG_ENDIAN
+ # BYTE_ORDER = -DBIG_ENDIAN=4321 -DLITTLE_ENDIAN=1234 -DBYTE_ORDER=LITTLE_ENDIAN
+ 
+ # -DKLIPS enables interface to Kernel LINUX IPsec code
+diff -upbBr -I '$Name' -I '$Date' -I '$Header' -I '$Id' -I '$Rev' -x CVS -x '*.o' freeswan-1.98/utils/_confread freeswan-1.98/utils/_confread
+--- freeswan-1.98/utils/_confread	2002-06-13 13:05:59.000000000 -0700
++++ freeswan-1.98/utils/_confread	2003-11-06 18:47:12.000000000 -0800
+@@ -389,6 +389,9 @@ $0 ~ /^also=/ {
+ 	if (badname(name))
+ 		fail("unknown parameter name " bq name eq)
+ 	value = substr($0, equal+1)
++	if (value ~ /^@file/ && NF == 2) {
++		getline value < $2
++	} else
+ 	if (value ~ /^"/)
+ 		value = substr(value, 2, length(value)-2)
+ 	else if (value ~ /[ \t]/)
+Only in freeswan-1.98/utils: .cvsignore
+diff -upbBr -I '$Name' -I '$Date' -I '$Header' -I '$Id' -I '$Rev' -x CVS -x '*.o' freeswan-1.98/utils/Makefile freeswan-1.98/utils/Makefile
+--- freeswan-1.98/utils/Makefile	2002-06-13 13:40:00.000000000 -0700
++++ freeswan-1.98/utils/Makefile	2005-06-10 14:45:32.000000000 -0700
+@@ -35,7 +35,7 @@ PLAIN_MANS=ipsec.8
+ IPSEC_CMANS=auto.8 barf.8 manual.8 newhostkey.8 ranbits.8 rsasigkey.8 setup.8 \
+ 	showdefaults.8 showhostkey.8 send-pr.8 verify.8 calcgoo.8
+ MANS=$(PLAIN_MANS) $(IPSEC_CMANS)
+-CFLAGS=-I../lib $(USERCOMPILE)
++CFLAGS=-I../lib -I$(INC) $(USERCOMPILE)
+ LIB=../lib/libfreeswan.a
+ PUB=--mode=644
+ PRIV=--mode=600
+Only in freeswan-1.98/utils: send-pr.8
+diff -upbBr -I '$Name' -I '$Date' -I '$Header' -I '$Id' -I '$Rev' -x CVS -x '*.o' freeswan-1.98/utils/showhostkey freeswan-1.98/utils/showhostkey
+--- freeswan-1.98/utils/showhostkey	2002-06-07 19:07:56.000000000 -0700
++++ freeswan-1.98/utils/showhostkey	2002-10-01 11:14:58.000000000 -0700
+@@ -53,7 +53,10 @@ then
+ 	exit 1
+ fi
+ 
+-host="`hostname --fqdn`"
++# This is the original:
++#     host="`hostname --fqdn`"
++# and this is to fit the busybox hostname function:
++host="`hostname`"
+ 
+ awk '	BEGIN {
+ 		inkey = 0
+diff -upbBr -I '$Name' -I '$Date' -I '$Header' -I '$Id' -I '$Rev' -x CVS -x '*.o' freeswan-1.98/zlib/Makefile freeswan-1.98/zlib/Makefile
+--- freeswan-1.98/zlib/Makefile	2002-03-27 15:34:35.000000000 -0800
++++ freeswan-1.98/zlib/Makefile	2002-08-22 13:32:11.000000000 -0700
+@@ -45,7 +45,8 @@ EXTRA_CFLAGS += -Wbad-function-cast 
+ EXTRA_CFLAGS += -DIPCOMP_PREFIX
+ 
+ .S.o:
+-	$(CC) -D__ASSEMBLY__ -DNO_UNDERLINE -traditional -c $< -o $*.o
++	#$(CC) -D__ASSEMBLY__ -DNO_UNDERLINE -traditional -c $< -o $*.o
++	$(CC) -D__ASSEMBLY__ -I$(INC) -DNO_UNDERLINE -traditional -c $< -o $*.o
+ 
+ asm-obj-$(CONFIG_M586)		+= match586.o
+ asm-obj-$(CONFIG_M586TSC)	+= match586.o

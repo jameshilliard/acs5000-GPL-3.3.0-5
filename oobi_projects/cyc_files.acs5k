@@ -1,0 +1,284 @@
+0755	root	root bin
+0755	root	root etc
+0755	root	root etc/network
+0755	root	root etc/portslave
+0755	root	root etc/snmp
+0755    root	root etc/pam.d
+0755    root    root mnt
+0755    root    root mnt/ide
+0644	root	root .profile
+0644	root	root .bashrc.acs .bashrc
+0644	root	root .profile root/.profile
+0644	root	root .bashrc.acs root/.bashrc
+0644	admin	admin .profile.admin home/admin/.profile
+0644	admin	admin .bashrc.acs home/admin/.bashrc
+0644    root    root sec-warning
+0644	root	root readme
+0644	root	root upgrade_110 upgrade_notes
+0750	root	root bin/build_DB_ramdisk
+0750	root	root bin/build_DB_ramdisk bin/build_DB_ramdisk.save
+0755	root    root bin/wizRawData.sh.ipv6 bin/wizRawData.sh
+0750	root	root bin/bld_img.ftp.acs bin/bld_img.ftp
+0750	root	root bin/burnin
+0750	root	root bin/config_eth0
+0750	root	root bin/emc
+0750	root	root bin/handle_dhcp.ipv6 bin/handle_dhcp
+0750	root	root bin/handle_dhcpv6
+0755	root	root bin/set_nports
+0750	root	root bin/ex_keygen
+0750	root	root bin/ex_wdt_led.sh
+0750	root	root bin/fwset.ipv6 bin/fwset
+0750	root	root bin/init_proc_fs
+0750	root	root bin/mk_devs
+0755	root	root bin/menush
+0755	root	root bin/menush.cfg
+0750	root	root bin/menush_cfg
+0750	root	root bin/get_opcode
+0750	root	root bin/init_ram.acs5k bin/init_ram
+0750	root	root bin/daemon.sh
+0750	root	root bin/handle_daemon.sh
+0750	root	root bin/set_pam.sh
+0750	root	root bin/restoreconf
+0750	root	root bin/saveconf
+0750	root	root bin/setitf
+0750	root	root bin/updatefiles
+0750	root	root bin/signal_ras
+0750	root	root bin/runconf
+0755    root    root bin/run_tsmenu.sh
+0750    root    root bin/check1stBoot.acs5k bin/check1stBoot
+0755	root	root bin/chmod_pppd
+0750    root    root bin/defconf
+0700	root	root bin/upgrade.sh.acs5k bin/upgrade.sh
+0700	root	root bin/upgrade_power.sh
+0700	root	root bin/awk_power
+0700	root	root bin/awk_syslog
+0700	root	root bin/awk_webui
+0750	root	root bin/ssh_act_x509
+0644	root	root etc/network/st_routes
+0644	root	root etc/req_avocent etc/req_key
+0700	root	root bin/firstkssh.sh
+0700	root	root bin/firstkssl.sh
+0644	root	root etc/network/ifcfg_lo
+0755	root	root etc/daemon.d
+0750	root	root etc/daemon.d/cy_buffering.sh
+0750	root	root etc/daemon.d/inetd.sh
+0750	root	root etc/daemon.d/ipsec.sh
+0750	root	root etc/daemon.d/logpipe.sh
+0750	root	root etc/daemon.d/lpd.sh
+0750	root	root etc/daemon.d/ntpclient.conf
+0750	root	root etc/daemon.d/ntpclient.conf etc/daemon.d/ntpclient.save
+0750	root	root etc/daemon.d/pmd.sh
+0750	root	root etc/daemon.d/pmd.sh etc/daemon.d/pmd.sh.save
+0750	root	root etc/daemon.d/portmap.conf
+0750	root	root etc/daemon.d/snmpd.sh
+0750	root	root etc/daemon.d/sshd.sh
+0750	root	root etc/daemon.d/syslog.sh
+0750	root	root etc/daemon.d/webui.conf
+0750	root	root etc/daemon.d/ypbind.conf
+0644	root	root etc/network/dhcp6c_cmd
+0644	root	root etc/network/dhcpcd_cmd
+0644	root	root etc/dhcpcd-eth0.save
+0644    root    root etc/dhcp6c-eth0.save
+0644	root	root etc/network/firewall
+0644	root	root etc/network/firewall etc/network/firewall.save
+0644	root	root etc/network/firewall6
+0644	root	root etc/ssl_version.conf
+0644	root	root etc/network/interfaces
+0644	root	root etc/users_scripts
+0644	root	root etc/login.defs
+0644	root	root etc/CLI.info.acs5k etc/CLI.info
+0644	root	root etc/inputrc
+0644    root    root etc/pam.d/kerberos
+0644    root    root etc/pam.d/kerberoslocal
+0644    root    root etc/pam.d/kerberosdownlocal
+0644    root    root etc/pam.d/ldap
+0644    root    root etc/pam.d/ldaplocal
+0644    root    root etc/pam.d/ldapdownlocal
+0644    root    root etc/pam.d/ldapdownlocal-radius
+0644    root    root etc/pam.d/local
+0644    root    root etc/pam.d/other
+0644    root    root etc/pam.d/passwd
+0644    root    root etc/pam.d/radius
+0644    root    root etc/pam.d/s_radius
+0644    root    root etc/pam.d/remote
+0644    root    root etc/pam.d/samba
+0644    root    root etc/pam.d/s_local
+0644    root    root etc/pam.d/s_tacplus
+0644    root    root etc/pam.d/tacplus
+0644    root    root etc/pam.d/su
+0644    root    root etc/pam.d/localradius
+0644    root    root etc/pam.d/localtacplus
+0644    root    root etc/pam.d/radiusdownlocal
+0644    root    root etc/pam.d/radiuslocal
+0644    root    root etc/pam.d/tacplusdownlocal
+0644    root    root etc/pam.d/tacpluslocal
+0644    root    root etc/pam.d/nislocal
+0644    root    root etc/pam.d/localnis
+0644    root    root etc/pam.d/nisdownlocal
+0644    root    root etc/pam.d/nis
+0644    root    root etc/pam.d/s_nis
+0644    root    root etc/pam.d/none
+0644	root	root etc/bashrc
+0766	root	root etc/.bashrc home/.profile
+0640	root	root etc/config_files
+0640	root	root etc/config_files etc/config_files.save
+0644	root	root etc/fstab
+0644	root	root etc/ftpaccess
+0644	root	root etc/ftpconversions
+0644	root	root etc/ftpgroups
+0644	root	root etc/ftphosts
+0644	root	root etc/ftpusers
+0644	root	root etc/group
+0644	root	root etc/group etc/group.save
+0644	root	root etc/hhl-arch
+0644	root	root etc/host.conf
+0644	root	root etc/hostname.acs5k etc/hostname
+0644	root	root etc/hosts.acs5k etc/hosts
+0644	root	root etc/inetd.conf
+0644	root	root etc/inetd.conf etc/inetd.conf.save
+0550	root	root etc/init.d/pcmcia
+0550	root	root etc/init.d/pcmcia-new
+0644	root	root etc/inittab.acs etc/inittab
+0644	root	root etc/inittab.acs etc/inittab.save
+0644	root	root etc/issue.acs5k etc/issue
+0644	root	root etc/nsswitch.conf
+0400	root    root etc/shadow.avcs etc/shadow
+0644	root	root etc/passwd
+0644	root	root etc/profile
+0644	root	root etc/protocols
+0755	root	root etc/rc.sysinit.acs5k etc/rc.sysinit
+0755	root	root etc/rc.sysinit.acs5k etc/rc.sysinit.save
+0755	root	root etc/rc.shutdown.acs5k etc/rc.shutdown
+0644	root	root etc/resolv.conf
+0644	root	root etc/rpc
+0600	root	root etc/securetty
+0644    root    root etc/security.opts.save
+0644	root	root etc/services
+0644	root	root etc/termcap
+0755	root	root etc/tst_cron.sh
+0644	root	root etc/tst_cron.src
+0644	root	root etc/crontab_files
+0644	root	root etc/portslave/pslave.conf.acs5k etc/portslave/pslave.conf
+0644	root	root etc/portslave/pslave.conf.acs5k etc/portslave/pslave.save
+0644	root	root etc/snmp/snmpd.conf.acs5k etc/snmp/snmpd.conf
+0644	root	root etc/snmp/snmpd.conf.acs5k etc/snmpd.save
+0644	root	root etc/snmp/snmpd.local.conf
+0644	root	root etc/portslave/pslave.ras
+0644	root	root etc/portslave/pslave.ts
+0644	root	root etc/portslave/pslave.cas
+0755	root	root etc/portslave/cb_script
+0755	root	root etc/syslog-ng
+0644	root	root etc/syslog-ng/syslog-ng.conf.ipv6 etc/syslog-ng/syslog-ng.conf
+0644	root	root etc/syslog-ng/syslog-ng.conf.ipv6 etc/syslog-ng/syslog-ng.save
+0700	root	root etc/ipsec.init
+0700	root	root etc/ipsec.conf
+0700	root	root etc/ipsec.conf etc/ipsec.conf.save
+0600	root	root etc/ipsec.secrets
+0700	root	root etc/example.connection
+0700	root	root bin/create_DB_link
+0644	root	root etc/daemon_list
+0644	root	root etc/daemon_list etc/daemon_list.save
+0600	root	root etc/mgetty/dialin.config
+0600	root	root etc/mgetty/faxrunq.config
+0600	root	root etc/mgetty/faxspool.rules.sample
+0600	root	root etc/mgetty/login.config
+0600	root	root etc/mgetty/mgetty.config
+0600	root	root etc/mgetty/sendfax.config
+0700	root	root etc/ppp/auth-up
+0700	root	root etc/ppp/ip-up.acs etc/ppp/ip-up
+0700	root	root etc/ppp/ip-down.acs etc/ppp/ip-down
+0644	root	root etc/ppp/ioptions
+0644	root	root etc/ppp/options.ttyXX
+0600	root	root etc/ppp/pap-secrets
+0600	root	root etc/ppp/chap-secrets
+0600	root	root etc/ppp/srp-secrets
+0644	root	root etc/ppp/peers/wireless
+0644	root	root etc/ppp/eaptls-client
+0644	root	root etc/ppp/eaptls-server
+0644	root	root etc/chatscripts/wireless
+0755   root    root etc/pcmcia
+0755   root    root etc/pcmcia/network
+0644   root    root etc/pcmcia/network.opts
+0755   root    root sbin/cardctl
+0755   root    root etc/hotplug.d/default/debug.hotplug etc/hotplug.d/default/debug._hotplug
+0644   root    root etc/hotplug/cardmgr.functions
+0755   root    root etc/hotplug/firmware.agent
+0755   root    root etc/hotplug.d/pcmcia/10_cardmgr_default.hotplug
+0755   root    root etc/hotplug.d/net/50_cardmgr_network.hotplug
+0755	root	root lib
+0644	root	root lib/modules/2.6.22/modules.dep
+0755	root	root bin/w usr/bin/w
+0755	root	root COPYRIGHTS
+0755	root	root COPYRIGHTS/Linux-PAM
+0644	root	root COPYRIGHTS/Linux-PAM/Copyright
+0755	root	root COPYRIGHTS/Linux-PAM/modules
+0755	root	root COPYRIGHTS/Linux-PAM/modules/pam_krb5
+0644	root	root COPYRIGHTS/Linux-PAM/modules/pam_krb5/COPYRIGHT
+0755	root	root COPYRIGHTS/flex
+0644	root	root COPYRIGHTS/flex/COPYING
+0755	root	root COPYRIGHTS/freeswan
+0755	root	root COPYRIGHTS/freeswan/libdes
+0644	root	root COPYRIGHTS/freeswan/libdes/COPYRIGHT
+0755	root	root COPYRIGHTS/net-snmp
+0644	root	root COPYRIGHTS/net-snmp/COPYING
+0755	root	root COPYRIGHTS/openssl
+0644	root	root COPYRIGHTS/openssl/LICENSE
+0755	root	root COPYRIGHTS/openssh
+0644	root	root COPYRIGHTS/openssh/LICENCE
+0755	root	root COPYRIGHTS/tinylogin
+0644	root	root COPYRIGHTS/tinylogin/LICENSE
+0755	root	root COPYRIGHTS/zlib
+0644	root	root COPYRIGHTS/zlib/README
+0744	root	root bin/domainname
+0744	root	root etc/yp.conf
+0744	root	root etc/domainname.conf
+0644	root	root etc/printcap
+0644	root	root etc/hosts.lpd
+0644	root	root etc/IPMIServer.conf
+0644	root	root etc/IPMIServer.conf-readme
+0600    root    root etc/tacplus.conf
+0644    root    root etc/bonding.opts
+0750	root	root bin/xircom.sh
+0600	root	root etc/modprobe.conf
+0644    root    root etc/online_help
+0644    root    root etc/onlineHelp/index.html
+0440    root    root etc/sudoers.acs etc/sudoers
+0440    root    root etc/sudoers.acs etc/sudoers.save
+0750    root    root bin/addadmin
+0644    root    root etc/otp.conf
+0644    root    root etc/pam.d/otp
+0644    root    root etc/pam.d/otplocal
+0700    root    root bin/do_create_otpdb
+0700    root    root bin/do_mount_otpdb.sh
+0750	root	root etc/daemon.d/event_gen.sh
+0644	root	root etc/event_notif.conf
+0751	root	root etc/CA
+0600	root	root etc/CA/global_appliance_cert.txt
+0600	root	root etc/CA/global_appliance_key.txt
+0600	root	root etc/CA/global_appliance_key.txt etc/CA/ssh_appliance_key
+0600	root	root etc/CA/global_dsview_cert.txt
+0750	root	root etc/daemon.d/adsap2.sh
+0750	root	root etc/daemon.d/aidp.sh
+0644	root	root etc/adsap2.conf
+0644    root    root etc/pam.d/adsap2
+0644    root    root etc/pam.d/dsview
+0644    root    root etc/pam.d/dsviewlocal
+0644    root    root etc/pam.d/dsviewdownlocal
+0750	root	root bin/adsap2_clear
+0750	root	root bin/adsap2_update
+0750	root	root etc/daemon.d/logpipe.sh
+0750	root	root bin/create_evt_pipe.sh
+0644	root	root etc/event_notif.lnk
+0750	root	root bin/manageService.sh
+0666	root	root etc/.servertech
+0750	root	root bin/pmdmonitor.sh
+0440	root	root cyacs5k.mib CYCLADES-ACS5000-MIB.ASN
+0440	root	root CYCLADES-ACS5000-TRAP-MIB.ASN
+0755    root    root etc/dhcp6c
+0644    root    root etc/dhcp6c/dhcp6c_bond0.conf
+0644    root    root etc/dhcp6c/dhcp6c_bond0_opt.conf
+0644    root    root etc/dhcp6c/dhcp6c_eth0.conf
+0644    root    root etc/dhcp6c/dhcp6c_eth0_opt.conf
+0644    root    root etc/dhcpv6-opt.conf
+0755    root    root sbin/dhcpv6-opt.sh
+0644    root    root etc/netconfig

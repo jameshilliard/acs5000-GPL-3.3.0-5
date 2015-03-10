@@ -1,0 +1,16 @@
+Index: net-snmp-5.2.1.2/agent/mibgroup/ip-mib/data_access/arp_linux.c
+===================================================================
+RCS file: /usr/cvsroot/tslinux_mv21/net-snmp-5.2.1.2/agent/mibgroup/ip-mib/data_access/arp_linux.c,v
+retrieving revision 1.1
+retrieving revision 1.1.10.1
+diff -u -r1.1 -r1.1.10.1
+--- net-snmp-5.2.1.2/agent/mibgroup/ip-mib/data_access/arp_linux.c	22 Jul 2005 22:30:16 -0000	1.1
++++ net-snmp-5.2.1.2/agent/mibgroup/ip-mib/data_access/arp_linux.c	2 May 2007 13:42:18 -0000	1.1.10.1
+@@ -184,5 +184,7 @@
+         CONTAINER_INSERT(container, entry);
+     }
+ 
++    fclose(in);
++
+     if( rc < 0 )
+         return rc;

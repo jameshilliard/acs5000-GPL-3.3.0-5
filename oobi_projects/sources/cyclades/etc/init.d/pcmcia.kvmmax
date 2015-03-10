@@ -1,0 +1,167 @@
+#!/bin/sh
+
+# Tags for HardHat init configuration tools
+#
+# chkconfig: 2345 45 96
+# processname: cardmgr
+# pidfile: /var/run/cardmgr.pid
+# config: /lib/modules/`uname -r`/pcmcia-config/config
+# config: /lib/modules/`uname -r`/pcmcia-config/config.opts
+# description: PCMCIA support is usually to support things like ethernet \
+#              and modems in laptops.  It won't get started unless \
+#              configured so it is safe to have it installed on machines \
+#              that don't need it.
+#
+# Customized for OnBoard 85xx, 10/11/2005 by Yang
+# config: /etc/pcmcia/config
+# config: /etc/pcmcia.conf
+# 
+
+# Check if this system supports PCMCIA
+PCMCIA_PRESENT=`set_nports 8`
+if [ "$PCMCIA_PRESENT" != "1" ]; then exit 0; fi
+
+# Save option values passed in through the environment
+for N in PCMCIA PCIC PCIC_OPTS CORE_OPTS CARDMGR_OPTS SCHEME ; do
+    V=`eval echo '$'$N` ; if [ "$V" ] ; then eval ENV_$N=\"$V\" ; fi
+done
+
+# Source PCMCIA configuration, if available
+if [ -f /etc/pcmcia.conf ] ; then
+    . /etc/pcmcia.conf
+else
+    #echo "Error: No config file in /lib/modules/`uname -r`/pcmcia-config/pcmcia.conf"
+    #exit
+
+    #cardmgr complains that pcmcia.conf line 1 has syntax error,
+    #so let's initialize PCMCIA configuration options here.	 
+    PCIC=yenta_socket
+    PCIC_OPTS=
+    CORE_OPTS=
+    CARDMGR_OPTS=
+fi
+
+for N in PCMCIA PCIC PCIC_OPTS CORE_OPTS CARDMGR_OPTS SCHEME ; do
+    V=`eval echo '$'ENV_$N` ; if [ "$V" ] ; then eval $N=\"$V\" ; fi
+done
+if [ "$PCMCIA" -a "$PCMCIA" != "yes" ] ; then exit 0 ; fi
+
+usage()
+{
+    echo "Usage: $0 {start|stop|status|restart|reload}"
+}
+
+cleanup()
+{
+    while read SN CLASS MOD INST DEV EXTRA ; do
+	if [ "$SN" != "Socket" ] ; then
+	    /etc/pcmcia/$CLASS stop $DEV 2> /dev/null
+	fi
+    done
+}
+
+EXITCODE=1
+for x in "1" ; do
+
+    if [ "$PCIC" = "" ] ; then
+	echo "PCIC module not defined in startup options!"
+	break
+    fi
+
+    if [ $# -lt 1 ] ; then usage ; break ; fi
+    action=$1
+
+    case "$action" in
+
+    start)
+	echo -n "Starting PCMCIA services:"
+	SC=/var/lib/pcmcia/scheme
+	RUN=/var/run
+	if [ -L $SC -o ! -O $SC ] ; then rm -f $SC ; fi
+	if [ ! -f $SC ] ; then umask 022 ; touch $SC ; fi
+	if [ "$SCHEME" ] ; then umask 022 ; echo $SCHEME > $SC ; fi
+	grep -q pcmcia /proc/devices
+	if [ $? -ne 0 ] ; then
+	    PC=/lib/modules/`uname -r`/pcmcia
+	    KD=/lib/modules/`uname -r`/kernel/drivers/pcmcia
+	    if [ -d $PC ] ; then
+		#echo -n " modules"
+		echo " modules"
+		/sbin/insmod $PC/pcmcia_core.o $CORE_OPTS
+		/sbin/insmod $PC/$PCIC.o $PCIC_OPTS
+		/sbin/insmod $PC/ds.o
+	    elif [ -d $KD ] ; then
+		/sbin/modprobe pcmcia_core
+		/sbin/modprobe $PCIC
+		/sbin/modprobe ds
+	    else
+		echo " module directory $PC not found."
+		break
+	    fi
+	fi
+	if [ -s /var/run/cardmgr.pid ] && \
+	    kill -0 `cat /var/run/cardmgr.pid` 2>/dev/null ; then
+	    echo " cardmgr is already running."
+	else
+	    if [ -r $RUN/stab ] ; then
+		cat $RUN/stab | cleanup
+	    fi
+	    echo " cardmgr."
+	    /sbin/cardmgr $CARDMGR_OPTS
+	fi
+	touch /var/lock/subsys/pcmcia 2>/dev/null
+	;;
+
+    stop)
+	echo -n "Shutting down PCMCIA services:"
+	if [ -s /var/run/cardmgr.pid ] ; then
+	    PID=`cat /var/run/cardmgr.pid`
+	    kill $PID
+	    echo -n " cardmgr"
+	    # Give cardmgr a few seconds to handle the signal
+	    kill -0 $PID 2>/dev/null && sleep 2 && \
+	    kill -0 $PID 2>/dev/null && sleep 2 && \
+	    kill -0 $PID 2>/dev/null && sleep 2 && \
+	    kill -0 $PID 2>/dev/null
+	fi
+        #killall -q not supported by busybox 
+	#killall -q "CardBus Watcher"
+	if grep -q "ds  " /proc/modules ; then
+	    #echo -n " modules"
+	    echo " modules"
+	    /sbin/rmmod ds
+	    /sbin/rmmod $PCIC
+	    /sbin/rmmod pcmcia_core
+	fi
+	echo "."
+	rm -f /var/lock/subsys/pcmcia
+	EXITCODE=0
+	;;
+
+    status)
+	pid=`/bin/pidof cardmgr`
+	if [ "$pid" != "" ] ; then
+	    echo "cardmgr (pid $pid) is running..."
+	    EXITCODE=0
+	else
+	    echo "cardmgr is stopped"
+	    EXITCODE=3
+	fi
+	;;
+
+    restart|reload)
+	$0 stop
+	$0 start
+	EXITCODE=$?
+	;;
+
+    *)
+	usage
+	;;
+
+    esac
+
+done
+
+# Only exit if we're in our own subshell
+case $0 in *pcmcia) exit $EXITCODE ;; esac

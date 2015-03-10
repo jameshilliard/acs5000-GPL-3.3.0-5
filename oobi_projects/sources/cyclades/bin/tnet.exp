@@ -1,0 +1,15 @@
+#!/bin/bash
+
+FILE=$7
+if [ x"$FILE" == "x" ]; then
+FILE="/dev/null"
+fi
+
+for try in 1 2 3; do
+	MAC=$(expect /tmp/tnet.exp $@) 
+	if [ x"$?" == "x0" ]; then
+		echo $MAC | grep : | cut -c1-17 >$FILE
+		exit 0
+	fi
+done
+exit 1

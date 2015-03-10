@@ -1,0 +1,20 @@
+#!/bin/sh
+
+SED=/bin/sed
+CMD_@ACS@="/usr/bin/nice --20 /bin/cy_wdt_led wdt led buzzer"
+CMD_KVM="/usr/bin/nice --20 /bin/cy_wdt_led wdt led"
+
+# Make sure that we're on a KVM or Onsite
+PRODNAME=`set_nports 3`
+if [ "${PRODNAME:0:3}" == "KVM" -o ${PRODNAME} == "OnSite" ]; then
+	CMD=$CMD_KVM
+else
+	CMD=$CMD_@ACS@
+fi
+
+while true
+do
+	$CMD
+	sleep 1
+done
+

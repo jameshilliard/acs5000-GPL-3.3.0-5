@@ -1,0 +1,43 @@
+#
+#  Makefile for cyclades projects.
+#
+
+#
+# Addtional compiler and/or link options may be defined here
+#
+#CFLAGS += ...
+#LDFLAGS += ...
+
+#
+# Command line parameters for configure must be defined here
+#
+#CONFIGURE_PARMS:= ...
+
+#CONFIGURE_ENV:= ...
+
+MAKE_ENV:=\
+	PATH=$(CROSS_PATH)
+
+MAKE_PARMS:=\
+	CFLAGS="-Wall -Os -fomit-frame-pointer -D_GNU_SOURCE -I$(BUILD_DIR)/$(Linux-PAM)/libpam/include -I$(BUILTIN_BUILD)/$(opie)" \
+	DYNAMIC=-DPAM_DYNAMIC \
+	LDFLAGS="" \
+	LD_D="$(CROSS_LD) -shared -x" \
+	OPIELIB=$(BUILTIN_BUILD)/$(opie)/libopie/libopie.a \
+	OPIE="" \
+	FAKEROOT=$(my_prefix) \
+	$(CROSS_ENV_TOOLS)
+
+#
+#  more ac_variables for configure may be defined here
+#
+#CROSS_ENV_AC += ...
+
+############################################################################
+
+$(CFG_COOKIE):
+	date > $@
+
+$(BLD_COOKIE): $(CFG_COOKIE)
+	$(MAKE_ENV)	$(MAKE) $(MAKE_PARMS) install
+
